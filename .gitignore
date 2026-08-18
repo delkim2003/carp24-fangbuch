@@ -1,0 +1,29 @@
+# ===== Secrets — NIE committen! =====
+.env
+*.pem
+*.key
+secrets.md
+!docs/secrets.example.md
+
+# ===== Supabase / DB =====
+supabase/.temp/
+supabase/.branches/
+*.sql.bak
+
+# ===== Node / Astro =====
+node_modules/
+dist/
+.astro/
+.webcontainer/
+
+# ===== Backups =====
+backup-*
+*.dump
+*.sql.gz
+
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
