@@ -43,7 +43,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
       # See: https://supabase.com/docs/guides/self-hosting/remove-superuser-access
-      POSTGRES_USER_READ_WRITE: postgres
+      POSTGRES_USER_READ_WRITE: carp24_app
+      # Härtung (Audit R3-H2): Studio-SQL-Editor NICHT als postgres (RLS-Bypass + createdb/createrole),
+      # sondern als dedizierte carp24_app-Rolle (NOBYPASSRLS). DDL/RPC weiterhin via supabase_admin.
 
       PG_META_CRYPTO_KEY: ${PG_META_CRYPTO_KEY}
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
