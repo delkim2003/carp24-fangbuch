@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Carp24 – Neuen Fang eintragen" active="fangbuch">
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    <div class="mb-xl text-center md:text-left">
+      <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
+      <p class="text-body-lg text-on-surface-variant max-w-2xl">Dokumentiere die Details deines Fangs für das Journal.</p>
+    </div>
+
+    <form class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm" onsubmit="event.preventDefault();">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
+        <div class="flex flex-col gap-lg">
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM</label>
+            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="datum" name="datum" type="date" />
+          </div>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser">GEWÄSSER</label>
+            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="gewaesser" name="gewaesser" type="text" placeholder="Name des Sees oder Flusses" />
+          </div>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="fischart">FISCHART</label>
+            <select class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12 appearance-none" id="fischart" name="fischart">
+              <option value="">Auswählen...</option>
+              <option value="karpfen">Karpfen</option>
+              <option value="spiegelkarpfen">Spiegelkarpfen</option>
+              <option value="schuppenkarpfen">Schuppenkarpfen</option>
+              <option value="graskarpfen">Graskarpfen</option>
+              <option value="hecht">Hecht</option>
+              <option value="zander">Zander</option>
+              <option value="barsch">Barsch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-lg">
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)</label>
+            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" />
+          </div>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">LÄNGE (CM)</label>
+            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="laenge" name="laenge" type="number" placeholder="0" inputmode="numeric" />
+          </div>
+          <div class="grid grid-cols-2 gap-gutter">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="lufttemperatur">LUFTTEMPERATUR</label>
+              <div class="relative">
+                <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 pr-10 min-h-12" id="lufttemperatur" name="lufttemperatur" type="number" placeholder="°C" inputmode="numeric" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/></svg>
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="wassertemperatur">WASSERTEMPERATUR</label>
+              <div class="relative">
+                <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 pr-10 min-h-12" id="wassertemperatur" name="wassertemperatur" type="number" placeholder="°C" inputmode="numeric" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary" aria-hidden="true"><path d="M12 2.5s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-t border-primary/20 my-xl" />
+
+      <div class="flex flex-col gap-lg">
+        <div class="flex flex-col gap-sm">
+          <label class="font-label-sm text-label-sm uppercase text-secondary">FOTO HOCHLADEN</label>
+          <div class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span class="font-nav-item text-nav-item text-secondary">Bild auswählen oder ablegen</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-sm">
+          <label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">NOTIZEN</label>
+          <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-32" id="notizen" name="notizen" rows="4" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..."></textarea>
+        </div>
+
+        <div class="flex items-center gap-3 pt-md">
+          <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" />
+          <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
+        </div>
+
+        <div class="pt-xl flex justify-end">
+          <button type="button" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12">
+            FANG SPEICHERN
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+</Layout>

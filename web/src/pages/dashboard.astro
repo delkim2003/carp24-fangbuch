@@ -1,0 +1,86 @@
+---
+import Layout from "../layouts/Layout.astro";
+import placeholder from "../assets/placeholder-fish.svg";
+
+const stats = [
+  { label: "GESAMT FÄNGE", value: "72", unit: "" },
+  { label: "SCHWERSTER KARPFEN", value: "21,4", unit: "KG" },
+  { label: "FÄNGE DIESES JAHR", value: "18", unit: "" },
+  { label: "AKTIVE GEWÄSSER", value: "5", unit: "" },
+];
+
+const chart = [
+  { m: "Mär", pct: 16 },
+  { m: "Apr", pct: 33 },
+  { m: "Mai", pct: 25 },
+  { m: "Jun", pct: 50 },
+  { m: "Jul", pct: 80 },
+  { m: "Aug", pct: 100 },
+  { m: "Sep", pct: 75 },
+  { m: "Okt", pct: 50 },
+  { m: "Nov", pct: 33 },
+  { m: "Dez", pct: 16 },
+];
+
+const recent = [
+  { gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee • 12. Okt", id: "silbersee-spiegelkarpfen" },
+  { gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung • 05. Okt", id: "linch-hill-schuppenkarpfen" },
+  { gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee • 28. Sep", id: "silbersee-graskarpfen" },
+];
+---
+
+<Layout title="Carp24 – Dashboard" active="statistik">
+  <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div>
+        <h1 class="text-display-lg text-primary mb-2">Petri Heil, Angler</h1>
+        <p class="text-body-lg text-on-surface-variant">Dein Überblick für die Saison 2026.</p>
+      </div>
+      <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-colors duration-200 flex items-center gap-2 min-h-12">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        NEUER FANG EINTRAGEN
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+      {stats.map((s) => (
+        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
+          <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">{s.label}</span>
+          <span class="text-display-lg text-primary">{s.value}{s.unit && <span class="text-headline-md"> {s.unit}</span>}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+      <div class="lg:col-span-2 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">FÄNGE PRO MONAT</h3>
+        <div class="flex-grow flex items-end justify-between gap-2 h-64 border-b border-l border-primary/40 pb-4 pl-4">
+          {chart.map((c) => (
+            <div class="w-8 bg-primary-container rounded-t-sm" style={`height: ${c.pct}%`} aria-label={`${c.m}: ${c.pct}%`}></div>
+          ))}
+        </div>
+        <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
+          {chart.map((c) => <span>{c.m}</span>)}
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6 px-2">LETZTE FÄNGE</h3>
+        <div class="flex flex-col gap-0">
+          {recent.map((r) => (
+            <a href={`/faenge/${r.id}`} class="flex items-center gap-4 p-4 hover:bg-surface-container-high rounded-lg transition-colors border-b border-primary/40">
+              <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high border border-primary/20 shrink-0">
+                <img src={placeholder} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div class="flex flex-col">
+                <span class="text-headline-md text-primary">{r.gewicht}</span>
+                <span class="font-nav-item text-label-sm text-on-surface-variant uppercase">{r.art}</span>
+                <span class="font-body-md text-label-sm text-tertiary">{r.ort}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

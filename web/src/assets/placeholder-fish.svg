@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Fang Foto Platzhalter">
+  <rect width="400" height="300" fill="#CCCA9B"/>
+  <g fill="none" stroke="#4A5338" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45">
+    <path d="M70 150 C120 110, 220 110, 280 150 C220 190, 120 190, 70 150 Z"/>
+    <path d="M280 150 L330 120 L330 180 Z"/>
+    <circle cx="300" cy="150" r="3" fill="#4A5338" stroke="none"/>
+    <path d="M150 130 C170 140, 170 160, 150 170"/>
+    <path d="M200 130 C220 140, 220 160, 200 170"/>
+  </g>
+  <text x="200" y="250" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" letter-spacing="2" fill="#4A5338" opacity="0.6">CARP24</text>
+</svg>

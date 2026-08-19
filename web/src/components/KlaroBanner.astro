@@ -1,0 +1,36 @@
+---
+---
+<div id="klaro-banner" class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-highest border-t border-outline/30 shadow-lg">
+  <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md flex flex-col sm:flex-row items-start sm:items-center gap-md">
+    <p class="flex-1 font-body-md text-body-md text-on-surface-variant">
+      Wir nutzen Cookies, um dein Fangbuch-Erlebnis zu verbessern. Mit „Alle akzeptieren" stimmst du der Verwendung zu.
+    </p>
+    <div class="flex gap-sm shrink-0">
+      <button type="button" data-klaro="essential" class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface border border-outline/40 rounded-full px-6 py-3 min-h-11 hover:bg-surface-container-high transition-colors">
+        Nur notwendige
+      </button>
+      <button type="button" data-klaro="all" class="font-nav-item text-nav-item uppercase tracking-widest text-on-primary-container bg-primary-container rounded-full px-6 py-3 min-h-11 hover:opacity-90 transition-opacity">
+        Alle akzeptieren
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var banner = document.getElementById("klaro-banner");
+    if (!banner) return;
+    try {
+      if (localStorage.getItem("klaro-consent")) {
+        banner.style.display = "none";
+        return;
+      }
+    } catch (e) {}
+    banner.addEventListener("click", function (ev) {
+      var t = ev.target.closest("[data-klaro]");
+      if (!t) return;
+      try { localStorage.setItem("klaro-consent", t.getAttribute("data-klaro")); } catch (e) {}
+      banner.style.display = "none";
+    });
+  })();
+</script>

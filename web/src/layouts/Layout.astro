@@ -1,14 +1,21 @@
 ---
 import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import KlaroBanner from "../components/KlaroBanner.astro";
 
 interface Props {
   title?: string;
   description?: string;
+  active?: "fangbuch" | "statistik" | "preis" | "profil";
+  bare?: boolean;
 }
 
 const {
   title = "Carp24 – Dein digitales Fangbuch",
   description = "Das digitale Fangbuch für Karpfenangler. Fänge erfassen, Statistiken, Community.",
+  active,
+  bare = false,
 } = Astro.props;
 ---
 
@@ -23,7 +30,12 @@ const {
     <meta name="robots" content="noindex, nofollow" />
     <title>{title}</title>
   </head>
-  <body class="min-h-screen flex flex-col bg-background text-on-surface font-body-md antialiased">
-    <slot />
+  <body class="min-h-screen flex flex-col bg-background text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+    {!bare && <Header active={active} />}
+    <main class="flex-grow flex flex-col">
+      <slot />
+    </main>
+    {!bare && <Footer />}
+    {!bare && <KlaroBanner />}
   </body>
 </html>

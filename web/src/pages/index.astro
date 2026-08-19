@@ -1,11 +1,98 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import placeholder from "../assets/placeholder-fish.svg";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const features = [
+  { tag: "ERFASSEN", title: "In Sekunden dokumentiert", text: "Erfasse jeden Fang direkt am Wasser mit minimalem Aufwand.", icon: "plus" },
+  { tag: "VERWALTEN", title: "Dein Archiv der Erinnerungen", text: "Sicher, strukturiert und jederzeit abrufbar wie ein echtes Logbuch.", icon: "archive" },
+  { tag: "ANALYSIEREN", title: "Lerne aus deinen Daten", text: "Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.", icon: "chart" },
+];
+
+const examples = [
+  { weight: "18,2 KG", art: "KARPFEN", ort: "Silbersee • 12. Okt 2025" },
+  { weight: "12,5 KG", art: "KARPFEN", ort: "Waldweiher • 08. Sep 2025" },
+  { weight: "21,0 KG", art: "SPIEGELKARPFEN", ort: "Donau Altarm • 24. Aug 2025" },
+];
+
+const icons: Record<string, string> = {
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  archive: '<path d="M4 7h16M6 7v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7M9 11h6"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+};
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Carp24 – Dein digitales Fangbuch">
+  <div class="max-w-[1440px] mx-auto pb-xl">
+    <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
+      <div class="flex flex-col gap-6">
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">PASSION. FISHING. COMMUNITY.</span>
+        <h1 class="text-display-lg text-on-surface">Willkommen am Wasser</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-lg">Dein digitales Fangbuch — schneller als ein Kescher.</p>
+        <div class="flex flex-wrap items-center gap-6 mt-4">
+          <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-11 inline-flex items-center">
+            LOS GEHT'S
+          </a>
+          <a href="/login" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
+            ANMELDEN
+          </a>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg shadow-sm">
+          <div class="w-full h-80 md:h-[500px] rounded-lg overflow-hidden border border-primary/20 relative bg-surface-container-highest">
+            <img src={placeholder} alt="Editorial Angel-Foto" class="w-full h-full object-cover" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter md:gap-xl">
+        {features.map((f) => (
+          <div class="flex flex-col gap-4 items-start">
+            <div class="w-12 h-12 rounded-full border border-primary/40 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[f.icon]} />
+            </div>
+            <h3 class="font-label-sm text-label-sm uppercase text-tertiary">{f.tag}</h3>
+            <h4 class="text-headline-md">{f.title}</h4>
+            <p class="text-body-md text-on-surface-variant">{f.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="px-margin-mobile md:px-margin-desktop py-xl bg-surface-container-low/50">
+      <div class="flex items-center gap-4 mb-xl">
+        <span class="font-nav-item text-nav-item uppercase text-on-surface-variant">AUS DEM FANGBUCH</span>
+        <div class="flex-1 border-t border-dashed border-primary/30"></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        {examples.map((ex) => (
+          <div class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden flex flex-col group">
+            <div class="h-48 border-b border-primary/20 relative bg-surface-container-highest">
+              <img src={placeholder} alt={`Beispiel-Fang ${ex.art} ${ex.weight}`} class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="p-lg flex flex-col gap-2">
+              <div class="flex justify-between items-baseline">
+                <span class="text-headline-md">{ex.weight}</span>
+                <span class="font-label-sm text-label-sm text-tertiary bg-tertiary/10 px-3 py-1 rounded-full">{ex.art}</span>
+              </div>
+              <div class="font-nav-item text-nav-item text-tertiary opacity-80 pt-2 border-t border-primary/10">
+                {ex.ort}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-24 flex flex-col items-center justify-center text-center gap-6">
+      <span class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full shadow-sm border border-primary/20 min-h-11 inline-flex items-center">
+        50 FÄNGE GRATIS
+      </span>
+      <p class="text-headline-md text-on-surface-variant max-w-md italic font-normal">
+        Danach Pro ab 4,99 €/Monat
+      </p>
+    </section>
+  </div>
 </Layout>

@@ -1,0 +1,89 @@
+---
+interface Props {
+  active?: "fangbuch" | "statistik" | "preis" | "profil";
+}
+const { active } = Astro.props;
+
+const navItems = [
+  { key: "fangbuch", label: "Fangbuch", href: "/faenge" },
+  { key: "statistik", label: "Statistik", href: "/dashboard" },
+  { key: "preis", label: "Preis", href: "/premium" },
+];
+---
+
+<header class="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur-sm border-b border-outline/20">
+  <div class="max-w-7xl mx-auto flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop">
+    <a href="/" class="flex items-center gap-4">
+      <img src="/assets/logo_carp24_badge.png" alt="carp24 Logo" class="h-10 w-auto object-contain" width="40" height="40" />
+      <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Carp24</span>
+    </a>
+
+    <nav class="hidden md:flex gap-8 items-center" aria-label="Hauptnavigation">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200",
+            active === item.key
+              ? "text-primary font-bold border-b border-primary pb-1"
+              : "text-on-surface-variant hover:text-primary",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-4">
+      <a href="/login" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
+        Sign In
+      </a>
+      <a href="/profil" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+      </a>
+
+      <button id="mobile-burger" type="button" class="md:hidden inline-flex items-center justify-center w-11 h-11 text-primary" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav">
+        <svg id="burger-open" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="burger-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" class="hidden md:hidden border-t border-outline/20 bg-surface">
+    <nav class="flex flex-col px-margin-mobile py-4 gap-1" aria-label="Mobile Navigation">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
+            active === item.key ? "text-primary" : "text-on-surface-variant hover:text-primary",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a href="/login" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
+        Sign In
+      </a>
+      <a href="/profil" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
+        Profil
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById("mobile-burger");
+    var panel = document.getElementById("mobile-nav");
+    var iconOpen = document.getElementById("burger-open");
+    var iconClose = document.getElementById("burger-close");
+    if (!btn || !panel) return;
+    btn.addEventListener("click", function () {
+      var open = panel.classList.toggle("hidden");
+      btn.setAttribute("aria-expanded", String(!open));
+      iconOpen.classList.toggle("hidden", !open);
+      iconClose.classList.toggle("hidden", open);
+    });
+  })();
+</script>

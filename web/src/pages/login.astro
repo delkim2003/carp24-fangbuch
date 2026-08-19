@@ -1,0 +1,35 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Carp24 – Anmelden">
+  <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop py-xl">
+    <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full max-w-md p-lg md:p-xl mx-auto flex flex-col gap-lg">
+      <div class="text-center mb-sm">
+        <h1 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Willkommen zurück</h1>
+        <p class="text-body-md text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
+      </div>
+      <form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="email">E-Mail</label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="email" name="email" type="email" placeholder="angler@example.com" autocomplete="email" />
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="password">Passwort</label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div class="flex justify-between items-center mt-sm mb-sm">
+          <a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors underline decoration-primary/30 hover:decoration-primary" href="#">Passwort vergessen?</a>
+        </div>
+        <button type="button" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm">
+          ANMELDEN
+        </button>
+      </form>
+      <div class="mt-md text-center">
+        <a class="text-body-md text-secondary hover:text-primary transition-colors" href="#">
+          Noch kein Konto? <span class="underline decoration-primary/30 hover:decoration-primary">Registrieren</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,105 @@
+---
+import Layout from "../layouts/Layout.astro";
+import placeholder from "../assets/placeholder-fish.svg";
+
+const stats = [
+  { label: "FÄNGE", value: "72" },
+  { label: "SCHWERSTER FANG", value: "21,4 KG" },
+  { label: "GEWÄSSER", value: "5" },
+];
+---
+
+<Layout title="Carp24 – Profil" active="profil">
+  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    <section class="flex flex-col items-center justify-center mb-16 text-center">
+      <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative">
+        <img src={placeholder} alt="Profilbild" class="w-full h-full object-cover" loading="lazy" />
+      </div>
+      <h1 class="text-display-lg text-on-surface mb-2">Lukas Wagner</h1>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">MITGLIED SEIT MÄRZ 2024</p>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+      <div class="lg:col-span-8 flex flex-col gap-xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+          {stats.map((s) => (
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+              <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">{s.label}</span>
+              <span class="text-headline-lg text-on-surface">{s.value}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-8">
+          <h2 class="text-headline-md text-on-surface mb-6">Einstellungen</h2>
+          <div class="flex flex-col">
+            <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
+              <div>
+                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Einheiten</h3>
+                <p class="text-body-md text-on-surface-variant">GEWICHTSEINHEIT (KG / LBS)</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" checked />
+                <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+              </label>
+            </div>
+
+            <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
+              <div>
+                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Sprache</h3>
+                <p class="text-body-md text-on-surface-variant">APP SPRACHE</p>
+              </div>
+              <div class="relative">
+                <select class="appearance-none bg-transparent border-none font-label-sm text-label-sm text-on-surface uppercase pr-6 focus:ring-0 cursor-pointer">
+                  <option>DEUTSCH</option>
+                  <option>ENGLISH</option>
+                </select>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
+
+            <div class="py-6 flex flex-col gap-4">
+              <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2">Benachrichtigungen</h3>
+              <div class="flex justify-between items-center">
+                <p class="text-body-md text-on-surface">E-MAIL NEWSLETTER</p>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" />
+                  <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                  <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <p class="text-body-md text-on-surface">PUSH-MITTEILUNGEN</p>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked />
+                  <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                  <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
+        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
+          <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest">PRO STATUS</span>
+          <p class="text-headline-md text-on-surface mb-8 leading-snug">
+            Dein Abonnement ist aktiv.<br />Nächste Abrechnung am<br />12. April 2027.
+          </p>
+          <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
+            ABO VERWALTEN
+          </a>
+        </div>
+
+        <div class="pt-8 flex justify-end lg:justify-start">
+          <a href="/" class="flex items-center gap-2 text-on-surface-variant hover:text-error transition-colors duration-200 group min-h-11">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-error" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            <span class="font-label-sm text-label-sm uppercase tracking-widest">ABMELDEN</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
