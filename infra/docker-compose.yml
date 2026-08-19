@@ -84,8 +84,8 @@ services:
       studio:
         condition: service_healthy
     ports:
-      - ${KONG_HTTP_PORT}:8000/tcp
-      - ${KONG_HTTPS_PORT}:8443/tcp
+      - 100.93.250.103:${KONG_HTTP_PORT}:8000/tcp
+      - 100.93.250.103:${KONG_HTTPS_PORT}:8443/tcp
     volumes:
       - ./volumes/api/kong.yml:/home/kong/temp.yml:ro,z
       - ./volumes/api/kong-entrypoint.sh:/home/kong/kong-entrypoint.sh:ro,z
@@ -546,7 +546,7 @@ services:
         "-c",
         "config_file=/etc/postgresql/postgresql.conf",
         "-c",
-        "log_min_messages=fatal" # prevents Realtime polling queries from appearing in logs
+        "log_min_messages=warning" # RLS/DDL-Fehler sichtbar; NOTICE weiter unterdrückt
       ]
 
   # Update the DATABASE_URL if you are using an external Postgres database
@@ -556,8 +556,8 @@ services:
     restart: unless-stopped
     mem_limit: 4g
     ports:
-      - ${POSTGRES_PORT}:5432
-      - ${POOLER_PROXY_PORT_TRANSACTION}:6543
+      - 100.93.250.103:${POSTGRES_PORT}:5432
+      - 100.93.250.103:${POOLER_PROXY_PORT_TRANSACTION}:6543
     volumes:
       - ./volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro,z
     healthcheck:
