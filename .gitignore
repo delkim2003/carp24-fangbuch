@@ -27,3 +27,7 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# Secrets-Backups NIE committen (generate-keys.sh erzeugt .old)
+.env.*
+!*.env.example
