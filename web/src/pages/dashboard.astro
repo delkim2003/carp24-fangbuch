@@ -1,79 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import trophyPhoto from "../assets/stitch/dashboard-1.jpg?url";
-import carpPhoto from "../assets/stitch/dashboard-2.jpg?url";
-import onboardingPhoto from "../assets/stitch/onboarding-2.jpg?url";
-import topCatch1 from "../assets/stitch/dashboard-1.jpg?url";
-import topCatch2 from "../assets/stitch/catch-list-0.jpg?url";
-import topCatch3 from "../assets/stitch/onboarding-2.jpg?url";
 
 const stats = [
   { label: "GESAMT FÄNGE", value: "72", unit: "" },
   { label: "SCHWERSTER KARPFEN", value: "21,4", unit: "KG" },
   { label: "FÄNGE DIESES JAHR", value: "18", unit: "" },
   { label: "AKTIVE GEWÄSSER", value: "5", unit: "" },
-];
-
-const chart = [
-  { m: "Mär", pct: 16, w: "bewoelkt", mo: "neumond" },
-  { m: "Apr", pct: 33, w: "regen", mo: "zunehmend" },
-  { m: "Mai", pct: 25, w: "sonnig", mo: "vollmond" },
-  { m: "Jun", pct: 50, w: "sonnig", mo: "zunehmend" },
-  { m: "Jul", pct: 80, w: "sonnig", mo: "vollmond" },
-  { m: "Aug", pct: 100, w: "sonnig", mo: "neumond" },
-  { m: "Sep", pct: 75, w: "bewoelkt", mo: "abnehmend" },
-  { m: "Okt", pct: 50, w: "regen", mo: "zunehmend" },
-  { m: "Nov", pct: 33, w: "sturm", mo: "neumond" },
-  { m: "Dez", pct: 16, w: "bewoelkt", mo: "abnehmend" },
-];
-
-const weightLine = [
-  { m: "Jan", kg: "12,4", w: "bewoelkt", mo: "neumond" },
-  { m: "Feb", kg: "14,1", w: "regen", mo: "zunehmend" },
-  { m: "Mär", kg: "13,8", w: "sonnig", mo: "vollmond" },
-  { m: "Apr", kg: "16,2", w: "bewoelkt", mo: "abnehmend" },
-  { m: "Mai", kg: "18,5", w: "sonnig", mo: "zunehmend" },
-  { m: "Jun", kg: "19,1", w: "sonnig", mo: "vollmond" },
-  { m: "Jul", kg: "21,4", w: "sonnig", mo: "neumond" },
-  { m: "Aug", kg: "20,8", w: "sonnig", mo: "abnehmend" },
-  { m: "Sep", kg: "19,2", w: "bewoelkt", mo: "vollmond" },
-  { m: "Okt", kg: "17,5", w: "regen", mo: "zunehmend" },
-  { m: "Nov", kg: "16,0", w: "sturm", mo: "neumond" },
-  { m: "Dez", kg: "15,2", w: "bewoelkt", mo: "abnehmend" },
-];
-
-const weightPoints = [
-  [25,182.8],[75,152.2],[125,157.6],[175,114.4],[225,73],
-  [275,62.2],[325,20.8],[375,31.6],[425,60.4],[475,91],
-  [525,118],[575,132.4]
-];
-
-const topWaters = [
-  { name: "Silbersee", count: 28, w: "sonnig", mo: "vollmond" },
-  { name: "Linch Hill", count: 19, w: "bewoelkt", mo: "zunehmend" },
-  { name: "Donau Altarm", count: 14, w: "regen", mo: "abnehmend" },
-  { name: "Waldweiher", count: 11, w: "sonnig", mo: "neumond" },
-];
-const maxWaters = 28;
-
-const topCatches = [
-  { rang: "1", gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee", foto: topCatch1 },
-  { rang: "2", gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee", foto: topCatch2 },
-  { rang: "3", gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung", foto: topCatch3 },
-];
-
-const bissStunden = [2,1,1,1,2,6,9,8,4,3,2,2,3,4,5,4,3,3,6,8,10,7,4,2];
-const maxBiss = 10;
-const bissMeta = bissStunden.map((_, i) => {
-  if (i <= 8) return { w: "bewoelkt", mo: "neumond" };
-  if (i <= 16) return { w: "sonnig", mo: "zunehmend" };
-  return { w: "bewoelkt", mo: "vollmond" };
-});
-
-const recent = [
-  { gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee • 12. Okt", id: "silbersee-spiegelkarpfen", foto: trophyPhoto },
-  { gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung • 05. Okt", id: "linch-hill-schuppenkarpfen", foto: carpPhoto },
-  { gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee • 28. Sep", id: "silbersee-graskarpfen", foto: onboardingPhoto },
 ];
 ---
 
@@ -99,149 +31,120 @@ const recent = [
       ))}
     </div>
 
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-3">
-        <span class="font-label-sm text-label-sm uppercase text-secondary tracking-widest">WETTER</span>
-        <div class="flex flex-wrap gap-2" data-filter-group="wetter">
-          <button type="button" data-filter="alle" data-filter-target="wetter" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
-          <button type="button" data-filter="sonnig" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SONNIG</button>
-          <button type="button" data-filter="bewoelkt" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">BEWÖLKT</button>
-          <button type="button" data-filter="regen" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">REGEN</button>
-          <button type="button" data-filter="sturm" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">STURM</button>
+    <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col gap-lg">
+      <div class="flex flex-col gap-2">
+        <h2 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">STATISTIK-STUDIO</h2>
+        <p class="text-body-md text-on-surface-variant">Wähle Dimension, Kennzahl und Serie – der Chart wird live aus deinen Fangdaten aggregiert.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+        <div class="flex flex-col gap-2">
+          <label class="font-label-sm text-label-sm uppercase text-secondary" for="studio-x">X-Achse</label>
+          <select id="studio-x" class="w-full bg-surface-container-lowest border border-primary/20 rounded-md py-2 px-3 text-body-md text-on-surface appearance-none min-h-11">
+            <option value="monat">Monat</option>
+            <option value="gewaesser">Gewässer</option>
+            <option value="fischart">Fischart</option>
+            <option value="wetterlage">Wetterlage</option>
+            <option value="mondphase">Mondphase</option>
+            <option value="stunde">Uhrzeit (Stunde)</option>
+            <option value="wochentag">Wochentag</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="font-label-sm text-label-sm uppercase text-secondary" for="studio-metric">Kennzahl</label>
+          <select id="studio-metric" class="w-full bg-surface-container-lowest border border-primary/20 rounded-md py-2 px-3 text-body-md text-on-surface appearance-none min-h-11">
+            <option value="count">Anzahl Fänge</option>
+            <option value="avg_gewicht">Ø-Gewicht (kg)</option>
+            <option value="max_gewicht">Max-Gewicht (kg)</option>
+            <option value="avg_laenge">Ø-Länge (cm)</option>
+            <option value="sum_gewicht">Summe Gewicht (kg)</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="font-label-sm text-label-sm uppercase text-secondary" for="studio-serie">Serie</label>
+          <select id="studio-serie" class="w-full bg-surface-container-lowest border border-primary/20 rounded-md py-2 px-3 text-body-md text-on-surface appearance-none min-h-11">
+            <option value="keine">Keine</option>
+            <option value="fischart">Fischart</option>
+            <option value="gewaesser">Gewässer</option>
+            <option value="mondphase">Mondphase</option>
+            <option value="wetterlage">Wetterlage</option>
+          </select>
         </div>
       </div>
 
-      <div class="flex flex-col gap-3">
-        <span class="font-label-sm text-label-sm uppercase text-secondary tracking-widest">MOND</span>
-        <div class="flex flex-wrap gap-2" data-filter-group="mond">
-          <button type="button" data-filter="alle" data-filter-target="mond" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
-          <button type="button" data-filter="neumond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">NEUMOND</button>
-          <button type="button" data-filter="zunehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ZUNEHMEND</button>
-          <button type="button" data-filter="vollmond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">VOLLMOND</button>
-          <button type="button" data-filter="abnehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ABNEHMEND</button>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
+        <div class="flex flex-col gap-2">
+          <span class="font-label-sm text-label-sm uppercase text-secondary">Zeitraum</span>
+          <div class="flex flex-wrap gap-2" data-filter-group="zeitraum">
+            <button type="button" data-filter="alle" data-filter-target="zeitraum" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+            <button type="button" data-filter="2025" data-filter-target="zeitraum" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">2025</button>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      <button type="button" data-chart-btn="monat" class="chart-toggle is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">FÄNGE PRO MONAT</button>
-      <button type="button" data-chart-btn="gewicht" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">GEWICHTS-VERLAUF</button>
-      <button type="button" data-chart-btn="gewaesser" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">TOP-GEWÄSSER</button>
-      <button type="button" data-chart-btn="faenge" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">TOP-FÄNGE</button>
-      <button type="button" data-chart-btn="biss" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">BISS-ZEITEN</button>
-    </div>
-
-    <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-      <div data-chart-block="monat" class="chart-block">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">FÄNGE PRO MONAT</h3>
-        <div class="flex-grow flex items-end justify-between gap-2 h-64 border-b border-l border-primary/40 pb-4 pl-4">
-          {chart.map((c) => (
-            <div class="filterable w-8 bg-primary-container rounded-t-sm" style={`height: ${c.pct}%`} data-weather={c.w} data-moon={c.mo} aria-label={`${c.m}: ${c.pct}%`}></div>
-          ))}
+        <div class="flex flex-col gap-2">
+          <span class="font-label-sm text-label-sm uppercase text-secondary">Gewässer</span>
+          <div class="flex flex-wrap gap-2" data-filter-group="gewaesser">
+            <button type="button" data-filter="alle" data-filter-target="gewaesser" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+            <button type="button" data-filter="Silbersee" data-filter-target="gewaesser" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SILBERSEE</button>
+            <button type="button" data-filter="Linch Hill" data-filter-target="gewaesser" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">LINCH HILL</button>
+            <button type="button" data-filter="Donau Altarm" data-filter-target="gewaesser" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">DONAU ALTARM</button>
+            <button type="button" data-filter="Waldweiher" data-filter-target="gewaesser" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">WALDWEIHER</button>
+          </div>
         </div>
-        <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
-          {chart.map((c) => <span>{c.m}</span>)}
+        <div class="flex flex-col gap-2">
+          <span class="font-label-sm text-label-sm uppercase text-secondary">Fischart</span>
+          <div class="flex flex-wrap gap-2" data-filter-group="fischart">
+            <button type="button" data-filter="alle" data-filter-target="fischart" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+            <button type="button" data-filter="Karpfen" data-filter-target="fischart" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">KARPFEN</button>
+            <button type="button" data-filter="Spiegelkarpfen" data-filter-target="fischart" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SPIEGELKARPFEN</button>
+            <button type="button" data-filter="Schuppenkarpfen" data-filter-target="fischart" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SCHUPPENKARPFEN</button>
+            <button type="button" data-filter="Graskarpfen" data-filter-target="fischart" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">GRASKARPFEN</button>
+          </div>
         </div>
-      </div>
-
-      <div data-chart-block="gewicht" class="chart-block hidden">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">GEWICHTS-VERLAUF</h3>
-        <svg viewBox="0 0 600 200" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gewichtsverlauf in kg über 12 Monate">
-          <polyline points="25,182.8 75,152.2 125,157.6 175,114.4 225,73 275,62.2 325,20.8 375,31.6 425,60.4 475,91 525,118 575,132.4" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          {weightPoints.map(([x,y], i) => (
-            <circle class="filterable" cx={x} cy={y} r="4" fill="var(--color-primary-container)" stroke="var(--color-primary)" stroke-width="1.5" data-weather={weightLine[i].w} data-moon={weightLine[i].mo} />
-          ))}
-        </svg>
-        <div class="grid grid-cols-12 gap-1 px-2 pt-4 font-nav-item text-label-sm text-on-surface-variant text-center">
-          {weightLine.map((w) => <span>{w.m}</span>)}
+        <div class="flex flex-col gap-2">
+          <span class="font-label-sm text-label-sm uppercase text-secondary">Wetter</span>
+          <div class="flex flex-wrap gap-2" data-filter-group="wetter">
+            <button type="button" data-filter="alle" data-filter-target="wetter" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+            <button type="button" data-filter="sonnig" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SONNIG</button>
+            <button type="button" data-filter="bewoelkt" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">BEWÖLKT</button>
+            <button type="button" data-filter="regen" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">REGEN</button>
+            <button type="button" data-filter="sturm" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">STURM</button>
+          </div>
         </div>
-      </div>
-
-      <div data-chart-block="gewaesser" class="chart-block hidden">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">TOP-GEWÄSSER</h3>
-        <div class="flex flex-col gap-4">
-          {topWaters.map((w) => (
-            <div class="filterable flex items-center gap-4" data-weather={w.w} data-moon={w.mo}>
-              <span class="font-nav-item text-label-sm text-on-surface-variant uppercase w-32 shrink-0">{w.name}</span>
-              <div class="flex-grow h-8 bg-surface-container-highest rounded-full overflow-hidden border border-primary/20">
-                <div class="h-full bg-primary-container rounded-full" style={`width: ${(w.count / maxWaters) * 100}%`}></div>
-              </div>
-              <span class="text-headline-sm text-primary w-8 text-right">{w.count}</span>
-            </div>
-          ))}
+        <div class="flex flex-col gap-2">
+          <span class="font-label-sm text-label-sm uppercase text-secondary">Mond</span>
+          <div class="flex flex-wrap gap-2" data-filter-group="mond">
+            <button type="button" data-filter="alle" data-filter-target="mond" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+            <button type="button" data-filter="neumond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">NEUMOND</button>
+            <button type="button" data-filter="zunehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ZUNEHMEND</button>
+            <button type="button" data-filter="vollmond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">VOLLMOND</button>
+            <button type="button" data-filter="abnehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ABNEHMEND</button>
+          </div>
         </div>
       </div>
 
-      <div data-chart-block="faenge" class="chart-block hidden">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">TOP-FÄNGE</h3>
-        <div class="flex flex-col gap-4">
-          {topCatches.map((t) => (
-            <div class="flex items-center gap-4">
-              <span class="text-display-lg text-primary w-8 text-center">{t.rang}</span>
-              <div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container-highest border border-primary/20 shrink-0">
-                <img src={t.foto} alt={`Top Fang ${t.rang}`} class="w-full h-full object-cover" loading="lazy" />
-              </div>
-              <div class="flex flex-col">
-                <span class="text-headline-md text-primary">{t.gewicht}</span>
-                <span class="font-nav-item text-label-sm text-on-surface-variant uppercase">{t.art}</span>
-                <span class="font-body-md text-label-sm text-tertiary">{t.ort}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div class="flex flex-col gap-2">
+        <span id="studio-caption" class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-widest"></span>
+        <div id="studio-chart" class="bg-surface-container-lowest border border-primary/20 rounded-xl p-md min-h-[340px] flex items-center justify-center"></div>
       </div>
 
-      <div data-chart-block="biss" class="chart-block hidden">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">BISS-ZEITEN</h3>
-        <div class="flex-grow flex items-end justify-between gap-1 h-64 border-b border-l border-primary/40 pb-4 pl-4">
-          {bissStunden.map((v, i) => (
-            <div class="filterable flex-1 bg-primary-container rounded-t-sm" style={`height: ${(v / maxBiss) * 100}%`} data-weather={bissMeta[i].w} data-moon={bissMeta[i].mo} aria-label={`${i} Uhr: ${v}`}></div>
-          ))}
-        </div>
-        <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
-          {bissStunden.map((_, i) => <span class={i % 3 === 0 ? "" : "hidden"}>{i}h</span>)}
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-      <div class="lg:col-span-2 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">SAISON-VERLAUF</h3>
-        <p class="text-body-md text-on-surface-variant">Detaillierte Auswertung aller Fänge der aktuellen Saison.</p>
-      </div>
-
-      <div class="lg:col-span-1 flex flex-col">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6 px-2">LETZTE FÄNGE</h3>
-        <div class="flex flex-col gap-0">
-          {recent.map((r) => (
-            <a href={`/faenge/${r.id}`} class="flex items-center gap-4 p-4 hover:bg-surface-container-high rounded-lg transition-colors border-b border-primary/40">
-              <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high border border-primary/20 shrink-0">
-                <img src={r.foto} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
-              </div>
-              <div class="flex flex-col">
-                <span class="text-headline-md text-primary">{r.gewicht}</span>
-                <span class="font-nav-item text-label-sm text-on-surface-variant uppercase">{r.art}</span>
-                <span class="font-body-md text-label-sm text-tertiary">{r.ort}</span>
-              </div>
-            </a>
-          ))}
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+        <button id="studio-table-btn" type="button" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11 self-start">Als Tabelle anzeigen</button>
+        <div class="flex flex-col gap-2 md:w-56">
+          <label class="font-label-sm text-label-sm uppercase text-secondary" for="studio-type">Chart-Typ</label>
+          <select id="studio-type" class="w-full bg-surface-container-lowest border border-primary/20 rounded-md py-2 px-3 text-body-md text-on-surface appearance-none min-h-11">
+            <option value="auto">Auto</option>
+            <option value="balken">Balken</option>
+            <option value="linie">Linie</option>
+            <option value="scatter">Scatter</option>
+            <option value="heatmap">Heatmap</option>
+          </select>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 </Layout>
 
 <style>
-  .chart-toggle {
-    color: var(--color-on-surface-variant);
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-  }
-  .chart-toggle.is-active {
-    background-color: var(--color-surface-container-high);
-    color: var(--color-secondary);
-    border-color: var(--color-primary-tint, rgba(0,0,0,0.06));
-  }
   .filter-btn {
     color: var(--color-on-surface-variant);
     border: 1px solid transparent;
@@ -250,64 +153,449 @@ const recent = [
   .filter-btn.is-active {
     background-color: var(--color-surface-container-high);
     color: var(--color-secondary);
-    border-color: var(--color-primary-tint, rgba(0,0,0,0.06));
+  }
+  .filter-btn:hover {
+    color: var(--color-secondary);
   }
 </style>
 
 <script is:inline>
   (function () {
-    var buttons = document.querySelectorAll('[data-chart-btn]');
-    var blocks = document.querySelectorAll('[data-chart-block]');
-    buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var key = btn.getAttribute('data-chart-btn');
-        buttons.forEach(function (b) { b.classList.remove('is-active'); });
-        btn.classList.add('is-active');
-        blocks.forEach(function (bl) {
-          if (bl.getAttribute('data-chart-block') === key) {
-            bl.classList.remove('hidden');
-          } else {
-            bl.classList.add('hidden');
-          }
-        });
-        applyFilters();
-      });
-    });
+    var catches = [
+      { datum: "2025-01-15", uhrzeit: "09:30", art: "Spiegelkarpfen", gewicht: 9.8, laenge: 72, gewaesser: "Waldweiher", wassertemperatur: 3.1, lufttemperatur: 1.2, luftdruck: 1019, wind: 18, wetterlage: "bewoelkt", mondphase: "neumond", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-02-08", uhrzeit: "14:15", art: "Karpfen", gewicht: 11.2, laenge: 78, gewaesser: "Donau Altarm", wassertemperatur: 4.8, lufttemperatur: 6.1, luftdruck: 1011, wind: 9, wetterlage: "regen", mondphase: "zunehmend", koeder: "Tigernuss", catchRelease: false },
+      { datum: "2025-03-12", uhrzeit: "16:45", art: "Schuppenkarpfen", gewicht: 13.5, laenge: 84, gewaesser: "Silbersee", wassertemperatur: 7.2, lufttemperatur: 11.0, luftdruck: 1008, wind: 12, wetterlage: "sonnig", mondphase: "vollmond", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-04-05", uhrzeit: "18:00", art: "Spiegelkarpfen", gewicht: 15.3, laenge: 88, gewaesser: "Silbersee", wassertemperatur: 10.1, lufttemperatur: 13.2, luftdruck: 1005, wind: 8, wetterlage: "sonnig", mondphase: "zunehmend", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-04-22", uhrzeit: "20:30", art: "Graskarpfen", gewicht: 12.9, laenge: 82, gewaesser: "Donau Altarm", wassertemperatur: 11.4, lufttemperatur: 14.8, luftdruck: 1009, wind: 11, wetterlage: "regen", mondphase: "neumond", koeder: "Tigernuss", catchRelease: true },
+      { datum: "2025-05-03", uhrzeit: "17:45", art: "Karpfen", gewicht: 16.8, laenge: 91, gewaesser: "Linch Hill", wassertemperatur: 13.6, lufttemperatur: 16.5, luftdruck: 1012, wind: 7, wetterlage: "sonnig", mondphase: "vollmond", koeder: "Boilie", catchRelease: false },
+      { datum: "2025-05-18", uhrzeit: "06:30", art: "Schuppenkarpfen", gewicht: 14.2, laenge: 85, gewaesser: "Waldweiher", wassertemperatur: 14.0, lufttemperatur: 12.8, luftdruck: 1018, wind: 15, wetterlage: "bewoelkt", mondphase: "zunehmend", koeder: "Pop-Up", catchRelease: true },
+      { datum: "2025-06-07", uhrzeit: "21:00", art: "Spiegelkarpfen", gewicht: 19.4, laenge: 97, gewaesser: "Silbersee", wassertemperatur: 18.2, lufttemperatur: 21.1, luftdruck: 1003, wind: 6, wetterlage: "sonnig", mondphase: "neumond", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-07-02", uhrzeit: "22:15", art: "Graskarpfen", gewicht: 20.6, laenge: 99, gewaesser: "Donau Altarm", wassertemperatur: 21.5, lufttemperatur: 24.8, luftdruck: 1001, wind: 5, wetterlage: "sonnig", mondphase: "vollmond", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-07-19", uhrzeit: "05:45", art: "Spiegelkarpfen", gewicht: 18.7, laenge: 94, gewaesser: "Silbersee", wassertemperatur: 22.1, lufttemperatur: 19.6, luftdruck: 1004, wind: 22, wetterlage: "sturm", mondphase: "zunehmend", koeder: "Pop-Up", catchRelease: true },
+      { datum: "2025-08-04", uhrzeit: "23:00", art: "Karpfen", gewicht: 20.9, laenge: 101, gewaesser: "Silbersee", wassertemperatur: 23.4, lufttemperatur: 26.2, luftdruck: 998, wind: 4, wetterlage: "sonnig", mondphase: "neumond", koeder: "Boilie", catchRelease: false },
+      { datum: "2025-08-20", uhrzeit: "14:00", art: "Schuppenkarpfen", gewicht: 16.0, laenge: 89, gewaesser: "Waldweiher", wassertemperatur: 22.8, lufttemperatur: 23.5, luftdruck: 1010, wind: 13, wetterlage: "bewoelkt", mondphase: "abnehmend", koeder: "Tigernuss", catchRelease: true },
+      { datum: "2025-09-09", uhrzeit: "18:20", art: "Spiegelkarpfen", gewicht: 21.4, laenge: 102, gewaesser: "Silbersee", wassertemperatur: 19.7, lufttemperatur: 17.4, luftdruck: 1013, wind: 9, wetterlage: "sonnig", mondphase: "zunehmend", koeder: "Boilie", catchRelease: false },
+      { datum: "2025-09-25", uhrzeit: "11:00", art: "Graskarpfen", gewicht: 14.8, laenge: 86, gewaesser: "Donau Altarm", wassertemperatur: 16.9, lufttemperatur: 14.1, luftdruck: 1007, wind: 16, wetterlage: "regen", mondphase: "vollmond", koeder: "Pop-Up", catchRelease: true },
+      { datum: "2025-10-12", uhrzeit: "18:30", art: "Spiegelkarpfen", gewicht: 18.4, laenge: 92, gewaesser: "Silbersee", wassertemperatur: 14.2, lufttemperatur: 11.3, luftdruck: 1008, wind: 12, wetterlage: "sonnig", mondphase: "zunehmend", koeder: "Boilie", catchRelease: true },
+      { datum: "2025-10-28", uhrzeit: "15:10", art: "Karpfen", gewicht: 12.5, laenge: 80, gewaesser: "Linch Hill", wassertemperatur: 11.8, lufttemperatur: 9.2, luftdruck: 1015, wind: 19, wetterlage: "sturm", mondphase: "neumond", koeder: "Tigernuss", catchRelease: false },
+      { datum: "2025-11-11", uhrzeit: "13:00", art: "Schuppenkarpfen", gewicht: 10.3, laenge: 74, gewaesser: "Waldweiher", wassertemperatur: 7.9, lufttemperatur: 6.4, luftdruck: 1020, wind: 21, wetterlage: "bewoelkt", mondphase: "abnehmend", koeder: "Pop-Up", catchRelease: true },
+      { datum: "2025-12-06", uhrzeit: "10:45", art: "Karpfen", gewicht: 8.6, laenge: 70, gewaesser: "Donau Altarm", wassertemperatur: 4.2, lufttemperatur: 2.1, luftdruck: 1022, wind: 17, wetterlage: "regen", mondphase: "neumond", koeder: "Boilie", catchRelease: true }
+    ];
 
-    var filterState = { wetter: 'alle', mond: 'alle' };
+    var dims = {
+      monat: { label: "Monat", extract: function (c) { return c.datum.slice(5, 7); }, order: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"], display: { "01": "Jan", "02": "Feb", "03": "Mär", "04": "Apr", "05": "Mai", "06": "Jun", "07": "Jul", "08": "Aug", "09": "Sep", "10": "Okt", "11": "Nov", "12": "Dez" } },
+      gewaesser: { label: "Gewässer", extract: function (c) { return c.gewaesser; }, order: ["Silbersee", "Linch Hill", "Donau Altarm", "Waldweiher"] },
+      fischart: { label: "Fischart", extract: function (c) { return c.art; }, order: ["Karpfen", "Spiegelkarpfen", "Schuppenkarpfen", "Graskarpfen"] },
+      wetterlage: { label: "Wetterlage", extract: function (c) { return c.wetterlage; }, order: ["sonnig", "bewoelkt", "regen", "sturm"], display: { "sonnig": "Sonnig", "bewoelkt": "Bewölkt", "regen": "Regen", "sturm": "Sturm" } },
+      mondphase: { label: "Mondphase", extract: function (c) { return c.mondphase; }, order: ["neumond", "zunehmend", "vollmond", "abnehmend"], display: { "neumond": "Neumond", "zunehmend": "Zunehmend", "vollmond": "Vollmond", "abnehmend": "Abnehmend" } },
+      stunde: { label: "Uhrzeit (Stunde)", extract: function (c) { return parseInt(c.uhrzeit.slice(0, 2), 10); }, order: null, displayFn: function (v) { return v + "h"; } },
+      wochentag: { label: "Wochentag", extract: function (c) { var d = new Date(c.datum + "T00:00:00"); return ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"][d.getDay()]; }, order: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] }
+    };
 
-    function applyFilters() {
-      var activeBlock = document.querySelector('.chart-block:not(.hidden)');
-      if (!activeBlock) return;
-      var items = activeBlock.querySelectorAll('.filterable');
-      items.forEach(function (el) {
-        var w = el.getAttribute('data-weather');
-        var mo = el.getAttribute('data-moon');
-        var weatherOk = filterState.wetter === 'alle' || w === filterState.wetter;
-        var moonOk = filterState.mond === 'alle' || mo === filterState.mond;
-        if (weatherOk && moonOk) {
-          el.style.opacity = '1';
-        } else {
-          el.style.opacity = '0.2';
-        }
+    var metrics = {
+      count: { label: "Anzahl Fänge", isInt: true, agg: function (g) { return g.length; }, raw: function () { return 1; } },
+      avg_gewicht: { label: "Ø-Gewicht (kg)", isInt: false, agg: function (g) { return g.length ? g.reduce(function (s, c) { return s + c.gewicht; }, 0) / g.length : 0; }, raw: function (c) { return c.gewicht; } },
+      max_gewicht: { label: "Max-Gewicht (kg)", isInt: false, agg: function (g) { return g.length ? g.reduce(function (m, c) { return Math.max(m, c.gewicht); }, 0) : 0; }, raw: function (c) { return c.gewicht; } },
+      avg_laenge: { label: "Ø-Länge (cm)", isInt: false, agg: function (g) { return g.length ? g.reduce(function (s, c) { return s + c.laenge; }, 0) / g.length : 0; }, raw: function (c) { return c.laenge; } },
+      sum_gewicht: { label: "Summe Gewicht (kg)", isInt: false, agg: function (g) { return g.reduce(function (s, c) { return s + c.gewicht; }, 0); }, raw: function (c) { return c.gewicht; } }
+    };
+
+    var series = {
+      keine: { label: "Keine", extract: null },
+      fischart: { label: "Fischart", extract: function (c) { return c.art; }, order: ["Karpfen", "Spiegelkarpfen", "Schuppenkarpfen", "Graskarpfen"] },
+      gewaesser: { label: "Gewässer", extract: function (c) { return c.gewaesser; }, order: ["Silbersee", "Linch Hill", "Donau Altarm", "Waldweiher"] },
+      mondphase: { label: "Mondphase", extract: function (c) { return c.mondphase; }, order: ["neumond", "zunehmend", "vollmond", "abnehmend"], display: { "neumond": "Neumond", "zunehmend": "Zunehmend", "vollmond": "Vollmond", "abnehmend": "Abnehmend" } },
+      wetterlage: { label: "Wetterlage", extract: function (c) { return c.wetterlage; }, order: ["sonnig", "bewoelkt", "regen", "sturm"], display: { "sonnig": "Sonnig", "bewoelkt": "Bewölkt", "regen": "Regen", "sturm": "Sturm" } }
+    };
+
+    var colorVars = {
+      primary: "var(--color-primary)",
+      "primary-container": "var(--color-primary-container)",
+      tertiary: "var(--color-tertiary)",
+      secondary: "var(--color-secondary)",
+      error: "var(--color-error)"
+    };
+    var seriePalette = ["primary-container", "tertiary", "secondary", "error"];
+
+    var state = { x: "monat", metric: "count", serie: "keine", chartType: "auto", showTable: false, filters: { zeitraum: "alle", gewaesser: "alle", fischart: "alle", wetter: "alle", mond: "alle" } };
+
+    function cap(v) { var s = String(v); return s.charAt(0).toUpperCase() + s.slice(1); }
+    function displayFor(dimKey, val) {
+      var d = dims[dimKey];
+      if (d.displayFn) return d.displayFn(val);
+      if (d.display && d.display[val]) return d.display[val];
+      return cap(val);
+    }
+    function displayForSerie(val) {
+      if (val === "__gesamt__") return "Gesamt";
+      var s = series[state.serie];
+      if (s.display && s.display[val]) return s.display[val];
+      return cap(val);
+    }
+    function fmt(v) { if (v % 1 === 0) return String(v); return v.toFixed(1); }
+
+    function dimOrder(dimKey, data) {
+      var d = dims[dimKey];
+      if (d.order) return d.order.slice();
+      var seen = {};
+      data.forEach(function (c) { seen[d.extract(c)] = true; });
+      return Object.keys(seen).map(Number).sort(function (a, b) { return a - b; }).map(String);
+    }
+
+    function filterData() {
+      return catches.filter(function (c) {
+        if (state.filters.zeitraum !== "alle" && c.datum.slice(0, 4) !== state.filters.zeitraum) return false;
+        if (state.filters.gewaesser !== "alle" && c.gewaesser !== state.filters.gewaesser) return false;
+        if (state.filters.fischart !== "alle" && c.art !== state.filters.fischart) return false;
+        if (state.filters.wetter !== "alle" && c.wetterlage !== state.filters.wetter) return false;
+        if (state.filters.mond !== "alle" && c.mondphase !== state.filters.mond) return false;
+        return true;
       });
     }
 
-    var filterBtns = document.querySelectorAll('[data-filter-target]');
-    filterBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var target = btn.getAttribute('data-filter-target');
-        var value = btn.getAttribute('data-filter');
-        filterState[target] = value;
-        var group = btn.closest('[data-filter-group]');
-        if (group) {
-          group.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
-          btn.classList.add('is-active');
+    function aggregate() {
+      var data = filterData();
+      var dx = dims[state.x];
+      var xVals = dimOrder(state.x, data);
+      var sk = state.serie;
+      var sVals;
+      if (sk === "keine") {
+        sVals = ["__gesamt__"];
+      } else {
+        sVals = series[sk].order.filter(function (v) {
+          return data.some(function (c) { return series[sk].extract(c) === v; });
+        });
+        if (sVals.length === 0) sVals = ["__gesamt__"];
+      }
+      var groups = {};
+      xVals.forEach(function (xv) { groups[xv] = {}; sVals.forEach(function (sv) { groups[xv][sv] = []; }); });
+      data.forEach(function (c) {
+        var xv = dx.extract(c);
+        var sv = sk === "keine" ? "__gesamt__" : series[sk].extract(c);
+        if (!groups[xv]) return;
+        if (!groups[xv][sv]) groups[xv][sv] = [];
+        groups[xv][sv].push(c);
+      });
+      var m = metrics[state.metric];
+      var values = {};
+      var maxV = 0;
+      xVals.forEach(function (xv) {
+        values[xv] = {};
+        sVals.forEach(function (sv) {
+          var v = m.agg(groups[xv][sv] || []);
+          values[xv][sv] = v;
+          if (v > maxV) maxV = v;
+        });
+      });
+      return { data: data, xVals: xVals, sVals: sVals, groups: groups, values: values, maxV: maxV, metric: m };
+    }
+
+    function yScale(rawMax, isInt) {
+      if (rawMax <= 0) rawMax = 1;
+      if (isInt) {
+        var yMax = Math.ceil(rawMax * 1.15);
+        if (yMax < 1) yMax = 1;
+        var step = Math.max(1, Math.ceil(yMax / 5));
+        while (step * 5 < yMax) step++;
+        return { yMax: step * 5, step: step };
+      }
+      var rough = rawMax / 5;
+      var pow = Math.pow(10, Math.floor(Math.log10(rough)));
+      var n = rough / pow;
+      var m = n <= 1 ? 1 : n <= 1.5 ? 1.5 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 3 ? 3 : n <= 4 ? 4 : n <= 5 ? 5 : n <= 7.5 ? 7.5 : 10;
+      var step = m * pow;
+      return { yMax: step * 5, step: step };
+    }
+
+    var W = 880, H = 440, PL = 56, PR = 24, PT = 24, PB = 48;
+    var PW = W - PL - PR, PH = H - PT - PB;
+
+    function xToPx(i, n) { if (n <= 1) return PL + PW / 2; return PL + (PW / n) * i + (PW / n) / 2; }
+    function yToPx(v, yMax) { return PT + PH - (v / yMax) * PH; }
+
+    function gridSvg(yMax, step) {
+      var s = "";
+      for (var t = 0; t <= 5; t++) {
+        var val = step * t;
+        var y = yToPx(val, yMax);
+        s += '<line x1="' + PL + '" y1="' + y + '" x2="' + (W - PR) + '" y2="' + y + '" stroke="var(--color-outline)" stroke-opacity="0.25" stroke-width="1"/>';
+        s += '<text x="' + (PL - 8) + '" y="' + (y + 4) + '" text-anchor="end" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + fmt(val) + '</text>';
+      }
+      return s;
+    }
+
+    function xLabelsSvg(agg) {
+      var n = agg.xVals.length;
+      var s = "";
+      agg.xVals.forEach(function (xv, i) {
+        var x = xToPx(i, n);
+        var label = displayFor(state.x, xv);
+        if (state.x === "gewaesser" && label.length > 7) {
+          s += '<text x="' + x + '" y="' + (PT + PH + 14) + '" text-anchor="end" transform="rotate(-25 ' + x + ' ' + (PT + PH + 14) + ')" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + label + '</text>';
+        } else {
+          s += '<text x="' + x + '" y="' + (PT + PH + 18) + '" text-anchor="middle" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + label + '</text>';
         }
-        applyFilters();
+      });
+      return s;
+    }
+
+    function serieColors(agg) {
+      return agg.sVals.map(function (sv, i) {
+        if (sv === "__gesamt__") return "primary";
+        return seriePalette[i % seriePalette.length];
+      });
+    }
+
+    function legendHtml(agg, sColors) {
+      var html = '<div class="flex flex-wrap gap-3 mt-4 justify-center">';
+      agg.sVals.forEach(function (sv, i) {
+        if (sv === "__gesamt__") return;
+        html += '<span class="flex items-center gap-2 font-label-sm text-label-sm uppercase text-on-surface-variant"><span class="w-3 h-3 rounded-sm" style="background:' + colorVars[sColors[i]] + '"></span>' + displayForSerie(sv) + '</span>';
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function renderBar(agg) {
+      var ys = yScale(agg.maxV, agg.metric.isInt);
+      var yMax = ys.yMax, step = ys.step;
+      var n = agg.xVals.length;
+      var hasSerie = state.serie !== "keine" && agg.sVals.length > 1;
+      var sColors = serieColors(agg);
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Balkendiagramm">';
+      svg += gridSvg(yMax, step);
+      var bandW = PW / Math.max(1, n);
+      agg.xVals.forEach(function (xv, i) {
+        var cx = xToPx(i, n);
+        if (hasSerie) {
+          var totalW = bandW * 0.82;
+          var bw = totalW / agg.sVals.length;
+          var startX = cx - totalW / 2;
+          agg.sVals.forEach(function (sv, j) {
+            var v = agg.values[xv][sv] || 0;
+            var h = (v / yMax) * PH;
+            var y = PT + PH - h;
+            svg += '<rect x="' + (startX + j * bw) + '" y="' + y + '" width="' + (bw * 0.88) + '" height="' + h + '" rx="2" fill="' + colorVars[sColors[j]] + '"/>';
+          });
+        } else {
+          var bw = bandW * 0.6;
+          var v = agg.values[xv]["__gesamt__"] || 0;
+          var h = (v / yMax) * PH;
+          var y = PT + PH - h;
+          svg += '<rect x="' + (cx - bw / 2) + '" y="' + y + '" width="' + bw + '" height="' + h + '" rx="2" fill="' + colorVars.primary + '"/>';
+          if (h > 0) svg += '<text x="' + cx + '" y="' + (y - 6) + '" text-anchor="middle" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + fmt(v) + '</text>';
+        }
+      });
+      svg += xLabelsSvg(agg);
+      svg += '</svg>';
+      if (hasSerie) svg += legendHtml(agg, sColors);
+      document.getElementById("studio-chart").innerHTML = svg;
+    }
+
+    function renderLine(agg) {
+      var ys = yScale(agg.maxV, agg.metric.isInt);
+      var yMax = ys.yMax, step = ys.step;
+      var n = agg.xVals.length;
+      var hasSerie = state.serie !== "keine" && agg.sVals.length > 1;
+      var sColors = serieColors(agg);
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Liniendiagramm">';
+      svg += gridSvg(yMax, step);
+      agg.sVals.forEach(function (sv, si) {
+        var pts = [];
+        agg.xVals.forEach(function (xv, i) {
+          var v = agg.values[xv][sv] || 0;
+          pts.push(xToPx(i, n) + "," + yToPx(v, yMax));
+        });
+        var col = sColors[si];
+        svg += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + colorVars[col] + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+        agg.xVals.forEach(function (xv, i) {
+          var v = agg.values[xv][sv] || 0;
+          svg += '<circle cx="' + xToPx(i, n) + '" cy="' + yToPx(v, yMax) + '" r="3.5" fill="' + colorVars[col] + '" stroke="var(--color-surface-container-high)" stroke-width="1.5"/>';
+        });
+      });
+      svg += xLabelsSvg(agg);
+      svg += '</svg>';
+      if (hasSerie) svg += legendHtml(agg, sColors);
+      document.getElementById("studio-chart").innerHTML = svg;
+    }
+
+    function renderScatter(agg) {
+      var m = agg.metric;
+      var rawMax = 0;
+      agg.data.forEach(function (c) { var v = m.raw(c); if (v > rawMax) rawMax = v; });
+      if (m.label === "Anzahl Fänge") rawMax = 1;
+      var ys = yScale(rawMax, m.isInt);
+      var yMax = ys.yMax, step = ys.step;
+      var n = agg.xVals.length;
+      var bandW = PW / Math.max(1, n);
+      var hasSerie = state.serie !== "keine" && agg.sVals.length > 1;
+      var sColors = serieColors(agg);
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Scatter-Plot">';
+      svg += gridSvg(yMax, step);
+      agg.data.forEach(function (c, idx) {
+        var xv = dims[state.x].extract(c);
+        var xi = agg.xVals.indexOf(xv);
+        if (xi < 0) return;
+        var cx = xToPx(xi, n);
+        var jitterX = ((idx * 53) % 17 - 8) * (bandW * 0.018);
+        var x = cx + jitterX;
+        var v = m.label === "Anzahl Fänge" ? 1 : m.raw(c);
+        var jitterY = m.label === "Anzahl Fänge" ? ((idx * 31) % 9) * 1.2 : 0;
+        var y = yToPx(v, yMax) + jitterY;
+        var col = "primary";
+        if (hasSerie) {
+          var sv = series[state.serie].extract(c);
+          var si = agg.sVals.indexOf(sv);
+          col = sColors[si] || "primary";
+        }
+        svg += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="' + colorVars[col] + '" fill-opacity="0.7" stroke="var(--color-primary)" stroke-width="1"/>';
+      });
+      svg += xLabelsSvg(agg);
+      svg += '</svg>';
+      if (hasSerie) svg += legendHtml(agg, sColors);
+      document.getElementById("studio-chart").innerHTML = svg;
+    }
+
+    function renderHeatmap(agg) {
+      var n = agg.xVals.length;
+      var sN = agg.sVals.length;
+      var maxV = agg.maxV || 1;
+      var leftLabelW = 96;
+      var topPad = 30, bottomPad = 56;
+      var gridLeft = leftLabelW, gridRight = W - PR;
+      var gridTop = topPad, gridBottom = H - bottomPad;
+      var gridW = gridRight - gridLeft, gridH = gridBottom - gridTop;
+      var cellW = gridW / Math.max(1, n), cellH = gridH / Math.max(1, sN);
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Heatmap">';
+      agg.xVals.forEach(function (xv, i) {
+        agg.sVals.forEach(function (sv, j) {
+          var v = agg.values[xv][sv] || 0;
+          var intensity = maxV > 0 ? v / maxV : 0;
+          var x = gridLeft + i * cellW, y = gridTop + j * cellH;
+          svg += '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellW - 2) + '" height="' + (cellH - 2) + '" rx="2" fill="var(--color-primary)" fill-opacity="' + intensity.toFixed(3) + '" stroke="var(--color-outline)" stroke-opacity="0.2"/>';
+          if (v > 0 && cellW > 28 && cellH > 22) {
+            var txtCol = intensity > 0.55 ? "var(--color-on-primary-container)" : "var(--color-on-surface)";
+            svg += '<text x="' + (x + cellW / 2) + '" y="' + (y + cellH / 2 + 4) + '" text-anchor="middle" style="font-family:var(--font-label-sm);font-size:11px;fill:' + txtCol + '">' + fmt(v) + '</text>';
+          }
+        });
+      });
+      agg.xVals.forEach(function (xv, i) {
+        var x = gridLeft + i * cellW + cellW / 2;
+        var label = displayFor(state.x, xv);
+        if ((state.x === "gewaesser") && label.length > 7) {
+          svg += '<text x="' + x + '" y="' + (gridTop - 8) + '" text-anchor="end" transform="rotate(-30 ' + x + ' ' + (gridTop - 8) + ')" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + label + '</text>';
+        } else {
+          svg += '<text x="' + x + '" y="' + (gridTop - 8) + '" text-anchor="middle" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + label + '</text>';
+        }
+      });
+      agg.sVals.forEach(function (sv, j) {
+        var y = gridTop + j * cellH + cellH / 2;
+        svg += '<text x="' + (gridLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" style="font-family:var(--font-label-sm);font-size:11px;fill:var(--color-on-surface-variant)">' + displayForSerie(sv) + '</text>';
+      });
+      svg += '</svg>';
+      var legend = '<div class="flex items-center gap-2 mt-3 justify-end font-label-sm text-label-sm uppercase text-on-surface-variant"><span>0</span>';
+      for (var k = 1; k <= 5; k++) {
+        legend += '<span class="w-5 h-3 rounded-sm" style="background:var(--color-primary);opacity:' + (0.1 * k) + '"></span>';
+      }
+      legend += '<span>' + fmt(maxV) + '</span></div>';
+      document.getElementById("studio-chart").innerHTML = svg + legend;
+    }
+
+    function renderTable(agg) {
+      var hasSerie = state.serie !== "keine" && agg.sVals.length > 1;
+      var html = '<div class="overflow-x-auto rounded-xl border border-primary/20 bg-surface-container-lowest"><table class="w-full text-body-md" style="border-collapse:collapse">';
+      html += '<thead><tr class="border-b border-primary/40">';
+      html += '<th class="text-left p-3 font-label-sm text-label-sm uppercase text-secondary">' + dims[state.x].label + '</th>';
+      if (hasSerie) {
+        agg.sVals.forEach(function (sv) {
+          html += '<th class="text-right p-3 font-label-sm text-label-sm uppercase text-secondary">' + displayForSerie(sv) + '</th>';
+        });
+        html += '<th class="text-right p-3 font-label-sm text-label-sm uppercase text-secondary">Gesamt</th>';
+      } else {
+        html += '<th class="text-right p-3 font-label-sm text-label-sm uppercase text-secondary">' + agg.metric.label + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+      var totalAll = 0;
+      agg.xVals.forEach(function (xv) {
+        html += '<tr class="border-b border-primary/15">';
+        html += '<td class="p-3 text-on-surface">' + displayFor(state.x, xv) + '</td>';
+        if (hasSerie) {
+          var total = 0;
+          agg.sVals.forEach(function (sv) {
+            var v = agg.values[xv][sv] || 0;
+            total += v;
+            html += '<td class="p-3 text-right text-on-surface-variant">' + fmt(v) + '</td>';
+          });
+          totalAll += total;
+          html += '<td class="p-3 text-right text-primary font-medium">' + fmt(total) + '</td>';
+        } else {
+          var v = agg.values[xv]["__gesamt__"] || 0;
+          totalAll += v;
+          html += '<td class="p-3 text-right text-on-surface">' + fmt(v) + '</td>';
+        }
+        html += '</tr>';
+      });
+      html += '</tbody><tfoot><tr class="border-t-2 border-primary/40"><td class="p-3 font-label-sm text-label-sm uppercase text-secondary">Summe</td>';
+      if (hasSerie) {
+        html += '<td class="p-3"></td>'.repeat(agg.sVals.length);
+        html += '<td class="p-3 text-right font-label-sm text-label-sm uppercase text-secondary">' + fmt(totalAll) + '</td>';
+      } else {
+        html += '<td class="p-3 text-right font-label-sm text-label-sm uppercase text-secondary">' + fmt(totalAll) + '</td>';
+      }
+      html += '</tr></tfoot></table></div>';
+      document.getElementById("studio-chart").innerHTML = html;
+    }
+
+    function renderEmpty() {
+      document.getElementById("studio-chart").innerHTML = '<div class="flex flex-col items-center justify-center text-center py-xl text-on-surface-variant"><span class="font-nav-item text-nav-item uppercase tracking-widest text-secondary mb-2">Keine Daten</span><span class="text-body-md">Für diese Filterkombination liegen keine Fänge vor.</span></div>';
+    }
+
+    function updateCaption() {
+      var parts = [dims[state.x].label, metrics[state.metric].label];
+      if (state.serie !== "keine") parts.push("nach " + series[state.serie].label);
+      document.getElementById("studio-caption").textContent = parts.join(" · ");
+    }
+
+    function render() {
+      updateCaption();
+      var agg = aggregate();
+      if (agg.data.length === 0) { renderEmpty(); return; }
+      if (state.showTable) { renderTable(agg); return; }
+      var type = state.chartType;
+      if (type === "auto") type = state.x === "monat" ? "linie" : "balken";
+      if (type === "balken") renderBar(agg);
+      else if (type === "linie") renderLine(agg);
+      else if (type === "scatter") renderScatter(agg);
+      else if (type === "heatmap") renderHeatmap(agg);
+    }
+
+    document.getElementById("studio-x").addEventListener("change", function () { state.x = this.value; render(); });
+    document.getElementById("studio-metric").addEventListener("change", function () { state.metric = this.value; render(); });
+    document.getElementById("studio-serie").addEventListener("change", function () { state.serie = this.value; render(); });
+    document.getElementById("studio-type").addEventListener("change", function () { state.chartType = this.value; render(); });
+
+    var tableBtn = document.getElementById("studio-table-btn");
+    tableBtn.addEventListener("click", function () {
+      state.showTable = !state.showTable;
+      tableBtn.textContent = state.showTable ? "Als Chart anzeigen" : "Als Tabelle anzeigen";
+      if (state.showTable) tableBtn.classList.add("is-active"); else tableBtn.classList.remove("is-active");
+      render();
+    });
+
+    document.querySelectorAll("[data-filter-target]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var target = btn.getAttribute("data-filter-target");
+        var value = btn.getAttribute("data-filter");
+        state.filters[target] = value;
+        var group = btn.closest("[data-filter-group]");
+        if (group) {
+          group.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("is-active"); });
+        }
+        btn.classList.add("is-active");
+        render();
       });
     });
 
-    applyFilters();
+    render();
   })();
 </script>
