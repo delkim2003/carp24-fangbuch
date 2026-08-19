@@ -43,6 +43,19 @@ if [ "${DISK_PCT:-0}" -gt 85 ]; then
   FAILS=$((FAILS+1))
 fi
 
+# 4) Backup-Age (neuestes postgres_*.dump.gpg muss < 26h alt sein)
+LATEST_BACKUP=$(ls -t /mnt/projekte/carp24-fangbuch/infra/backups/postgres_*.dump.gpg 2>/dev/null | head -1)
+if [ -n "$LATEST_BACKUP" ]; then
+  BACKUP_AGE_H=$(( ($(date +%s) - $(stat -c %Y "$LATEST_BACKUP")) / 3600 ))
+  if [ "$BACKUP_AGE_H" -gt 26 ]; then
+    OUT="${OUT}❌ Backup zu alt: ${BACKUP_AGE_H}h (letztes: $(basename "$LATEST_BACKUP"))\n"
+    FAILS=$((FAILS+1))
+  fi
+else
+  OUT="${OUT}❌ KEIN Backup gefunden!\n"
+  FAILS=$((FAILS+1))
+fi
+
 if [ "$FAILS" -gt 0 ]; then
   echo "🐟 CARP24 WATCHDOG | $DATE"
   echo "══════════════════════════"
