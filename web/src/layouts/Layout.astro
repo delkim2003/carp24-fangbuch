@@ -29,6 +29,24 @@ const {
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
     <title>{title}</title>
+    <!-- Matomo on-Premise (DSGVO: requireConsent blockiert bis Consent) -->
+    <script>
+      var _paq = (window._paq = window._paq || []);
+      _paq.push(["requireConsent"]);
+      _paq.push(["trackPageView"]);
+      _paq.push(["enableLinkTracking"]);
+      (function () {
+        var u = "https://matomo.einfach-online.dev/";
+        _paq.push(["setTrackerUrl", u + "matomo.php"]);
+        _paq.push(["setSiteId", "4"]);
+        var d = document,
+          g = d.createElement("script"),
+          s = d.getElementsByTagName("script")[0];
+        g.async = true;
+        g.src = u + "matomo.js";
+        s.parentNode.insertBefore(g, s);
+      })();
+    </script>
   </head>
   <body class="min-h-screen flex flex-col bg-background text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
     {!bare && <Header active={active} />}

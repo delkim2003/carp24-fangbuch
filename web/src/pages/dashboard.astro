@@ -15,38 +15,44 @@ const stats = [
 ];
 
 const chart = [
-  { m: "Mär", pct: 16 },
-  { m: "Apr", pct: 33 },
-  { m: "Mai", pct: 25 },
-  { m: "Jun", pct: 50 },
-  { m: "Jul", pct: 80 },
-  { m: "Aug", pct: 100 },
-  { m: "Sep", pct: 75 },
-  { m: "Okt", pct: 50 },
-  { m: "Nov", pct: 33 },
-  { m: "Dez", pct: 16 },
+  { m: "Mär", pct: 16, w: "bewoelkt", mo: "neumond" },
+  { m: "Apr", pct: 33, w: "regen", mo: "zunehmend" },
+  { m: "Mai", pct: 25, w: "sonnig", mo: "vollmond" },
+  { m: "Jun", pct: 50, w: "sonnig", mo: "zunehmend" },
+  { m: "Jul", pct: 80, w: "sonnig", mo: "vollmond" },
+  { m: "Aug", pct: 100, w: "sonnig", mo: "neumond" },
+  { m: "Sep", pct: 75, w: "bewoelkt", mo: "abnehmend" },
+  { m: "Okt", pct: 50, w: "regen", mo: "zunehmend" },
+  { m: "Nov", pct: 33, w: "sturm", mo: "neumond" },
+  { m: "Dez", pct: 16, w: "bewoelkt", mo: "abnehmend" },
 ];
 
 const weightLine = [
-  { m: "Jan", kg: "12,4" },
-  { m: "Feb", kg: "14,1" },
-  { m: "Mär", kg: "13,8" },
-  { m: "Apr", kg: "16,2" },
-  { m: "Mai", kg: "18,5" },
-  { m: "Jun", kg: "19,1" },
-  { m: "Jul", kg: "21,4" },
-  { m: "Aug", kg: "20,8" },
-  { m: "Sep", kg: "19,2" },
-  { m: "Okt", kg: "17,5" },
-  { m: "Nov", kg: "16,0" },
-  { m: "Dez", kg: "15,2" },
+  { m: "Jan", kg: "12,4", w: "bewoelkt", mo: "neumond" },
+  { m: "Feb", kg: "14,1", w: "regen", mo: "zunehmend" },
+  { m: "Mär", kg: "13,8", w: "sonnig", mo: "vollmond" },
+  { m: "Apr", kg: "16,2", w: "bewoelkt", mo: "abnehmend" },
+  { m: "Mai", kg: "18,5", w: "sonnig", mo: "zunehmend" },
+  { m: "Jun", kg: "19,1", w: "sonnig", mo: "vollmond" },
+  { m: "Jul", kg: "21,4", w: "sonnig", mo: "neumond" },
+  { m: "Aug", kg: "20,8", w: "sonnig", mo: "abnehmend" },
+  { m: "Sep", kg: "19,2", w: "bewoelkt", mo: "vollmond" },
+  { m: "Okt", kg: "17,5", w: "regen", mo: "zunehmend" },
+  { m: "Nov", kg: "16,0", w: "sturm", mo: "neumond" },
+  { m: "Dez", kg: "15,2", w: "bewoelkt", mo: "abnehmend" },
+];
+
+const weightPoints = [
+  [25,182.8],[75,152.2],[125,157.6],[175,114.4],[225,73],
+  [275,62.2],[325,20.8],[375,31.6],[425,60.4],[475,91],
+  [525,118],[575,132.4]
 ];
 
 const topWaters = [
-  { name: "Silbersee", count: 28 },
-  { name: "Linch Hill", count: 19 },
-  { name: "Donau Altarm", count: 14 },
-  { name: "Waldweiher", count: 11 },
+  { name: "Silbersee", count: 28, w: "sonnig", mo: "vollmond" },
+  { name: "Linch Hill", count: 19, w: "bewoelkt", mo: "zunehmend" },
+  { name: "Donau Altarm", count: 14, w: "regen", mo: "abnehmend" },
+  { name: "Waldweiher", count: 11, w: "sonnig", mo: "neumond" },
 ];
 const maxWaters = 28;
 
@@ -58,6 +64,11 @@ const topCatches = [
 
 const bissStunden = [2,1,1,1,2,6,9,8,4,3,2,2,3,4,5,4,3,3,6,8,10,7,4,2];
 const maxBiss = 10;
+const bissMeta = bissStunden.map((_, i) => {
+  if (i <= 8) return { w: "bewoelkt", mo: "neumond" };
+  if (i <= 16) return { w: "sonnig", mo: "zunehmend" };
+  return { w: "bewoelkt", mo: "vollmond" };
+});
 
 const recent = [
   { gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee • 12. Okt", id: "silbersee-spiegelkarpfen", foto: trophyPhoto },
@@ -88,6 +99,30 @@ const recent = [
       ))}
     </div>
 
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-3">
+        <span class="font-label-sm text-label-sm uppercase text-secondary tracking-widest">WETTER</span>
+        <div class="flex flex-wrap gap-2" data-filter-group="wetter">
+          <button type="button" data-filter="alle" data-filter-target="wetter" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+          <button type="button" data-filter="sonnig" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">SONNIG</button>
+          <button type="button" data-filter="bewoelkt" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">BEWÖLKT</button>
+          <button type="button" data-filter="regen" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">REGEN</button>
+          <button type="button" data-filter="sturm" data-filter-target="wetter" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">STURM</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <span class="font-label-sm text-label-sm uppercase text-secondary tracking-widest">MOND</span>
+        <div class="flex flex-wrap gap-2" data-filter-group="mond">
+          <button type="button" data-filter="alle" data-filter-target="mond" class="filter-btn is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ALLE</button>
+          <button type="button" data-filter="neumond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">NEUMOND</button>
+          <button type="button" data-filter="zunehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ZUNEHMEND</button>
+          <button type="button" data-filter="vollmond" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">VOLLMOND</button>
+          <button type="button" data-filter="abnehmend" data-filter-target="mond" class="filter-btn font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full min-h-11">ABNEHMEND</button>
+        </div>
+      </div>
+    </div>
+
     <div class="flex flex-wrap gap-2">
       <button type="button" data-chart-btn="monat" class="chart-toggle is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">FÄNGE PRO MONAT</button>
       <button type="button" data-chart-btn="gewicht" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">GEWICHTS-VERLAUF</button>
@@ -101,7 +136,7 @@ const recent = [
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">FÄNGE PRO MONAT</h3>
         <div class="flex-grow flex items-end justify-between gap-2 h-64 border-b border-l border-primary/40 pb-4 pl-4">
           {chart.map((c) => (
-            <div class="w-8 bg-primary-container rounded-t-sm" style={`height: ${c.pct}%`} aria-label={`${c.m}: ${c.pct}%`}></div>
+            <div class="filterable w-8 bg-primary-container rounded-t-sm" style={`height: ${c.pct}%`} data-weather={c.w} data-moon={c.mo} aria-label={`${c.m}: ${c.pct}%`}></div>
           ))}
         </div>
         <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
@@ -113,12 +148,8 @@ const recent = [
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">GEWICHTS-VERLAUF</h3>
         <svg viewBox="0 0 600 200" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gewichtsverlauf in kg über 12 Monate">
           <polyline points="25,182.8 75,152.2 125,157.6 175,114.4 225,73 275,62.2 325,20.8 375,31.6 425,60.4 475,91 525,118 575,132.4" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          {[
-            [25,182.8],[75,152.2],[125,157.6],[175,114.4],[225,73],
-            [275,62.2],[325,20.8],[375,31.6],[425,60.4],[475,91],
-            [525,118],[575,132.4]
-          ].map(([x,y]) => (
-            <circle cx={x} cy={y} r="4" fill="var(--color-primary-container)" stroke="var(--color-primary)" stroke-width="1.5" />
+          {weightPoints.map(([x,y], i) => (
+            <circle class="filterable" cx={x} cy={y} r="4" fill="var(--color-primary-container)" stroke="var(--color-primary)" stroke-width="1.5" data-weather={weightLine[i].w} data-moon={weightLine[i].mo} />
           ))}
         </svg>
         <div class="grid grid-cols-12 gap-1 px-2 pt-4 font-nav-item text-label-sm text-on-surface-variant text-center">
@@ -130,7 +161,7 @@ const recent = [
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">TOP-GEWÄSSER</h3>
         <div class="flex flex-col gap-4">
           {topWaters.map((w) => (
-            <div class="flex items-center gap-4">
+            <div class="filterable flex items-center gap-4" data-weather={w.w} data-moon={w.mo}>
               <span class="font-nav-item text-label-sm text-on-surface-variant uppercase w-32 shrink-0">{w.name}</span>
               <div class="flex-grow h-8 bg-surface-container-highest rounded-full overflow-hidden border border-primary/20">
                 <div class="h-full bg-primary-container rounded-full" style={`width: ${(w.count / maxWaters) * 100}%`}></div>
@@ -164,7 +195,7 @@ const recent = [
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">BISS-ZEITEN</h3>
         <div class="flex-grow flex items-end justify-between gap-1 h-64 border-b border-l border-primary/40 pb-4 pl-4">
           {bissStunden.map((v, i) => (
-            <div class="flex-1 bg-primary-container rounded-t-sm" style={`height: ${(v / maxBiss) * 100}%`} aria-label={`${i} Uhr: ${v}`}></div>
+            <div class="filterable flex-1 bg-primary-container rounded-t-sm" style={`height: ${(v / maxBiss) * 100}%`} data-weather={bissMeta[i].w} data-moon={bissMeta[i].mo} aria-label={`${i} Uhr: ${v}`}></div>
           ))}
         </div>
         <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
@@ -211,15 +242,25 @@ const recent = [
     color: var(--color-secondary);
     border-color: var(--color-primary-tint, rgba(0,0,0,0.06));
   }
+  .filter-btn {
+    color: var(--color-on-surface-variant);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .filter-btn.is-active {
+    background-color: var(--color-surface-container-high);
+    color: var(--color-secondary);
+    border-color: var(--color-primary-tint, rgba(0,0,0,0.06));
+  }
 </style>
 
 <script is:inline>
   (function () {
-    const buttons = document.querySelectorAll('[data-chart-btn]');
-    const blocks = document.querySelectorAll('[data-chart-block]');
+    var buttons = document.querySelectorAll('[data-chart-btn]');
+    var blocks = document.querySelectorAll('[data-chart-block]');
     buttons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        const key = btn.getAttribute('data-chart-btn');
+        var key = btn.getAttribute('data-chart-btn');
         buttons.forEach(function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
         blocks.forEach(function (bl) {
@@ -229,7 +270,44 @@ const recent = [
             bl.classList.add('hidden');
           }
         });
+        applyFilters();
       });
     });
+
+    var filterState = { wetter: 'alle', mond: 'alle' };
+
+    function applyFilters() {
+      var activeBlock = document.querySelector('.chart-block:not(.hidden)');
+      if (!activeBlock) return;
+      var items = activeBlock.querySelectorAll('.filterable');
+      items.forEach(function (el) {
+        var w = el.getAttribute('data-weather');
+        var mo = el.getAttribute('data-moon');
+        var weatherOk = filterState.wetter === 'alle' || w === filterState.wetter;
+        var moonOk = filterState.mond === 'alle' || mo === filterState.mond;
+        if (weatherOk && moonOk) {
+          el.style.opacity = '1';
+        } else {
+          el.style.opacity = '0.2';
+        }
+      });
+    }
+
+    var filterBtns = document.querySelectorAll('[data-filter-target]');
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = btn.getAttribute('data-filter-target');
+        var value = btn.getAttribute('data-filter');
+        filterState[target] = value;
+        var group = btn.closest('[data-filter-group]');
+        if (group) {
+          group.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        }
+        applyFilters();
+      });
+    });
+
+    applyFilters();
   })();
 </script>

@@ -4,7 +4,7 @@
 <div id="klaro-banner" class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-highest border-t border-outline/30 shadow-lg">
   <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-4 md:py-md flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-md">
     <p class="flex-1 font-body-md text-body-md text-on-surface-variant">
-      Wir nutzen Cookies, um dein Fangbuch-Erlebnis zu verbessern.
+      Wir nutzen Cookies, um dein Fangbuch-Erlebnis zu verbessern. Statistiken werden DSGVO-konform von Matomo auf unserem eigenen Server erfasst.
     </p>
     <div class="flex gap-2 md:gap-sm shrink-0">
       <button type="button" data-klaro="essential" class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface border border-outline/40 rounded-full px-4 md:px-6 py-2.5 md:py-3 min-h-11 hover:bg-surface-container-high transition-colors">
@@ -21,17 +21,33 @@
   (function () {
     var banner = document.getElementById("klaro-banner");
     if (!banner) return;
+
+    // Matomo-Consent synchronisieren (DSGVO: kein Tracking vor Consent)
+    function syncMatomo() {
+      if (!window._paq) return;
+      var mode = "essential";
+      try { mode = localStorage.getItem("klaro-consent") || "essential"; } catch (e) {}
+      if (mode === "all") {
+        window._paq.push(["setConsentGiven"]);
+      } else {
+        window._paq.push(["forgetConsentGiven"]);
+      }
+    }
+
     try {
       if (localStorage.getItem("klaro-consent")) {
         banner.style.display = "none";
+        syncMatomo(); // gespeicherten Consent sofort anwenden
         return;
       }
     } catch (e) {}
+
     banner.addEventListener("click", function (ev) {
       var t = ev.target.closest("[data-klaro]");
       if (!t) return;
       try { localStorage.setItem("klaro-consent", t.getAttribute("data-klaro")); } catch (e) {}
       banner.style.display = "none";
+      syncMatomo();
     });
   })();
 </script>
