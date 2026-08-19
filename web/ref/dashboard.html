@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carp24 - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#67663f",
+                        "on-tertiary-container": "#faffff",
+                        "surface-container-highest": "#dfe4d6",
+                        "outline": "#76786e",
+                        "on-background": "#181d14",
+                        "inverse-primary": "#bdcca4",
+                        "on-surface-variant": "#45483f",
+                        "tertiary": "#496163",
+                        "surface": "#f6fbec",
+                        "surface-variant": "#dfe4d6",
+                        "on-tertiary-fixed": "#061f21",
+                        "secondary-container": "#e7e5b4",
+                        "tertiary-fixed": "#cde7e9",
+                        "on-primary-fixed": "#141f05",
+                        "on-primary-container": "#fdfff0",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2d3228",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#d9e8be",
+                        "surface-tint": "#556342",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f6fbec",
+                        "primary-container": "#6c7a57",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-surface": "#181d14",
+                        "secondary": "#61603a",
+                        "tertiary-container": "#617a7c",
+                        "surface-dim": "#d7dccd",
+                        "outline-variant": "#c6c8bc",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eef3e4",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#1d1d01",
+                        "surface-container-high": "#e5eadb",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f6fbec",
+                        "surface-container": "#ebf0e1",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "primary-fixed-dim": "#bdcca4",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "primary": "#546140",
+                        "surface-container-low": "#f1f6e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "gutter": "20px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "unit": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["\"Source Serif 4\""],
+                        "nav-item": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "label-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8; /* Warm-Sand */
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
+        }
+        .khaki-card {
+            background-color: #CCCA9B;
+            border: 1px solid rgba(74, 83, 56, 0.4);
+            border-radius: 16px;
+        }
+        .olive-hairline {
+            border-color: rgba(74, 83, 56, 0.4);
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky border-b border-outline/20 bg-surface/90 backdrop-blur-sm z-50">
+<div class="flex justify-between items-center h-20 px-margin-desktop max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<img alt="Carp24 Logo" class="h-10 w-auto object-contain" src="assets/logo_carp24_badge.png"/>
+<span class="font-headline-md text-headline-md font-semibold text-primary">Carp24</span>
+</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary font-bold border-b border-primary pb-1 cursor-pointer active:opacity-70" href="#">Fangbuch</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Preis</a>
+</nav>
+<div>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Sign In</a>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow px-margin-desktop max-w-7xl mx-auto w-full py-xl space-y-xl">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary mb-2">Petri Heil, Angler</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Dein Überblick für die Saison 2024.</p>
+</div>
+<button class="bg-primary-container text-white px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-primary transition-colors duration-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                NEUER FANG EINTRAGEN
+            </button>
+</div>
+<!-- Statistics Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="khaki-card p-lg flex flex-col justify-between h-32">
+<span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">GESAMT FÄNGE</span>
+<span class="font-display-lg text-display-lg text-primary">72</span>
+</div>
+<div class="khaki-card p-lg flex flex-col justify-between h-32">
+<span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">SCHWERSTER KARPFEN</span>
+<span class="font-display-lg text-display-lg text-primary">21.4 <span class="text-headline-md">KG</span></span>
+</div>
+<div class="khaki-card p-lg flex flex-col justify-between h-32">
+<span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">FÄNGE DIESES JAHR</span>
+<span class="font-display-lg text-display-lg text-primary">18</span>
+</div>
+<div class="khaki-card p-lg flex flex-col justify-between h-32">
+<span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">AKTIVE GEWÄSSER</span>
+<span class="font-display-lg text-display-lg text-primary">5</span>
+</div>
+</div>
+<!-- Layout Grid for Chart and Recent Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Chart Area -->
+<div class="lg:col-span-2 khaki-card p-lg flex flex-col">
+<h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">Fänge pro Monat</h3>
+<div class="flex-grow flex items-end justify-between gap-2 h-64 border-b border-l olive-hairline border-opacity-40 pb-4 pl-4">
+<!-- Placeholder Bars for Chart -->
+<div class="w-full flex justify-between items-end h-full px-2">
+<div class="w-8 bg-primary-container rounded-t-sm h-1/6"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-2/6"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-1/4"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-1/2"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-4/5"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-full"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-3/4"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-1/2"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-1/3"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-1/6"></div>
+</div>
+</div>
+<div class="flex justify-between px-6 pt-2 font-nav-item text-label-sm text-on-surface-variant">
+<span>Mär</span>
+<span>Apr</span>
+<span>Mai</span>
+<span>Jun</span>
+<span>Jul</span>
+<span>Aug</span>
+<span>Sep</span>
+<span>Okt</span>
+<span>Nov</span>
+<span>Dez</span>
+</div>
+</div>
+<!-- Recent Activity -->
+<div class="lg:col-span-1 flex flex-col">
+<h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6 px-2">LETZTE FÄNGE</h3>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 p-4 hover:bg-surface/50 rounded-lg transition-colors border-b olive-hairline">
+<img alt="Trophy carp" class="w-16 h-16 rounded-lg object-cover shadow-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLsV_LAHZRrZHPCepIsXAw95TztOHja8yEzRaJi_DbReRgVv_GiS2sjEwKvX5trDiFEYb9JbePu8Kq2VaMIIhJvvvsP73TGEH6rZgKL-VbCmyc5FfMpaExSrS4mgGBIYrdK_7UTesCFpbJKMr-l8Nix6nt-aDLndfClZYH1PS5O5yESJ1OGbcatvENwI56FBrcTtwAxTLueze486ZghK0vFymu1HAvb9PEsTK0GkeWQ2AjBA6bwBzAj8oIGG"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">18.5 KG</span>
+<span class="font-nav-item text-label-sm text-on-surface-variant uppercase">KARPFEN</span>
+<span class="font-body-md text-label-sm text-[#7B9496]">Waldsee • 12. Okt</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 p-4 hover:bg-surface/50 rounded-lg transition-colors border-b olive-hairline">
+<img alt="Beautiful carp" class="w-16 h-16 rounded-lg object-cover shadow-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLtS14lm5jLgyQw05gFXRm8uZG4gP2nPN8jI5ktf2sVc4_3EXAM4kVwuyxdp-P179yf4Ur528AxIXPk87Nfg31_klFl3Vc_SR3jed6dXAycC8FYzPMxmviu7Xnt2yWpksr29QYe91RM4dVujemtKqQzHzsfT9CVfFtiwGO2lh5GpIhHaYbYa5I7VTTfOrwaVYjVpdTOH1rUi7QNma1DlYX5NhoEUQ8ey7X8eabmxZqtzQzPiTs_Cw210dTMJ"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">14.2 KG</span>
+<span class="font-nav-item text-label-sm text-on-surface-variant uppercase">KARPFEN</span>
+<span class="font-body-md text-label-sm text-[#7B9496]">Flussbiegung • 05. Okt</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 p-4 hover:bg-surface/50 rounded-lg transition-colors border-b olive-hairline">
+<img alt="Another carp" class="w-16 h-16 rounded-lg object-cover shadow-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLsV_LAHZRrZHPCepIsXAw95TztOHja8yEzRaJi_DbReRgVv_GiS2sjEwKvX5trDiFEYb9JbePu8Kq2VaMIIhJvvvsP73TGEH6rZgKL-VbCmyc5FfMpaExSrS4mgGBIYrdK_7UTesCFpbJKMr-l8Nix6nt-aDLndfClZYH1PS5O5yESJ1OGbcatvENwI56FBrcTtwAxTLueze486ZghK0vFymu1HAvb9PEsTK0GkeWQ2AjBA6bwBzAj8oIGG"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">21.4 KG</span>
+<span class="font-nav-item text-label-sm text-on-surface-variant uppercase">KARPFEN</span>
+<span class="font-body-md text-label-sm text-[#7B9496]">Stausee • 28. Sep</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xl border-t border-outline/20 bg-surface dark:bg-surface">
+<div class="flex flex-col md:flex-row justify-between items-center py-lg px-margin-desktop max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary mb-4 md:mb-0">
+                Carp24
+            </div>
+<div class="flex gap-6 font-label-sm text-label-sm text-on-surface-variant opacity-60">
+<a class="hover:opacity-100 transition-opacity" href="#">Impressum</a>
+<a class="hover:opacity-100 transition-opacity" href="#">Datenschutz</a>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-60 mt-4 md:mt-0">
+                © 2024 Carp24. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

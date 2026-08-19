@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "surface-container": "#ebf0e1",
+                        "inverse-on-surface": "#eef3e4",
+                        "tertiary": "#496163",
+                        "on-tertiary-container": "#faffff",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "surface-container-high": "#e5eadb",
+                        "on-secondary-fixed-variant": "#494824",
+                        "surface": "#f6fbec",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "primary-fixed-dim": "#bdcca4",
+                        "outline": "#76786e",
+                        "tertiary-fixed": "#cde7e9",
+                        "secondary-fixed": "#e7e5b4",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2d3228",
+                        "inverse-primary": "#bdcca4",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-primary-container": "#fdfff0",
+                        "secondary-container": "#e7e5b4",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "secondary": "#61603a",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "primary-fixed": "#d9e8be",
+                        "background": "#f6fbec",
+                        "outline-variant": "#c6c8bc",
+                        "primary": "#546140",
+                        "surface-tint": "#556342",
+                        "primary-container": "#6c7a57",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f1f6e7",
+                        "on-secondary-container": "#67663f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dfe4d6",
+                        "tertiary-container": "#617a7c",
+                        "on-background": "#181d14",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#141f05",
+                        "surface-bright": "#f6fbec",
+                        "on-surface": "#181d14",
+                        "surface-dim": "#d7dccd",
+                        "on-surface-variant": "#45483f",
+                        "warm-sand": "#E8E0C8",
+                        "khaki": "#CCCA9B",
+                        "dark-moss": "#4A5338"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "nav-item": ["JetBrains Mono", "monospace"],
+                        "headline-lg-mobile": ["\"Source Serif 4\"", "serif"],
+                        "headline-md": ["\"Source Serif 4\"", "serif"],
+                        "display-lg": ["\"Source Serif 4\"", "serif"],
+                        "body-lg": ["\"Source Sans 3\"", "sans-serif"],
+                        "headline-lg": ["\"Source Serif 4\"", "serif"],
+                        "body-md": ["\"Source Sans 3\"", "sans-serif"],
+                        "label-sm": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8; /* Warm Sand */
+            /* Subtle grain effect */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .journal-card {
+            background-color: #CCCA9B; /* Khaki */
+            border: 1px solid rgba(74, 83, 56, 0.4); /* Dark Moss 40% opacity */
+            border-radius: 16px;
+            /* Subtle tonal layering, no heavy shadow */
+        }
+
+        .input-inset {
+            background-color: #E8E0C8; /* Sand inset */
+            border: 1px solid rgba(74, 83, 56, 0.2);
+        }
+
+        .hairline-divider {
+            border-top: 1px solid rgba(74, 83, 56, 0.2);
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container flex flex-col justify-between">
+<!-- TopAppBar (Transactional - Nav suppressed, brand preserved) -->
+<header class="flex justify-center items-center w-full px-margin-mobile md:px-margin-desktop py-4 bg-transparent border-b border-outline/20">
+<div class="flex items-center gap-sm">
+<img alt="carp24 logo" class="w-12 h-12 rounded-full object-cover border border-dark-moss/20" src="https://lh3.googleusercontent.com/aida/AEtjO1VjfSOlA9QRfvcsRYbi2nJkYzoRTD3j2A9tMw9WcN2053u_apDEqOJ5HXe9vR4oyboyAMPRDUPSyTQtBhm0LnDoE5VRKyUhluiDhOE7qAk1Y22Mv_XT-WA7kGQecj6btg7vj2a2gIZdd-HdF3ceLCnaRrbd1eVMH5WK5ZifbbTtZzmTstCplP9AmJKpM7YPe5BlPJgjRgDkuZvb6gz9Ubha6xCtx0d9XY8UaE7W_GhE6vgmpZmbPdY-QjR3"/>
+<span class="font-headline-md text-headline-md font-bold tracking-tight text-on-background">carp24</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop">
+<div class="journal-card w-full max-w-md p-lg md:p-xl mx-auto flex flex-col gap-lg">
+<div class="text-center mb-sm">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">Willkommen zurück</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
+</div>
+<form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-dark-moss uppercase tracking-widest" for="email">E-Mail</label>
+<input class="input-inset w-full rounded-lg px-md py-3 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors font-body-md" id="email" placeholder="angler@example.com" type="email"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-dark-moss uppercase tracking-widest" for="password">Passwort</label>
+<input class="input-inset w-full rounded-lg px-md py-3 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors font-body-md" id="password" placeholder="••••••••" type="password"/>
+</div>
+<div class="flex justify-between items-center mt-sm mb-sm">
+<a class="font-label-sm text-label-sm text-dark-moss hover:text-primary transition-colors underline decoration-dark-moss/30 hover:decoration-primary/60" href="#">Passwort vergessen?</a>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all scale-95 active:opacity-80 active:scale-95 duration-200 mt-sm" type="submit">
+                    ANMELDEN
+                </button>
+</form>
+<div class="mt-md text-center">
+<a class="font-body-md text-body-md text-dark-moss hover:text-primary transition-colors" href="#">
+                    Noch kein Konto? <span class="underline decoration-dark-moss/30 hover:decoration-primary/60">Registrieren</span>
+</a>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl border-t border-outline/10 mt-auto bg-transparent">
+<div class="flex flex-col md:flex-row justify-center items-center gap-lg w-full max-w-7xl mx-auto px-margin-mobile">
+<span class="font-headline-md text-headline-md text-on-background opacity-50">carp24</span>
+<div class="flex gap-lg flex-wrap justify-center">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100" href="#">Imprint</a>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">© 2024 carp24. All rights reserved.</span>
+</div>
+</footer>
+</body></html>

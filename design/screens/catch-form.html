@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carp24 - Neuen Fang eintragen</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&amp;family=Source+Sans+3:wght@400&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "secondary": "#61603a",
+                    "tertiary-container": "#617a7c",
+                    "on-primary-container": "#fdfff0",
+                    "surface-variant": "#dfe4d6",
+                    "surface-container": "#ebf0e1",
+                    "on-primary-fixed": "#141f05",
+                    "outline": "#76786e",
+                    "secondary-container": "#e7e5b4",
+                    "inverse-surface": "#2d3228",
+                    "primary-fixed": "#d9e8be",
+                    "inverse-primary": "#bdcca4",
+                    "on-tertiary-container": "#faffff",
+                    "on-primary": "#ffffff",
+                    "primary": "#546140",
+                    "surface-container-high": "#e5eadb",
+                    "on-tertiary-fixed-variant": "#334b4d",
+                    "surface-tint": "#556342",
+                    "on-background": "#181d14",
+                    "outline-variant": "#c6c8bc",
+                    "surface": "#f6fbec",
+                    "on-secondary-container": "#67663f",
+                    "on-surface-variant": "#45483f",
+                    "tertiary-fixed": "#cde7e9",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#496163",
+                    "surface-container-low": "#f1f6e7",
+                    "background": "#f6fbec",
+                    "primary-container": "#6c7a57",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#3e4b2c",
+                    "surface-bright": "#f6fbec",
+                    "secondary-fixed": "#e7e5b4",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#eef3e4",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#181d14",
+                    "surface-container-highest": "#dfe4d6",
+                    "primary-fixed-dim": "#bdcca4",
+                    "on-secondary-fixed-variant": "#494824",
+                    "on-secondary-fixed": "#1d1d01",
+                    "secondary-fixed-dim": "#cbc99a",
+                    "tertiary-fixed-dim": "#b1cbcd",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#061f21",
+                    "surface-dim": "#d7dccd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "20px",
+                    "lg": "24px",
+                    "unit": "4px",
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "margin-desktop": "64px",
+                    "xl": "40px"
+            },
+            "fontFamily": {
+                    "headline-lg": [
+                            "\"Source Serif 4\""
+                    ],
+                    "nav-item": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-lg-mobile": [
+                            "\"Source Serif 4\""
+                    ],
+                    "headline-md": [
+                            "\"Source Serif 4\""
+                    ],
+                    "label-sm": [
+                            "JetBrains Mono"
+                    ],
+                    "body-md": [
+                            "\"Source Sans 3\""
+                    ],
+                    "display-lg": [
+                            "\"Source Serif 4\""
+                    ],
+                    "body-lg": [
+                            "\"Source Sans 3\""
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "nav-item": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.08em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    }
+            }
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            color: #181d14;
+        }
+        .hairline-border {
+            border-color: rgba(74, 83, 56, 0.4);
+        }
+        .input-inset {
+            background-color: #E8E0C8;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md antialiased">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 bg-surface dark:bg-surface-dim border-b border-outline-variant/40">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md text-headline-md">
+                C
+            </div>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Carp24</span>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex gap-8">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary border-b-2 border-primary pb-1" href="#">FANGBUCH</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">STATISTIK</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">PREIS</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-primary hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<div class="mb-xl text-center md:text-left">
+<h1 class="font-display-lg text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Dokumentiere die Details deines Fangs für das Journal.</p>
+</div>
+<form class="bg-[#CCCA9B] rounded-xl border hairline-border p-lg md:p-xl shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
+<!-- Left Column -->
+<div class="flex flex-col gap-lg">
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM</label>
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="datum" name="datum" type="date"/>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser">GEWÄSSER</label>
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="gewaesser" name="gewaesser" placeholder="Name des Sees oder Flusses" type="text"/>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="fischart">FISCHART</label>
+<select class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12 appearance-none" id="fischart" name="fischart">
+<option value="">Auswählen...</option>
+<option value="karpfen">Karpfen</option>
+<option value="hecht">Hecht</option>
+<option value="zander">Zander</option>
+<option value="barsch">Barsch</option>
+</select>
+</div>
+</div>
+<!-- Right Column -->
+<div class="flex flex-col gap-lg">
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)</label>
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="gewicht" name="gewicht" placeholder="0.0" step="0.1" type="number"/>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">LÄNGE (CM)</label>
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="laenge" name="laenge" placeholder="0" type="number"/>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="lufttemperatur">LUFTTEMPERATUR</label>
+<div class="relative">
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="lufttemperatur" name="lufttemperatur" placeholder="°C" type="number"/>
+<span class="absolute right-3 top-3 text-secondary material-symbols-outlined text-[20px]" data-icon="thermostat">thermostat</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="wassertemperatur">WASSERTEMPERATUR</label>
+<div class="relative">
+<input class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 h-12" id="wassertemperatur" name="wassertemperatur" placeholder="°C" type="number"/>
+<span class="absolute right-3 top-3 text-secondary material-symbols-outlined text-[20px]" data-icon="water_drop">water_drop</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="border-t hairline-border my-xl"/>
+<div class="flex flex-col gap-lg">
+<!-- Photo Upload -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary">FOTO HOCHLADEN</label>
+<div class="w-full h-48 bg-[#E8E0C8] border-2 border-dashed hairline-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-[#dfe4d6] transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" data-icon="add_a_photo">add_a_photo</span>
+<span class="font-nav-item text-nav-item text-secondary">Bild auswählen oder ablegen</span>
+</div>
+</div>
+<!-- Notes -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">NOTIZEN</label>
+<textarea class="w-full input-inset border-0 rounded border-b hairline-border focus:ring-0 focus:border-primary font-body-md text-body-md py-3 px-4 resize-none" id="notizen" name="notizen" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..." rows="4"></textarea>
+</div>
+<!-- Catch & Release -->
+<div class="flex items-center gap-3 pt-md">
+<input class="w-5 h-5 rounded border hairline-border text-primary focus:ring-primary input-inset" id="catch_release" name="catch_release" type="checkbox"/>
+<label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
+</div>
+<div class="pt-xl flex justify-end">
+<button class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto" type="submit">
+                        FANG SPEICHERN
+                    </button>
+</div>
+</div>
+</form>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface dark:bg-surface-dim border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop gap-md mt-auto">
+<div class="font-nav-item text-nav-item text-on-surface">
+            © 2024 Carp24
+        </div>
+<div class="flex gap-md">
+<a class="font-label-sm text-label-sm uppercase text-secondary dark:text-secondary-fixed hover:text-primary underline transition-all opacity-80" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-secondary dark:text-secondary-fixed hover:text-primary underline transition-all opacity-80" href="#">Datenschutz</a>
+</div>
+</footer>
+<!-- Mobile Bottom Nav (Visible only on small screens) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant/40 flex justify-around items-center py-3 px-4 z-50">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="book" style="font-variation-settings: 'FILL' 1;">book</span>
+<span class="font-label-sm text-[10px] uppercase">Fangbuch</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 0;">analytics</span>
+<span class="font-label-sm text-[10px] uppercase">Statistik</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 0;">payments</span>
+<span class="font-label-sm text-[10px] uppercase">Preis</span>
+</a>
+</div>
+</body></html>

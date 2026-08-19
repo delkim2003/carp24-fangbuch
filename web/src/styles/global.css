@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/* ============================================================
+   carp24 — Design-Tokens (Quelle: Stitch-Tailwind-Config,
+   onboarding-desktop.html, abgenommen 19.08.2026)
+   ============================================================ */
+@theme {
+  /* Farben (Material-3-Skala, Warm-Sand/Olive) */
+  --color-background: #f6fbec;
+  --color-surface: #f6fbec;
+  --color-surface-bright: #f6fbec;
+  --color-surface-dim: #d7dccd;
+  --color-surface-container: #ebf0e1;
+  --color-surface-container-low: #f1f6e7;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e5eadb;
+  --color-surface-container-highest: #dfe4d6;
+  --color-surface-variant: #dfe4d6;
+  --color-on-surface: #181d14;
+  --color-on-surface-variant: #45483f;
+  --color-inverse-surface: #2d3228;
+  --color-inverse-on-surface: #eef3e4;
+  --color-primary: #546140;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #6c7a57;
+  --color-on-primary-container: #fdfff0;
+  --color-primary-fixed: #d9e8be;
+  --color-primary-fixed-dim: #bdcca4;
+  --color-on-primary-fixed: #141f05;
+  --color-on-primary-fixed-variant: #3e4b2c;
+  --color-inverse-primary: #bdcca4;
+  --color-secondary: #61603a;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e7e5b4;
+  --color-on-secondary-container: #67663f;
+  --color-secondary-fixed: #e7e5b4;
+  --color-secondary-fixed-dim: #cbc99a;
+  --color-on-secondary-fixed: #1d1d01;
+  --color-on-secondary-fixed-variant: #494824;
+  --color-tertiary: #496163;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #617a7c;
+  --color-on-tertiary-container: #faffff;
+  --color-tertiary-fixed: #cde7e9;
+  --color-tertiary-fixed-dim: #b1cbcd;
+  --color-on-tertiary-fixed: #061f21;
+  --color-on-tertiary-fixed-variant: #334b4d;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-outline: #76786e;
+  --color-outline-variant: #c6c8bc;
+  --color-surface-tint: #556342;
+
+  /* Typo-Familien */
+  --font-headline-md: "Source Serif 4", serif;
+  --font-display-lg: "Source Serif 4", serif;
+  --font-headline-lg: "Source Serif 4", serif;
+  --font-headline-lg-mobile: "Source Serif 4", serif;
+  --font-body-md: "Source Sans 3", sans-serif;
+  --font-body-lg: "Source Sans 3", sans-serif;
+  --font-nav-item: "JetBrains Mono", monospace;
+  --font-label-sm: "JetBrains Mono", monospace;
+
+  /* Spacing-Skala */
+  --spacing-unit: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-gutter: 20px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+
+  /* Radius */
+  --radius: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+/* Typo-Klassen (Stitch-Token-Kompatibilität) */
+@layer components {
+  .text-display-lg {
+    font-family: var(--font-display-lg);
+    font-size: 48px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .text-headline-lg {
+    font-family: var(--font-headline-lg);
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 600;
+  }
+  .text-headline-lg-mobile {
+    font-family: var(--font-headline-lg-mobile);
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 600;
+  }
+  .text-headline-md {
+    font-family: var(--font-headline-md);
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 600;
+  }
+  .text-body-lg {
+    font-family: var(--font-body-lg);
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 400;
+  }
+  .text-body-md {
+    font-family: var(--font-body-md);
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+  }
+  .text-nav-item {
+    font-family: var(--font-nav-item);
+    font-size: 13px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .text-label-sm {
+    font-family: var(--font-label-sm);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+}
+
+/* Basis-Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-body-md);
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}

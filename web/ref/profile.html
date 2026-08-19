@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="antialiased" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile - Carp24</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration (Injected from Style Guidance) -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-container-low": "#f1f6e7",
+                        "primary-container": "#6c7a57",
+                        "surface-container-high": "#e5eadb",
+                        "primary": "#546140",
+                        "surface-dim": "#d7dccd",
+                        "surface-tint": "#556342",
+                        "on-secondary-container": "#67663f",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#fdfff0",
+                        "on-error": "#ffffff",
+                        "tertiary": "#496163",
+                        "on-tertiary-container": "#faffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-primary-fixed": "#141f05",
+                        "primary-fixed": "#d9e8be",
+                        "background": "#f6fbec",
+                        "on-background": "#181d14",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f6fbec",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "secondary-container": "#e7e5b4",
+                        "tertiary-fixed": "#cde7e9",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#bdcca4",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#45483f",
+                        "surface-container": "#ebf0e1",
+                        "inverse-surface": "#2d3228",
+                        "outline": "#76786e",
+                        "tertiary-container": "#617a7c",
+                        "outline-variant": "#c6c8bc",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-surface": "#181d14",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "surface-bright": "#f6fbec",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#494824",
+                        "surface-variant": "#dfe4d6",
+                        "secondary": "#61603a",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "inverse-on-surface": "#eef3e4",
+                        "warm-sand": "#E8E0C8",
+                        "khaki-card": "#CCCA9B",
+                        "dark-moss": "#1A1F16",
+                        "olive-line": "#4A5338"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "20px",
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "nav-item": ["JetBrains Mono"],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Styles for tactile editorial feel */
+        body {
+            background-color: #E8E0C8; /* Warm Sand */
+            color: #1A1F16; /* Dark Moss */
+        }
+        .hairline-b { border-bottom: 1px solid rgba(74, 83, 56, 0.2); }
+        .hairline-t { border-top: 1px solid rgba(74, 83, 56, 0.2); }
+        .tactile-card {
+            background-color: #CCCA9B;
+            border: 1px solid rgba(74, 83, 56, 0.4);
+            border-radius: 16px;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #6C7A57;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #6C7A57;
+        }
+    </style>
+</head>
+<body class="font-body-md min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-surface/90 dark:bg-surface w-full top-0 sticky border-b border-outline/20 backdrop-blur-sm z-50">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md font-semibold text-primary dark:text-primary-fixed-dim">
+                Carp24
+            </div>
+<div class="hidden md:flex items-center space-x-xl">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">
+                    Fangbuch
+                </a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">
+                    Statistik
+                </a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">
+                    Preis
+                </a>
+<!-- Active Profile Item indicating current page -->
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary font-bold border-b border-primary pb-1 cursor-pointer active:opacity-70" href="#">
+                    Profil
+                </a>
+</div>
+<!-- Mobile Menu Icon -->
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Profile Header -->
+<section class="flex flex-col items-center justify-center mb-16 text-center">
+<div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-olive-line/40 shadow-sm relative">
+<img class="w-full h-full object-cover" data-alt="A striking editorial portrait of an experienced fisherman standing by a tranquil lakeside at dawn. The lighting is soft and cinematic, casting gentle shadows across his weathered face. He wears a classic, high-quality, earth-toned canvas jacket. The image has a calm, permanent, archival mood, akin to a premium magazine spread, with a very subtle film grain overlay." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3XtNjZyc4uXsVjIGTd8WH2FhrL0ae75BrNBCtuaWqqg4Pboy3UkwbMBFryqczbndzgCLvvj3klgW5-MXBWOaa35kYSDtQzlW0VZNXLOcYvdsp4pJomEip5z0gAj6C2tWLoYzhJj5JDHr5bM-p3pS_oSBbv8sH2H5-82dkMuAXqr5nWb69LI4oz-fhBdtIplw4pgr6f09z5U4Fv_NdDvx9JGkGCvTmQ_UDM2ebPbbWrcntAnVHvTvJCA"/>
+</div>
+<h1 class="font-display-lg text-display-lg text-dark-moss mb-2">Lukas Wagner</h1>
+<p class="font-label-sm text-label-sm text-dark-moss/70 uppercase">MITGLIED SEIT MÄRZ 2024</p>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Stats & Settings -->
+<div class="lg:col-span-8 flex flex-col space-y-xl">
+<!-- Stat Row (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="tactile-card p-6 flex flex-col justify-center">
+<span class="font-label-sm text-label-sm uppercase text-dark-moss/70 mb-4 block">FÄNGE</span>
+<span class="font-headline-lg text-headline-lg text-dark-moss">72</span>
+</div>
+<div class="tactile-card p-6 flex flex-col justify-center">
+<span class="font-label-sm text-label-sm uppercase text-dark-moss/70 mb-4 block">SCHWERSTER FANG</span>
+<span class="font-headline-lg text-headline-lg text-dark-moss">21.4 KG</span>
+</div>
+<div class="tactile-card p-6 flex flex-col justify-center">
+<span class="font-label-sm text-label-sm uppercase text-dark-moss/70 mb-4 block">GEWÄSSER</span>
+<span class="font-headline-lg text-headline-lg text-dark-moss">5</span>
+</div>
+</div>
+<!-- Settings Sections -->
+<div class="mt-8">
+<h2 class="font-headline-md text-headline-md text-dark-moss mb-6">Einstellungen</h2>
+<div class="flex flex-col">
+<!-- Einheiten -->
+<div class="py-6 hairline-b flex justify-between items-center group">
+<div>
+<h3 class="font-label-sm text-label-sm uppercase text-dark-moss mb-1">Einheiten</h3>
+<p class="font-body-md text-body-md text-dark-moss/60">GEWICHTSEINHEIT (KG / LBS)</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-2 border-olive-line/40 appearance-none cursor-pointer transition-transform duration-200" id="toggle-weight" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary-container cursor-pointer transition-colors duration-200" for="toggle-weight"></label>
+</div>
+</div>
+<!-- Sprache -->
+<div class="py-6 hairline-b flex justify-between items-center group">
+<div>
+<h3 class="font-label-sm text-label-sm uppercase text-dark-moss mb-1">Sprache</h3>
+<p class="font-body-md text-body-md text-dark-moss/60">APP SPRACHE</p>
+</div>
+<div class="relative">
+<select class="appearance-none bg-transparent border-none font-label-sm text-label-sm text-dark-moss uppercase pr-6 focus:ring-0 cursor-pointer">
+<option>DEUTSCH</option>
+<option>ENGLISH</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-dark-moss/60" style="font-size: 16px;">expand_more</span>
+</div>
+</div>
+<!-- Benachrichtigungen -->
+<div class="py-6 flex flex-col space-y-4 group">
+<h3 class="font-label-sm text-label-sm uppercase text-dark-moss mb-2">Benachrichtigungen</h3>
+<div class="flex justify-between items-center">
+<p class="font-body-md text-body-md text-dark-moss/80">E-MAIL NEWSLETTER</p>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-2 border-olive-line/40 appearance-none cursor-pointer transition-transform duration-200" id="toggle-email" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-olive-line/20 cursor-pointer transition-colors duration-200" for="toggle-email"></label>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<p class="font-body-md text-body-md text-dark-moss/80">PUSH-MITTEILUNGEN</p>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-2 border-olive-line/40 appearance-none cursor-pointer transition-transform duration-200" id="toggle-push" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary-container cursor-pointer transition-colors duration-200" for="toggle-push"></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Subscription & Actions -->
+<div class="lg:col-span-4 flex flex-col space-y-8 mt-12 lg:mt-0">
+<!-- Subscription Card -->
+<div class="tactile-card p-8 flex flex-col h-auto relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-container/5 rounded-full pointer-events-none"></div>
+<span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest">PRO STATUS</span>
+<p class="font-headline-md text-headline-md text-dark-moss mb-8 leading-snug">
+                        Dein Abonnement ist aktiv.<br/>Nächste Abrechnung am<br/>12. April 2025.
+                    </p>
+<button class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-white transition-colors duration-300">
+                        ABO VERWALTEN
+                    </button>
+</div>
+<!-- Logout -->
+<div class="pt-8 flex justify-end lg:justify-start">
+<button class="flex items-center space-x-2 text-dark-moss/60 hover:text-error transition-colors duration-200 group">
+<span class="material-symbols-outlined text-xl group-hover:text-error">logout</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">ABMELDEN</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface w-full mt-xl border-t border-outline/20">
+<div class="flex flex-col md:flex-row justify-between items-center py-lg px-margin-desktop max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary mb-4 md:mb-0">
+                Carp24
+            </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-60 mb-4 md:mb-0">
+                © 2024 Carp24. All rights reserved.
+            </div>
+<div class="flex space-x-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+</body></html>
