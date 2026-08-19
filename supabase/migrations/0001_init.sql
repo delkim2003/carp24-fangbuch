@@ -452,7 +452,7 @@ CREATE POLICY posts_update_owner ON public.posts
 DROP POLICY IF EXISTS posts_delete_owner ON public.posts;
 CREATE POLICY posts_delete_owner ON public.posts
   FOR DELETE TO authenticated
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid() AND status = 'VISIBLE');
 
 -- ────────── subscriptions  (KEINE User-Policy, nur service_role) ──────────
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
