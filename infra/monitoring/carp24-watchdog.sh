@@ -1,5 +1,6 @@
 #!/bin/bash
 # === carp24 Watchdog (Task 0.6) — RAM/Disk/Supabase-Health → Cron-Output für Telegram ===
+# SYNCHRON: wird nach jedem Update nach ~/.hermes/profiles/agentur-berater/scripts/ kopiert
 # Wird vom Hermes-Cron aufgerufen; stdout = Telegram-Delivery.
 # Ausgabe NUR bei Problemen (Watchdog-Pattern: still = alles gut).
 
