@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import placeholder from "../assets/placeholder-fish.svg?url";
+import trophyPhoto from "../assets/stitch/dashboard-1.jpg?url";
+import carpPhoto from "../assets/stitch/dashboard-2.jpg?url";
 
 const stats = [
   { label: "GESAMT FÄNGE", value: "72", unit: "" },
@@ -70,7 +71,7 @@ const recent = [
           {recent.map((r) => (
             <a href={`/faenge/${r.id}`} class="flex items-center gap-4 p-4 hover:bg-surface-container-high rounded-lg transition-colors border-b border-primary/40">
               <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high border border-primary/20 shrink-0">
-                <img src={placeholder} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
+                <img src={trophyPhoto} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
               </div>
               <div class="flex flex-col">
                 <span class="text-headline-md text-primary">{r.gewicht}</span>

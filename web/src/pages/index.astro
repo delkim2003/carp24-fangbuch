@@ -1,6 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import placeholder from "../assets/placeholder-fish.svg?url";
+import heroPhoto from "../assets/stitch/onboarding-1.jpg?url";
+import catchPhoto1 from "../assets/stitch/onboarding-2.jpg?url";
+import catchPhoto2 from "../assets/stitch/catch-list-0.jpg?url";
+import catchPhoto3 from "../assets/stitch/catch-list-1.jpg?url";
 
 const features = [
   { tag: "ERFASSEN", title: "In Sekunden dokumentiert", text: "Erfasse jeden Fang direkt am Wasser mit minimalem Aufwand.", icon: "plus" },
@@ -9,9 +12,9 @@ const features = [
 ];
 
 const examples = [
-  { weight: "18,2 KG", art: "KARPFEN", ort: "Silbersee • 12. Okt 2025" },
-  { weight: "12,5 KG", art: "KARPFEN", ort: "Waldweiher • 08. Sep 2025" },
-  { weight: "21,0 KG", art: "SPIEGELKARPFEN", ort: "Donau Altarm • 24. Aug 2025" },
+  { weight: "18,2 KG", art: "KARPFEN", ort: "Silbersee • 12. Okt 2025", img: catchPhoto1 },
+  { weight: "12,5 KG", art: "KARPFEN", ort: "Waldweiher • 08. Sep 2025", img: catchPhoto2 },
+  { weight: "21,0 KG", art: "SPIEGELKARPFEN", ort: "Donau Altarm • 24. Aug 2025", img: catchPhoto3 },
 ];
 
 const icons: Record<string, string> = {
@@ -40,7 +43,7 @@ const icons: Record<string, string> = {
       <div class="relative">
         <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg shadow-sm">
           <div class="w-full h-80 md:h-[500px] rounded-lg overflow-hidden border border-primary/20 relative bg-surface-container-highest">
-            <img src={placeholder} alt="Editorial Angel-Foto" class="w-full h-full object-cover" loading="lazy" />
+            <img src={heroPhoto} alt="Karpfen wird gewogen" class="w-full h-full object-cover" loading="lazy" />
           </div>
         </div>
       </div>
@@ -70,7 +73,7 @@ const icons: Record<string, string> = {
         {examples.map((ex) => (
           <div class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden flex flex-col group">
             <div class="h-48 border-b border-primary/20 relative bg-surface-container-highest">
-              <img src={placeholder} alt={`Beispiel-Fang ${ex.art} ${ex.weight}`} class="w-full h-full object-cover" loading="lazy" />
+              <img src={ex.img} alt={`Beispiel-Fang ${ex.art} ${ex.weight}`} class="w-full h-full object-cover" loading="lazy" />
             </div>
             <div class="p-lg flex flex-col gap-2">
               <div class="flex justify-between items-baseline">

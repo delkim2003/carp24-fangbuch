@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import placeholder from "../assets/placeholder-fish.svg?url";
+import portraitPhoto from "../assets/stitch/profile-0.jpg?url";
 
 const stats = [
   { label: "FÄNGE", value: "72" },
@@ -13,7 +13,7 @@ const stats = [
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     <section class="flex flex-col items-center justify-center mb-16 text-center">
       <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative">
-        <img src={placeholder} alt="Profilbild" class="w-full h-full object-cover" loading="lazy" />
+        <img src={portraitPhoto} alt="Profilbild" class="w-full h-full object-cover" loading="lazy" />
       </div>
       <h1 class="text-display-lg text-on-surface mb-2">Lukas Wagner</h1>
       <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">MITGLIED SEIT MÄRZ 2024</p>

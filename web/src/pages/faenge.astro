@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import placeholder from "../assets/placeholder-fish.svg?url";
+import img1 from "../assets/stitch/catch-list-0.jpg?url";
+import img2 from "../assets/stitch/catch-list-1.jpg?url";
+import img3 from "../assets/stitch/onboarding-2.jpg?url";
 
 const catches = [
   {
@@ -9,7 +11,7 @@ const catches = [
     gewicht: "18,4 KG",
     gewaesser: "Silbersee",
     datum: "12. OKT 2025",
-    tags: [{ t: "Boilie", c: "tertiary" }, { t: "Nebel", c: "secondary" }],
+    tags: [{ t: "Boilie", c: "tertiary" }, { t: "Nebel", c: "secondary" }], img: img1,
   },
   {
     id: "linch-hill-schuppenkarpfen",
@@ -17,7 +19,7 @@ const catches = [
     gewicht: "14,2 KG",
     gewaesser: "Linch Hill",
     datum: "28. SEP 2025",
-    tags: [{ t: "Tigernuss", c: "tertiary" }, { t: "Klar", c: "secondary" }],
+    tags: [{ t: "Tigernuss", c: "tertiary" }, { t: "Klar", c: "secondary" }], img: img2,
   },
   {
     id: "silbersee-graskarpfen",
@@ -25,7 +27,7 @@ const catches = [
     gewicht: "21,0 KG",
     gewaesser: "Silbersee",
     datum: "15. SEP 2025",
-    tags: [{ t: "Pop-Up", c: "tertiary" }, { t: "Regen", c: "secondary" }],
+    tags: [{ t: "Pop-Up", c: "tertiary" }, { t: "Regen", c: "secondary" }], img: img3,
   },
 ];
 
@@ -95,7 +97,7 @@ const tagClasses: Record<string, string> = {
       {catches.map((c) => (
         <a href={`/faenge/${c.id}`} class="flex flex-col md:flex-row items-start md:items-center p-lg border-b border-primary/20 hover:bg-surface-container-high/50 transition-colors group">
           <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 mr-0 md:mr-6 mb-4 md:mb-0 border border-primary/20 relative bg-surface-container-high">
-            <img src={placeholder} alt={`Fang ${c.art}`} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            <img src={c.img} alt={`Fang ${c.art}`} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
           </div>
           <div class="flex-1 w-full flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
             <div class="flex flex-col">
