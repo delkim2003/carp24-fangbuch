@@ -566,8 +566,9 @@ RESET ROLE;
 -- ============================================================================
 -- C2: reports — Nicht-Moderator kein UPDATE auf status
 -- ============================================================================
-INSERT INTO public.reports (target_type, target_id, reporter_id, reason)
+INSERT INTO public.reports (id, target_type, target_id, reporter_id, reason)
 VALUES (
+  '77777777-7777-7777-7777-777777777777',
   'POST',
   (SELECT id FROM public.posts WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' LIMIT 1),
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -578,10 +579,14 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true);
 
-SELECT throws_ok(
-  $$UPDATE public.reports SET status = 'IN_PROGRESS'
-    WHERE reporter_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'$$,
-  'new row violates row-level security policy for table "reports"',
+WITH upd AS (
+  UPDATE public.reports SET status = 'RESOLVED'
+  WHERE id = '77777777-7777-7777-7777-777777777777'
+  RETURNING id
+)
+SELECT is(
+  (SELECT id FROM upd),
+  NULL,
   'C2a: non-moderator cannot UPDATE reports status (RLS Deny)'
 );
 
