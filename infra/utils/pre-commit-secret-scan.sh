@@ -5,14 +5,15 @@ set -u
 
 # Echte Werte (Basis64/Alnum > 20 Zeichen) nach "=" — NICHT ${VAR} oder leer
 PATTERNS=(
-  'JWT_SECRET=[A-Za-z0-9._-]\{20,\}'
-  'GOTRUE_JWT_SECRET=[A-Za-z0-9._-]\{20,\}'
-  'SERVICE_ROLE_KEY=[A-Za-z0-9._-]\{20,\}'
-  'ANON_KEY=[A-Za-z0-9._-]\{20,\}'
-  'POSTGRES_PASSWORD=[A-Za-z0-9._-]\{20,\}'
-  'DASHBOARD_PASSWORD=[A-Za-z0-9._-]\{8,\}'
-  'PG_META_CRYPTO_KEY=[A-Za-z0-9._-]\{20,\}'
-  'sk-[A-Za-z0-9]\{20,\}'
+  'JWT_SECRET=[A-Za-z0-9._-]{20,}'
+  'GOTRUE_JWT_SECRET=[A-Za-z0-9._-]{20,}'
+  'SERVICE_ROLE_KEY=[A-Za-z0-9._-]{20,}'
+  'ANON_KEY=[A-Za-z0-9._-]{20,}'
+  'POSTGRES_PASSWORD=[A-Za-z0-9._-]{20,}'
+  'DASHBOARD_PASSWORD=[A-Za-z0-9._-]{8,}'
+  'PG_META_CRYPTO_KEY=[A-Za-z0-9._-]{20,}'
+  'sk-[A-Za-z0-9]{20,}'
+  'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'
 )
 
 # Whitelist: Dateien die Variablen-Referenzen/Generator-Logik enthalten dürfen
