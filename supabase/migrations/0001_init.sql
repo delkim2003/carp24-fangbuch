@@ -379,6 +379,7 @@ BEGIN
     UPDATE public.reports SET reason = NULL WHERE reporter_id = NEW.id;
     UPDATE public.trips SET notes = 'gelöschter Nutzer' WHERE user_id = NEW.id;
     UPDATE public.notifications SET payload = NULL WHERE user_id = NEW.id;
+    UPDATE public.waters SET name = 'gelöschter Nutzer', lat = NULL, lng = NULL WHERE owner_id = NEW.id AND public = false;
   END IF;
   RETURN NEW;
 END;
