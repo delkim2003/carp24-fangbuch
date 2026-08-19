@@ -1,7 +1,7 @@
 #!/bin/bash
 # === carp24 Backup (P0.5 — verschlüsselt + offsite) ===
 # Supabase self-hosted v1.26.08 / Postgres 17.6
-# Täglicher Dump: pg_dump (supabase_admin) + Storage-Tar → GPG AES256 → Offsite (Vault/GDrive)
+# Täglicher Dump: pg_dump (supabase_admin) + Storage-Tar + Config-Tar → GPG AES256 → Offsite (Vault/GDrive)
 # Rotation: 7 lokal + 7 offsite
 
 set -euo pipefail
@@ -63,9 +63,25 @@ else
   log "WARNUNG: Storage-Verzeichnis $STORAGE_PATH nicht gefunden — übersprungen"
 fi
 
+# --- 2b) Config-Tar (.env + docker-compose.yml + kong.yml) ---
+CONFIG_TAR_FILE="$BACKUP_DIR/config_$DATE.tar.gz"
+if [ -f "$SCRIPT_DIR/.env" ] || [ -f "$SCRIPT_DIR/docker-compose.yml" ] || [ -d "$SCRIPT_DIR/volumes/api" ]; then
+  if tar -czf "$CONFIG_TAR_FILE" \
+    -C "$SCRIPT_DIR" .env docker-compose.yml \
+    -C "$SCRIPT_DIR/volumes/api" kong.yml 2>> "$LOG"; then
+    log "Config-Tar OK: $CONFIG_TAR_FILE ($(du -h "$CONFIG_TAR_FILE" | cut -f1))"
+  else
+    log "FEHLER: Config-Tar schlug fehl"
+    exit 1
+  fi
+else
+  log "WARNUNG: Config-Dateien nicht gefunden — übersprungen"
+fi
+
 # --- 3) GPG-Verschlüsselung (AES256, symmetrisch) ---
 PG_GPG_FILE="$BACKUP_DIR/postgres_$DATE.dump.gpg"
 STORAGE_GPG_FILE="$BACKUP_DIR/storage_$DATE.tar.gz.gpg"
+CONFIG_GPG_FILE="$BACKUP_DIR/config_$DATE.tar.gz.gpg"
 
 gpg --batch --yes --symmetric --cipher-algo AES256 \
   --passphrase "$BACKUP_PASSPHRASE" \
@@ -81,20 +97,33 @@ if [ -f "$STORAGE_TAR_FILE" ]; then
   log "GPG storage OK: $STORAGE_GPG_FILE ($(du -h "$STORAGE_GPG_FILE" | cut -f1))"
 fi
 
+if [ -f "$CONFIG_TAR_FILE" ]; then
+  gpg --batch --yes --symmetric --cipher-algo AES256 \
+    --passphrase "$BACKUP_PASSPHRASE" \
+    -o "$CONFIG_GPG_FILE" "$CONFIG_TAR_FILE" 2>> "$LOG"
+  rm -f "$CONFIG_TAR_FILE"
+  log "GPG config OK: $CONFIG_GPG_FILE ($(du -h "$CONFIG_GPG_FILE" | cut -f1))"
+fi
+
 # --- 4) Offsite-Kopie (Vault → Insync → Google Drive) ---
 cp "$PG_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite postgres OK → $OFFSITE_DIR/"
 if [ -f "$STORAGE_GPG_FILE" ]; then
   cp "$STORAGE_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite storage OK → $OFFSITE_DIR/"
 fi
+if [ -f "$CONFIG_GPG_FILE" ]; then
+  cp "$CONFIG_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite config OK → $OFFSITE_DIR/"
+fi
 
 # --- 5) Rotation: 7 lokal (.gpg) ---
 ls -t "$BACKUP_DIR"/postgres_*.dump.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$BACKUP_DIR"/storage_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
+ls -t "$BACKUP_DIR"/config_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 log "Rotation lokal: max $ROTATION_KEEP behalten"
 
 # --- 5b) Rotation: 7 offsite (.gpg) ---
 ls -t "$OFFSITE_DIR"/postgres_*.dump.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$OFFSITE_DIR"/storage_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
+ls -t "$OFFSITE_DIR"/config_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 log "Rotation offsite: max $ROTATION_KEEP behalten"
 
 # --- 6) Abschluss ---
@@ -103,4 +132,7 @@ echo "✅ carp24-Backup OK"
 echo "   postgres: $PG_GPG_FILE ($(du -h "$PG_GPG_FILE" | cut -f1))"
 if [ -f "$STORAGE_GPG_FILE" ]; then
   echo "   storage:  $STORAGE_GPG_FILE ($(du -h "$STORAGE_GPG_FILE" | cut -f1))"
+fi
+if [ -f "$CONFIG_GPG_FILE" ]; then
+  echo "   config:   $CONFIG_GPG_FILE ($(du -h "$CONFIG_GPG_FILE" | cut -f1))"
 fi

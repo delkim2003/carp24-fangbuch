@@ -110,6 +110,13 @@ if [ "$MODE" = "--live" ]; then
     exit 0
   fi
 
+  echo ""
+  echo "⚠️  WARNUNG: Sicherstellen, dass die aktuelle .env (JWT_SECRET, ANON_KEY,"
+  echo "   SERVICE_ROLE_KEY, POSTGRES_PASSWORD etc.) zur wiederhergestellten DB passt!"
+  echo "   Falls die .env seit dem Backup geändert wurde: App kann brechen."
+  echo "   → .env-Backup einspielen ODER Secrets manuell prüfen."
+  echo ""
+
   echo "Starte pg_restore --clean --if-exists in postgres-DB ..."
   if ! docker exec -i supabase-db pg_restore \
     -U supabase_admin -d postgres \
