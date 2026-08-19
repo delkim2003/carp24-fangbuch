@@ -6,6 +6,8 @@
 
 set -euo pipefail
 
+trap 'rm -f "$BACKUP_DIR"/postgres_*.dump "$BACKUP_DIR"/storage_*.tar.gz "$BACKUP_DIR"/config_*.tar.gz "$BACKUP_DIR"/roles_*.sql 2>/dev/null' EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -49,6 +51,15 @@ else
   exit 1
 fi
 
+# --- 1b) Rollen/Dump (pg_dumpall --globals-only) ---
+ROLES_FILE="$BACKUP_DIR/roles_$DATE.sql"
+if docker exec supabase-db pg_dumpall -U supabase_admin --globals-only > "$ROLES_FILE" 2>> "$LOG"; then
+  log "Roles-Dump OK: $ROLES_FILE"
+else
+  log "FEHLER: Roles-Dump"
+  exit 1
+fi
+
 # --- 2) Storage-Tar ---
 STORAGE_TAR_FILE="$BACKUP_DIR/storage_$DATE.tar.gz"
 STORAGE_PATH="$REPO_ROOT/infra/volumes/storage"
@@ -82,6 +93,7 @@ fi
 PG_GPG_FILE="$BACKUP_DIR/postgres_$DATE.dump.gpg"
 STORAGE_GPG_FILE="$BACKUP_DIR/storage_$DATE.tar.gz.gpg"
 CONFIG_GPG_FILE="$BACKUP_DIR/config_$DATE.tar.gz.gpg"
+ROLES_GPG_FILE="$BACKUP_DIR/roles_$DATE.sql.gpg"
 
 gpg --batch --yes --symmetric --cipher-algo AES256 \
   --passphrase "$BACKUP_PASSPHRASE" \
@@ -105,8 +117,15 @@ if [ -f "$CONFIG_TAR_FILE" ]; then
   log "GPG config OK: $CONFIG_GPG_FILE ($(du -h "$CONFIG_GPG_FILE" | cut -f1))"
 fi
 
+gpg --batch --yes --symmetric --cipher-algo AES256 \
+  --passphrase "$BACKUP_PASSPHRASE" \
+  -o "$ROLES_GPG_FILE" "$ROLES_FILE" 2>> "$LOG"
+rm -f "$ROLES_FILE"
+log "GPG roles OK: $ROLES_GPG_FILE ($(du -h "$ROLES_GPG_FILE" | cut -f1))"
+
 # --- 4) Offsite-Kopie (Vault → Insync → Google Drive) ---
 cp "$PG_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite postgres OK → $OFFSITE_DIR/"
+cp "$ROLES_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite roles OK → $OFFSITE_DIR/"
 if [ -f "$STORAGE_GPG_FILE" ]; then
   cp "$STORAGE_GPG_FILE" "$OFFSITE_DIR/" 2>> "$LOG" && log "Offsite storage OK → $OFFSITE_DIR/"
 fi
@@ -118,18 +137,21 @@ fi
 ls -t "$BACKUP_DIR"/postgres_*.dump.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$BACKUP_DIR"/storage_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$BACKUP_DIR"/config_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
+ls -t "$BACKUP_DIR"/roles_*.sql.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 log "Rotation lokal: max $ROTATION_KEEP behalten"
 
 # --- 5b) Rotation: 7 offsite (.gpg) ---
 ls -t "$OFFSITE_DIR"/postgres_*.dump.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$OFFSITE_DIR"/storage_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 ls -t "$OFFSITE_DIR"/config_*.tar.gz.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
+ls -t "$OFFSITE_DIR"/roles_*.sql.gpg 2>/dev/null | tail -n +$((ROTATION_KEEP + 1)) | xargs -r rm -f
 log "Rotation offsite: max $ROTATION_KEEP behalten"
 
 # --- 6) Abschluss ---
 log "Backup fertig (verschlüsselt + offsite)"
 echo "✅ carp24-Backup OK"
 echo "   postgres: $PG_GPG_FILE ($(du -h "$PG_GPG_FILE" | cut -f1))"
+echo "   roles:    $ROLES_GPG_FILE ($(du -h "$ROLES_GPG_FILE" | cut -f1))"
 if [ -f "$STORAGE_GPG_FILE" ]; then
   echo "   storage:  $STORAGE_GPG_FILE ($(du -h "$STORAGE_GPG_FILE" | cut -f1))"
 fi

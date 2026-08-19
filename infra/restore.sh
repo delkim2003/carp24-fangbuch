@@ -73,7 +73,7 @@ if [ "$MODE" = "--dry-run" ]; then
   echo "Starte pg_restore ..."
   if ! docker exec -i supabase-db pg_restore \
     -U supabase_admin -d restore_test \
-    --no-owner --no-privileges < "$TMPFILE" 2>&1; then
+    --no-owner < "$TMPFILE" 2>&1; then
     echo "WARNUNG: pg_restore meldete Warnungen (Exit ≠ 0), prüfe Tabellen-Count ..."
   fi
 
@@ -120,7 +120,7 @@ if [ "$MODE" = "--live" ]; then
   echo "Starte pg_restore --clean --if-exists in postgres-DB ..."
   if ! docker exec -i supabase-db pg_restore \
     -U supabase_admin -d postgres \
-    --clean --if-exists --no-owner --no-privileges < "$TMPFILE" 2>&1; then
+    --clean --if-exists --no-owner < "$TMPFILE" 2>&1; then
     echo "WARNUNG: pg_restore meldete Warnungen."
   fi
 
