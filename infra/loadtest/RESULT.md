@@ -39,3 +39,7 @@ Der initiale Testlauf zeigte 100% Fehler bei 20 VUs — Ursache: Kong war nach d
 cd /mnt/projekte/carp24-fangbuch/infra/loadtest
 ANON_KEY=$(grep ANON_KEY= ../.env | cut -d= -f2) k6 run smoke.js
 ```
+
+## Bottleneck-Befund (BAUPLAN-DoD "Bottleneck dokumentiert")
+
+**Befund: KEIN Bottleneck bei 20 VUs auf Dev.** p95 8.9ms (Threshold 800ms) = 90× Reserve. PostgREST/Kong/Postgres-Read-Pfad unkritisch. CX22-Zielhardware-Benchmark folgt nach Bestellung (Phase 4.4). **CX32-Fallback-Entscheidung:** nicht erforderlich — kein Engpass auf aktueller Hardware, CX22 bleibt Ziel.
