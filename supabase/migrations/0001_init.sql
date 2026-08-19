@@ -13,37 +13,37 @@ SET search_path = '';
 -- ============================================================================
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'species_enum') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'species_enum' AND n.nspname = 'public') THEN
     CREATE TYPE public.species_enum AS ENUM ('SPIEGEL','LEDER','SCHUPPEN','AMUR','ANDERE');
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'plan') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'plan' AND n.nspname = 'public') THEN
     CREATE TYPE public.plan AS ENUM ('FREE','PRO');
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'listing_status') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'listing_status' AND n.nspname = 'public') THEN
     CREATE TYPE public.listing_status AS ENUM ('AVAILABLE','SOLD','HIDDEN');
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'report_status') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'report_status' AND n.nspname = 'public') THEN
     CREATE TYPE public.report_status AS ENUM ('OPEN','IN_PROGRESS','RESOLVED','REJECTED');
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'target_type') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'target_type' AND n.nspname = 'public') THEN
     CREATE TYPE public.target_type AS ENUM ('POST','FORUM_TOPIC','FORUM_POST','CHAT','LISTING');
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mod_status') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'mod_status' AND n.nspname = 'public') THEN
     CREATE TYPE public.mod_status AS ENUM ('VISIBLE','HIDDEN');
   END IF;
 END $$;
@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 CREATE TABLE IF NOT EXISTS public.waters (
   id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   name       text,
-  lat        numeric,
-  lng        numeric,
+   lat        numeric     CHECK (lat >= -90 AND lat <= 90),
+   lng        numeric     CHECK (lng >= -180 AND lng <= 180),
   type       text,
   public     boolean     NOT NULL DEFAULT false,
   owner_id   uuid        REFERENCES public.profiles(id),
@@ -146,8 +146,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   public_weight     numeric,
   public_species    text,
   public_water_name text,
-  status            text        NOT NULL DEFAULT 'VISIBLE'
-                      CHECK (status IN ('VISIBLE','HIDDEN')),
+   status            public.mod_status NOT NULL DEFAULT 'VISIBLE',
   reported_at       timestamptz,
   created_at        timestamptz NOT NULL DEFAULT now(),
   deleted_at        timestamptz
@@ -158,8 +157,7 @@ CREATE TABLE IF NOT EXISTS public.forum_topics (
   user_id     uuid        REFERENCES public.profiles(id),
   title       text        NOT NULL,
   body        text,
-  status      text        NOT NULL DEFAULT 'VISIBLE'
-                CHECK (status IN ('VISIBLE','HIDDEN')),
+  status      public.mod_status NOT NULL DEFAULT 'VISIBLE',
   reported_at timestamptz,
   created_at  timestamptz NOT NULL DEFAULT now(),
   deleted_at  timestamptz
@@ -169,10 +167,9 @@ CREATE TABLE IF NOT EXISTS public.forum_posts (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   topic_id    uuid        NOT NULL REFERENCES public.forum_topics(id) ON DELETE CASCADE,
   user_id     uuid        REFERENCES public.profiles(id),
-  body        text        NOT NULL,
-  status      text        NOT NULL DEFAULT 'VISIBLE'
-                CHECK (status IN ('VISIBLE','HIDDEN')),
-  reported_at timestamptz,
+   body        text        NOT NULL,
+   status      public.mod_status NOT NULL DEFAULT 'VISIBLE',
+   reported_at timestamptz,
   created_at  timestamptz NOT NULL DEFAULT now(),
   deleted_at  timestamptz
 );
@@ -191,7 +188,7 @@ CREATE TABLE IF NOT EXISTS public.marketplace_listings (
   title       text              NOT NULL,
   description text,
   category    text,
-  price       numeric,
+   price       numeric     CHECK (price >= 0),
   photos      text[]            NOT NULL DEFAULT '{}',
   status      public.listing_status NOT NULL DEFAULT 'AVAILABLE',
   created_at  timestamptz       NOT NULL DEFAULT now(),
@@ -276,6 +273,9 @@ CREATE INDEX IF NOT EXISTS idx_marketplace_messages_listing_id
 
 CREATE INDEX IF NOT EXISTS idx_marketplace_messages_to_user
   ON public.marketplace_messages (to_user, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_marketplace_messages_from_user
+  ON public.marketplace_messages (from_user, created_at);
 
 -- forum
 CREATE INDEX IF NOT EXISTS idx_forum_topics_created_at
@@ -367,6 +367,18 @@ BEGIN
     NEW.display_name := 'gelöschter Nutzer';
     NEW.bio          := '';
     NEW.avatar_url   := NULL;
+    NEW.home_water   := NULL;
+
+    UPDATE public.catches SET notes = NULL, bait = NULL, method = NULL WHERE user_id = NEW.id;
+    UPDATE public.posts SET text = NULL WHERE user_id = NEW.id;
+    UPDATE public.forum_topics SET title = 'gelöschter Nutzer', body = NULL WHERE user_id = NEW.id;
+    UPDATE public.forum_posts SET body = NULL WHERE user_id = NEW.id;
+    UPDATE public.chat_messages SET message = NULL WHERE user_id = NEW.id;
+    UPDATE public.marketplace_listings SET title = 'gelöschter Nutzer', description = NULL, price = NULL WHERE user_id = NEW.id;
+    UPDATE public.marketplace_messages SET message = NULL WHERE from_user = NEW.id OR to_user = NEW.id;
+    UPDATE public.reports SET reason = NULL WHERE reporter_id = NEW.id;
+    UPDATE public.trips SET notes = 'gelöschter Nutzer' WHERE user_id = NEW.id;
+    UPDATE public.notifications SET payload = NULL WHERE user_id = NEW.id;
   END IF;
   RETURN NEW;
 END;
@@ -407,13 +419,13 @@ CREATE POLICY catches_select_owner ON public.catches
 DROP POLICY IF EXISTS catches_insert_owner ON public.catches;
 CREATE POLICY catches_insert_owner ON public.catches
   FOR INSERT TO authenticated
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (user_id = auth.uid() AND draft = true);
 
 DROP POLICY IF EXISTS catches_update_owner_draft ON public.catches;
 CREATE POLICY catches_update_owner_draft ON public.catches
   FOR UPDATE TO authenticated
   USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid() AND draft = true);
+  WITH CHECK (user_id = auth.uid() AND (draft = true OR deleted_at IS NOT NULL));
 
 DROP POLICY IF EXISTS catches_delete_owner ON public.catches;
 CREATE POLICY catches_delete_owner ON public.catches
@@ -429,15 +441,12 @@ CREATE POLICY posts_select_public ON public.posts
   USING (status = 'VISIBLE' AND deleted_at IS NULL);
 
 DROP POLICY IF EXISTS posts_insert_owner ON public.posts;
-CREATE POLICY posts_insert_owner ON public.posts
-  FOR INSERT TO authenticated
-  WITH CHECK (user_id = auth.uid());
 
 DROP POLICY IF EXISTS posts_update_owner ON public.posts;
 CREATE POLICY posts_update_owner ON public.posts
   FOR UPDATE TO authenticated
   USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
 
 DROP POLICY IF EXISTS posts_delete_owner ON public.posts;
 CREATE POLICY posts_delete_owner ON public.posts
@@ -510,7 +519,7 @@ ALTER TABLE public.marketplace_listings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS marketplace_listings_select_available ON public.marketplace_listings;
 CREATE POLICY marketplace_listings_select_available ON public.marketplace_listings
   FOR SELECT TO authenticated
-  USING (status = 'AVAILABLE' AND deleted_at IS NULL);
+  USING ((status = 'AVAILABLE' AND deleted_at IS NULL) OR user_id = auth.uid());
 
 DROP POLICY IF EXISTS marketplace_listings_insert_owner ON public.marketplace_listings;
 CREATE POLICY marketplace_listings_insert_owner ON public.marketplace_listings
@@ -566,7 +575,12 @@ ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS reports_insert_reporter ON public.reports;
 CREATE POLICY reports_insert_reporter ON public.reports
   FOR INSERT TO authenticated
-  WITH CHECK (reporter_id = auth.uid());
+  WITH CHECK (
+    reporter_id = auth.uid()
+    AND status = 'OPEN'
+    AND assigned_to IS NULL
+    AND resolved_at IS NULL
+  );
 
 DROP POLICY IF EXISTS reports_select_mod_or_reporter ON public.reports;
 CREATE POLICY reports_select_mod_or_reporter ON public.reports
@@ -715,6 +729,7 @@ BEGIN
     SELECT 1 FROM public.subscriptions
     WHERE user_id = v_user_id
       AND plan = 'PRO'
+      AND status = 'ACTIVE'
       AND active_until > now()
   ) INTO v_is_pro;
 
@@ -775,6 +790,10 @@ BEGIN
     RAISE EXCEPTION 'catch must be published first (draft=true)';
   END IF;
 
+  IF v_catch.deleted_at IS NOT NULL THEN
+    RAISE EXCEPTION 'catch is deleted';
+  END IF;
+
   INSERT INTO public.posts
     (user_id, catch_id, text, image, public_weight, public_species, public_water_name, status)
   VALUES
@@ -792,32 +811,32 @@ $fn$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.marketplace_messages;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.posts;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.channels;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.channel_members;
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
 END $$;
 
 ALTER TABLE public.chat_messages       REPLICA IDENTITY FULL;
@@ -831,7 +850,7 @@ ALTER TABLE public.channel_members     REPLICA IDENTITY FULL;
 -- 9) carp24_app-Grants + ALTER DEFAULT PRIVILEGES
 -- ============================================================================
 
-GRANT USAGE, CREATE ON SCHEMA public TO carp24_app;
+GRANT USAGE ON SCHEMA public TO carp24_app;
 GRANT ALL ON ALL TABLES    IN SCHEMA public TO carp24_app;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO carp24_app;
 
