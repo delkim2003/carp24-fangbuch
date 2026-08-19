@@ -162,11 +162,11 @@ SELECT set_config('request.jwt.claim.sub',
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', true);
 
 SELECT is(
-  (UPDATE public.catches SET bait = 'hacked'
+  (SELECT id FROM (UPDATE public.catches SET bait = 'hacked'
    WHERE id = (SELECT id FROM public.catches
                WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
                LIMIT 1)
-   RETURNING id),
+   RETURNING id) AS upd),
   NULL,
   'T6: foreign user cannot UPDATE catch (RLS Deny, 0 rows)'
 );
@@ -444,9 +444,9 @@ SELECT set_config('request.jwt.claim.sub',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true);
 
 SELECT is(
-  (UPDATE public.profiles SET display_name = 'hacked'
+  (SELECT id FROM (UPDATE public.profiles SET display_name = 'hacked'
    WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-   RETURNING id),
+   RETURNING id) AS up),
   NULL,
   'T15: cannot UPDATE foreign profile (RLS Deny, 0 rows)'
 );
