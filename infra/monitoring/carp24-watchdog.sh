@@ -29,8 +29,10 @@ if [ "$MEM_PCT" -gt 90 ]; then
   OUT="${OUT}❌ RAM ${MEM_PCT}% belegt (OOM-Gefahr)\n"
   FAILS=$((FAILS+1))
 fi
-if [ "$SWAP_TOTAL" -gt 0 ] && [ "$SWAP_FREE" -lt $((SWAP_TOTAL / 10)) ]; then
-  OUT="${OUT}⚠️ Swap fast voll (frei ${SWAP_FREE}kB / ${SWAP_TOTAL}kB)\n"
+# Swap-Warnung NUR bei akuter OOM-Gefahr (RAM > 85% UND Swap fast voll) —
+# bekannt voll bis Reboot So 23.08. (MemAvailable reicht), sonst Spam alle 30 Min
+if [ "$MEM_PCT" -gt 85 ] && [ "$SWAP_TOTAL" -gt 0 ] && [ "$SWAP_FREE" -lt $((SWAP_TOTAL / 10)) ]; then
+  OUT="${OUT}❌ OOM-Gefahr: RAM ${MEM_PCT}% UND Swap fast voll (frei ${SWAP_FREE}kB)\n"
   FAILS=$((FAILS+1))
 fi
 
