@@ -8,7 +8,7 @@ set -euo pipefail
 
 trap 'rm -f "$BACKUP_DIR"/postgres_*.dump "$BACKUP_DIR"/storage_*.tar.gz "$BACKUP_DIR"/config_*.tar.gz "$BACKUP_DIR"/roles_*.sql 2>/dev/null' EXIT
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # --- .env laden (BACKUP_PASSPHRASE) ---
