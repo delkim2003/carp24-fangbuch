@@ -109,7 +109,7 @@ services:
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_DNS_NOT_FOUND_TTL: 1
       KONG_DNS_VALID_TTL: 5
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction,post-function
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction,rate-limiting,post-function
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
       KONG_PROXY_ACCESS_LOG: /dev/stdout combined
@@ -168,6 +168,9 @@ services:
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
       GOTRUE_JWT_EXP: ${JWT_EXPIRY}
+      GOTRUE_JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-2592000}
+      GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: ${GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED:-true}
+      GOTRUE_PASSWORD_MIN_LENGTH: ${GOTRUE_PASSWORD_MIN_LENGTH:-10}
 
       # Legacy symmetric HS256 key
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
@@ -187,7 +190,7 @@ services:
       # GOTRUE_EXTERNAL_SKIP_NONCE_CHECK: "true"
 
       # GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: "true"
-      # GOTRUE_SMTP_MAX_FREQUENCY: 1s
+      GOTRUE_SMTP_MAX_FREQUENCY: 60s
       GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
       GOTRUE_SMTP_HOST: ${SMTP_HOST}
       GOTRUE_SMTP_PORT: ${SMTP_PORT}

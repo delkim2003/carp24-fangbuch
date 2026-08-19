@@ -13,6 +13,7 @@ supabase/.branches/
 # ===== Daten NICHT committen (DB + Uploads) =====
 infra/volumes/**/data/
 infra/volumes/storage/
+infra/backups/
 
 # ===== Node / Astro =====
 node_modules/

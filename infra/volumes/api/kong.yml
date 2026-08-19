@@ -462,6 +462,20 @@ services:
           - /
     plugins:
       - name: cors
+      # Brute-Force-Schutz: NUR Tailnet-Geräte erreichen Studio (CGNAT-Range 100.64.0.0/10 = Tailscale)
+      # rate-limiting zählt bei 401 NICHT (basic-auth-Priorität 1100 > rate-limiting 910) — ip-restriction ist der echte Schutz
+      - name: ip-restriction
+        config:
+          allow:
+            - 100.64.0.0/10
+          status: 403
+          message: "Nur Tailnet-Zugriff erlaubt"
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
+          hide_client_headers: false
       - name: basic-auth
         config:
           hide_credentials: true
