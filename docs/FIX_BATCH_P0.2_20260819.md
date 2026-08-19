@@ -61,7 +61,7 @@
 | SEC-F7 | HINWEIS: Host-Container diun mit RW-Docker-Socket | an Host-Admin gemeldet (außerhalb carp24) | dokumentiert |
 
 ## Zusätzliche Fixes
-- Watchdog-Cron-Pfad: Skript nach `~/.hermes/profiles/agentur-berater/scripts/` + **Symlink** auf Repo-Version (Repo-Edits propagieren) — erster Tick 09:00 schlug fehl (Pfad), manueller Run läuft
+- Watchdog-Cron-Pfad: Skript liegt in `~/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh` (echte Kopie, KEIN Symlink — Cron-Sicherheitscheck blockt Symlinks, die aus dem Scripts-Verzeichnis herauszeigen: „script path resolves outside the scripts directory"). **Pitfall: Repo-Änderungen am Watchdog müssen manuell in die Profil-Kopie synchronisiert werden.** Erster Tick 09:00 schlug fehl (Pfad), Fix + manueller Run läuft
 - Watchdog-Swap-Warnung: nur noch bei RAM>85% UND Swap voll (kein 30-Min-Spam bis Reboot So 23.08.)
 
 ## Pitfall Runde 2 (wiederverwendbar)
