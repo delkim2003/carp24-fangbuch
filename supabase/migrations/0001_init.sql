@@ -375,7 +375,7 @@ BEGIN
     UPDATE public.forum_posts SET body = NULL WHERE user_id = NEW.id;
     UPDATE public.chat_messages SET message = 'gelöschter Nutzer' WHERE user_id = NEW.id;
     UPDATE public.marketplace_listings SET title = 'gelöschter Nutzer', description = NULL, price = NULL WHERE user_id = NEW.id;
-    UPDATE public.marketplace_messages SET message = NULL WHERE from_user = NEW.id OR to_user = NEW.id;
+    UPDATE public.marketplace_messages SET message = 'gelöschter Nutzer' WHERE from_user = NEW.id OR to_user = NEW.id;
     UPDATE public.reports SET reason = NULL WHERE reporter_id = NEW.id;
     UPDATE public.trips SET notes = 'gelöschter Nutzer' WHERE user_id = NEW.id;
     UPDATE public.notifications SET payload = NULL WHERE user_id = NEW.id;
