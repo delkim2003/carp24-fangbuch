@@ -3,6 +3,7 @@
 *.pem
 *.key
 secrets.md
+!docs/secrets.md
 !docs/secrets.example.md
 
 # ===== Supabase / DB =====
