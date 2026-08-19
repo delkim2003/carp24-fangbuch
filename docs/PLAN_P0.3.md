@@ -1,6 +1,6 @@
 # 🏗️ P0.3 — Schema 0001_init.sql (KOMPLETTES DDL) — PLAN ZUR ABNAHME
 
-> **Status:** ⏳ Plan — wartet auf Philipp-Abnahme VOR Build
+> **Status:** ✅ **ABGENOMMEN 19.08. (Philipp: „Phase 3 ready wenn das Sinn macht, alles andere ok")** — Realtime: alle 6 Tabellen (Phase-3-ready), species_enum + 50er-Grenze wie empfohlen → BUILD-FREIGABE
 > **Basis:** BAUPLAN v2 Task 0.3 · MASTER_SPRINT Plan v7 (Datenmodell R1–R6) · MIGRATIONS_RUNBOOK (MUSS-Checkliste R4)
 > **Voraussetzung:** P0.2 ABGENOMMEN (19.08., 4 Experten-Runden, PROCEED 95%)
 
