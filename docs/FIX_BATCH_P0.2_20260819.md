@@ -35,3 +35,44 @@
 
 ## Nächster Schritt
 - Re-Audit Runde 2: Fix-Verifikations-Experte + DevOps + Security (neue Perspektiven, „NUR NEUE Funde")
+
+---
+
+# 🔧 RUNDE 2 — 19.08.2026 ~09:05 (deleg_40c0f02a)
+
+**Verdicts Runde 2:** Fix-Verifikation **PROCEED 92%** (alle 11 R1-Fixes OK, 0 Regressionen) · DevOps **PROCEED 88%** (2 HOCH latent) · Security **PAUSE 85%** (2 aktive Fehlkonfigurationen)
+
+## Runde-2-Fixes (Commit `e658702` + folgende)
+
+| # | Fund | Fix | Verifikation |
+|---|------|-----|--------------|
+| R2-F1 | HOCH: db/data + storage nicht in .gitignore (Datenleck-Vektor) | `infra/volumes/**/data/` + `infra/volumes/storage/` in .gitignore | `git check-ignore` → beide ignoriert ✅ |
+| R2-F2 | HOCH: keine Log-Rotation (Docker-Logs unbegrenzt) | logging json-file max-size 20m max-file 3 auf alle 11 Services | `docker inspect supabase-db` → `{json-file map[max-file:3 max-size:20m]}` ✅ |
+| R2-F3 | MITTEL: infra/backup.sh fehlt (Task 0.5) | backup.sh-Stub (pg_dump + Storage-Tar + Rotation 7) | Testlauf → postgres_20260819_0903.dump 311KB ✅ |
+| R2-F4 | MITTEL: doppelte ENABLE_PHONE_* Keys in .env/.env.example | dedup (letzter Wert gewann still) | grep → je 1× ✅ |
+| R2-F5 | MITTEL: Edge-Healthcheck nur TCP | bewusst belassen (Dev, kein /health-Endpoint verfügbar) | dokumentiert |
+| R2-F6 | NIEDRIG: Compose-Header referenziert reset.sh/dev/ (existieren nicht) | bewusst belassen (Doc-Drift) | dokumentiert |
+| R2-F7 | NIEDRIG: Logflare/Vector deaktiviert, undokumentiert | bewusst (Dev, Watchdog-Cron deckt ab) | dokumentiert |
+| SEC-F1 | MITTEL: offene Registrierung (DISABLE_SIGNUP=false, SMTP leer) | `DISABLE_SIGNUP=true` in .env + auth force-recreate | Container-Env `GOTRUE_DISABLE_SIGNUP=true` ✅ |
+| SEC-F2 | MITTEL: Studio-Username "admin" | `DASHBOARD_USERNAME=carp24ops` + kong force-recreate | falsche Creds → 401 ✅ |
+| SEC-F3 | MITTEL latent: Docker-Socket in docker-compose.logs.yml (Vector) | dokumentiert — logs.yml NICHT starten ohne Need | dokumentiert |
+| SEC-F5 | HINWEIS: JWT_KEYS tot (asymmetrische Migration halbfertig) | dokumentiert — läuft sauber symmetrisch HS256 | dokumentiert |
+| SEC-F6 | HINWEIS: 5-Jahres-API-Keys, keine Rotation | dokumentiert — Rotation vor Phase 4 (CX22) | dokumentiert |
+| SEC-F7 | HINWEIS: Host-Container diun mit RW-Docker-Socket | an Host-Admin gemeldet (außerhalb carp24) | dokumentiert |
+
+## Zusätzliche Fixes
+- Watchdog-Cron-Pfad: Skript nach `~/.hermes/profiles/agentur-berater/scripts/` + **Symlink** auf Repo-Version (Repo-Edits propagieren) — erster Tick 09:00 schlug fehl (Pfad), manueller Run läuft
+- Watchdog-Swap-Warnung: nur noch bei RAM>85% UND Swap voll (kein 30-Min-Spam bis Reboot So 23.08.)
+
+## Pitfall Runde 2 (wiederverwendbar)
+- **docker compose: Shell-Env überschreibt .env erneut** (DISABLE_SIGNUP): `env | grep DISABLE_SIGNUP` → Shell hatte `false` → compose löste `false` auf. Vor jedem .env-Wert-Wechsel: `unset <VAR>` + force-recreate. (2. Vorkommen — Muster bestätigt.)
+
+## Offen (bewusst, dokumentiert)
+- Swap voll → Reboot So 23.08.
+- SMTP → Task 1.9
+- backup.sh final (offsite, verschlüsselt) → Task 0.5
+- Key-Rotation → vor Phase 4
+- logs.yml (Vector/Logflare) → nur bei Bedarf
+
+## Nächster Schritt
+- Runde 3 (Re-Audit auf R2-Fixes) — bei grün: P0.2 abgenommen → P0.3-Plan
