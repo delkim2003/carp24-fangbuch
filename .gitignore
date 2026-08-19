@@ -10,6 +10,10 @@ supabase/.temp/
 supabase/.branches/
 *.sql.bak
 
+# ===== Daten NICHT committen (DB + Uploads) =====
+infra/volumes/**/data/
+infra/volumes/storage/
+
 # ===== Node / Astro =====
 node_modules/
 dist/
