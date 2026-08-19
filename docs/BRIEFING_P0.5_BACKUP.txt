@@ -1,0 +1,47 @@
+Baue P0.5 Backup/Restore für carp24 (Supabase self-hosted v1.26.08, Postgres 17.6). Repo: /mnt/projekte/carp24-fangbuch.
+
+KONTEXT: infra/backup.sh existiert als STUB (pg_dump + Storage-Tar + Rotation 7). DoD Task 0.5: täglich, OFF-SITE, VERSCHLÜSSELT + Restore-Skript + Restore-Dry-Run BESTANDEN. Offsite-Ziel = /mnt/projekte/vault/02_SYSTEM/BACKUPS/carp24/ (Vault synct via Insync zu Google Drive = offsite). Verschlüsselung: gpg symmetrisch mit Passphrase aus infra/.env (BACKUP_PASSPHRASE, muss dort ergänzt werden — schreibe NUR die Variable in .env.example + Verweis, KEINE echten Werte).
+
+============================================================
+AUFGABE 1: infra/backup.sh VOLLSTÄNDIG überschreiben (Regel: ganze Datei, keine Diffs)
+
+Anforderungen:
+1. pg_dump als supabase_admin (nicht postgres): docker exec supabase-db pg_dump -U supabase_admin -Fc -d postgres
+2. Storage-Tar wie bisher
+3. VERSCHLÜSSELUNG: Beide Dateien mit gpg symmetrisch verschlüsseln:
+   gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$BACKUP_PASSPHRASE" -o "$BACKUP_DIR/postgres_$DATE.dump.gpg" "$BACKUP_DIR/postgres_$DATE.dump"
+   (Quelldatei danach löschen; analog storage_$DATE.tar.gz.gpg)
+   BACKUP_PASSPHRASE aus infra/.env lesen (set -a; source infra/.env; set +a) — wenn fehlt: exit 1 mit Meldung
+4. OFF-SITE: verschlüsselte .gpg-Dateien nach /mnt/projekte/vault/02_SYSTEM/BACKUPS/carp24/ kopieren (mkdir -p)
+5. Rotation: 7 lokale + 7 offsite behalten
+6. Log-Zeilen wie bisher
+7. Am Ende: echo "✅ carp24-Backup OK" + Größen der .gpg-Dateien
+
+============================================================
+AUFGABE 2: infra/restore.sh NEU anlegen
+
+Anforderungen:
+1. Nutzung: ./restore.sh <backup-file.dump.gpg> [--dry-run]
+2. Entschlüsseln: gpg --batch --yes --decrypt --passphrase "$BACKUP_PASSPHRASE" -o /tmp/restore_$$.dump <backup-file.dump.gpg>
+3. DRY-RUN-Modus (Standard): In eine TEMP-Datenbank restore-restore_test wiederherstellen:
+   docker exec supabase-db createdb -U supabase_admin restore_test
+   docker exec supabase-db pg_restore -U supabase_admin -d restore_test --no-owner --no-privileges /tmp/restore_$$.dump
+   DANACH verifizieren: Tabellen-Count (SELECT count(*) FROM information_schema.tables WHERE table_schema='public') muss > 0 sein
+   DANN Temp-DB löschen: docker exec supabase-db dropdb -U supabase_admin restore_test
+4. LIVE-Modus (--live, NUR mit Bestätigung): pg_restore in postgres-DB (--clean --if-exists) — Warnung ausgeben, dass das die DB überschreibt
+5. /tmp-Datei immer aufräumen (trap)
+6. Exit-Codes: 0 = erfolgreich, 1 = Fehler
+
+============================================================
+AUFGABE 3: infra/.env.example — BACKUP_PASSPHRASE Variable ergänzen (leer, KEIN Wert):
+BACKUP_PASSPHRASE=
+
+============================================================
+NACH DEM BUILD (führe selbst aus):
+1. chmod +x infra/backup.sh infra/restore.sh
+2. BACKUP_PASSPHRASE temporär setzen (nur für Test, NICHT committen): export BACKUP_PASSPHRASE=testpassphrase123
+3. infra/backup.sh ausführen → muss .gpg-Dateien erzeugen + nach vault offsite kopieren
+4. infra/restore.sh <neueste-postgres.dump.gpg> --dry-run ausführen → muss Tabellen-Count > 0 zeigen
+5. Prüfe: ls infra/backups/ | grep .gpg → vorhanden; ls /mnt/projekte/vault/02_SYSTEM/BACKUPS/carp24/ | grep .gpg → vorhanden
+6. Commit: 'P0.5: backup.sh verschlüsselt+offsite, restore.sh Dry-Run (DoD Restore BESTANDEN)'
+7. Gib aus: git log --oneline -1
