@@ -2,6 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import trophyPhoto from "../assets/stitch/dashboard-1.jpg?url";
 import carpPhoto from "../assets/stitch/dashboard-2.jpg?url";
+import onboardingPhoto from "../assets/stitch/onboarding-2.jpg?url";
+import topCatch1 from "../assets/stitch/dashboard-1.jpg?url";
+import topCatch2 from "../assets/stitch/catch-list-0.jpg?url";
+import topCatch3 from "../assets/stitch/onboarding-2.jpg?url";
 
 const stats = [
   { label: "GESAMT FÄNGE", value: "72", unit: "" },
@@ -23,10 +27,42 @@ const chart = [
   { m: "Dez", pct: 16 },
 ];
 
+const weightLine = [
+  { m: "Jan", kg: "12,4" },
+  { m: "Feb", kg: "14,1" },
+  { m: "Mär", kg: "13,8" },
+  { m: "Apr", kg: "16,2" },
+  { m: "Mai", kg: "18,5" },
+  { m: "Jun", kg: "19,1" },
+  { m: "Jul", kg: "21,4" },
+  { m: "Aug", kg: "20,8" },
+  { m: "Sep", kg: "19,2" },
+  { m: "Okt", kg: "17,5" },
+  { m: "Nov", kg: "16,0" },
+  { m: "Dez", kg: "15,2" },
+];
+
+const topWaters = [
+  { name: "Silbersee", count: 28 },
+  { name: "Linch Hill", count: 19 },
+  { name: "Donau Altarm", count: 14 },
+  { name: "Waldweiher", count: 11 },
+];
+const maxWaters = 28;
+
+const topCatches = [
+  { rang: "1", gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee", foto: topCatch1 },
+  { rang: "2", gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee", foto: topCatch2 },
+  { rang: "3", gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung", foto: topCatch3 },
+];
+
+const bissStunden = [2,1,1,1,2,6,9,8,4,3,2,2,3,4,5,4,3,3,6,8,10,7,4,2];
+const maxBiss = 10;
+
 const recent = [
-  { gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee • 12. Okt", id: "silbersee-spiegelkarpfen" },
-  { gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung • 05. Okt", id: "linch-hill-schuppenkarpfen" },
-  { gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee • 28. Sep", id: "silbersee-graskarpfen" },
+  { gewicht: "18,5 KG", art: "KARPFEN", ort: "Waldsee • 12. Okt", id: "silbersee-spiegelkarpfen", foto: trophyPhoto },
+  { gewicht: "14,2 KG", art: "KARPFEN", ort: "Flussbiegung • 05. Okt", id: "linch-hill-schuppenkarpfen", foto: carpPhoto },
+  { gewicht: "21,4 KG", art: "KARPFEN", ort: "Stausee • 28. Sep", id: "silbersee-graskarpfen", foto: onboardingPhoto },
 ];
 ---
 
@@ -52,8 +88,16 @@ const recent = [
       ))}
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-      <div class="lg:col-span-2 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+    <div class="flex flex-wrap gap-2">
+      <button type="button" data-chart-btn="monat" class="chart-toggle is-active font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">FÄNGE PRO MONAT</button>
+      <button type="button" data-chart-btn="gewicht" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">GEWICHTS-VERLAUF</button>
+      <button type="button" data-chart-btn="gewaesser" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">TOP-GEWÄSSER</button>
+      <button type="button" data-chart-btn="faenge" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">TOP-FÄNGE</button>
+      <button type="button" data-chart-btn="biss" class="chart-toggle font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full">BISS-ZEITEN</button>
+    </div>
+
+    <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+      <div data-chart-block="monat" class="chart-block">
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">FÄNGE PRO MONAT</h3>
         <div class="flex-grow flex items-end justify-between gap-2 h-64 border-b border-l border-primary/40 pb-4 pl-4">
           {chart.map((c) => (
@@ -65,13 +109,83 @@ const recent = [
         </div>
       </div>
 
+      <div data-chart-block="gewicht" class="chart-block hidden">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">GEWICHTS-VERLAUF</h3>
+        <svg viewBox="0 0 600 200" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gewichtsverlauf in kg über 12 Monate">
+          <polyline points="25,182.8 75,152.2 125,157.6 175,114.4 225,73 275,62.2 325,20.8 375,31.6 425,60.4 475,91 525,118 575,132.4" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          {[
+            [25,182.8],[75,152.2],[125,157.6],[175,114.4],[225,73],
+            [275,62.2],[325,20.8],[375,31.6],[425,60.4],[475,91],
+            [525,118],[575,132.4]
+          ].map(([x,y]) => (
+            <circle cx={x} cy={y} r="4" fill="var(--color-primary-container)" stroke="var(--color-primary)" stroke-width="1.5" />
+          ))}
+        </svg>
+        <div class="grid grid-cols-12 gap-1 px-2 pt-4 font-nav-item text-label-sm text-on-surface-variant text-center">
+          {weightLine.map((w) => <span>{w.m}</span>)}
+        </div>
+      </div>
+
+      <div data-chart-block="gewaesser" class="chart-block hidden">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">TOP-GEWÄSSER</h3>
+        <div class="flex flex-col gap-4">
+          {topWaters.map((w) => (
+            <div class="flex items-center gap-4">
+              <span class="font-nav-item text-label-sm text-on-surface-variant uppercase w-32 shrink-0">{w.name}</span>
+              <div class="flex-grow h-8 bg-surface-container-highest rounded-full overflow-hidden border border-primary/20">
+                <div class="h-full bg-primary-container rounded-full" style={`width: ${(w.count / maxWaters) * 100}%`}></div>
+              </div>
+              <span class="text-headline-sm text-primary w-8 text-right">{w.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div data-chart-block="faenge" class="chart-block hidden">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">TOP-FÄNGE</h3>
+        <div class="flex flex-col gap-4">
+          {topCatches.map((t) => (
+            <div class="flex items-center gap-4">
+              <span class="text-display-lg text-primary w-8 text-center">{t.rang}</span>
+              <div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container-highest border border-primary/20 shrink-0">
+                <img src={t.foto} alt={`Top Fang ${t.rang}`} class="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div class="flex flex-col">
+                <span class="text-headline-md text-primary">{t.gewicht}</span>
+                <span class="font-nav-item text-label-sm text-on-surface-variant uppercase">{t.art}</span>
+                <span class="font-body-md text-label-sm text-tertiary">{t.ort}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div data-chart-block="biss" class="chart-block hidden">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">BISS-ZEITEN</h3>
+        <div class="flex-grow flex items-end justify-between gap-1 h-64 border-b border-l border-primary/40 pb-4 pl-4">
+          {bissStunden.map((v, i) => (
+            <div class="flex-1 bg-primary-container rounded-t-sm" style={`height: ${(v / maxBiss) * 100}%`} aria-label={`${i} Uhr: ${v}`}></div>
+          ))}
+        </div>
+        <div class="flex justify-between px-2 pt-2 font-nav-item text-label-sm text-on-surface-variant">
+          {bissStunden.map((_, i) => <span class={i % 3 === 0 ? "" : "hidden"}>{i}h</span>)}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+      <div class="lg:col-span-2 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6">SAISON-VERLAUF</h3>
+        <p class="text-body-md text-on-surface-variant">Detaillierte Auswertung aller Fänge der aktuellen Saison.</p>
+      </div>
+
       <div class="lg:col-span-1 flex flex-col">
         <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-6 px-2">LETZTE FÄNGE</h3>
         <div class="flex flex-col gap-0">
           {recent.map((r) => (
             <a href={`/faenge/${r.id}`} class="flex items-center gap-4 p-4 hover:bg-surface-container-high rounded-lg transition-colors border-b border-primary/40">
               <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high border border-primary/20 shrink-0">
-                <img src={trophyPhoto} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
+                <img src={r.foto} alt={`Fang ${r.art} ${r.gewicht}`} class="w-full h-full object-cover" loading="lazy" />
               </div>
               <div class="flex flex-col">
                 <span class="text-headline-md text-primary">{r.gewicht}</span>
@@ -85,3 +199,37 @@ const recent = [
     </div>
   </main>
 </Layout>
+
+<style>
+  .chart-toggle {
+    color: var(--color-on-surface-variant);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .chart-toggle.is-active {
+    background-color: var(--color-surface-container-high);
+    color: var(--color-secondary);
+    border-color: var(--color-primary-tint, rgba(0,0,0,0.06));
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const buttons = document.querySelectorAll('[data-chart-btn]');
+    const blocks = document.querySelectorAll('[data-chart-block]');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const key = btn.getAttribute('data-chart-btn');
+        buttons.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        blocks.forEach(function (bl) {
+          if (bl.getAttribute('data-chart-block') === key) {
+            bl.classList.remove('hidden');
+          } else {
+            bl.classList.add('hidden');
+          }
+        });
+      });
+    });
+  })();
+</script>

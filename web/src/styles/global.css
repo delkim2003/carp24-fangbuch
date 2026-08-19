@@ -64,21 +64,60 @@
   --font-nav-item: "JetBrains Mono", monospace;
   --font-label-sm: "JetBrains Mono", monospace;
 
-  /* Spacing-Skala */
-  --spacing-unit: 4px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 40px;
-  --spacing-gutter: 20px;
-  --spacing-margin-mobile: 16px;
-  --spacing-margin-desktop: 64px;
 
   /* Radius */
   --radius: 0.25rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
+
+  /* Container-Breiten (Standard-Tailwind-Werte explizit) */
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+}
+
+/* Stitch-Spacing-Klassen (als components, damit sie nicht mit Tailwind-Namespaces kollidieren) */
+@layer components {
+  .gap-xs { gap: 4px; }
+  .gap-sm { gap: 8px; }
+  .gap-md { gap: 16px; }
+  .gap-lg { gap: 24px; }
+  .gap-xl { gap: 40px; }
+  .gap-gutter { gap: 20px; }
+  .mt-sm { margin-top: 8px; }
+  .mt-md { margin-top: 16px; }
+  .mt-lg { margin-top: 24px; }
+  .mt-xl { margin-top: 40px; }
+  .mb-sm { margin-bottom: 8px; }
+  .mb-lg { margin-bottom: 24px; }
+  .mb-xl { margin-bottom: 40px; }
+  .p-lg { padding: 24px; }
+  .p-xl { padding: 40px; }
+  .p-margin-mobile { padding: 16px; }
+  .p-margin-desktop { padding: 64px; }
+  .px-md { padding-left: 16px; padding-right: 16px; }
+  .px-lg { padding-left: 24px; padding-right: 24px; }
+  .px-margin-mobile { padding-left: 16px; padding-right: 16px; }
+  .px-margin-desktop { padding-left: 64px; padding-right: 64px; }
+  .py-md { padding-top: 16px; padding-bottom: 16px; }
+  .py-lg { padding-top: 24px; padding-bottom: 24px; }
+  .py-xl { padding-top: 40px; padding-bottom: 40px; }
+  .pt-md { padding-top: 16px; }
+  .pt-lg { padding-top: 24px; }
+  .pt-xl { padding-top: 40px; }
+  .pb-sm { padding-bottom: 8px; }
+  .pb-md { padding-bottom: 16px; }
+  .pb-lg { padding-bottom: 24px; }
+  .pb-xl { padding-bottom: 40px; }
+  .w-md { width: 16px; }
+  .w-lg { width: 24px; }
 }
 
 /* Typo-Klassen (Stitch-Token-Kompatibilität) */
