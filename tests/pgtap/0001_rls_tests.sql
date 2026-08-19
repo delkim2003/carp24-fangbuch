@@ -8,7 +8,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(18);
+SELECT plan(20);
 
 -- ============================================================================
 -- Seeding: auth.users  (Trigger legt profiles automatisch an)
@@ -287,8 +287,9 @@ SELECT set_config('request.jwt.claim.sub',
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', true);
 
 INSERT INTO public.catches
-  (user_id, water_id, catch_ts, species, weight_kg, draft, client_uuid)
+  (id, user_id, water_id, catch_ts, species, weight_kg, draft, client_uuid)
 VALUES (
+  '99999999-9999-9999-9999-999999999999',
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0',
   now(), 'SPIEGEL', 8.0, true,
@@ -302,12 +303,7 @@ SELECT set_config('request.jwt.claim.sub',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true);
 
 SELECT throws_ok(
-  $$SELECT public.publish_catch(
-    (SELECT id FROM public.catches
-     WHERE user_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-       AND draft = true
-     LIMIT 1)
-  )$$,
+  $$SELECT public.publish_catch('99999999-9999-9999-9999-999999999999')$$,
   'not your catch',
   'T9: publish_catch on foreign catch → EXCEPTION'
 );
@@ -389,10 +385,7 @@ SELECT set_config('request.jwt.claim.sub',
 
 SELECT throws_ok(
   $$SELECT public.create_post(
-    (SELECT id FROM public.catches
-     WHERE user_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-       AND draft = false
-     LIMIT 1),
+    '99999999-9999-9999-9999-999999999999',
     'Fremde Post', NULL, 1.0, 'AMUR', 'Falsches Gewaesser'
   )$$,
   'not your catch',
