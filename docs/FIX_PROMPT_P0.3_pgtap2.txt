@@ -1,0 +1,55 @@
+Fix 2 identische SQL-Fehler in tests/pgtap/0001_rls_tests.sql (Postgres 17).
+
+PROBLEM: Der vorherige Fix verwendete `(SELECT id FROM (UPDATE ... RETURNING id) AS upd)` — das ist in PostgreSQL NICHT gültig. PostgreSQL erlaubt kein UPDATE direkt als FROM-Subquery. Der Parser-Fehler:
+ERROR: syntax error at or near "."
+LINE 2: (SELECT id FROM (UPDATE public.profiles SET display_name =...
+
+KORREKTE LÖSUNG: DML in Scalar-Subquery NUR via CTE (WITH ... UPDATE ... RETURNING):
+
+SELECT is(
+  (WITH upd AS (
+    UPDATE public.catches SET bait = 'hacked'
+    WHERE id = (SELECT id FROM public.catches
+                WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                LIMIT 1)
+    RETURNING id
+  ) SELECT id FROM upd),
+  NULL,
+  'T6: foreign user cannot UPDATE catch (RLS Deny, 0 rows)'
+);
+
+BETROFFENE STELLEN (exakt, beide aktuell falsch):
+1. Test T6 (Zeile ~164-172) — "Fremder UPDATE fremde catch → Deny":
+   Aktuell:
+   SELECT is(
+     (SELECT id FROM (UPDATE public.catches SET bait = 'hacked'
+      WHERE id = (SELECT id FROM public.catches
+                  WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                  LIMIT 1)
+      RETURNING id) AS upd),
+     NULL,
+     'T6: foreign user cannot UPDATE catch (RLS Deny, 0 rows)'
+   );
+   Ersetze durch die CTE-Variante (WITH upd AS (UPDATE public.catches SET bait = 'hacked' WHERE id = (SELECT id FROM public.catches WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' LIMIT 1) RETURNING id) SELECT id FROM upd).
+
+2. Test T15 (Zeile ~446-454) — "fremdes Profil UPDATE → Deny":
+   Aktuell:
+   SELECT is(
+     (SELECT id FROM (UPDATE public.profiles SET display_name = 'hacked'
+      WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+      RETURNING id) AS up),
+     NULL,
+     'T15: cannot UPDATE foreign profile (RLS Deny, 0 rows)'
+   );
+   Ersetze durch die CTE-Variante (WITH up AS (UPDATE public.profiles SET display_name = 'hacked' WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' RETURNING id) SELECT id FROM up).
+
+AUFGABE:
+1. Lies die Datei tests/pgtap/0001_rls_tests.sql vollständig
+2. Ersetze BEIDE falsche Konstrukte exakt durch die CTE-Varianten
+3. Ändere NICHTS anderes an der Datei
+4. Verifiziere mit: grep -n "AS upd\|AS up" tests/pgtap/0001_rls_tests.sql → zeigt beide CTE-Stellen (WITH upd / WITH up)
+5. WICHTIG: Der Test-Satz bleibt semantisch identisch — nur Syntax-Fix
+6. Commit mit Message: 'FIX P0.3: pgTAP T6/T15 CTE statt FROM-Subquery (Postgres DML-Regel)'
+7. Gib aus: git log --oneline -1
+
+HINWEIS: Nutze das edit/write-Tool. PostgreSQL-Syntax für DML in Scalar-Subquery ist AUSSCHLIESSLICH via WITH-CTE möglich.

@@ -1,0 +1,37 @@
+Fix 2 identische SQL-Syntaxfehler in tests/pgtap/0001_rls_tests.sql (Postgres 17).
+
+PROBLEM: Zwei Testfälle nutzen ein UPDATE mit RETURNING direkt in einer SELECT is(...)-Subquery:
+```sql
+SELECT is(
+  (UPDATE public.catches SET bait = 'hacked'
+   WHERE ...
+   RETURNING id),
+  NULL, ...
+);
+```
+Postgres erlaubt KEIN UPDATE als Subquery — das muss ein SELECT-Wrapper sein:
+```sql
+SELECT is(
+  (SELECT id FROM (UPDATE public.catches SET bait = 'hacked'
+   WHERE ...
+   RETURNING id) AS upd),
+  NULL, ...
+);
+```
+
+BETROFFENE STELLEN (exakt):
+1. Zeile ~164-172 (Test T6 "Fremder UPDATE fremde catch → Deny") — UPDATE public.catches SET bait = 'hacked' ... RETURNING id
+2. Zeile ~446-454 (Test T15 "fremdes Profil UPDATE → Deny") — UPDATE public.profiles SET display_name = 'hacked' ... RETURNING id
+
+AUFGABE:
+1. Lies die Datei tests/pgtap/0001_rls_tests.sql vollständig
+2. Fixe BEIDE Stellen mit dem SELECT-Wrapper-Muster (Alias z.B. upd / up)
+3. Ändere NICHTS anderes an der Datei
+4. Verifiziere mit: grep -n "UPDATE public" tests/pgtap/0001_rls_tests.sql → zeigt beide Stellen mit SELECT-Wrapper
+5. Commit mit Message: 'FIX P0.3: pgTAP T6/T15 UPDATE-RETURNING Subquery SELECT-Wrapper'
+6. Gib aus: git log --oneline -1
+
+WICHTIG:
+- Nutze das write/edit-Tool (funktioniert korrekt)
+- Nur die eine Datei ändern und committen
+- Der Test-Satz selbst (Semantik) bleibt unverändert — nur Syntax-Fix

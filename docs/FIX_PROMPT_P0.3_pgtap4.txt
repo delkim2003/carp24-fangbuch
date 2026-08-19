@@ -1,0 +1,75 @@
+Fix 3 Punkte in tests/pgtap/0001_rls_tests.sql (Postgres 17, pgTAP).
+
+ROOT CAUSE der 2 Test-Fehler (verifiziert in psql):
+T9 und T12 nutzen eine Subquery, um die fremde catch-ID zu holen:
+  (SELECT id FROM public.catches WHERE user_id = 'bbbbbbbb-...' LIMIT 1)
+Diese Subquery läuft als User A (authenticated, jwt=aaaaaaaa) → RLS blockt SELECT auf fremde Zeilen → Subquery liefert NULL → publish_catch(NULL) wirft 'catch not found' statt 'not your catch'.
+Der RPC-Code selbst ist KORREKT (RAISE EXCEPTION 'not your catch' bei fremder catch).
+
+FIX: Feste UUIDs. Beim Seed der fremden catch im INSERT die id-Spalte explizit setzen, dann im throws_ok die feste UUID direkt übergeben (keine Subquery).
+
+============================================================
+STELLE 1 — Test T9 (Zeile ~283-315): "publish_catch fremde catch → EXCEPTION"
+
+Aktuell:
+INSERT INTO public.catches
+  (user_id, water_id, catch_ts, species, weight_kg, draft, client_uuid)
+VALUES (
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0',
+  now(), 'SPIEGEL', 8.0, true,
+  '55555555-5555-5555-5555-555555555555'
+);
+...
+SELECT throws_ok(
+  $$SELECT public.publish_catch(
+    (SELECT id FROM public.catches
+     WHERE user_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+       AND draft = true
+     LIMIT 1)
+  )$$,
+  'not your catch',
+  'T9: publish_catch on foreign catch → EXCEPTION'
+);
+
+Ersetze durch:
+INSERT INTO public.catches
+  (id, user_id, water_id, catch_ts, species, weight_kg, draft, client_uuid)
+VALUES (
+  '99999999-9999-9999-9999-999999999999',
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0',
+  now(), 'SPIEGEL', 8.0, true,
+  '55555555-5555-5555-5555-555555555555'
+);
+...
+SELECT throws_ok(
+  $$SELECT public.publish_catch('99999999-9999-9999-9999-999999999999')$$,
+  'not your catch',
+  'T9: publish_catch on foreign catch → EXCEPTION'
+);
+
+============================================================
+STELLE 2 — Test T12 (create_post auf fremde catch): ANALOG.
+Finde den T12-Block (Kommentar "T12: create_post on foreign catch → EXCEPTION").
+- Das Seed-INSERT der fremden catch bekommt id = '99999999-9999-9999-9999-999999999999' explizit (falls es das gleiche INSERT wie T9 nutzt, ist es bereits gesetzt — dann nur die Subquery im throws_ok ersetzen).
+- Im create_post-Aufruf die feste UUID direkt übergeben statt Subquery:
+  $$SELECT public.create_post('99999999-9999-9999-9999-999999999999', 'test', NULL, 8.0, 'SPIEGEL', 'Testsee')$$
+  (Parameter exakt an die create_post-Signatur anpassen: p_catch_id, p_text, p_image, p_public_weight, p_public_species, p_public_water_name)
+- Erwartete Exception: 'not your catch'
+
+============================================================
+STELLE 3 — Plan-Count:
+Aktuell am Anfang: SELECT plan(18);
+Die Suite führt aktuell 20 Tests aus (T1-T18, wobei T8 in a/b/c zählt und T17/T18 existieren).
+Ersetze durch: SELECT plan(20);
+
+============================================================
+AUFGABE:
+1. Lies tests/pgtap/0001_rls_tests.sql vollständig
+2. Wende die 3 Fixes exakt an
+3. Ändere NICHTS anderes (keine Semantik-Änderungen)
+4. Verifiziere: grep -n "plan(2" tests/pgtap/0001_rls_tests.sql → plan(20)
+   grep -n "99999999-9999-9999-9999-999999999999" tests/pgtap/0001_rls_tests.sql → mind. 2 Treffer (Seed + throws_ok/call)
+5. Commit mit Message: 'FIX P0.3: pgTAP T9/T12 feste UUID statt RLS-blockierte Subquery, plan(20)'
+6. Gib aus: git log --oneline -1

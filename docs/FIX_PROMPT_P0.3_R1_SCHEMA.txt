@@ -1,0 +1,173 @@
+Fix verifizierte Audit-Funde R1 in supabase/migrations/0001_init.sql (Postgres 17, Supabase self-hosted).
+
+HINTERGRUND: Expertenaudit Runde 1 fand Security-/Design-Lücken, die ich selbst verifiziert habe. Alle Fixes unten sind PFLICHT. Nutze das edit/write-Tool (funktioniert korrekt). Jede Änderung exakt an der genannten Stelle. Die Datei bleibt idempotent (IF NOT EXISTS / DROP POLICY IF EXISTS + CREATE POLICY).
+
+============================================================
+FIX 1 (🔴 Bypass): posts_insert_owner — create_post() muss EINZIGER Insert-Pfad sein
+Aktuell (Z.~432-434):
+  DROP POLICY IF EXISTS posts_insert_owner ON public.posts;
+  CREATE POLICY posts_insert_owner ON public.posts
+    FOR INSERT TO authenticated
+    WITH CHECK (user_id = auth.uid());
+Problem: Jeder authenticated User kann direkt INSERT mit beliebigem catch_id (fremd/NULL), status='VISIBLE' und erfundenen Werten — umgeht create_post()-Eigentums-/Publish-Check.
+Fix: Policy ENTFERNEN (kein direktes INSERT durch authenticated). create_post() ist SECURITY DEFINER (läuft als supabase_admin, umgeht RLS) und bleibt der einzige Schreibpfad:
+  DROP POLICY IF EXISTS posts_insert_owner ON public.posts;
+(Hinweis: Kein CREATE POLICY mehr — das Fehlen der Policy = INSERT-Deny für authenticated.)
+
+============================================================
+FIX 2 (🟠 Entitlement-Bypass): catches_insert_owner — draft=true erzwingen
+Aktuell (Z.~409-410):
+  CREATE POLICY catches_insert_owner ON public.catches
+    FOR INSERT TO authenticated
+    WITH CHECK (user_id = auth.uid());
+Problem: Free-User kann direkt INSERT mit draft=false → umgeht 50er-Grenze + PRO-Check in publish_catch.
+Fix:
+  CREATE POLICY catches_insert_owner ON public.catches
+    FOR INSERT TO authenticated
+    WITH CHECK (user_id = auth.uid() AND draft = true);
+
+============================================================
+FIX 3 (🟠 Moderation aushebelbar): posts_update_owner — Status-Änderung durch Owner blocken
+Aktuell (Z.~436-440):
+  CREATE POLICY posts_update_owner ON public.posts
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid());
+Problem: Owner kann status frei zwischen VISIBLE/HIDDEN flippen → Moderation wirkungslos.
+Fix: Owner darf Text/Bild ändern, aber status bleibt VISIBLE (Moderation passiert über service_role/BYPASSRLS):
+  CREATE POLICY posts_update_owner ON public.posts
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
+
+============================================================
+FIX 4 (🟠 Soft-Delete tot): catches_update_owner_draft — deleted_at auf publizierte erlauben
+Aktuell (Z.~414-416):
+  CREATE POLICY catches_update_owner_draft ON public.catches
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid() AND draft = true);
+Problem: Publizierte Fänge (draft=false) können NIE soft-gelöscht werden (deleted_at-Setzung blockt), nur Hard-DELETE. Soft-Delete/Retention-Konzept tot.
+Fix: deleted_at-Setzung auch auf publizierte erlauben, sonstige Änderungen weiter nur bei draft=true:
+  CREATE POLICY catches_update_owner_draft ON public.catches
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid() AND (draft = true OR NEW.deleted_at IS NOT NULL));
+
+============================================================
+FIX 5 (🟠 Art.17): soft_delete_cascade — auch home_water + Content anonymisieren
+Aktuell (Z.~360-373): anonymisiert nur display_name/bio/avatar_url.
+Problem: home_water (möglicher PII/Standort) und der Content (catches.notes, posts.text, forum_body, chat.message, marketplace) bleiben unter user_id erhalten.
+Fix: Die Funktion erweitern — bei profiles.deleted_at-Transition zusätzlich:
+  (a) NEW.home_water := NULL;
+  (b) UPDATE public.catches SET notes = NULL, bait = NULL, method = NULL, lat = NULL, lng = NULL WHERE user_id = NEW.id;
+  (c) UPDATE public.posts SET text = NULL WHERE user_id = NEW.id;
+  (d) UPDATE public.forum_topics SET title = 'gelöschter Nutzer', body = NULL WHERE user_id = NEW.id;
+  (e) UPDATE public.forum_posts SET body = NULL WHERE user_id = NEW.id;
+  (f) UPDATE public.chat_messages SET message = NULL WHERE user_id = NEW.id;
+  (g) UPDATE public.marketplace_listings SET title = 'gelöschter Nutzer', description = NULL, price = NULL WHERE user_id = NEW.id;
+  (h) UPDATE public.marketplace_messages SET message = NULL WHERE from_user = NEW.id OR to_user = NEW.id;
+  (i) UPDATE public.reports SET reason = NULL WHERE reporter_id = NEW.id;
+  (j) UPDATE public.trips SET name = 'gelöschter Nutzer' WHERE user_id = NEW.id;
+  (k) UPDATE public.notifications SET payload = NULL WHERE user_id = NEW.id;
+Die Spaltennamen MÜSSEN gegen die CREATE TABLE-Definitionen in der Datei geprüft werden — falls eine Spalte anders heißt, korrekten Namen verwenden. Falls eine Tabelle nicht existiert oder Spalte fehlt, entsprechend anpassen. Prüfe die tatsächlichen Tabellendefinitionen (Z.55-350) und stimme die UPDATEs exakt ab.
+
+============================================================
+FIX 6 (🟠 Owner blind): marketplace_listings — Owner-SELECT-Policy ergänzen
+Aktuell (Z.~510-513): nur marketplace_listings_select_available (status='AVAILABLE' AND deleted_at IS NULL).
+Problem: Verkäufer sieht eigene SOLD/HIDDEN/soft-gelöschte Inserate nicht.
+Fix: Policy erweitern:
+  DROP POLICY IF EXISTS marketplace_listings_select_available ON public.marketplace_listings;
+  CREATE POLICY marketplace_listings_select_available ON public.marketplace_listings
+    FOR SELECT TO authenticated
+    USING (status = 'AVAILABLE' AND deleted_at IS NULL OR user_id = auth.uid());
+
+============================================================
+FIX 7 (🟠 Moderation-Spoofing): reports_insert_reporter — Status/Zuweisung clampen
+Aktuell (Z.~566-569):
+  CREATE POLICY reports_insert_reporter ON public.reports
+    FOR INSERT TO authenticated
+    WITH CHECK (reporter_id = auth.uid());
+Problem: Reporter kann status='RESOLVED'/'REJECTED', assigned_to und resolved_at frei setzen.
+Fix: Beim INSERT nur Reporter-Felder erlauben, Status auf Default:
+  CREATE POLICY reports_insert_reporter ON public.reports
+    FOR INSERT TO authenticated
+    WITH CHECK (
+      reporter_id = auth.uid()
+      AND status IS NULL
+      AND assigned_to IS NULL
+      AND resolved_at IS NULL
+    );
+(Prüfe die tatsächliche reports-Tabelle: falls status einen DEFAULT hat, status IS NULL durch status = 'OPEN' ersetzen, falls 'OPEN' der Enum-Wert ist. Falls target_type/target_id Pflicht sind, gehören sie erlaubt — nur Moderation-Felder blocken.)
+
+============================================================
+FIX 8 (🟡 Enum verwaist): mod_status-Enum verwenden
+Aktuell: posts/forum_topics/forum_posts nutzen `text CHECK (status IN ('VISIBLE','HIDDEN'))`, aber mod_status-Enum existiert.
+Fix: Die drei Status-Spalten auf public.mod_status umstellen:
+  status public.mod_status NOT NULL DEFAULT 'VISIBLE'
+(Ersetze in den CREATE TABLE-Definitionen von posts, forum_topics, forum_posts die Zeile `status text ... CHECK (status IN ('VISIBLE','HIDDEN'))` durch `status public.mod_status NOT NULL DEFAULT 'VISIBLE'`. Passe die RLS-Policies an, falls sie status vergleichen — Textvergleiche 'VISIBLE' funktionieren mit Enum weiterhin.)
+
+============================================================
+FIX 9 (🟡 Entitlement-Lücke): publish_catch Pro-Check — status berücksichtigen
+Aktuell (Z.~713-719): prüft nur plan='PRO' AND active_until > now().
+Problem: CANCELED/PAST_DUE-Subscription mit aktivem active_until zählt weiter als PRO.
+Fix:
+  SELECT EXISTS (
+    SELECT 1 FROM public.subscriptions
+    WHERE user_id = v_user_id
+      AND plan = 'PRO'
+      AND status = 'ACTIVE'
+      AND active_until > now()
+  ) INTO v_is_pro;
+
+============================================================
+FIX 10 (🟡 Konsistenz): create_post — deleted_at-Check ergänzen
+Aktuell (Z.~764-786): prüft Ownership + draft=false, aber NICHT deleted_at (publish_catch tut das).
+Fix: Nach dem draft-Check ergänzen:
+  IF v_catch.deleted_at IS NOT NULL THEN
+    RAISE EXCEPTION 'catch is deleted';
+  END IF;
+(Platziere das analog zu publish_catch, kurz nach dem draft=false-Check.)
+
+============================================================
+FIX 11 (🟡 CHECKs): waters.lat/lng + marketplace_listings.price Bereichs-Checks
+Aktuell: keine CHECKs.
+Fix:
+  - In CREATE TABLE public.waters: lat numeric CHECK (lat >= -90 AND lat <= 90), lng numeric CHECK (lng >= -180 AND lng <= 180)
+  - In CREATE TABLE public.marketplace_listings: price numeric CHECK (price >= 0)
+(Prüfe die tatsächlichen Spaltentypen in der Datei und passe die CHECKs an.)
+
+============================================================
+FIX 12 (🟡 Index): marketplace_messages from_user-Index
+Aktuell: nur Index auf (to_user, created_at), aber Policy filtert from_user OR to_user.
+Fix: Index ergänzen:
+  CREATE INDEX IF NOT EXISTS idx_marketplace_messages_from_user ON public.marketplace_messages (from_user, created_at);
+
+============================================================
+FIX 13 (🟡 Idempotenz): ENUM-nspname + ALTER PUBLICATION undefined_object
+Aktuell (Z.16-46, 793-821): ENUM-Checks matchen nur typname ohne Schema; DO-Blöcke fangen nur duplicate_object.
+Fix:
+  (a) In jedem ENUM-Existenz-DO-Block: `WHERE typname = 'species_enum' AND nspname = 'public'` — ergänze nspname-Bedingung in der SELECT-Existenzprüfung.
+  (b) In den ALTER-PUBLICATION-DO-Blöcken zusätzlich zu duplicate_object auch undefined_object behandeln:
+      EXCEPTION WHEN duplicate_object OR undefined_object THEN NULL;
+(Prüfe die tatsächlichen DO-Blöcke und ergänze exakt.)
+
+============================================================
+FIX 14 (🟡 Studio-Rolle): carp24_app CREATE + ALTER DEFAULT PRIVILEGES einschränken
+Aktuell (Z.~834-843): GRANT USAGE, CREATE ON SCHEMA public + ALTER DEFAULT PRIVILEGES GRANT ALL ON TABLES.
+Problem: CREATE zu weit für Studio-Rolle; zukünftige Tabellen bekommen automatisch ALL.
+Fix:
+  GRANT USAGE ON SCHEMA public TO carp24_app;
+  (CREATE entfernen. ALTER DEFAULT PRIVILEGES behalten — das ist gewollt für die Studio-Rolle, aber ändere nichts daran. Nur das Schema-CREATE entfernen.)
+Prüfe: Gibt es eine Zeile `GRANT USAGE, CREATE ON SCHEMA public TO carp24_app;` → ersetze durch `GRANT USAGE ON SCHEMA public TO carp24_app;`
+
+============================================================
+NACH ALLEN FIXES:
+1. Verifiziere mit grep:
+   - grep -n "posts_insert_owner" supabase/migrations/0001_init.sql → nur DROP POLICY, kein CREATE POLICY
+   - grep -n "draft = true" supabase/migrations/0001_init.sql → in catches_insert_owner + catches_update_owner_draft
+   - grep -n "home_water := NULL" supabase/migrations/0001_init.sql → vorhanden
+   - grep -n "mod_status" supabase/migrations/0001_init.sql → in CREATE TABLE posts/forum + Enum
+   - grep -n "status = 'ACTIVE'" supabase/migrations/0001_init.sql → in publish_catch
+2. Commit mit Message: 'FIX P0.3 R1: 14 Audit-Fixes (posts-Bypass, Entitlement, Art.17, Moderation, Marketplace, Checks, Idempotenz)'
+3. Gib aus: git log --oneline -1

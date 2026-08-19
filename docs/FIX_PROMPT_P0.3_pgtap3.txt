@@ -1,0 +1,62 @@
+Fix 2 identische SQL-Fehler in tests/pgtap/0001_rls_tests.sql (Postgres 17).
+
+PROBLEM: Die DML-CTE steht AKTUELL INNERHALB der Scalar-Subquery:
+  SELECT is(
+    (WITH upd AS (UPDATE ... RETURNING id) SELECT id FROM upd),
+    NULL, ...
+  );
+Das ist NICHT erlaubt — PostgreSQL: "WITH clause containing a data-modifying statement must be at the top level".
+Der DML-CTE (UPDATE ... RETURNING) MUSS auf TOP-LEVEL des gesamten SELECT is(...)-Statements stehen.
+
+KORREKTE STRUKTUR (verifiziert in psql, funktioniert):
+
+WITH upd AS (
+  UPDATE public.catches SET bait = 'hacked'
+  WHERE id = (SELECT id FROM public.catches
+              WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+              LIMIT 1)
+  RETURNING id
+)
+SELECT is(
+  (SELECT id FROM upd),
+  NULL,
+  'T6: foreign user cannot UPDATE catch (RLS Deny, 0 rows)'
+);
+
+BETROFFENE STELLEN (exakt):
+
+1. Test T6 (Zeile ~164-172) — "Fremder UPDATE fremde catch → Deny".
+Aktuell:
+SELECT is(
+  (WITH upd AS (
+    UPDATE public.catches SET bait = 'hacked'
+    WHERE id = (SELECT id FROM public.catches
+                WHERE user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                LIMIT 1)
+    RETURNING id
+  ) SELECT id FROM upd),
+  NULL,
+  'T6: foreign user cannot UPDATE catch (RLS Deny, 0 rows)'
+);
+Ersetze durch die TOP-LEVEL-Variante (WITH upd AS (...) VOR dem SELECT is(...), innerhalb SELECT is nur (SELECT id FROM upd)).
+
+2. Test T15 (Zeile ~448-456) — "fremdes Profil UPDATE → Deny".
+Aktuell:
+SELECT is(
+  (WITH up AS (
+    UPDATE public.profiles SET display_name = 'hacked'
+    WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+    RETURNING id
+  ) SELECT id FROM up),
+  NULL,
+  'T15: cannot UPDATE foreign profile (RLS Deny, 0 rows)'
+);
+Ersetze durch die TOP-LEVEL-Variante (WITH up AS (...) VOR dem SELECT is(...)).
+
+AUFGABE:
+1. Lies die Datei tests/pgtap/0001_rls_tests.sql vollständig
+2. Ersetze BEIDE Konstrukte exakt wie beschrieben: DML-CTE auf Top-Level vor SELECT is(...)
+3. Ändere NICHTS anderes an der Datei (keine Semantik-Änderung, nur Struktur)
+4. Verifiziere mit: grep -n "WITH upd AS\|WITH up AS" tests/pgtap/0001_rls_tests.sql
+5. Commit mit Message: 'FIX P0.3: pgTAP T6/T15 DML-CTE auf Top-Level (Postgres-Regel)'
+6. Gib aus: git log --oneline -1

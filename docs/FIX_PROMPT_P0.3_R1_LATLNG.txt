@@ -1,0 +1,18 @@
+Fix 1 Lücke in supabase/migrations/0001_init.sql (Postgres 17).
+
+PROBLEM: In der Funktion soft_delete_cascade (Z.~360-390) anonymisiert das UPDATE auf public.catches nur notes/bait/method — aber NICHT lat/lng (Spot-Koordinaten, PII/Standort).
+
+AKTUELL:
+    UPDATE public.catches SET notes = NULL, bait = NULL, method = NULL WHERE user_id = NEW.id;
+
+FIX:
+    UPDATE public.catches SET notes = NULL, bait = NULL, method = NULL, lat = NULL, lng = NULL WHERE user_id = NEW.id;
+
+AUFGABE:
+1. Lies die Funktion soft_delete_cascade in supabase/migrations/0001_init.sql
+2. Prüfe, ob public.catches tatsächlich lat/lng-Spalten hat (grep "lat" in der CREATE TABLE catches)
+3. Ersetze das UPDATE exakt wie oben (lat = NULL, lng = NULL ergänzen)
+4. Ändere NICHTS anderes
+5. Verifiziere: grep -n "lat = NULL, lng = NULL" supabase/migrations/0001_init.sql
+6. Commit: 'FIX P0.3 R1: soft_delete_cascade anonymisiert auch Spot-Koordinaten (lat/lng)'
+7. Gib aus: git log --oneline -1

@@ -446,7 +446,7 @@ DROP POLICY IF EXISTS posts_insert_owner ON public.posts;
 DROP POLICY IF EXISTS posts_update_owner ON public.posts;
 CREATE POLICY posts_update_owner ON public.posts
   FOR UPDATE TO authenticated
-  USING (user_id = auth.uid())
+  USING (user_id = auth.uid() AND status = 'VISIBLE')
   WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
 
 DROP POLICY IF EXISTS posts_delete_owner ON public.posts;
@@ -636,8 +636,8 @@ CREATE POLICY forum_topics_insert_auth ON public.forum_topics
 DROP POLICY IF EXISTS forum_topics_update_owner ON public.forum_topics;
 CREATE POLICY forum_topics_update_owner ON public.forum_topics
   FOR UPDATE TO authenticated
-  USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid());
+  USING (user_id = auth.uid() AND status = 'VISIBLE')
+  WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
 
 -- ────────── forum_posts ──────────
 ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
@@ -655,8 +655,8 @@ CREATE POLICY forum_posts_insert_auth ON public.forum_posts
 DROP POLICY IF EXISTS forum_posts_update_owner ON public.forum_posts;
 CREATE POLICY forum_posts_update_owner ON public.forum_posts
   FOR UPDATE TO authenticated
-  USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid());
+  USING (user_id = auth.uid() AND status = 'VISIBLE')
+  WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
 
 -- ────────── trips ──────────
 ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;

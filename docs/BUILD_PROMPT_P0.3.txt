@@ -1,0 +1,39 @@
+Baue Task P0.3 für carp24-Fangbuch (Supabase self-hosted, Postgres 17).
+
+LIES ZUERST (vollständig, alle im Projekt-Verzeichnis):
+1. docs/BRIEFING_P0.3_BUILD.md — die komplette Build-Spec (Pflicht! enthält Tabellen, ENUMs, CHECKs, Indexe, Trigger, RLS, RPCs, Realtime, Grants, pgTAP-Testfälle)
+2. docs/PLAN_P0.3.md — abgenommener Plan
+3. docs/MIGRATIONS_RUNBOOK.md — MUSS-Checkliste
+
+Liefere EXAKT diese 2 Dateien (vollständig überschreiben, keine Diffs, keine Snippets):
+
+A) supabase/migrations/0001_init.sql — komplettes DDL gemäß Briefing-Struktur:
+- 6 ENUMs (species_enum, plan, listing_status, report_status, target_type, mod_status)
+- 15 Tabellen (profiles bis trips) mit gen_random_uuid() PKs
+- CHECKs, Indexe
+- 3 Trigger inkl. handle_new_user mit SECURITY DEFINER + SET search_path = ''
+- RLS + alle Policies (catches Owner-only, draft-UPDATE-Deny, posts kuratiert, subscriptions KEINE User-Policy nur service_role)
+- RPCs publish_catch + create_post (Pro-Check, 50er-Grenze, advisory-lock, Eigentums-Check)
+- ALTER PUBLICATION supabase_realtime ADD TABLE für die 6 Realtime-Tabellen + REPLICA IDENTITY FULL
+- carp24_app-Grants + ALTER DEFAULT PRIVILEGES
+- NIE CREATE PUBLICATION (existiert bereits) — nur ALTER PUBLICATION
+- Keine Koordinaten/weather/notes im posts-Snapshot
+- idempotent, ON_ERROR_STOP-fähig
+
+B) tests/pgtap/0001_rls_tests.sql — pgTAP-Suite gemäß Briefing:
+- min. 14 Testfälle
+- SET LOCAL ROLE authenticated; set_config('request.jwt.claim.sub','<uuid>',true)
+- auth.users-Seeding
+- throws_ok für publish_catch 51. Fang (50er-Grenze)
+- subscriptions-Deny-Test, carp24_app-CREATE-Recht, Signup-Trigger-Test
+
+WICHTIG:
+- SQL nur für Postgres 17
+- Nutze für beide Dateien das write-Tool (es funktioniert korrekt)
+- Die beiden Zielverzeichnisse existieren bereits (mit .gitkeep)
+
+DANACH:
+1. Git-commit mit Message: 'P0.3: 0001_init.sql + pgTAP-Suite'
+2. Nur die 2 SQL-Dateien committen (docs/ und tests/opencode_write_test.txt NICHT committen)
+3. Lösche tests/opencode_write_test.txt, falls vorhanden (git rm oder rm, dann committe die Löschung nicht separat)
+4. Gib aus: git log --oneline -1, dann wc -l supabase/migrations/0001_init.sql tests/pgtap/0001_rls_tests.sql

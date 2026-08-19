@@ -1,0 +1,71 @@
+Fix verifizierte Audit-Funde R1 in tests/pgtap/0001_rls_tests.sql (Postgres 17, pgTAP). Die Schema-Fixes (0001_init.sql) sind bereits committed — die Tests laufen gegen das GEFIXTE Schema.
+
+HINTERGRUND: Expertenaudit Runde 1 fand Test-Lücken + falsch-positive Tests (verifiziert):
+- T3 ist falsch-positiv (anon-Test auf LEERER Tabelle)
+- T6 ist konfundiert (Subquery läuft als fremder User → RLS filtert → 0 Zeilen aus falschem Grund)
+- 8/15 Tabellen ungetestet, 2/3 Trigger ungetestet, DELETE-Policies ungetestet
+- MUSS-Fälle aus dem Briefing fehlen: chat_messages, reports, posts-anon
+
+NUTZE das edit/write-Tool (funktioniert korrekt). Behalte die bestehende Struktur (BEGIN, plan, Seeds, Tests, ROLLBACK). Erhöhe den plan-Count auf die neue Gesamtzahl.
+
+============================================================
+FIX A (🔴 T3 falsch-positiv): anon-Test muss auf BEFÜLLTE Tabelle laufen
+Aktuell (Z.~112-116): anon SELECT count(*) auf catches → 0 (Tabelle ist leer, T4 inserted erst danach).
+Problem: Beweist nichts (wäre auch ohne RLS grün).
+Fix: Vor T3 einen Fang als User A seeden (der später auch für T4-T6 dient), dann als anon prüfen, dass count = 0. Konkret:
+- Verschiebe das Seed-INSERT von T4 (User A's catch mit draft=true) VOR T3 (nach dem Waters-Seed).
+- T3 bleibt: SET ROLE anon, count(*)=0 → beweist anon-Deny auf befüllter Tabelle.
+- T4/T5 nutzen danach den bereits geseedeten Fang (kein doppeltes INSERT).
+
+============================================================
+FIX B (🔴 T6 konfundiert): fremder UPDATE mit LITERAL-ID statt Subquery
+Aktuell (Z.~164-175): UPDATE ... WHERE id = (SELECT id FROM catches WHERE user_id='aaaa') als User B → Subquery liefert NULL (RLS) → 0 Zeilen aus falschem Grund.
+Fix: Der geseedete Fang von User A (aus Fix A) bekommt eine FESTE UUID '99999999-9999-9999-9999-999999999999' im Seed-INSERT. T6 nutzt dann die Literal-ID direkt:
+  WITH upd AS (
+    UPDATE public.catches SET bait = 'hacked'
+    WHERE id = '99999999-9999-9999-9999-999999999999'
+    RETURNING id
+  )
+  SELECT is((SELECT id FROM upd), NULL, 'T6: ...');
+Das beweist die UPDATE-Deny isoliert (nicht durch SELECT-RLS konfundiert).
+
+============================================================
+FIX C (🟠 neue Tests): MUSS-Fälle nachziehen
+Ergänze NACH den bestehenden Tests (vor ROLLBACK) folgende neue Testfälle:
+
+C1: chat_messages — Nicht-Mitglied Deny, Mitglied ok (Briefing-MUSS #11)
+- Seed: User A + User B (auth.users), Channel (id fest), Channel-Member A.
+- Als User B (kein Mitglied): INSERT chat_messages → Deny (throws_ok oder 0 Zeilen)
+- Als User A (Mitglied): INSERT chat_messages → ok
+- Prüfe die tatsächliche chat_messages-Struktur (channel_id, user_id, message, created_at) in 0001_init.sql.
+
+C2: reports — Nicht-Moderator kein UPDATE auf status (Briefing-MUSS #12)
+- Seed: User A (USER) + User C (MODERATOR), Report von A auf ein Target.
+- Als User A: UPDATE reports SET status → Deny (throws_ok)
+- Als User C (MODERATOR): UPDATE reports SET status → ok (wenn Policy das erlaubt)
+- Prüfe die reports-Struktur (target_type, target_id, reason, status, assigned_to, resolved_at, reporter_id) und die Policy reports_update_mod in 0001_init.sql. Beachte FIX 7 aus dem Schema-Fix (INSERT clamt status/assigned_to/resolved_at auf NULL) — der Test-Seed muss das beachten.
+
+C3: set_updated_at-Trigger
+- INSERT profil/catch → updated_at = created_at. UPDATE → updated_at > created_at (oder jetzt > vorher).
+
+C4: soft_delete_cascade-Trigger
+- User A mit display_name + home_water + catch mit notes.
+- Setze profiles.deleted_at (als supabase_admin — Trigger feuert).
+- Prüfe: display_name='gelöschter Nutzer', home_water IS NULL, catches.notes IS NULL.
+- WICHTIG: Die Schema-Fixes haben soft_delete_cascade ERWEITERT (anonymisiert jetzt auch Content). Teste die erweiterten UPDATEs.
+
+C5: DELETE-Policy catches
+- Als User A: DELETE eigene catch → ok (lives_ok oder Zeilenanzahl).
+- Als User B: DELETE fremde catch → 0 Zeilen.
+
+C6: posts-anon (Briefing-MUSS #14)
+- Seed: Post von User A mit status='VISIBLE' (via create_post oder direkt als supabase_admin).
+- Als anon: SELECT posts → sieht VISIBLE + nicht-deleted.
+- Post mit status='HIDDEN' → anon sieht ihn NICHT.
+
+============================================================
+NACH ALLEN FIXES:
+1. Verifiziere: grep -n "99999999-9999-9999-9999-999999999999" tests/pgtap/0001_rls_tests.sql → im Seed
+2. Setze den plan-Count auf die exakte neue Testanzahl (zähle ALLE ok/is/throws_ok/lives_ok-Assertions!)
+3. Commit mit Message: 'FIX P0.3 R1: pgTAP T3/T6 repariert, MUSS-Fälle chat_messages/reports/Trigger/DELETE/posts-anon'
+4. Gib aus: git log --oneline -1

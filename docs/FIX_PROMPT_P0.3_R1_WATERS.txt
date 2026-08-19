@@ -1,0 +1,21 @@
+Fix in supabase/migrations/0001_init.sql (Postgres 17) — soft_delete_cascade.
+
+KONTEXT: Der vorherige Fix-Versuch war falsch (catches hat KEINE lat/lng — die Koordinaten liegen in public.waters, Z.96-106: id, name, lat, lng, type, public boolean NOT NULL DEFAULT false, owner_id uuid REFERENCES profiles(id), created_at, updated_at).
+
+PROBLEM: Bei profiles.deleted_at (Soft-Delete) bleiben PRIVATE Gewässer des Users (public = false AND owner_id = NEW.id) mit Name + Koordinaten erhalten → Standort-PII-Leak (Art. 17 DSGVO).
+
+ÖFFENTLICHE Gewässer (public = true) dürfen NICHT anonymisiert werden — sie sind geteilter Besitz anderer User.
+
+FIX: In der Funktion soft_delete_cascade (Z.~360-390) NACH dem UPDATE auf public.catches ergänzen:
+
+    UPDATE public.waters
+    SET name = 'gelöschter Nutzer', lat = NULL, lng = NULL
+    WHERE owner_id = NEW.id AND public = false;
+
+AUFGABE:
+1. Lies die Funktion soft_delete_cascade in supabase/migrations/0001_init.sql
+2. Ergänze das UPDATE auf public.waters exakt wie oben (nach dem catches-UPDATE, vor RETURN NEW)
+3. Ändere NICHTS anderes (kein catches lat/lng — existiert nicht)
+4. Verifiziere: grep -n "public.waters" supabase/migrations/0001_init.sql | head -5
+5. Commit: 'FIX P0.3 R1: soft_delete_cascade anonymisiert private Gewaesser (lat/lng)'
+6. Gib aus: git log --oneline -1

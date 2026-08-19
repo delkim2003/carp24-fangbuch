@@ -1,0 +1,52 @@
+Fix verifizierte R2-Funde in carp24 (Postgres 17, Supabase self-hosted).
+
+============================================================
+FIX 1 (🟠 Moderations-Bypass): posts_update_owner USING-Clamp
+PROBLEM: posts_update_owner hat USING (user_id = auth.uid()) OHNE status-Bedingung. Ein Moderator (service_role) setzt einen Post auf HIDDEN — der Owner kann ihn per UPDATE zurueck auf VISIBLE flippen (WITH CHECK erlaubt status='VISIBLE'), sofern er die UUID kennt (URL/Cache). Moderation wird ausgehebelt.
+AKTUELL:
+  CREATE POLICY posts_update_owner ON public.posts
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
+FIX:
+  CREATE POLICY posts_update_owner ON public.posts
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid() AND status = 'VISIBLE')
+    WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
+(USING + WITH CHECK identisch — Owner kann nur noch VISIBLE Posts updaten, HIDDEN-Posts sind fuer ihn unsichtbar/unupdatebar.)
+
+============================================================
+FIX 2 (🟡 Forum-Konsistenz): forum_topics_update_owner + forum_posts_update_owner
+PROBLEM: Gleicher Mangel wie posts (kein status-Clamp) — User kann eigenen Forum-Post/Topic auf HIDDEN setzen, inkonsistent zu posts.
+AKTUELL:
+  CREATE POLICY forum_topics_update_owner ON public.forum_topics
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid());
+FIX:
+  CREATE POLICY forum_topics_update_owner ON public.forum_topics
+    FOR UPDATE TO authenticated
+    USING (user_id = auth.uid() AND status = 'VISIBLE')
+    WITH CHECK (user_id = auth.uid() AND status = 'VISIBLE');
+Analog fuer forum_posts_update_owner (gleiches Muster, USING + WITH CHECK mit status = 'VISIBLE').
+
+============================================================
+FIX 3 (🟡 Test-Luecke): pgTAP-Test fuer entfernte posts_insert_owner-Policy
+PROBLEM: Kein Test beweist, dass direktes INSERT auf posts durch authenticated DENY ist (Policy wurde in R1 entfernt).
+FIX: In tests/pgtap/0001_rls_tests.sql neuen Test C7 ergaenzen (vor ROLLBACK):
+- Als User A (authenticated, jwt=a): INSERT INTO public.posts (user_id, catch_id, status) VALUES (...) → muss DENY sein (0 Zeilen / throws)
+- Nutze den is()-CTE-Ansatz oder throws_ok — pruefe was fuer INSERT passt: INSERT ... RETURNING id in CTE → is((SELECT id FROM ins), NULL) beweist Deny. ODER throws_ok wenn die Policy einen Fehler wirft. Bei fehlender Policy wirft INSERT eine RLS-Exception (neue row violates RLS) → throws_ok mit SQL-String ist korrekt.
+- WICHTIG: posts hat KEINE Insert-Policy mehr → INSERT durch authenticated wirft 'new row violates row-level security policy'. throws_ok ist hier der richtige Ansatz.
+- Seed: Ein published catch von User A existiert bereits (aus frueheren Tests), nutze dessen id ODER erstelle falls noetig.
+- Erhoehe plan-Count von 33 auf 34 (zaehle exakt!).
+
+============================================================
+AUFGABE:
+1. Lies supabase/migrations/0001_init.sql (posts + forum Policies) und tests/pgtap/0001_rls_tests.sql (Ende, vor ROLLBACK)
+2. Wende Fix 1 + Fix 2 an (Policies ersetzen)
+3. Ergänze Test C7 (Fix 3) mit korrektem Seed + throws_ok, aktualisiere plan-Count
+4. Verifiziere:
+   - grep -n "status = 'VISIBLE'" supabase/migrations/0001_init.sql → in posts + forum_topics + forum_posts update-Policies
+   - grep -n "C7" tests/pgtap/0001_rls_tests.sql → neuer Test
+5. Commit: 'FIX P0.3 R2: Moderations-Bypass (posts/forum USING-Clamp), Test C7 posts-INSERT-Deny'
+6. Gib aus: git log --oneline -1

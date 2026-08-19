@@ -8,7 +8,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(33);
+SELECT plan(34);
 
 -- ============================================================================
 -- Seeding: auth.users  (Trigger legt profiles automatisch an)
@@ -730,6 +730,26 @@ SELECT is(
    WHERE status = 'VISIBLE' AND deleted_at IS NULL),
   0::bigint,
   'C6b: anon sees 0 rows when all posts are HIDDEN'
+);
+
+RESET ROLE;
+
+-- ============================================================================
+-- C7: posts INSERT durch authenticated → Deny (keine Insert-Policy)
+-- ============================================================================
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',
+  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true);
+
+SELECT throws_ok(
+  $$INSERT INTO public.posts (user_id, catch_id, status)
+    VALUES (
+      'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      '99999999-9999-9999-9999-999999999999',
+      'VISIBLE'
+    )$$,
+  'new row violates row-level security policy for table "posts"',
+  'C7: authenticated user CANNOT INSERT posts directly (no insert policy)'
 );
 
 RESET ROLE;

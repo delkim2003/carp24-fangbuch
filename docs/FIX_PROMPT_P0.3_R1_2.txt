@@ -1,0 +1,30 @@
+Fix 2 Bugs in carp24 (Postgres 17, pgTAP) — aus Testlauf nach R1-Fixes.
+
+============================================================
+BUG 1 (in tests/pgtap/0001_rls_tests.sql): Test C2a falsch gebaut
+PROBLEM: C2a "non-moderator cannot UPDATE reports status" nutzt throws_ok — aber RLS-Deny bei UPDATE wirft KEINE Exception, es werden nur 0 Zeilen geändert. Der Test schlägt fehl, obwohl die Policy reports_update_mod KORREKT ist (USING EXISTS role IN MODERATOR/ADMIN).
+FIX: C2a auf den is()-CTE-Ansatz umbauen (wie T6/T15):
+  - Seed: Report mit fester ID '77777777-7777-7777-7777-777777777777' (von User A, status='OPEN')
+  - Als User A (kein Mod): UPDATE reports SET status = 'RESOLVED' WHERE id = '77777777-...' RETURNING id in CTE → is((SELECT id FROM upd), NULL) = RLS-Deny bewiesen
+  - WICHTIG: reports_insert_reporter (R1-Fix) clamt status auf 'OPEN', assigned_to/resolved_at NULL — Seed muss das erfüllen (nur reporter_id, target_type, target_id, reason setzen; status NICHT explizit setzen oder auf 'OPEN')
+
+============================================================
+BUG 2 (in supabase/migrations/0001_init.sql): soft_delete_cascade bricht bei chat_messages
+PROBLEM: chat_messages.message ist NOT NULL. Die Funktion soft_delete_cascade setzt message = NULL → NOT NULL-Verletzung beim Soft-Delete.
+FIX: In soft_delete_cascade das chat_messages-UPDATE ändern von:
+    UPDATE public.chat_messages SET message = NULL WHERE user_id = NEW.id;
+auf:
+    UPDATE public.chat_messages SET message = 'gelöschter Nutzer' WHERE user_id = NEW.id;
+(Nur diese eine Zeile in der Funktion ändern — alle anderen Anonymisierungen bleiben.)
+
+============================================================
+AUFGABE:
+1. Lies tests/pgtap/0001_rls_tests.sql (C2a-Block, ~Zeile 300-330) + supabase/migrations/0001_init.sql (soft_delete_cascade, ~Zeile 360-395)
+2. Fixe BEIDE Bugs exakt wie beschrieben
+3. Prüfe die tatsächliche reports-Struktur und Passe den C2a-Seed an (nur Felder, die die INSERT-Policy erlaubt: reporter_id, target_type, target_id, reason — status hat DEFAULT 'OPEN')
+4. Ändere NICHTS anderes
+5. Verifiziere:
+   - grep -n "77777777-7777-7777-7777-777777777777" tests/pgtap/0001_rls_tests.sql (Seed + UPDATE)
+   - grep -n "gelöschter Nutzer" supabase/migrations/0001_init.sql (chat_messages-Zeile)
+6. Commit: 'FIX P0.3 R1.2: C2a is()-CTE statt throws_ok, soft_delete chat NOT NULL'
+7. Gib aus: git log --oneline -1

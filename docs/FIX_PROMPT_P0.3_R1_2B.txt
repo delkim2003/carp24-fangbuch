@@ -1,0 +1,17 @@
+Fix 1 Zeile in supabase/migrations/0001_init.sql (Postgres 17) — soft_delete_cascade.
+
+PROBLEM: marketplace_messages.message ist NOT NULL (Z.~200). Die Funktion soft_delete_cascade (Z.~378) setzt message = NULL → NOT NULL-Verletzung beim Soft-Delete (gleicher Bug wie chat_messages, der schon gefixt wurde).
+
+AKTUELL (Z. 378):
+    UPDATE public.marketplace_messages SET message = NULL WHERE from_user = NEW.id OR to_user = NEW.id;
+
+FIX:
+    UPDATE public.marketplace_messages SET message = 'gelöschter Nutzer' WHERE from_user = NEW.id OR to_user = NEW.id;
+
+AUFGABE:
+1. Lies die Funktion soft_delete_cascade in supabase/migrations/0001_init.sql
+2. Ersetze exakt die eine Zeile (message = NULL → message = 'gelöschter Nutzer')
+3. Ändere NICHTS anderes
+4. Verifiziere: grep -n "marketplace_messages SET message" supabase/migrations/0001_init.sql → zeigt 'gelöschter Nutzer'
+5. Commit: 'FIX P0.3 R1.2b: soft_delete marketplace_messages NOT NULL (Platzhalter)'
+6. Gib aus: git log --oneline -1
