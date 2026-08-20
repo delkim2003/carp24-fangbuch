@@ -348,7 +348,16 @@ function renderFactorsList(factors: any[]) {
     const label = i === 0 ? "ERSTES GERÄT" : "BACKUP-GERÄT";
     const row = document.createElement("div");
     row.className = "flex justify-between items-center bg-surface-container-lowest border border-primary/20 rounded-lg p-4";
-    row.innerHTML = `<div><span class="font-label-sm text-label-sm uppercase text-on-surface">${label}</span><span class="text-body-md text-on-surface-variant ml-3">${f.friendly_name || "Authenticator"}</span></div>`;
+    const info = document.createElement("div");
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "font-label-sm text-label-sm uppercase text-on-surface";
+    labelSpan.textContent = label;
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "text-body-md text-on-surface-variant ml-3";
+    nameSpan.textContent = f.friendly_name || "Authenticator";
+    info.appendChild(labelSpan);
+    info.appendChild(nameSpan);
+    row.appendChild(info);
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "border border-error text-error font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-9 hover:bg-error hover:text-on-error transition-colors";
@@ -487,7 +496,18 @@ async function loadSessions() {
 
     const info = document.createElement("div");
     info.className = "flex flex-col gap-1";
-    info.innerHTML = `<div class="flex items-center flex-wrap gap-2"><span class="font-label-sm text-label-sm uppercase text-on-surface">${deviceName}</span>${aalBadge}${currentBadge}</div><span class="text-body-md text-on-surface-variant">${ip} · ${lastUsed}</span>`;
+    const topRow = document.createElement("div");
+    topRow.className = "flex items-center flex-wrap gap-2";
+    const deviceSpan = document.createElement("span");
+    deviceSpan.className = "font-label-sm text-label-sm uppercase text-on-surface";
+    deviceSpan.textContent = deviceName;
+    topRow.appendChild(deviceSpan);
+    topRow.insertAdjacentHTML("beforeend", aalBadge + currentBadge);
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "text-body-md text-on-surface-variant";
+    metaSpan.textContent = `${ip} · ${lastUsed}`;
+    info.appendChild(topRow);
+    info.appendChild(metaSpan);
 
     const revokeBtn = document.createElement("button");
     revokeBtn.type = "button";
