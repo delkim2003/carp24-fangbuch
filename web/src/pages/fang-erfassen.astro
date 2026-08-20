@@ -6,7 +6,7 @@ const { data: { session } } = await supabase.auth.getSession();
 const isLoggedIn = !!session;
 ---
 
-<Layout title="Carp24 – Neuen Fang eintragen" active="fangbuch">
+<Layout title="Carp24 – Neuen Fang eintragen" noindex>
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!isLoggedIn ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">

@@ -10,6 +10,7 @@ interface Props {
   description?: string;
   active?: "fangbuch" | "statistik" | "preis" | "profil";
   bare?: boolean;
+  noindex?: boolean;
 }
 
 const {
@@ -17,6 +18,7 @@ const {
   description = "Das digitale Fangbuch für Karpfenangler. Fänge erfassen, Statistiken, Community.",
   active,
   bare = false,
+  noindex = false,
 } = Astro.props;
 
 // Env-Zentrale: data-Attribute am <body> (is:inline-Scripts lesen sie per dataset — Bundler-Problem umgangen)
@@ -32,7 +34,7 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     <link rel="icon" type="image/svg+xml" href="/assets/logo_carp24_badge.svg" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="robots" content="noindex, nofollow" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' http://100.93.250.103:8055 https:; font-src 'self' data:;" />
     <title>{title}</title>
     <!-- Matomo on-Premise (DSGVO: requireConsent blockiert bis Consent) -->
