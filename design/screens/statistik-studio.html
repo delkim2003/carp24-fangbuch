@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Statistik-Studio - carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#061f21",
+                        "inverse-surface": "#2d3228",
+                        "on-background": "#181d14",
+                        "on-tertiary-container": "#faffff",
+                        "on-surface-variant": "#45483f",
+                        "secondary-container": "#e7e5b4",
+                        "primary": "#546140",
+                        "on-primary-container": "#fdfff0",
+                        "surface-container-high": "#e5eadb",
+                        "outline-variant": "#c6c8bc",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#1d1d01",
+                        "surface": "#f6fbec",
+                        "surface-container": "#ebf0e1",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-highest": "#dfe4d6",
+                        "tertiary-container": "#617a7c",
+                        "outline": "#76786e",
+                        "on-secondary-fixed-variant": "#494824",
+                        "surface-tint": "#556342",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#bdcca4",
+                        "on-primary-fixed": "#141f05",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f6e7",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "on-secondary-container": "#67663f",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d7dccd",
+                        "tertiary": "#496163",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "surface-bright": "#f6fbec",
+                        "inverse-on-surface": "#eef3e4",
+                        "background": "#f6fbec",
+                        "error": "#ba1a1a",
+                        "secondary": "#61603a",
+                        "on-surface": "#181d14",
+                        "primary-container": "#6c7a57",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#cde7e9",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#bdcca4",
+                        "primary-fixed": "#d9e8be",
+                        "surface-variant": "#dfe4d6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "16px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "nav-item": ["JetBrains Mono"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["\"Source Serif 4\""]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            color: #181d14;
+        }
+        .khaki-card {
+            background-color: #CCCA9B;
+            border: 1px solid rgba(108, 122, 87, 0.4);
+            border-radius: 16px;
+        }
+        .hairline-b {
+            border-bottom: 1px solid rgba(108, 122, 87, 0.4);
+        }
+    </style>
+</head>
+<body class="font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface-dim border-b border-outline-variant/40 dark:border-outline/20 w-full top-0">
+<div class="flex justify-between items-center px-margin-desktop py-md max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-on-surface dark:text-inverse-on-surface tracking-tight">carp24</div>
+<div class="hidden md:flex space-x-lg">
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Fangbuch</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-primary dark:text-inverse-primary border-b border-primary dark:border-inverse-primary pb-1 cursor-pointer active:opacity-70" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Preis</a>
+</div>
+<div class="flex items-center space-x-md">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary cursor-pointer hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+<!-- HEADER -->
+<header class="text-center md:text-left mb-lg">
+<h1 class="font-display-lg text-display-lg text-primary mb-sm">Statistik-Studio</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Kombiniere Bedingungen frei — finde deine besten Fang-Momente.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- CONDITION STUDIO (Left Column on Desktop) -->
+<section class="lg:col-span-8 flex flex-col gap-gutter">
+<div class="khaki-card p-lg relative">
+<div class="flex justify-between items-center mb-md hairline-b pb-sm">
+<h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Bedingungen</h2>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors">ZURÜCKSETZEN</button>
+</div>
+<div class="space-y-md">
+<!-- MOND -->
+<div class="flex flex-col sm:flex-row sm:items-center gap-sm">
+<span class="font-label-sm text-label-sm w-24 text-on-surface-variant">MOND</span>
+<div class="flex flex-wrap gap-sm">
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">NEUMOND</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 bg-primary text-white">VOLLMOND</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">ZUNEHMEND</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">ABNEHMEND</button>
+</div>
+</div>
+<!-- LUFTDRUCK -->
+<div class="flex flex-col sm:flex-row sm:items-center gap-sm">
+<span class="font-label-sm text-label-sm w-24 text-on-surface-variant">LUFTDRUCK</span>
+<div class="flex flex-wrap gap-sm">
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">&lt; 1010 hPa</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">1010-1015 hPa</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 bg-primary text-white">&gt; 1015 hPa</button>
+</div>
+</div>
+<!-- WETTER -->
+<div class="flex flex-col sm:flex-row sm:items-center gap-sm">
+<span class="font-label-sm text-label-sm w-24 text-on-surface-variant">WETTER</span>
+<div class="flex flex-wrap gap-sm">
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 bg-primary text-white">SONNIG</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">BEWÖLKT</button>
+<button class="font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors">REGEN</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MOON + PRESSURE Visuals -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="khaki-card p-lg">
+<h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md hairline-b pb-sm">Mondphasen</h3>
+<div class="flex justify-between items-end h-32 pt-sm">
+<div class="flex flex-col items-center w-1/4">
+<div class="w-full bg-primary/20 h-16 rounded-t-sm"></div>
+<span class="font-label-sm text-label-sm mt-xs">NEU (6)</span>
+</div>
+<div class="flex flex-col items-center w-1/4">
+<div class="w-full bg-primary h-24 rounded-t-sm"></div>
+<span class="font-label-sm text-label-sm mt-xs text-primary font-bold">VOLL (9)</span>
+</div>
+<div class="flex flex-col items-center w-1/4">
+<div class="w-full bg-primary/20 h-12 rounded-t-sm"></div>
+<span class="font-label-sm text-label-sm mt-xs">ZUN (4)</span>
+</div>
+</div>
+</div>
+<div class="khaki-card p-lg">
+<h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md hairline-b pb-sm">Luftdruck</h3>
+<div class="flex flex-col justify-end h-32 pt-sm gap-2">
+<div class="flex items-center">
+<span class="font-label-sm text-label-sm w-12">&gt;1015</span>
+<div class="bg-primary h-4 rounded-r-sm w-3/4"></div>
+</div>
+<div class="flex items-center">
+<span class="font-label-sm text-label-sm w-12">1010-15</span>
+<div class="bg-primary/30 h-4 rounded-r-sm w-1/2"></div>
+</div>
+<div class="flex items-center">
+<span class="font-label-sm text-label-sm w-12">&lt;1010</span>
+<div class="bg-primary/20 h-4 rounded-r-sm w-1/4"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- METRIC CARDS & CORRELATIONS (Right Column on Desktop) -->
+<section class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="grid grid-cols-2 gap-gutter">
+<div class="khaki-card p-md flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">GESAMT FÄNGE</span>
+<span class="font-headline-lg text-headline-lg text-primary">72</span>
+</div>
+<div class="khaki-card p-md flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Ø GEWICHT</span>
+<span class="font-headline-lg text-headline-lg text-primary">17.8<span class="font-body-md text-sm">KG</span></span>
+</div>
+</div>
+<div class="khaki-card p-md flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">BESTE KOMBINATION</span>
+<div class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full mt-2">VOLLMOND + &gt;1015 hPa</div>
+</div>
+<div class="khaki-card p-lg flex-grow">
+<h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md hairline-b pb-sm">Beste Kombinationen</h3>
+<div class="space-y-md">
+<div class="flex justify-between items-center hairline-b pb-sm border-primary/20">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold">VOLLMOND + SONNIG</span>
+<span class="font-body-md text-sm text-on-surface-variant">12 Fänge (Ø 19.2 kg)</span>
+</div>
+<div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden">
+<div class="w-full h-full bg-primary"></div>
+</div>
+</div>
+<div class="flex justify-between items-center hairline-b pb-sm border-primary/20">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold">NEUMOND + BEWÖLKT</span>
+<span class="font-body-md text-sm text-on-surface-variant">8 Fänge (Ø 16.5 kg)</span>
+</div>
+<div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-primary/70"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- DRILL-DOWN LIST -->
+<section class="w-full">
+<h2 class="font-headline-md text-headline-md text-primary mb-md">Fänge mit diesen Bedingungen</h2>
+<div class="khaki-card overflow-hidden">
+<div class="flex flex-col">
+<!-- Row 1 -->
+<div class="flex items-center p-md hairline-b hover:bg-white/10 transition-colors">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 mr-md border border-primary/20">
+<img alt="Carp Catch" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1UYWgVEQ-v18OaWCnzaFnnBVr6IRDfkMKF-57Oz5G2hTfoP6peq-RQYxWkFSW1LQvpH_wIf28WB1iKq7tewjl7894rI1shl8kJakdGz_PbNxibiN8PiFDpUW7tgFXqTMTI35KsqN6nTzHpykPJEPTpQ_NYGurMzesnnHb9X3fkUluvP_IUJ8cmwsIHTlUWuEiF62LVT6x1Hg3ihFWs5hWFPaYQTpSrQbkdA2MvyhMEPVrSEbGxqubAsr6UX"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-nav-item text-nav-item text-primary text-lg">21.4 KG</span>
+<span class="font-body-md text-sm text-tertiary-container">Schuppenkarpfen • Waldsee • 12.05.2024</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">VOLLMOND</span>
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">SONNIG</span>
+</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center p-md hairline-b hover:bg-white/10 transition-colors">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 mr-md border border-primary/20">
+<img alt="Carp Catch" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WLWJDTwoJXOH3n20yxJ9Xuehs7T2IWxjBZwz5k8WGFyb-j9gkihTCeTiWgdhRd_JgrF-iQTpe1uGLdO88w6rhjpd7SWwQR60eR9_Bwev7CulRskoDOym5WRCjYPaU7_23Hh2x2NNoYPq2KKeT7GRdAnUtVDGCcLF1Z2MR6tjBFvFj-XGerImYKCd-E0IIKZQdAAIJdCycl7ezu8GH4hNBJ59LU2j7Z8lIhwmEj0S1XHg2jF-YzzCsg1c2S"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-nav-item text-nav-item text-primary text-lg">19.8 KG</span>
+<span class="font-body-md text-sm text-tertiary-container">Spiegelkarpfen • Flussaltarm • 10.05.2024</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">VOLLMOND</span>
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">&gt;1015 hPa</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface-dim border-t border-outline-variant/40 dark:border-outline/20 w-full bottom-0 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop py-lg w-full max-w-7xl mx-auto">
+<div class="font-nav-item text-nav-item text-on-surface mb-4 md:mb-0">carp24</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline mb-4 md:mb-0">© 2024 carp24. All rights reserved.</div>
+<div class="flex space-x-md">
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline hover:underline decoration-primary/40 transition-all duration-200" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline hover:underline decoration-primary/40 transition-all duration-200" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline hover:underline decoration-primary/40 transition-all duration-200" href="#">AGB</a>
+</div>
+</div>
+</footer>
+</body></html>
