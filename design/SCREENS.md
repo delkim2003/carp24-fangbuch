@@ -14,6 +14,8 @@
 | S2 | Login/Registrierung | E-Mail+Passwort, Registrieren, Logo | ✅ generiert |
 | S3 | Fang-Formular <20s | Chips, Gewicht Komma, Gewässer, Foto HEIC, Notiz, SPEICHERN | ✅ generiert |
 | S4 | Fangliste | Liste, Filter, FAB + FANG, Empty-State | ✅ generiert |
+| S4b | **Fangliste-Empty-State** | „NOCH KEINE FÄNGE" + Karpfen-Silhouette + CTA — für neue User (1.8) | ✅ generiert (20.08., GEMINI_3_1_PRO) |
+| S5b | **Success-Bestätigung** | „FANG GESPEICHERT" + Check + Zusammenfassung + Wetter-Hinweis (1.8) | ✅ generiert (20.08., GEMINI_3_1_PRO) |
 | S5 | Fang-Detail | Foto groß, Gewicht mono, Wetter-Snapshot, Edit/Delete | ✅ generiert |
 | S6 | Dashboard | Gewichts-Verlauf, Monats-Chart, Top-Fänge, Statistik-Boxen | ✅ generiert |
 | S6b | **Statistik-Studio (Bedingungs-UI)** | **Condition-Chips (Mond/Luftdruck/Wind/Wetter/Gewässer/Art/Köder/Zeit), Result-Cards, Mond+Druck-Visualisierung, Drill-down, Korrelation — 1.10b-Herzstück** | ✅ generiert (20.08., direkte API, GEMINI_3_1_PRO) |
