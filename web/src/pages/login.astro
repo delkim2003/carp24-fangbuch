@@ -9,27 +9,141 @@ import Layout from "../layouts/Layout.astro";
         <h1 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Willkommen zurück</h1>
         <p class="text-body-md text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
       </div>
-      <form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+
+      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+      <div id="login-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
+
+      <form id="login-form" class="flex flex-col gap-md">
         <div class="flex flex-col gap-xs">
           <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="email">E-Mail</label>
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="email" name="email" type="email" placeholder="angler@example.com" autocomplete="email" />
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="email" name="email" type="email" placeholder="angler@example.com" autocomplete="email" required />
         </div>
         <div class="flex flex-col gap-xs">
           <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="password">Passwort</label>
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
         </div>
         <div class="flex justify-between items-center mt-sm mb-sm">
           <a class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors underline decoration-primary/30 hover:decoration-primary" href="#">Passwort vergessen?</a>
         </div>
-        <button type="button" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm">
+        <button type="submit" id="login-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed">
           ANMELDEN
         </button>
       </form>
-      <div class="mt-md text-center">
-        <a class="text-body-md text-secondary hover:text-primary transition-colors" href="#">
-          Noch kein Konto? <span class="underline decoration-primary/30 hover:decoration-primary">Registrieren</span>
-        </a>
+
+      <div class="border-t border-primary/20 pt-md mt-sm">
+        <p class="text-body-md text-on-surface-variant text-center mb-md">Noch kein Konto?</p>
+        <form id="register-form" class="flex flex-col gap-md">
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="reg-email" type="email" placeholder="E-Mail-Adresse" autocomplete="email" required />
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="reg-password" type="password" placeholder="Passwort (mind. 6 Zeichen)" autocomplete="new-password" minlength="6" required />
+          <button type="submit" id="register-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+            REGISTRIEREN
+          </button>
+        </form>
+        <p id="reg-hint" class="hidden text-body-md text-secondary text-center mt-sm"></p>
       </div>
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+(function () {
+  var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
+  var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var loginForm = document.getElementById('login-form');
+  var registerForm = document.getElementById('register-form');
+  var loginError = document.getElementById('login-error');
+  var loginSuccess = document.getElementById('login-success');
+  var loginBtn = document.getElementById('login-btn');
+  var registerBtn = document.getElementById('register-btn');
+  var regHint = document.getElementById('reg-hint');
+
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    if (!email || !password) {
+      showError('Bitte E-Mail und Passwort eingeben.');
+      return;
+    }
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'WIRD ANGEMELDET…';
+    var sb = getSupabase();
+    if (!sb) {
+      showError('Supabase nicht initialisiert.');
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'ANMELDEN';
+      return;
+    }
+    sb.auth.signInWithPassword({ email: email, password: password }).then(function (res) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'ANMELDEN';
+      if (res.error) {
+        showError('Ungültige Anmeldedaten. Bitte überprüfe E-Mail und Passwort.');
+      } else {
+        window.location.href = '/fang-erfassen';
+      }
+    });
+  });
+
+  registerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+    var email = document.getElementById('reg-email').value.trim();
+    var password = document.getElementById('reg-password').value;
+    if (!email || !password) {
+      showError('Bitte E-Mail und Passwort eingeben.');
+      return;
+    }
+    if (password.length < 6) {
+      showError('Passwort muss mindestens 6 Zeichen lang sein.');
+      return;
+    }
+    registerBtn.disabled = true;
+    registerBtn.textContent = 'WIRD REGISTRIERT…';
+    var sb = getSupabase();
+    if (!sb) {
+      showError('Supabase nicht initialisiert.');
+      registerBtn.disabled = false;
+      registerBtn.textContent = 'REGISTRIEREN';
+      return;
+    }
+    sb.auth.signUp({ email: email, password: password }).then(function (res) {
+      registerBtn.disabled = false;
+      registerBtn.textContent = 'REGISTRIEREN';
+      if (res.error) {
+        showError('Registrierung fehlgeschlagen: ' + res.error.message);
+      } else if (res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
+        showError('Diese E-Mail ist bereits registriert.');
+      } else {
+        regHint.textContent = 'Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse, bevor du dich anmeldest.';
+        regHint.classList.remove('hidden');
+        regHint.classList.add('text-primary');
+      }
+    });
+  });
+
+  function showError(msg) {
+    loginError.textContent = msg;
+    loginError.classList.remove('hidden');
+  }
+
+  function hideMessages() {
+    loginError.classList.add('hidden');
+    loginSuccess.classList.add('hidden');
+    regHint.classList.add('hidden');
+  }
+})();
+</script>

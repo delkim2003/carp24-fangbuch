@@ -35,9 +35,12 @@ const navItems = [
     </nav>
 
     <div class="flex items-center gap-4">
-      <a href="/login" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
+      <a id="auth-link" href="/login" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
         Sign In
       </a>
+      <button id="logout-btn" type="button" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
+        Abmelden
+      </button>
       <a href="/profil" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
       </a>
@@ -62,9 +65,12 @@ const navItems = [
           {item.label}
         </a>
       ))}
-      <a href="/login" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
+      <a id="mobile-auth-link" href="/login" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
         Sign In
       </a>
+      <button id="mobile-logout-btn" type="button" class="hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
+        Abmelden
+      </button>
       <a href="/profil" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
         Profil
       </a>
@@ -73,17 +79,79 @@ const navItems = [
 </header>
 
 <script is:inline>
-  (function () {
-    var btn = document.getElementById("mobile-burger");
-    var panel = document.getElementById("mobile-nav");
-    var iconOpen = document.getElementById("burger-open");
-    var iconClose = document.getElementById("burger-close");
-    if (!btn || !panel) return;
-    btn.addEventListener("click", function () {
-      var open = panel.classList.toggle("hidden");
-      btn.setAttribute("aria-expanded", String(!open));
-      iconOpen.classList.toggle("hidden", !open);
-      iconClose.classList.toggle("hidden", open);
+(function () {
+  var btn = document.getElementById("mobile-burger");
+  var panel = document.getElementById("mobile-nav");
+  var iconOpen = document.getElementById("burger-open");
+  var iconClose = document.getElementById("burger-close");
+  if (!btn || !panel) return;
+  btn.addEventListener("click", function () {
+    var open = panel.classList.toggle("hidden");
+    btn.setAttribute("aria-expanded", String(!open));
+    iconOpen.classList.toggle("hidden", !open);
+    iconClose.classList.toggle("hidden", open);
+  });
+
+  var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
+  var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var authLink = document.getElementById('auth-link');
+  var logoutBtn = document.getElementById('logout-btn');
+  var mobileAuthLink = document.getElementById('mobile-auth-link');
+  var mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+
+  function updateAuthUI(isLoggedIn) {
+    if (isLoggedIn) {
+      if (authLink) authLink.classList.add('hidden');
+      if (logoutBtn) logoutBtn.classList.remove('hidden');
+      if (mobileAuthLink) mobileAuthLink.classList.add('hidden');
+      if (mobileLogoutBtn) {
+        mobileLogoutBtn.classList.remove('hidden');
+        mobileLogoutBtn.classList.add('flex');
+      }
+    } else {
+      if (authLink) authLink.classList.remove('hidden');
+      if (logoutBtn) logoutBtn.classList.add('hidden');
+      if (mobileAuthLink) mobileAuthLink.classList.remove('hidden');
+      if (mobileLogoutBtn) {
+        mobileLogoutBtn.classList.add('hidden');
+        mobileLogoutBtn.classList.remove('flex');
+      }
+    }
+  }
+
+  var sb = getSupabase();
+  if (sb) {
+    sb.auth.getSession().then(function (res) {
+      updateAuthUI(!!res.data.session);
     });
-  })();
+
+    sb.auth.onAuthStateChange(function (_event, session) {
+      updateAuthUI(!!session);
+    });
+  }
+
+  function handleLogout() {
+    var sb = getSupabase();
+    if (sb) {
+      sb.auth.signOut().then(function () {
+        window.location.href = '/';
+      });
+    }
+  }
+
+  if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+  if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
+})();
 </script>

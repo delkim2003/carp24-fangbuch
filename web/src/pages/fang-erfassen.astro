@@ -1,95 +1,470 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { supabase } from "../lib/supabase-client";
+
+const { data: { session } } = await supabase.auth.getSession();
+const isLoggedIn = !!session;
 ---
 
 <Layout title="Carp24 – Neuen Fang eintragen" active="fangbuch">
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
-    <div class="mb-xl text-center md:text-left">
-      <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
-      <p class="text-body-lg text-on-surface-variant max-w-2xl">Dokumentiere die Details deines Fangs für das Journal.</p>
-    </div>
-
-    <form class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm" onsubmit="event.preventDefault();">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
-        <div class="flex flex-col gap-lg">
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM</label>
-            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="datum" name="datum" type="date" />
-          </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser">GEWÄSSER</label>
-            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="gewaesser" name="gewaesser" type="text" placeholder="Name des Sees oder Flusses" />
-          </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-sm text-label-sm uppercase text-secondary" for="fischart">FISCHART</label>
-            <select class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12 appearance-none" id="fischart" name="fischart">
-              <option value="">Auswählen...</option>
-              <option value="karpfen">Karpfen</option>
-              <option value="spiegelkarpfen">Spiegelkarpfen</option>
-              <option value="schuppenkarpfen">Schuppenkarpfen</option>
-              <option value="graskarpfen">Graskarpfen</option>
-              <option value="hecht">Hecht</option>
-              <option value="zander">Zander</option>
-              <option value="barsch">Barsch</option>
-            </select>
-          </div>
+    {!isLoggedIn ? (
+      <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
+        <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl">Du musst angemeldet sein, um einen Fang zu erfassen.</p>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+          Anmelden
+        </a>
+      </div>
+    ) : (
+      <>
+        <div class="mb-xl text-center md:text-left">
+          <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">Dokumentiere die Details deines Fangs für das Journal.</p>
         </div>
 
-        <div class="flex flex-col gap-lg">
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)</label>
-            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" />
-          </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">LÄNGE (CM)</label>
-            <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="laenge" name="laenge" type="number" placeholder="0" inputmode="numeric" />
-          </div>
-          <div class="grid grid-cols-2 gap-gutter">
-            <div class="flex flex-col gap-sm">
-              <label class="font-label-sm text-label-sm uppercase text-secondary" for="lufttemperatur">LUFTTEMPERATUR</label>
-              <div class="relative">
-                <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 pr-10 min-h-12" id="lufttemperatur" name="lufttemperatur" type="number" placeholder="°C" inputmode="numeric" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/></svg>
+        <form id="catch-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
+          <div id="form-error" class="hidden mb-lg p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
+            <div class="flex flex-col gap-lg">
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" required
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">LÄNGE (CM)</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="laenge" name="laenge" type="number" placeholder="0" inputmode="numeric"
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary">FISCHART</label>
+                <div id="species-chips" class="flex flex-wrap gap-sm">
+                  <button type="button" data-species="SPIEGEL" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">SPIEGEL</button>
+                  <button type="button" data-species="LEDER" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">LEDER</button>
+                  <button type="button" data-species="SCHUPPEN" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">SCHUPPEN</button>
+                  <button type="button" data-species="AMUR" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">AMUR</button>
+                  <button type="button" data-species="ANDERE" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">ANDERE</button>
+                </div>
+                <input type="hidden" id="species" name="species" />
               </div>
             </div>
-            <div class="flex flex-col gap-sm">
-              <label class="font-label-sm text-label-sm uppercase text-secondary" for="wassertemperatur">WASSERTEMPERATUR</label>
-              <div class="relative">
-                <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 pr-10 min-h-12" id="wassertemperatur" name="wassertemperatur" type="number" placeholder="°C" inputmode="numeric" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary" aria-hidden="true"><path d="M12 2.5s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+
+            <div class="flex flex-col gap-lg">
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="datum" name="datum" type="date" required
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="uhrzeit">UHRZEIT</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="uhrzeit" name="uhrzeit" type="time"
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="koeder">KÖDER</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="koeder" name="koeder" type="text" placeholder="z.B. Mais, Boilies..."
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="methode">METHODE</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="methode" name="methode" type="text" placeholder="z.B. Pose, Grundangel..."
+                />
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <hr class="border-t border-primary/20 my-xl" />
+          <hr class="border-t border-primary/20 my-xl" />
 
-      <div class="flex flex-col gap-lg">
-        <div class="flex flex-col gap-sm">
-          <label class="font-label-sm text-label-sm uppercase text-secondary">FOTO HOCHLADEN</label>
-          <div class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span class="font-nav-item text-nav-item text-secondary">Bild auswählen oder ablegen</span>
+          <div class="flex flex-col gap-lg">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser-input">GEWÄSSER</label>
+              <div class="relative">
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="gewaesser-input" name="gewaesser" type="text" placeholder="Name des Sees oder Flusses" autocomplete="off"
+                />
+                <div id="gewaesser-dropdown" class="hidden absolute z-10 w-full bg-surface-container-lowest border border-primary/20 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+              </div>
+              <input type="hidden" id="water_name" name="water_name" />
+              <input type="hidden" id="water_id" name="water_id" />
+
+              <button type="button" id="gps-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+                STANDORT VERWENDEN
+              </button>
+              <span id="gps-status" class="text-body-md text-secondary hidden"></span>
+
+              <div class="grid grid-cols-2 gap-gutter mt-sm">
+                <div class="flex flex-col gap-xs">
+                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lat">BREITENGRAD</label>
+                  <input
+                    class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                    id="lat" name="lat" type="number" step="any" placeholder="48.1351" inputmode="decimal"
+                  />
+                </div>
+                <div class="flex flex-col gap-xs">
+                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lng">LÄNGENGRAD</label>
+                  <input
+                    class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                    id="lng" name="lng" type="number" step="any" placeholder="11.5820" inputmode="decimal"
+                  />
+                </div>
+              </div>
+              <p class="text-body-md text-on-surface-variant text-xs mt-xs">Privatgewässer: Name eintragen, Koordinaten optional</p>
+            </div>
+
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary">FOTO HOCHLADEN</label>
+              <div id="photo-drop" class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span class="font-nav-item text-nav-item text-secondary">Bild auswählen oder ablegen</span>
+                <span id="photo-name" class="text-body-md text-primary mt-sm hidden"></span>
+              </div>
+              <input type="file" id="photo-input" accept="image/*" class="hidden" />
+              <input type="hidden" id="photos" name="photos" />
+            </div>
+
+            <div class="flex flex-col gap-sm">
+              <div class="flex justify-between items-center">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">NOTIZEN</label>
+                <span id="notes-counter" class="font-label-sm text-label-sm text-secondary">0 / 1000</span>
+              </div>
+              <textarea
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-32"
+                id="notizen" name="notizen" rows="4" maxlength="1000" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..."
+              ></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
+            </div>
+
+            <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+            <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
+
+            <div class="pt-xl flex justify-end">
+              <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+                FANG SPEICHERN
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div class="flex flex-col gap-sm">
-          <label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">NOTIZEN</label>
-          <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-32" id="notizen" name="notizen" rows="4" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..."></textarea>
-        </div>
-
-        <div class="flex items-center gap-3 pt-md">
-          <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" />
-          <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
-        </div>
-
-        <div class="pt-xl flex justify-end">
-          <button type="button" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12">
-            FANG SPEICHERN
-          </button>
-        </div>
-      </div>
-    </form>
+        </form>
+      </>
+    )}
   </main>
 </Layout>
+
+<script is:inline>
+(function () {
+  var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
+  var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var form = document.getElementById('catch-form');
+  if (!form) return;
+
+  var speciesChips = document.querySelectorAll('.species-chip');
+  var speciesInput = document.getElementById('species');
+  var gewaesserInput = document.getElementById('gewaesser-input');
+  var gewaesserDropdown = document.getElementById('gewaesser-dropdown');
+  var waterNameInput = document.getElementById('water_name');
+  var waterIdInput = document.getElementById('water_id');
+  var latInput = document.getElementById('lat');
+  var lngInput = document.getElementById('lng');
+  var gpsBtn = document.getElementById('gps-btn');
+  var gpsStatus = document.getElementById('gps-status');
+  var photoDrop = document.getElementById('photo-drop');
+  var photoInput = document.getElementById('photo-input');
+  var photoName = document.getElementById('photo-name');
+  var photosInput = document.getElementById('photos');
+  var notizen = document.getElementById('notizen');
+  var notesCounter = document.getElementById('notes-counter');
+  var gewichtInput = document.getElementById('gewicht');
+  var submitBtn = document.getElementById('submit-btn');
+  var submitError = document.getElementById('submit-error');
+  var submitSuccess = document.getElementById('submit-success');
+  var formError = document.getElementById('form-error');
+
+  var debounceTimer = null;
+  var uploadedPhotoUrl = null;
+
+  speciesChips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      speciesChips.forEach(function (c) {
+        c.classList.remove('bg-primary-container', 'text-on-primary-container');
+        c.classList.add('text-on-surface-variant');
+      });
+      chip.classList.add('bg-primary-container', 'text-on-primary-container');
+      chip.classList.remove('text-on-surface-variant');
+      speciesInput.value = chip.getAttribute('data-species');
+    });
+  });
+
+  gewichtInput.addEventListener('input', function () {
+    this.value = this.value.replace(',', '.');
+  });
+
+  notizen.addEventListener('input', function () {
+    notesCounter.textContent = this.value.length + ' / 1000';
+  });
+
+  gewaesserInput.addEventListener('input', function () {
+    var q = this.value.trim();
+    if (q.length < 2) {
+      gewaesserDropdown.classList.add('hidden');
+      return;
+    }
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () {
+      fetchWaters(q);
+    }, 300);
+  });
+
+  gewaesserInput.addEventListener('blur', function () {
+    setTimeout(function () {
+      gewaesserDropdown.classList.add('hidden');
+    }, 200);
+  });
+
+  function fetchWaters(query) {
+    var sb = getSupabase();
+    if (!sb) return;
+    sb.functions.invoke('gewaesser-search', { body: { query: query } }).then(function (res) {
+      if (res.error || !res.data) {
+        gewaesserDropdown.classList.add('hidden');
+        return;
+      }
+      var results = res.data;
+      if (!results.length) {
+        gewaesserDropdown.classList.add('hidden');
+        return;
+      }
+      gewaesserDropdown.innerHTML = '';
+      results.forEach(function (w) {
+        var item = document.createElement('div');
+        item.className = 'px-4 py-3 cursor-pointer hover:bg-surface-container-high transition-colors border-b border-primary/10 last:border-0';
+        item.innerHTML = '<div class="text-body-md text-on-surface">' + escapeHtml(w.name) + '</div>' +
+          '<div class="text-body-md text-on-surface-variant text-xs">' + w.lat.toFixed(4) + ', ' + w.lng.toFixed(4) + '</div>';
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          gewaesserInput.value = w.name;
+          waterNameInput.value = w.name;
+          latInput.value = w.lat;
+          lngInput.value = w.lng;
+          gewaesserDropdown.classList.add('hidden');
+        });
+        gewaesserDropdown.appendChild(item);
+      });
+      gewaesserDropdown.classList.remove('hidden');
+    });
+  }
+
+  gpsBtn.addEventListener('click', function () {
+    if (!navigator.geolocation) {
+      gpsStatus.textContent = 'Geolocation nicht unterstützt';
+      gpsStatus.classList.remove('hidden');
+      return;
+    }
+    gpsStatus.textContent = 'Standort wird ermittelt…';
+    gpsStatus.classList.remove('hidden');
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        latInput.value = pos.coords.latitude.toFixed(6);
+        lngInput.value = pos.coords.longitude.toFixed(6);
+        gpsStatus.textContent = 'Standort erfasst ✓';
+        gpsStatus.classList.add('text-primary');
+      },
+      function (err) {
+        gpsStatus.textContent = 'Fehler: ' + err.message;
+        gpsStatus.classList.remove('text-primary');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  photoDrop.addEventListener('click', function () {
+    photoInput.click();
+  });
+  photoDrop.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      photoInput.click();
+    }
+  });
+
+  photoInput.addEventListener('change', function () {
+    if (!this.files || !this.files[0]) return;
+    var file = this.files[0];
+    photoName.textContent = file.name;
+    photoName.classList.remove('hidden');
+
+    var sb = getSupabase();
+    if (!sb) return;
+    var fileExt = file.name.split('.').pop();
+    var filePath = crypto.randomUUID() + '.' + fileExt;
+    sb.storage.from('catch-photos').upload(filePath, file).then(function (res) {
+      if (res.error) {
+        showSubmitError('Foto-Upload fehlgeschlagen: ' + res.error.message);
+        return;
+      }
+      var urlData = sb.storage.from('catch-photos').getPublicUrl(filePath);
+      uploadedPhotoUrl = urlData.data.publicUrl;
+      photosInput.value = JSON.stringify([uploadedPhotoUrl]);
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+
+    var gewicht = parseFloat(gewichtInput.value);
+    if (!gewicht || gewicht <= 0) {
+      showSubmitError('Bitte ein gültiges Gewicht eingeben.');
+      return;
+    }
+
+    var species = speciesInput.value;
+    if (!species) {
+      showSubmitError('Bitte eine Fischart auswählen.');
+      return;
+    }
+
+    var datum = document.getElementById('datum').value;
+    if (!datum) {
+      showSubmitError('Bitte ein Datum eingeben.');
+      return;
+    }
+
+    var uhrzeit = document.getElementById('uhrzeit').value;
+    var catch_ts = datum + (uhrzeit ? 'T' + uhrzeit + ':00' : 'T12:00:00');
+
+    var input = {
+      catch_ts: new Date(catch_ts).toISOString(),
+      species: species,
+      weight_kg: gewicht,
+    };
+
+    var laenge = parseFloat(document.getElementById('laenge').value);
+    if (laenge > 0) input.length_cm = laenge;
+
+    var koeder = document.getElementById('koeder').value.trim();
+    if (koeder) input.bait = koeder;
+
+    var methode = document.getElementById('methode').value.trim();
+    if (methode) input.method = methode;
+
+    var notes = notizen.value.trim();
+    if (notes) input.notes = notes;
+
+    var lat = parseFloat(latInput.value);
+    var lng = parseFloat(lngInput.value);
+    if (!isNaN(lat)) input.lat = lat;
+    if (!isNaN(lng)) input.lng = lng;
+
+    var wn = waterNameInput.value;
+    if (wn) input.water_name = wn;
+    var wid = waterIdInput.value;
+    if (wid) input.water_id = wid;
+
+    if (uploadedPhotoUrl) {
+      input.photos = [uploadedPhotoUrl];
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'WIRD GESPEICHERT…';
+
+    saveCatchViaRpc(input, function (result) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'FANG SPEICHERN';
+      if (result.error) {
+        showSubmitError('Fehler beim Speichern: ' + result.error);
+      } else {
+        submitSuccess.textContent = 'Fang erfolgreich gespeichert!';
+        submitSuccess.classList.remove('hidden');
+        setTimeout(function () {
+          window.location.href = '/faenge';
+        }, 1200);
+      }
+    });
+  });
+
+  function saveCatchViaRpc(input, cb) {
+    var sb = getSupabase();
+    if (!sb) {
+      cb({ error: 'Supabase nicht initialisiert' });
+      return;
+    }
+    var client_uuid = crypto.randomUUID();
+    var p_data = Object.assign({}, input, {
+      draft: false,
+      weather_auto: false,
+      client_updated_at: new Date().toISOString(),
+    });
+    sb.rpc('sync_catch', { p_client_uuid: client_uuid, p_data: p_data }).then(function (res) {
+      if (res.error) {
+        cb({ error: res.error.message });
+        return;
+      }
+      var catch_id = res.data;
+      sb.rpc('publish_catch', { p_catch_id: catch_id }).then(function (pubRes) {
+        if (pubRes.error) {
+          cb({ id: catch_id, error: pubRes.error.message });
+        } else {
+          cb({ id: catch_id });
+        }
+      });
+    });
+  }
+
+  function showSubmitError(msg) {
+    submitError.textContent = msg;
+    submitError.classList.remove('hidden');
+  }
+
+  function hideMessages() {
+    submitError.classList.add('hidden');
+    submitSuccess.classList.add('hidden');
+    if (formError) formError.classList.add('hidden');
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  var now = new Date();
+  document.getElementById('datum').value = now.toISOString().split('T')[0];
+  document.getElementById('uhrzeit').value = now.toTimeString().slice(0, 5);
+})();
+</script>
