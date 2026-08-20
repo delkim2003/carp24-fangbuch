@@ -62,5 +62,10 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     </main>
     {!bare && <Footer />}
     {!bare && <KlaroBanner />}
+    <script>
+      import { supabase } from "../lib/supabase-client";
+      import { initErrorTracker } from "../lib/error-tracker";
+      initErrorTracker(supabase);
+    </script>
   </body>
 </html>
