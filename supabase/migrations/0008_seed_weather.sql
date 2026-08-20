@@ -1,0 +1,30 @@
+-- 0008_seed_weather.sql
+-- Seed-Fänge mit Wetter-Snapshots anreichern (für Bedingungs-Studio 1.10a/1.10b)
+-- Struktur = EXAKT wie vom wetter-hook geliefert (temp_c, pressure_hpa, wind_kmh,
+-- weather_code, weather_text, moon_phase, moon_text, measured_at)
+-- Variiert: Mondphasen (neumond/zunehmend/vollmond/abnehmend) + Luftdruck-Buckets,
+-- damit das Statistik-Studio echte, unterscheidbare Bedingungen zeigt.
+-- NUR für Seed-Fänge (2025) — echte Fänge bekommen Wetter automatisch vom Hook.
+
+UPDATE public.catches SET weather = '{"temp_c":13.5,"pressure_hpa":1008,"wind_kmh":12,"weather_code":1,"weather_text":"überwiegend klar","moon_phase":0.03,"moon_text":"neumond","measured_at":"2025-03-12T16:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-03-12T16:45:00+01:00';
+UPDATE public.catches SET weather = '{"temp_c":11.2,"pressure_hpa":1011,"wind_kmh":9,"weather_code":3,"weather_text":"bedeckt","moon_phase":0.22,"moon_text":"zunehmend","measured_at":"2025-04-05T18:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-04-05T18:00:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":18.4,"pressure_hpa":1005,"wind_kmh":8,"weather_code":0,"weather_text":"sonnig","moon_phase":0.49,"moon_text":"vollmond","measured_at":"2025-06-07T21:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-06-07T21:00:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":22.1,"pressure_hpa":1015,"wind_kmh":15,"weather_code":2,"weather_text":"teils bewölkt","moon_phase":0.71,"moon_text":"abnehmend","measured_at":"2025-07-19T05:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-07-19T05:45:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":24.3,"pressure_hpa":1012,"wind_kmh":6,"weather_code":61,"weather_text":"Regen","moon_phase":0.12,"moon_text":"zunehmend","measured_at":"2025-08-04T23:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-08-04T23:00:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":20.5,"pressure_hpa":1020,"wind_kmh":11,"weather_code":0,"weather_text":"sonnig","moon_phase":0.53,"moon_text":"vollmond","measured_at":"2025-09-09T18:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-09-09T18:20:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":12.8,"pressure_hpa":1001,"wind_kmh":18,"weather_code":61,"weather_text":"Regen","moon_phase":0.96,"moon_text":"neumond","measured_at":"2025-10-12T18:00:00"}'::jsonb WHERE water_name='Silbersee Villach' AND catch_ts='2025-10-12T18:30:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":15.0,"pressure_hpa":1007,"wind_kmh":10,"weather_code":1,"weather_text":"überwiegend klar","moon_phase":0.45,"moon_text":"vollmond","measured_at":"2025-05-16T07:00:00"}'::jsonb WHERE water_name='Neusiedler See' AND catch_ts='2025-05-16T07:10:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":19.8,"pressure_hpa":1016,"wind_kmh":14,"weather_code":2,"weather_text":"teils bewölkt","moon_phase":0.98,"moon_text":"neumond","measured_at":"2025-05-24T22:00:00"}'::jsonb WHERE water_name='Neusiedler See' AND catch_ts='2025-05-24T22:40:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":21.0,"pressure_hpa":1009,"wind_kmh":7,"weather_code":80,"weather_text":"Regenschauer","moon_phase":0.3,"moon_text":"zunehmend","measured_at":"2025-06-15T04:00:00"}'::jsonb WHERE water_name='Neusiedler See' AND catch_ts='2025-06-15T04:55:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":23.4,"pressure_hpa":1022,"wind_kmh":5,"weather_code":0,"weather_text":"sonnig","moon_phase":0.58,"moon_text":"vollmond","measured_at":"2025-08-22T19:00:00"}'::jsonb WHERE water_name='Neusiedler See' AND catch_ts='2025-08-22T19:30:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":14.1,"pressure_hpa":1004,"wind_kmh":13,"weather_code":61,"weather_text":"Regen","moon_phase":0.08,"moon_text":"neumond","measured_at":"2025-04-18T15:00:00"}'::jsonb WHERE water_name='Wörthersee' AND catch_ts='2025-04-18T15:20:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":26.2,"pressure_hpa":1014,"wind_kmh":9,"weather_code":0,"weather_text":"sonnig","moon_phase":0.51,"moon_text":"vollmond","measured_at":"2025-06-28T06:00:00"}'::jsonb WHERE water_name='Wörthersee' AND catch_ts='2025-06-28T06:45:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":24.6,"pressure_hpa":1018,"wind_kmh":4,"weather_code":1,"weather_text":"überwiegend klar","moon_phase":0.78,"moon_text":"abnehmend","measured_at":"2025-07-30T20:00:00"}'::jsonb WHERE water_name='Wörthersee' AND catch_ts='2025-07-30T20:15:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":19.3,"pressure_hpa":1010,"wind_kmh":10,"weather_code":2,"weather_text":"teils bewölkt","moon_phase":0.36,"moon_text":"zunehmend","measured_at":"2025-09-01T05:00:00"}'::jsonb WHERE water_name='Faaker See' AND catch_ts='2025-09-01T05:30:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":8.9,"pressure_hpa":1006,"wind_kmh":16,"weather_code":3,"weather_text":"bedeckt","moon_phase":0.02,"moon_text":"neumond","measured_at":"2025-03-28T17:00:00"}'::jsonb WHERE water_name='Ossiacher See' AND catch_ts='2025-03-28T17:45:00+01:00';
+UPDATE public.catches SET weather = '{"temp_c":17.7,"pressure_hpa":1019,"wind_kmh":7,"weather_code":0,"weather_text":"sonnig","moon_phase":0.63,"moon_text":"abnehmend","measured_at":"2025-06-05T22:00:00"}'::jsonb WHERE water_name='Ossiacher See' AND catch_ts='2025-06-05T22:10:00+02:00';
+UPDATE public.catches SET weather = '{"temp_c":16.5,"pressure_hpa":1013,"wind_kmh":12,"weather_code":1,"weather_text":"überwiegend klar","moon_phase":0.99,"moon_text":"neumond","measured_at":"2025-10-05T18:00:00"}'::jsonb WHERE water_name='Traunsee' AND catch_ts='2025-10-05T18:00:00+02:00';
+
+-- Verifikation: alle Seed-Fänge (2025) haben Wetter, echte Test-Fänge (2026) nicht
+-- Kommentar: Testfänge vom E2E (2026-08) bleiben OHNE Wetter — korrekt, da ≤24h-Hook nur
+-- für echte Fänge zur Laufzeit greift. Ein E2E-Fang von heute kann manuell per Hook angereichert werden.
