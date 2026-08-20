@@ -23,3 +23,9 @@ ALTER TABLE public.catches
 
 -- Index für Statistik/Wetter-Gruppierung nach Gewässer-Name
 CREATE INDEX IF NOT EXISTS catches_water_name_idx ON public.catches (water_name);
+
+-- Seed-Fänge mit Geodaten nachrüsten (aus waters ableiten) — idempotent
+UPDATE public.catches c
+SET lat = w.lat, lng = w.lng, water_name = w.name
+FROM public.waters w
+WHERE c.water_id = w.id AND c.lat IS NULL;
