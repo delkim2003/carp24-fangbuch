@@ -169,6 +169,18 @@ const isLoggedIn = !!session;
             </div>
           </div>
         </form>
+
+        <div id="drafts-container" class="hidden mt-lg">
+          <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg shadow-sm">
+            <div class="flex items-center justify-between mb-md">
+              <h2 class="font-headline-md text-headline-md text-primary">Offene Drafts</h2>
+              <button id="draft-sync-btn" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors text-sm cursor-pointer">
+                JETZT SYNCEN
+              </button>
+            </div>
+            <div id="draft-list" class="flex flex-col gap-sm"></div>
+          </div>
+        </div>
       </>
     )}
   </main>
@@ -178,6 +190,109 @@ const isLoggedIn = !!session;
 (function () {
   var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
   var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+
+  var DB_NAME = 'carp24-offline';
+  var DB_VERSION = 1;
+  var STORE_NAME = 'drafts';
+
+  function openDB(cb) {
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function () {
+      var db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'client_uuid' });
+      }
+    };
+    req.onsuccess = function () { cb(null, req.result); };
+    req.onerror = function () { cb(req.error); };
+  }
+
+  function queueDraft(draft, cb) {
+    openDB(function (err, db) {
+      if (err) { cb(err); return; }
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put(draft);
+      tx.oncomplete = function () {
+        window.dispatchEvent(new CustomEvent('draft-queued'));
+        cb(null);
+      };
+      tx.onerror = function () { cb(tx.error); };
+    });
+  }
+
+  function getDrafts(cb) {
+    openDB(function (err, db) {
+      if (err) { cb(err); return; }
+      var tx = db.transaction(STORE_NAME, 'readonly');
+      var req = tx.objectStore(STORE_NAME).getAll();
+      req.onsuccess = function () { cb(null, req.result); };
+      req.onerror = function () { cb(req.error); };
+    });
+  }
+
+  function removeDraft(uuid, cb) {
+    openDB(function (err, db) {
+      if (err) { cb(err); return; }
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(uuid);
+      tx.oncomplete = function () { cb(null); };
+      tx.onerror = function () { cb(tx.error); };
+    });
+  }
+
+  function syncDrafts() {
+    var sb = getSupabase();
+    if (!sb) return;
+    getDrafts(function (err, drafts) {
+      if (err || !drafts || !drafts.length) return;
+      var chain = Promise.resolve();
+      drafts.forEach(function (draft) {
+        chain = chain.then(function () {
+          return sb.rpc('sync_catch', { p_client_uuid: draft.client_uuid, p_data: draft.p_data })
+            .then(function (res) {
+              if (!res.error) {
+                return new Promise(function (resolve) {
+                  removeDraft(draft.client_uuid, function () { resolve(); });
+                });
+              }
+            })
+            .catch(function () {});
+        });
+      });
+      chain.then(function () {
+        window.dispatchEvent(new CustomEvent('drafts-synced'));
+        renderDraftList();
+      });
+    });
+  }
+
+  function renderDraftList() {
+    var list = document.getElementById('draft-list');
+    var container = document.getElementById('drafts-container');
+    if (!list || !container) return;
+    getDrafts(function (err, drafts) {
+      if (err || !drafts || !drafts.length) {
+        container.classList.add('hidden');
+        return;
+      }
+      container.classList.remove('hidden');
+      list.innerHTML = '';
+      drafts.forEach(function (d) {
+        var p = d.p_data || {};
+        var date = p.catch_ts ? new Date(p.catch_ts).toLocaleDateString('de-DE') : '';
+        var weight = p.weight_kg ? p.weight_kg + ' kg' : '';
+        var species = p.species || '';
+        var el = document.createElement('div');
+        el.className = 'flex items-center justify-between py-sm px-md bg-surface-container-lowest rounded border border-primary/10';
+        el.innerHTML = '<div class="flex gap-md text-body-md items-center">' +
+          '<span class="text-secondary">' + escapeHtml(date) + '</span>' +
+          '<span class="text-on-surface font-nav-item text-nav-item uppercase">' + escapeHtml(species) + '</span>' +
+          '<span class="text-secondary">' + escapeHtml(weight) + '</span>' +
+          '</div>';
+        list.appendChild(el);
+      });
+    });
+  }
 
   function getSupabase() {
     if (window.__supabase) return window.__supabase;
@@ -257,6 +372,10 @@ const isLoggedIn = !!session;
   });
 
   function fetchWaters(query) {
+    if (!navigator.onLine) {
+      gewaesserDropdown.classList.add('hidden');
+      return;
+    }
     var sb = getSupabase();
     if (!sb) return;
     sb.functions.invoke('gewaesser-search', { body: { query: query } }).then(function (res) {
@@ -329,7 +448,10 @@ const isLoggedIn = !!session;
     photoName.classList.remove('hidden');
 
     var sb = getSupabase();
-    if (!sb) return;
+    if (!sb) {
+      showSubmitError('Foto-Upload nicht möglich — offline. Foto wird beim Sync hochgeladen.');
+      return;
+    }
     var fileExt = file.name.split('.').pop();
     var filePath = crypto.randomUUID() + '.' + fileExt;
     sb.storage.from('catch-photos').upload(filePath, file).then(function (res) {
@@ -343,26 +465,23 @@ const isLoggedIn = !!session;
     });
   });
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    hideMessages();
-
+  function buildInputData() {
     var gewicht = parseFloat(gewichtInput.value);
     if (!gewicht || gewicht <= 0) {
       showSubmitError('Bitte ein gültiges Gewicht eingeben.');
-      return;
+      return null;
     }
 
     var species = speciesInput.value;
     if (!species) {
       showSubmitError('Bitte eine Fischart auswählen.');
-      return;
+      return null;
     }
 
     var datum = document.getElementById('datum').value;
     if (!datum) {
       showSubmitError('Bitte ein Datum eingeben.');
-      return;
+      return null;
     }
 
     var uhrzeit = document.getElementById('uhrzeit').value;
@@ -400,8 +519,53 @@ const isLoggedIn = !!session;
       input.photos = [uploadedPhotoUrl];
     }
 
+    return input;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+
+    var input = buildInputData();
+    if (!input) return;
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'WIRD GESPEICHERT…';
+
+    if (!navigator.onLine) {
+      var client_uuid = crypto.randomUUID();
+      var draft = {
+        client_uuid: client_uuid,
+        p_data: Object.assign({}, input, {
+          draft: false,
+          weather_auto: false,
+          client_updated_at: new Date().toISOString(),
+        }),
+        created_at: new Date().toISOString(),
+      };
+      queueDraft(draft, function (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'FANG SPEICHERN';
+        if (err) {
+          showSubmitError('Fehler beim lokalen Speichern: ' + err);
+        } else {
+          submitSuccess.textContent = 'Offline gespeichert — wird automatisch synchronisiert.';
+          submitSuccess.classList.remove('hidden');
+          renderDraftList();
+          form.reset();
+          speciesChips.forEach(function (c) {
+            c.classList.remove('bg-primary-container', 'text-on-primary-container');
+            c.classList.add('text-on-surface-variant');
+          });
+          speciesInput.value = '';
+          var now = new Date();
+          document.getElementById('datum').value = now.toISOString().split('T')[0];
+          document.getElementById('uhrzeit').value = now.toTimeString().slice(0, 5);
+          notesCounter.textContent = '0 / 1000';
+        }
+      });
+      return;
+    }
 
     saveCatchViaRpc(input, function (result) {
       submitBtn.disabled = false;
@@ -466,5 +630,29 @@ const isLoggedIn = !!session;
   var now = new Date();
   document.getElementById('datum').value = now.toISOString().split('T')[0];
   document.getElementById('uhrzeit').value = now.toTimeString().slice(0, 5);
+
+  window.addEventListener('online', function () {
+    syncDrafts();
+  });
+
+  var draftSyncBtn = document.getElementById('draft-sync-btn');
+  if (draftSyncBtn) {
+    draftSyncBtn.addEventListener('click', function () {
+      draftSyncBtn.disabled = true;
+      draftSyncBtn.textContent = '...';
+      syncDrafts();
+      setTimeout(function () {
+        draftSyncBtn.disabled = false;
+        draftSyncBtn.textContent = 'JETZT SYNCEN';
+        renderDraftList();
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('drafts-synced', function () {
+    renderDraftList();
+  });
+
+  renderDraftList();
 })();
 </script>

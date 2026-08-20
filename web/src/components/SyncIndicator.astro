@@ -1,0 +1,154 @@
+<div id="sync-indicator" class="hidden fixed top-2 right-2 z-50">
+  <div id="sync-banner" class="flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm text-body-md text-sm border border-primary/20 bg-surface-container-high/95 backdrop-blur-sm">
+    <span id="sync-icon" class="text-base leading-none"></span>
+    <span id="sync-text" class="font-nav-item text-xs uppercase tracking-wide"></span>
+    <button id="sync-btn" class="hidden ml-1 font-nav-item text-xs uppercase tracking-wide text-primary hover:text-primary-container transition-colors cursor-pointer px-2 py-1 rounded bg-primary-container/10 hover:bg-primary-container/20">
+      SYNCEN
+    </button>
+  </div>
+</div>
+
+<script is:inline>
+(function () {
+  var DB_NAME = 'carp24-offline';
+  var DB_VERSION = 1;
+  var STORE_NAME = 'drafts';
+  var banner = document.getElementById('sync-indicator');
+  var icon = document.getElementById('sync-icon');
+  var text = document.getElementById('sync-text');
+  var btn = document.getElementById('sync-btn');
+
+  function openDB() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'client_uuid' });
+        }
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+
+  function getDraftCount() {
+    return openDB().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(STORE_NAME, 'readonly');
+        var store = tx.objectStore(STORE_NAME);
+        var req = store.count();
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { reject(req.error); };
+      });
+    });
+  }
+
+  function syncDraftsNow() {
+    var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
+    var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+    var sb = null;
+    if (window.__supabase) {
+      sb = window.__supabase;
+    } else if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      window.__supabase = sb;
+    }
+    if (!sb) return Promise.resolve({ synced: 0, failed: 0 });
+
+    return openDB().then(function (db) {
+      return new Promise(function (resolve) {
+        var tx = db.transaction(STORE_NAME, 'readonly');
+        var store = tx.objectStore(STORE_NAME);
+        var req = store.getAll();
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { resolve([]); };
+      });
+    }).then(function (drafts) {
+      var synced = 0;
+      var failed = 0;
+      var chain = Promise.resolve();
+      drafts.forEach(function (draft) {
+        chain = chain.then(function () {
+          return sb.rpc('sync_catch', { p_client_uuid: draft.client_uuid, p_data: draft.p_data })
+            .then(function (res) {
+              if (res.error) {
+                failed++;
+              } else {
+                synced++;
+                return openDB().then(function (db) {
+                  return new Promise(function (resolve, reject) {
+                    var tx2 = db.transaction(STORE_NAME, 'readwrite');
+                    tx2.objectStore(STORE_NAME).delete(draft.client_uuid);
+                    tx2.oncomplete = function () { resolve(); };
+                    tx2.onerror = function () { reject(tx2.error); };
+                  });
+                });
+              }
+            })
+            .catch(function () { failed++; });
+        });
+      });
+      return chain.then(function () { return { synced: synced, failed: failed }; });
+    });
+  }
+
+  function updateIndicator() {
+    getDraftCount().then(function (count) {
+      var online = navigator.onLine;
+      if (online && count === 0) {
+        banner.classList.add('hidden');
+        return;
+      }
+      banner.classList.remove('hidden');
+      if (online) {
+        icon.textContent = '\u{1F7E2}';
+        text.textContent = 'Online';
+        if (count > 0) {
+          text.textContent = count + ' Draft' + (count > 1 ? 's' : '') + ' warten';
+          btn.classList.remove('hidden');
+        } else {
+          btn.classList.add('hidden');
+        }
+      } else {
+        icon.textContent = '\uD83D\uDFE0';
+        text.textContent = 'Offline' + (count > 0 ? ' \u2014 ' + count + ' Draft' + (count > 1 ? 's' : '') + ' warten' : '');
+        btn.classList.add('hidden');
+      }
+    });
+  }
+
+  window.addEventListener('online', function () {
+    updateIndicator();
+    syncDraftsNow().then(function () {
+      window.dispatchEvent(new CustomEvent('drafts-synced'));
+      updateIndicator();
+    });
+  });
+
+  window.addEventListener('offline', function () {
+    updateIndicator();
+  });
+
+  btn.addEventListener('click', function () {
+    btn.disabled = true;
+    btn.textContent = '...';
+    syncDraftsNow().then(function (result) {
+      btn.disabled = false;
+      btn.textContent = 'SYNCEN';
+      window.dispatchEvent(new CustomEvent('drafts-synced'));
+      updateIndicator();
+    });
+  });
+
+  window.addEventListener('draft-queued', function () {
+    updateIndicator();
+  });
+
+  updateIndicator();
+
+  setInterval(updateIndicator, 10000);
+})();
+</script>
