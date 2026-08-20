@@ -1,0 +1,595 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { supabase } from "../lib/supabase-client";
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let initialConditions: any = null;
+let initialDrilldown: any[] = [];
+let initialKombis: any[] = [];
+let loadError: string | null = null;
+
+if (session) {
+  const [condRes, drillRes, kombiRes] = await Promise.all([
+    supabase.rpc("stats_conditions", { p_filters: {} }),
+    supabase.rpc("stats_drilldown", { p_filters: {} }),
+    supabase.rpc("stats_beste_kombis", { p_filters: {}, p_limit: 5 }),
+  ]);
+  if (condRes.error) loadError = condRes.error.message;
+  else if (drillRes.error) loadError = drillRes.error.message;
+  else if (kombiRes.error) loadError = kombiRes.error.message;
+  else {
+    initialConditions = condRes.data;
+    initialDrilldown = drillRes.data ?? [];
+    initialKombis = kombiRes.data ?? [];
+  }
+}
+
+const speciesDE: Record<string, string> = {
+  SPIEGEL: "Spiegelkarpfen",
+  LEDER: "Lederkarpfen",
+  SCHUPPEN: "Schuppenkarpfen",
+  AMUR: "Amurkarpfen",
+  ANDERE: "Andere",
+};
+
+const DIMENSIONS = [
+  { key: "mond", label: "MOND", bucketKey: "mond" },
+  { key: "druck_bucket", label: "LUFTDRUCK", bucketKey: "druck" },
+  { key: "wind_bucket", label: "WIND", bucketKey: "wind" },
+  { key: "wetter", label: "WETTER", bucketKey: "wetter" },
+  { key: "gewaesser", label: "GEWÄSSER", bucketKey: "gewaesser" },
+  { key: "art", label: "ART", bucketKey: "art" },
+  { key: "koeder", label: "KÖDER", bucketKey: "koeder" },
+  { key: "monat", label: "MONAT", bucketKey: "monat" },
+  { key: "uhrzeit_bucket", label: "UHRZEIT", bucketKey: "uhrzeit" },
+] as const;
+
+const monthNamesDE: Record<string, string> = {
+  "1": "Jan", "2": "Feb", "3": "Mär", "4": "Apr", "5": "Mai", "6": "Jun",
+  "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
+};
+---
+
+<Layout title="Carp24 – Statistik" active="statistik">
+  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    {!session ? (
+      <div class="text-center py-24">
+        <h1 class="text-display-lg text-primary mb-4">STATISTIK-STUDIO</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um deine Statistik zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+      </div>
+    ) : loadError ? (
+      <div class="text-center py-24">
+        <h1 class="text-display-lg text-primary mb-4">STATISTIK-STUDIO</h1>
+        <p class="text-body-lg text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</p>
+      </div>
+    ) : (
+      <>
+        <header class="text-center md:text-left">
+          <h1 class="text-display-lg text-primary mb-2">Statistik-Studio</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">Kombiniere Bedingungen frei — finde deine besten Fang-Momente.</p>
+        </header>
+
+        <div id="active-filters-bar" class="hidden flex-wrap items-center gap-2"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <section class="lg:col-span-8 flex flex-col gap-gutter">
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
+              <div class="flex justify-between items-center mb-md border-b border-primary/40 pb-sm">
+                <h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Bedingungen</h2>
+                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2">ZURÜCKSETZEN</button>
+              </div>
+              <div id="conditions-rows" class="space-y-md">
+                {DIMENSIONS.map((dim) => {
+                  const buckets = initialConditions?.buckets?.[dim.bucketKey] || {};
+                  const entries = Object.entries(buckets);
+                  if (entries.length === 0) return null;
+                  return (
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-sm" data-dimension={dim.key}>
+                      <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant">{dim.label}</span>
+                      <div class="flex flex-wrap gap-sm" data-chips={dim.key}>
+                        {entries.map(([value, stats]: [string, any]) => {
+                          const count = Number(stats?.fangzahl ?? 0);
+                          const displayValue = dim.key === "monat" ? (monthNamesDE[value] || value) : value.toUpperCase();
+                          return (
+                            <button
+                              type="button"
+                              data-dim={dim.key}
+                              data-val={value}
+                              aria-pressed="false"
+                              class="chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors cursor-pointer min-h-11"
+                            >
+                              {displayValue} ({count})
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
+                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Mondphasen</h3>
+                <div id="moon-chart" class="flex justify-between items-end h-32 pt-sm gap-2"></div>
+              </div>
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
+                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Luftdruck</h3>
+                <div id="pressure-chart" class="flex flex-col justify-end h-32 pt-sm gap-2"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="lg:col-span-4 flex flex-col gap-gutter">
+            <div class="grid grid-cols-2 gap-gutter">
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
+                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">GESAMT FÄNGE</span>
+                <span id="metric-total" class="text-headline-lg text-primary">{initialConditions?.total?.fangzahl ?? 0}</span>
+              </div>
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
+                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Ø GEWICHT</span>
+                <span id="metric-avg" class="text-headline-lg text-primary">{initialConditions?.total?.avg_gewicht != null ? Number(initialConditions.total.avg_gewicht).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "–"}<span class="text-body-md text-sm"> KG</span></span>
+              </div>
+            </div>
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
+              <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">BESTE KOMBINATION</span>
+              <div id="metric-best-kombi" class="mt-2">
+                {initialKombis.length > 0 ? (
+                  <span class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full">{initialKombis[0].kombi}</span>
+                ) : (
+                  <span class="text-on-surface-variant font-label-sm text-label-sm">–</span>
+                )}
+              </div>
+            </div>
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex-grow">
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Beste Kombinationen</h3>
+              <div id="kombis-list" class="space-y-md">
+                {initialKombis.length === 0 && (
+                  <p class="text-body-md text-on-surface-variant">Keine Kombinationen vorhanden.</p>
+                )}
+                {initialKombis.map((k: any) => {
+                  const avg = Number(k.avg_gewicht) || 0;
+                  const maxAvg = initialKombis.reduce((m: number, x: any) => Math.max(m, Number(x.avg_gewicht) || 0), 0);
+                  const pct = maxAvg > 0 ? Math.round((avg / maxAvg) * 100) : 0;
+                  return (
+                    <div class="flex justify-between items-center border-b border-primary/20 pb-sm">
+                      <div class="flex flex-col">
+                        <span class="font-label-sm text-label-sm font-bold">{k.kombi}</span>
+                        <span class="text-body-md text-sm text-on-surface-variant">{k.fangzahl} Fänge (Ø {avg.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg)</span>
+                      </div>
+                      <div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden shrink-0">
+                        <div class="h-full bg-primary rounded-full" style={`width:${pct}%`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="w-full">
+          <h2 class="text-headline-md text-primary mb-md">Fänge mit diesen Bedingungen</h2>
+          <div id="drilldown-list" class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden">
+            {initialDrilldown.length === 0 && (
+              <p class="p-lg text-body-md text-on-surface-variant">Keine Fänge gefunden.</p>
+            )}
+            {initialDrilldown.map((c: any) => {
+              const w = Number(c.weight_kg) || 0;
+              const sp = c.species || c.species_custom || "–";
+              const spLabel = speciesDE[sp] || sp;
+              const dt = c.catch_ts ? new Date(c.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
+              const weather = c.weather || {};
+              const moonText = weather.moon_text || "";
+              const weatherText = weather.weather_text || "";
+              const pressure = weather.pressure_hpa != null ? `${weather.pressure_hpa} hPa` : "";
+              return (
+                <a href={`/faenge/${c.id}`} class="flex items-center p-md border-b border-primary/20 last:border-b-0 hover:bg-primary/5 transition-colors">
+                  <div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div class="flex flex-col">
+                      <span class="font-mono text-primary text-lg font-bold">{w > 0 ? w.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " KG" : "–"}</span>
+                      <span class="text-body-md text-sm text-on-surface-variant">{spLabel} • {c.water_name || "–"} • {dt}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      {moonText && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{String(moonText).toUpperCase()}</span>}
+                      {weatherText && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{String(weatherText).toUpperCase()}</span>}
+                      {pressure && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{pressure}</span>}
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      </>
+    )}
+  </main>
+</Layout>
+
+{session && initialConditions && (
+  <script type="application/json" id="initial-conditions-data" set:html={JSON.stringify(initialConditions)} />
+)}
+
+<script>
+  import { supabase } from "../lib/supabase-client";
+
+  const speciesDE: Record<string, string> = {
+    SPIEGEL: "Spiegelkarpfen",
+    LEDER: "Lederkarpfen",
+    SCHUPPEN: "Schuppenkarpfen",
+    AMUR: "Amurkarpfen",
+    ANDERE: "Andere",
+  };
+
+  const monthNamesDE: Record<string, string> = {
+    "1": "Jan", "2": "Feb", "3": "Mär", "4": "Apr", "5": "Mai", "6": "Jun",
+    "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
+  };
+
+  const state: Record<string, string | null> = {
+    mond: null,
+    druck_bucket: null,
+    wind_bucket: null,
+    wetter: null,
+    gewaesser: null,
+    art: null,
+    koeder: null,
+    monat: null,
+    uhrzeit_bucket: null,
+  };
+
+  function buildFilters(): Record<string, string> {
+    const f: Record<string, string> = {};
+    for (const [k, v] of Object.entries(state)) {
+      if (v !== null) f[k] = v;
+    }
+    return f;
+  }
+
+  function fmtWeight(v: unknown): string {
+    const n = Number(v) || 0;
+    return n.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  }
+
+  function fmtDate(ts: string): string {
+    return new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+
+  function renderChips(buckets: Record<string, Record<string, any>>) {
+    const dims: Array<{ key: string; bucketKey: string; label: string }> = [
+      { key: "mond", bucketKey: "mond", label: "MOND" },
+      { key: "druck_bucket", bucketKey: "druck", label: "LUFTDRUCK" },
+      { key: "wind_bucket", bucketKey: "wind", label: "WIND" },
+      { key: "wetter", bucketKey: "wetter", label: "WETTER" },
+      { key: "gewaesser", bucketKey: "gewaesser", label: "GEWÄSSER" },
+      { key: "art", bucketKey: "art", label: "ART" },
+      { key: "koeder", bucketKey: "koeder", label: "KÖDER" },
+      { key: "monat", bucketKey: "monat", label: "MONAT" },
+      { key: "uhrzeit_bucket", bucketKey: "uhrzeit", label: "UHRZEIT" },
+    ];
+
+    const container = document.getElementById("conditions-rows");
+    if (!container) return;
+    container.innerHTML = "";
+
+    for (const dim of dims) {
+      const b = buckets[dim.bucketKey] || {};
+      const entries = Object.entries(b);
+      if (entries.length === 0) continue;
+
+      const row = document.createElement("div");
+      row.className = "flex flex-col sm:flex-row sm:items-center gap-sm";
+      row.dataset.dimension = dim.key;
+
+      const lbl = document.createElement("span");
+      lbl.className = "font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant";
+      lbl.textContent = dim.label;
+      row.appendChild(lbl);
+
+      const chipWrap = document.createElement("div");
+      chipWrap.className = "flex flex-wrap gap-sm";
+
+      for (const [value, stats] of entries) {
+        const count = Number((stats as any)?.fangzahl ?? 0);
+        let displayValue = value;
+        if (dim.key === "monat") displayValue = monthNamesDE[value] || value;
+        else displayValue = value.toUpperCase();
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.dataset.dim = dim.key;
+        btn.dataset.val = value;
+        btn.setAttribute("aria-pressed", state[dim.key] === value ? "true" : "false");
+        const isActive = state[dim.key] === value;
+        btn.className = `chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 transition-colors cursor-pointer min-h-11 ${isActive ? "bg-primary text-white" : "text-on-surface-variant hover:bg-primary hover:text-white"}`;
+        btn.textContent = `${displayValue} (${count})`;
+        btn.addEventListener("click", () => handleChipClick(dim.key, value));
+        chipWrap.appendChild(btn);
+      }
+
+      row.appendChild(chipWrap);
+      container.appendChild(row);
+    }
+  }
+
+  function renderMoonChart(buckets: Record<string, any>) {
+    const container = document.getElementById("moon-chart");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const phases = ["neumond", "zunehmend", "vollmond", "abnehmend"];
+    const labels: Record<string, string> = { neumond: "NEU", zunehmend: "ZUN", vollmond: "VOLL", abnehmend: "ABN" };
+    const opacities: Record<string, string> = { neumond: "0.4", zunehmend: "0.5", vollmond: "1", abnehmend: "0.4" };
+
+    const mond = buckets.mond || {};
+    const maxVal = phases.reduce((m, p) => Math.max(m, Number(mond[p]?.fangzahl) || 0), 0) || 1;
+
+    for (const phase of phases) {
+      const count = Number(mond[phase]?.fangzahl) || 0;
+      const hPct = Math.round((count / maxVal) * 100);
+      const isActive = state.mond === phase;
+
+      const col = document.createElement("button");
+      col.type = "button";
+      col.className = "flex flex-col items-center w-1/4 cursor-pointer group";
+      col.setAttribute("aria-pressed", isActive ? "true" : "false");
+      col.addEventListener("click", () => handleChipClick("mond", phase));
+
+      const bar = document.createElement("div");
+      bar.className = `w-full rounded-t-sm transition-all ${isActive ? "bg-primary" : "bg-primary/20 group-hover:bg-primary/40"}`;
+      bar.style.height = `${Math.max(hPct, 4)}%`;
+      bar.style.opacity = isActive ? "1" : opacities[phase];
+      col.appendChild(bar);
+
+      const lbl = document.createElement("span");
+      lbl.className = `font-label-sm text-label-sm mt-xs ${isActive ? "text-primary font-bold" : ""}`;
+      lbl.textContent = `${labels[phase]} (${count})`;
+      col.appendChild(lbl);
+
+      container.appendChild(col);
+    }
+  }
+
+  function renderPressureChart(buckets: Record<string, any>) {
+    const container = document.getElementById("pressure-chart");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const druckBuckets = buckets.druck || {};
+    const order = [">= 1015", "1005-1015", "<1005"];
+    const labels: Record<string, string> = { ">= 1015": "≥1015", "1005-1015": "1005–15", "<1005": "<1005" };
+    const maxVal = order.reduce((m, k) => Math.max(m, Number(druckBuckets[k]?.fangzahl) || 0), 0) || 1;
+
+    for (const bucket of order) {
+      const count = Number(druckBuckets[bucket]?.fangzahl) || 0;
+      const wPct = Math.round((count / maxVal) * 100);
+      const isActive = state.druck_bucket === bucket;
+
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "flex items-center cursor-pointer group";
+      row.setAttribute("aria-pressed", isActive ? "true" : "false");
+      row.addEventListener("click", () => handleChipClick("druck_bucket", bucket));
+
+      const lbl = document.createElement("span");
+      lbl.className = "font-label-sm text-label-sm w-14 shrink-0";
+      lbl.textContent = labels[bucket] || bucket;
+      row.appendChild(lbl);
+
+      const bar = document.createElement("div");
+      bar.className = `h-4 rounded-r-sm transition-all ${isActive ? "bg-primary" : "bg-primary/20 group-hover:bg-primary/40"}`;
+      bar.style.width = `${Math.max(wPct, 4)}%`;
+      row.appendChild(bar);
+
+      const cnt = document.createElement("span");
+      cnt.className = "font-label-sm text-label-sm ml-2 text-on-surface-variant";
+      cnt.textContent = `(${count})`;
+      row.appendChild(cnt);
+
+      container.appendChild(row);
+    }
+  }
+
+  function renderMetrics(total: any, kombis: any[]) {
+    const totalEl = document.getElementById("metric-total");
+    if (totalEl) totalEl.textContent = String(total?.fangzahl ?? 0);
+
+    const avgEl = document.getElementById("metric-avg");
+    if (avgEl) {
+      const avg = total?.avg_gewicht;
+      avgEl.innerHTML = `${avg != null ? fmtWeight(avg) : "–"}<span class="text-body-md text-sm"> KG</span>`;
+    }
+
+    const bestEl = document.getElementById("metric-best-kombi");
+    if (bestEl) {
+      if (kombis.length > 0) {
+        bestEl.innerHTML = `<span class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full">${escHtml(kombis[0].kombi)}</span>`;
+      } else {
+        bestEl.innerHTML = `<span class="text-on-surface-variant font-label-sm text-label-sm">–</span>`;
+      }
+    }
+  }
+
+  function renderKombis(kombis: any[]) {
+    const container = document.getElementById("kombis-list");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (kombis.length === 0) {
+      container.innerHTML = `<p class="text-body-md text-on-surface-variant">Keine Kombinationen vorhanden.</p>`;
+      return;
+    }
+
+    const maxAvg = kombis.reduce((m, k) => Math.max(m, Number(k.avg_gewicht) || 0), 0) || 1;
+
+    for (const k of kombis) {
+      const avg = Number(k.avg_gewicht) || 0;
+      const pct = Math.round((avg / maxAvg) * 100);
+      const row = document.createElement("div");
+      row.className = "flex justify-between items-center border-b border-primary/20 pb-sm";
+      row.innerHTML = `
+        <div class="flex flex-col">
+          <span class="font-label-sm text-label-sm font-bold">${escHtml(k.kombi)}</span>
+          <span class="text-body-md text-sm text-on-surface-variant">${k.fangzahl} Fänge (Ø ${fmtWeight(avg)} kg)</span>
+        </div>
+        <div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden shrink-0">
+          <div class="h-full bg-primary rounded-full" style="width:${pct}%"></div>
+        </div>
+      `;
+      container.appendChild(row);
+    }
+  }
+
+  function renderDrilldown(catches: any[]) {
+    const container = document.getElementById("drilldown-list");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (catches.length === 0) {
+      container.innerHTML = `<p class="p-lg text-body-md text-on-surface-variant">Keine Fänge gefunden.</p>`;
+      return;
+    }
+
+    for (const c of catches) {
+      const w = Number(c.weight_kg) || 0;
+      const sp = c.species || c.species_custom || "–";
+      const spLabel = speciesDE[sp] || sp;
+      const dt = c.catch_ts ? fmtDate(c.catch_ts) : "–";
+      const weather = c.weather || {};
+      const moonText = weather.moon_text || "";
+      const weatherText = weather.weather_text || "";
+      const pressure = weather.pressure_hpa != null ? `${weather.pressure_hpa} hPa` : "";
+
+      let tags = "";
+      if (moonText) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(String(moonText).toUpperCase())}</span>`;
+      if (weatherText) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(String(weatherText).toUpperCase())}</span>`;
+      if (pressure) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(pressure)}</span>`;
+
+      const a = document.createElement("a");
+      a.href = `/faenge/${c.id}`;
+      a.className = "flex items-center p-md border-b border-primary/20 last:border-b-0 hover:bg-primary/5 transition-colors";
+      a.innerHTML = `
+        <div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
+          <div class="flex flex-col">
+            <span class="font-mono text-primary text-lg font-bold">${w > 0 ? fmtWeight(w) + " KG" : "–"}</span>
+            <span class="text-body-md text-sm text-on-surface-variant">${escHtml(spLabel)} • ${escHtml(c.water_name || "–")} • ${dt}</span>
+          </div>
+          <div class="flex flex-wrap gap-2">${tags}</div>
+        </div>
+      `;
+      container.appendChild(a);
+    }
+  }
+
+  function renderActiveFilters() {
+    const bar = document.getElementById("active-filters-bar");
+    if (!bar) return;
+
+    const active = Object.entries(state).filter(([, v]) => v !== null);
+    if (active.length === 0) {
+      bar.classList.add("hidden");
+      bar.innerHTML = "";
+      return;
+    }
+
+    bar.classList.remove("hidden");
+    bar.innerHTML = "";
+
+    const labelMap: Record<string, string> = {
+      mond: "MOND", druck_bucket: "DRUCK", wind_bucket: "WIND", wetter: "WETTER",
+      gewaesser: "GEWÄSSER", art: "ART", koeder: "KÖDER", monat: "MONAT", uhrzeit_bucket: "UHRZEIT",
+    };
+
+    for (const [dim, val] of active) {
+      const pill = document.createElement("span");
+      pill.className = "inline-flex items-center gap-1 bg-primary text-white font-label-sm text-label-sm px-3 py-1 rounded-full";
+      const displayVal = dim === "monat" ? (monthNamesDE[val!] || val) : val;
+      pill.innerHTML = `${labelMap[dim] || dim}=${escHtml(String(displayVal))} <button type="button" data-remove-dim="${dim}" class="ml-1 hover:opacity-70 cursor-pointer" aria-label="Filter entfernen">&times;</button>`;
+      bar.appendChild(pill);
+    }
+
+    bar.querySelectorAll("[data-remove-dim]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const dim = (btn as HTMLElement).dataset.removeDim;
+        if (dim) {
+          state[dim] = null;
+          refreshAll();
+        }
+      });
+    });
+  }
+
+  function escHtml(s: string): string {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  async function handleChipClick(dim: string, value: string) {
+    state[dim] = state[dim] === value ? null : value;
+    await refreshAll();
+  }
+
+  async function refreshAll() {
+    const filters = buildFilters();
+
+    document.querySelectorAll<HTMLElement>(".chip-btn").forEach((btn) => {
+      const dim = btn.dataset.dim;
+      const val = btn.dataset.val;
+      if (dim && val) {
+        const isActive = state[dim] === val;
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+        btn.className = `chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 transition-colors cursor-pointer min-h-11 ${isActive ? "bg-primary text-white" : "text-on-surface-variant hover:bg-primary hover:text-white"}`;
+      }
+    });
+
+    try {
+      const [condRes, drillRes, kombiRes] = await Promise.all([
+        supabase.rpc("stats_conditions", { p_filters: filters }),
+        supabase.rpc("stats_drilldown", { p_filters: filters }),
+        supabase.rpc("stats_beste_kombis", { p_filters: filters, p_limit: 5 }),
+      ]);
+
+      if (condRes.error) throw new Error(condRes.error.message);
+      if (drillRes.error) throw new Error(drillRes.error.message);
+      if (kombiRes.error) throw new Error(kombiRes.error.message);
+
+      const conditions = condRes.data;
+      const drilldown = drillRes.data ?? [];
+      const kombis = kombiRes.data ?? [];
+
+      renderChips(conditions?.buckets || {});
+      renderMoonChart(conditions?.buckets || {});
+      renderPressureChart(conditions?.buckets || {});
+      renderMetrics(conditions?.total, kombis);
+      renderKombis(kombis);
+      renderDrilldown(drilldown);
+      renderActiveFilters();
+    } catch (err: any) {
+      console.error("Statistik-Refresh fehlgeschlagen:", err);
+      const container = document.getElementById("drilldown-list");
+      if (container) {
+        container.innerHTML = `<p class="p-lg text-body-md text-red-700">Fehler beim Laden: ${escHtml(err.message || "Unbekannter Fehler")}</p>`;
+      }
+    }
+  }
+
+  document.getElementById("btn-reset")?.addEventListener("click", () => {
+    for (const k of Object.keys(state)) state[k] = null;
+    refreshAll();
+  });
+
+  const initDataEl = document.getElementById("initial-conditions-data");
+  const initBuckets = initDataEl ? (JSON.parse(initDataEl.textContent || "{}")?.buckets || {}) : {};
+  renderMoonChart(initBuckets);
+  renderPressureChart(initBuckets);
+
+  document.querySelectorAll<HTMLElement>(".chip-btn[data-dim][data-val]").forEach((btn) => {
+    const dim = btn.dataset.dim!;
+    const val = btn.dataset.val!;
+    btn.addEventListener("click", () => handleChipClick(dim, val));
+  });
+</script>
