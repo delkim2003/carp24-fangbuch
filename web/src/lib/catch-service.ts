@@ -57,13 +57,8 @@ export async function saveCatch(
     return { error: syncError.message };
   }
 
-  const { error: pubError } = await supabase.rpc('publish_catch', {
-    p_catch_id: catch_id,
-  });
-
-  if (pubError) {
-    return { id: catch_id as string, error: pubError.message };
-  }
-
+  // sync_catch mit draft:false veröffentlicht den Fang direkt (publish_catch
+  // würde "catch already published" werfen). publish_catch ist NUR für
+  // Draft->Published-Flows nötig (draft:true angelegt, später veröffentlicht).
   return { id: catch_id as string };
 }
