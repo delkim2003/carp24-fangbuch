@@ -1,141 +1,530 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import portraitPhoto from "../assets/stitch/profile-0.jpg?url";
+import { supabase } from "../lib/supabase-client";
 
-const stats = [
-  { label: "FÄNGE", value: "72" },
-  { label: "SCHWERSTER FANG", value: "21,4 KG" },
-  { label: "GEWÄSSER", value: "5" },
-];
+const { data: { session } } = await supabase.auth.getSession();
+
+let catchCount = 0;
+let heaviestKg: string | null = null;
+let waterCount = 0;
+
+if (session) {
+  const { data: catches } = await supabase
+    .from("catches")
+    .select("weight_kg, water_name")
+    .eq("deleted_at", null)
+    .eq("draft", false);
+
+  if (catches && catches.length > 0) {
+    catchCount = catches.length;
+    let maxW = 0;
+    const waters = new Set<string>();
+    for (const c of catches) {
+      const w = Number(c.weight_kg) || 0;
+      if (w > maxW) maxW = w;
+      if (c.water_name) waters.add(c.water_name);
+    }
+    if (maxW > 0) heaviestKg = maxW.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    waterCount = waters.size;
+  }
+}
+
+const userEmail = session?.user?.email ?? "";
+const userMeta = session?.user?.user_metadata ?? {};
+const displayName = userMeta.full_name || userEmail.split("@")[0] || "Angler";
+const createdAt = session?.user?.created_at ?? "";
+let memberSince = "";
+if (createdAt) {
+  const d = new Date(createdAt);
+  const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  memberSince = `MITGLIED SEIT ${monthNames[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+}
 ---
 
 <Layout title="Carp24 – Profil" active="profil">
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
-    <section class="flex flex-col items-center justify-center mb-16 text-center">
-      <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative">
-        <img src={portraitPhoto} alt="Profilbild" class="w-full h-full object-cover" loading="lazy" />
+    {!session ? (
+      <div class="text-center py-24">
+        <h1 class="text-display-lg text-primary mb-4">PROFIL</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um dein Profil zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
       </div>
-      <h1 class="text-display-lg text-on-surface mb-2">Lukas Wagner</h1>
-      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">MITGLIED SEIT MÄRZ 2024</p>
-    </section>
+    ) : (
+      <>
+        <section class="flex flex-col items-center justify-center mb-16 text-center">
+          <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative bg-primary-container flex items-center justify-center">
+            <span class="text-display-lg text-on-primary-container font-bold">{displayName.charAt(0).toUpperCase()}</span>
+          </div>
+          <h1 class="text-display-lg text-on-surface mb-2">{displayName}</h1>
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">{memberSince}</p>
+        </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-      <div class="lg:col-span-8 flex flex-col gap-xl">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-          {stats.map((s) => (
-            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
-              <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">{s.label}</span>
-              <span class="text-headline-lg text-on-surface">{s.value}</span>
-            </div>
-          ))}
-        </div>
-
-        <div class="mt-8">
-          <h2 class="text-headline-md text-on-surface mb-6">Einstellungen</h2>
-          <div class="flex flex-col">
-            <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
-              <div>
-                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Einheiten</h3>
-                <p class="text-body-md text-on-surface-variant">GEWICHTSEINHEIT (KG / LBS)</p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <div class="lg:col-span-8 flex flex-col gap-xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">FÄNGE</span>
+                <span class="text-headline-lg text-on-surface">{catchCount}</span>
               </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer" checked />
-                <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
-                <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
-              </label>
-            </div>
-
-            <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
-              <div>
-                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Sprache</h3>
-                <p class="text-body-md text-on-surface-variant">APP SPRACHE</p>
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">SCHWERSTER FANG</span>
+                <span class="text-headline-lg text-on-surface">{heaviestKg ?? "–"}{heaviestKg ? " KG" : ""}</span>
               </div>
-              <div class="relative">
-                <select class="appearance-none bg-transparent border-none font-label-sm text-label-sm text-on-surface uppercase pr-6 focus:ring-0 cursor-pointer">
-                  <option>DEUTSCH</option>
-                  <option>ENGLISH</option>
-                </select>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">GEWÄSSER</span>
+                <span class="text-headline-lg text-on-surface">{waterCount}</span>
               </div>
             </div>
 
-            <div class="py-6 flex flex-col gap-4">
-              <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2">Benachrichtigungen</h3>
-              <div class="flex justify-between items-center">
-                <p class="text-body-md text-on-surface">E-MAIL NEWSLETTER</p>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer" />
-                  <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
-                  <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-body-md text-on-surface">PUSH-MITTEILUNGEN</p>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer" checked />
-                  <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
-                  <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
-                </label>
+            <div class="mt-8">
+              <h2 class="text-headline-md text-on-surface mb-6">Einstellungen</h2>
+              <div class="flex flex-col">
+                <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
+                  <div>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Einheiten</h3>
+                    <p class="text-body-md text-on-surface-variant">GEWICHTSEINHEIT (KG / LBS)</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" checked />
+                    <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                    <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+                  </label>
+                </div>
+
+                <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
+                  <div>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Sprache</h3>
+                    <p class="text-body-md text-on-surface-variant">APP SPRACHE</p>
+                  </div>
+                  <div class="relative">
+                    <select class="appearance-none bg-transparent border-none font-label-sm text-label-sm text-on-surface uppercase pr-6 focus:ring-0 cursor-pointer">
+                      <option>DEUTSCH</option>
+                      <option>ENGLISH</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+                </div>
+
+                <div class="py-6 flex flex-col gap-4">
+                  <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2">Benachrichtigungen</h3>
+                  <div class="flex justify-between items-center">
+                    <p class="text-body-md text-on-surface">E-MAIL NEWSLETTER</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" class="sr-only peer" />
+                      <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                      <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <p class="text-body-md text-on-surface">PUSH-MITTEILUNGEN</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" class="sr-only peer" checked />
+                      <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
+                      <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
+                  <div>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Daten-Export</h3>
+                    <p class="text-body-md text-on-surface-variant">ALLE PERSONENBEZOGENEN DATEN (JSON + CSV)</p>
+                  </div>
+                  <button type="button" class="border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300">
+                    EXPORTIEREN
+                  </button>
+                </div>
+
+                <a href="#" target="_blank" rel="noopener noreferrer" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
+                  <div>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Datenschutz</h3>
+                    <p class="text-body-md text-on-surface-variant">UNSERE DATENSCHUTZERKLÄRUNG LESEN</p>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
+
+                <a href="#" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
+                  <div>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Impressum</h3>
+                    <p class="text-body-md text-on-surface-variant">RECHTLICHE ANGABEN</p>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
               </div>
             </div>
 
-            <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
-              <div>
-                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Daten-Export</h3>
-                <p class="text-body-md text-on-surface-variant">ALLE PERSONENBEZOGENEN DATEN (JSON + CSV)</p>
+            <div class="mt-8">
+              <h2 class="font-label-sm text-label-sm uppercase text-secondary tracking-widest mb-6">SICHERHEIT</h2>
+
+              <div class="flex flex-col">
+                <div class="py-6 border-b border-primary/20">
+                  <div class="flex justify-between items-center gap-4 mb-4">
+                    <div>
+                      <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Zwei-Faktor-Authentifizierung (TOTP)</h3>
+                      <p class="text-body-md text-on-surface-variant">ZUSÄTZLICHE SICHERHEIT FÜR DEIN KONTO</p>
+                    </div>
+                    <div id="mfa-status-badge" class="font-label-sm text-label-sm uppercase px-4 py-1 rounded-full bg-surface-container-highest text-on-surface-variant">WIRD GELADEN…</div>
+                  </div>
+
+                  <div id="mfa-enroll-panel" class="hidden bg-surface-container-lowest border border-primary/20 rounded-xl p-6 mt-4">
+                    <h4 class="font-label-sm text-label-sm uppercase text-on-surface mb-4">TOTP EINRICHTEN</h4>
+                    <p class="text-body-md text-on-surface-variant mb-4">Scanne den QR-Code mit Google Authenticator oder einer kompatiblen App.</p>
+                    <div id="mfa-qr-container" class="flex justify-center mb-4"></div>
+                    <div id="mfa-uri-container" class="hidden mb-4">
+                      <p class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-2">MANUELLER SCHLÜSSEL:</p>
+                      <code id="mfa-uri-text" class="block bg-surface-container-high rounded-lg p-3 text-body-md text-on-surface font-mono break-all"></code>
+                    </div>
+                    <div class="flex flex-col gap-xs mb-4">
+                      <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="mfa-verify-code">Bestätigungscode</label>
+                      <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12 text-center tracking-[0.5em] font-mono text-lg" id="mfa-verify-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
+                    </div>
+                    <div id="mfa-enroll-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md mb-4" aria-live="polite"></div>
+                    <div id="mfa-enroll-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md mb-4" aria-live="polite"></div>
+                    <div class="flex gap-3">
+                      <button type="button" id="mfa-verify-btn" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        FERTIGSTELLEN
+                      </button>
+                      <button type="button" id="mfa-enroll-cancel-btn" class="border border-primary/40 text-on-surface font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-container-high transition-colors">
+                        ABBRECHEN
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="mfa-factors-list" class="hidden flex-col gap-3 mt-4"></div>
+
+                  <div id="mfa-actions" class="mt-4 flex flex-wrap gap-3">
+                    <button type="button" id="mfa-enroll-btn" class="hidden bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors">
+                      2FA AKTIVIEREN
+                    </button>
+                    <button type="button" id="mfa-backup-btn" class="hidden border border-primary/40 text-on-surface font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-container-high transition-colors">
+                      BACKUP-GERÄT HINZUFÜGEN
+                    </button>
+                  </div>
+
+                  <p class="text-body-md text-on-surface-variant mt-4">Nach der Aktivierung fragt dich der Login nach einem 6-stelligen Code.</p>
+                </div>
+
+                <div class="py-6">
+                  <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-4">AKTIVE SITZUNGEN</h3>
+                  <div id="sessions-list" class="flex flex-col gap-3">
+                    <p class="text-body-md text-on-surface-variant">Wird geladen…</p>
+                  </div>
+                </div>
               </div>
-              <button type="button" class="border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300">
-                EXPORTIEREN
-              </button>
             </div>
 
-            <a href="#" target="_blank" rel="noopener noreferrer" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
-              <div>
-                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Datenschutz</h3>
-                <p class="text-body-md text-on-surface-variant">UNSERE DATENSCHUTZERKLÄRUNG LESEN</p>
+            <div class="mt-8">
+              <h3 class="font-label-sm text-label-sm uppercase text-error mb-4 tracking-widest">GEFAHRENZONE</h3>
+              <div class="bg-error/5 border border-error/30 rounded-2xl p-6 flex flex-col gap-4">
+                <p class="text-body-md text-on-surface-variant">KONTO UND ALLE DATEN UNWIDERRUFLICH LÖSCHEN</p>
+                <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300">
+                  KONTO LÖSCHEN
+                </button>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
-
-            <a href="#" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
-              <div>
-                <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Impressum</h3>
-                <p class="text-body-md text-on-surface-variant">RECHTLICHE ANGABEN</p>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
+            </div>
           </div>
 
-          <div class="mt-8">
-            <h3 class="font-label-sm text-label-sm uppercase text-error mb-4 tracking-widest">GEFAHRENZONE</h3>
-            <div class="bg-error/5 border border-error/30 rounded-2xl p-6 flex flex-col gap-4">
-              <p class="text-body-md text-on-surface-variant">KONTO UND ALLE DATEN UNWIDERRUFLICH LÖSCHEN</p>
-              <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300">
-                KONTO LÖSCHEN
+          <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
+              <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest">PRO STATUS</span>
+              <p class="text-headline-md text-on-surface mb-8 leading-snug">
+                Dein Abonnement ist aktiv.<br />Nächste Abrechnung am<br />12. April 2027.
+              </p>
+              <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
+                ABO VERWALTEN
+              </a>
+            </div>
+
+            <div class="pt-8 flex justify-end lg:justify-start">
+              <button type="button" id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-error transition-colors duration-200 group min-h-11">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-error" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+                <span class="font-label-sm text-label-sm uppercase tracking-widest">ABMELDEN</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
-        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
-          <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest">PRO STATUS</span>
-          <p class="text-headline-md text-on-surface mb-8 leading-snug">
-            Dein Abonnement ist aktiv.<br />Nächste Abrechnung am<br />12. April 2027.
-          </p>
-          <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
-            ABO VERWALTEN
-          </a>
-        </div>
-
-        <div class="pt-8 flex justify-end lg:justify-start">
-          <a href="/" class="flex items-center gap-2 text-on-surface-variant hover:text-error transition-colors duration-200 group min-h-11">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-error" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-            <span class="font-label-sm text-label-sm uppercase tracking-widest">ABMELDEN</span>
-          </a>
-        </div>
-      </div>
-    </div>
+      </>
+    )}
   </main>
 </Layout>
+
+<script>
+import { supabase } from "../lib/supabase-client";
+
+const mfaStatusBadge = document.getElementById("mfa-status-badge")!;
+const mfaEnrollPanel = document.getElementById("mfa-enroll-panel")!;
+const mfaQrContainer = document.getElementById("mfa-qr-container")!;
+const mfaUriContainer = document.getElementById("mfa-uri-container")!;
+const mfaUriText = document.getElementById("mfa-uri-text")!;
+const mfaVerifyCode = document.getElementById("mfa-verify-code") as HTMLInputElement;
+const mfaVerifyBtn = document.getElementById("mfa-verify-btn") as HTMLButtonElement;
+const mfaEnrollCancelBtn = document.getElementById("mfa-enroll-cancel-btn")!;
+const mfaEnrollError = document.getElementById("mfa-enroll-error")!;
+const mfaEnrollSuccess = document.getElementById("mfa-enroll-success")!;
+const mfaFactorsList = document.getElementById("mfa-factors-list")!;
+const mfaEnrollBtn = document.getElementById("mfa-enroll-btn")!;
+const mfaBackupBtn = document.getElementById("mfa-backup-btn")!;
+const sessionsList = document.getElementById("sessions-list")!;
+const logoutBtn = document.getElementById("logout-btn")!;
+
+let pendingEnrollFactorId: string | null = null;
+let currentSessionSid: string | null = null;
+
+function decodeJwtSid(token: string): string | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return payload.sid || null;
+  } catch {
+    return null;
+  }
+}
+
+function parseUserAgent(ua: string): string {
+  if (!ua) return "Unbekanntes Gerät";
+  const beforeParen = ua.split("(")[0].trim();
+  if (beforeParen) return beforeParen;
+  if (ua.includes("Linux")) return "Linux-Gerät";
+  if (ua.includes("Windows")) return "Windows-Gerät";
+  if (ua.includes("Mac")) return "Mac-Gerät";
+  return "Unbekanntes Gerät";
+}
+
+function fmtDateDE(ts: string): string {
+  if (!ts) return "–";
+  const d = new Date(ts);
+  return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+}
+
+function showError(el: HTMLElement, msg: string) {
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+function hideError(el: HTMLElement) {
+  el.classList.add("hidden");
+  el.textContent = "";
+}
+
+function showSuccess(el: HTMLElement, msg: string) {
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+function hideSuccess(el: HTMLElement) {
+  el.classList.add("hidden");
+  el.textContent = "";
+}
+
+async function loadMfaStatus() {
+  const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  const { data: factorsData } = await supabase.auth.mfa.listFactors();
+  const totpFactors = factorsData?.totp ?? [];
+  const verifiedFactors = totpFactors.filter((f: any) => f.status === "verified");
+
+  if (verifiedFactors.length > 0) {
+    mfaStatusBadge.textContent = "AKTIV";
+    mfaStatusBadge.className = "font-label-sm text-label-sm uppercase px-4 py-1 rounded-full bg-primary text-white";
+    mfaEnrollBtn.classList.add("hidden");
+    mfaBackupBtn.classList.remove("hidden");
+    renderFactorsList(verifiedFactors);
+  } else {
+    mfaStatusBadge.textContent = "INAKTIV";
+    mfaStatusBadge.className = "font-label-sm text-label-sm uppercase px-4 py-1 rounded-full bg-surface-container-highest text-on-surface-variant";
+    mfaEnrollBtn.classList.remove("hidden");
+    mfaBackupBtn.classList.add("hidden");
+    mfaFactorsList.classList.add("hidden");
+    mfaFactorsList.innerHTML = "";
+  }
+}
+
+function renderFactorsList(factors: any[]) {
+  mfaFactorsList.innerHTML = "";
+  mfaFactorsList.classList.remove("hidden");
+  mfaFactorsList.classList.add("flex");
+
+  factors.forEach((f: any, i: number) => {
+    const label = i === 0 ? "ERSTES GERÄT" : "BACKUP-GERÄT";
+    const row = document.createElement("div");
+    row.className = "flex justify-between items-center bg-surface-container-lowest border border-primary/20 rounded-lg p-4";
+    row.innerHTML = `<div><span class="font-label-sm text-label-sm uppercase text-on-surface">${label}</span><span class="text-body-md text-on-surface-variant ml-3">${f.friendly_name || "Authenticator"}</span></div>`;
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "border border-error text-error font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-9 hover:bg-error hover:text-on-error transition-colors";
+    removeBtn.textContent = "ENTFERNEN";
+    removeBtn.addEventListener("click", async () => {
+      if (!window.confirm(`Möchtest du das Gerät "${f.friendly_name || label}" wirklich entfernen?`)) return;
+      const { error } = await supabase.auth.mfa.unenroll({ factorId: f.id });
+      if (error) {
+        alert("Fehler beim Entfernen: " + error.message);
+      } else {
+        await loadMfaStatus();
+      }
+    });
+    row.appendChild(removeBtn);
+    mfaFactorsList.appendChild(row);
+  });
+}
+
+async function startEnrollment(friendlyName: string) {
+  hideError(mfaEnrollError);
+  hideSuccess(mfaEnrollSuccess);
+  mfaVerifyCode.value = "";
+  mfaQrContainer.innerHTML = "";
+  mfaUriContainer.classList.add("hidden");
+
+  const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName });
+  if (error) {
+    showError(mfaEnrollError, "Fehler beim Starten: " + error.message);
+    return;
+  }
+
+  pendingEnrollFactorId = data.id;
+
+  if (data.totp.qr_code) {
+    const svgBase64 = btoa(unescape(encodeURIComponent(data.totp.qr_code)));
+    mfaQrContainer.innerHTML = `<img src="data:image/svg+xml;base64,${svgBase64}" alt="QR-Code für TOTP-Setup" class="w-48 h-48" />`;
+  }
+
+  if (data.totp.uri) {
+    mfaUriText.textContent = data.totp.uri;
+    mfaUriContainer.classList.remove("hidden");
+  }
+
+  mfaEnrollPanel.classList.remove("hidden");
+  mfaEnrollPanel.classList.add("flex");
+  mfaEnrollPanel.classList.add("flex-col");
+  mfaVerifyCode.focus();
+}
+
+mfaEnrollBtn.addEventListener("click", () => startEnrollment("carp24 Angler"));
+mfaBackupBtn.addEventListener("click", () => startEnrollment("carp24 Backup"));
+
+mfaEnrollCancelBtn.addEventListener("click", () => {
+  pendingEnrollFactorId = null;
+  mfaEnrollPanel.classList.add("hidden");
+  mfaEnrollPanel.classList.remove("flex");
+  mfaEnrollPanel.classList.remove("flex-col");
+  hideError(mfaEnrollError);
+  hideSuccess(mfaEnrollSuccess);
+});
+
+mfaVerifyBtn.addEventListener("click", async () => {
+  const code = mfaVerifyCode.value.trim();
+  if (!code || code.length !== 6 || !/^[0-9]{6}$/.test(code)) {
+    showError(mfaEnrollError, "Bitte gib einen 6-stelligen Code ein.");
+    return;
+  }
+  if (!pendingEnrollFactorId) {
+    showError(mfaEnrollError, "Kein Faktor ausgewählt. Bitte erneut starten.");
+    return;
+  }
+
+  mfaVerifyBtn.disabled = true;
+  mfaVerifyBtn.textContent = "WIRD BESTÄTIGT…";
+  hideError(mfaEnrollError);
+
+  const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: pendingEnrollFactorId, code });
+  mfaVerifyBtn.disabled = false;
+  mfaVerifyBtn.textContent = "FERTIGSTELLEN";
+
+  if (error) {
+    showError(mfaEnrollError, "Code ungültig oder abgelaufen. Bitte erneut versuchen.");
+    mfaVerifyCode.value = "";
+    mfaVerifyCode.focus();
+  } else {
+    showSuccess(mfaEnrollSuccess, "Zwei-Faktor-Authentifizierung erfolgreich aktiviert!");
+    pendingEnrollFactorId = null;
+    setTimeout(async () => {
+      mfaEnrollPanel.classList.add("hidden");
+      mfaEnrollPanel.classList.remove("flex");
+      mfaEnrollPanel.classList.remove("flex-col");
+      hideSuccess(mfaEnrollSuccess);
+      await loadMfaStatus();
+    }, 1500);
+  }
+});
+
+mfaVerifyCode.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    mfaVerifyBtn.click();
+  }
+});
+
+async function loadSessions() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (accessToken) {
+    currentSessionSid = decodeJwtSid(accessToken);
+  }
+
+  const { data: rpcData, error } = await supabase.rpc("list_my_sessions");
+  sessionsList.innerHTML = "";
+
+  if (error || !rpcData || rpcData.length === 0) {
+    sessionsList.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine aktiven Sitzungen</p>';
+    return;
+  }
+
+  for (const s of rpcData) {
+    const sid = String(s.session_id || "");
+    const isCurrent = currentSessionSid && sid === currentSessionSid;
+    const deviceName = parseUserAgent(String(s.user_agent || ""));
+    const ip = String(s.ip || "–");
+    const lastUsed = fmtDateDE(String(s.last_used || ""));
+    const aalBadge = s.is_aal2 || String(s.aal_level) === "aal2"
+      ? '<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded-full bg-primary text-white">2FA</span>'
+      : '<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant">Passwort</span>';
+    const currentBadge = isCurrent
+      ? '<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container ml-2">AKTUELL</span>'
+      : "";
+
+    const row = document.createElement("div");
+    row.className = "flex justify-between items-center bg-surface-container-lowest border border-primary/20 rounded-lg p-4";
+    row.setAttribute("data-session-id", sid);
+
+    const info = document.createElement("div");
+    info.className = "flex flex-col gap-1";
+    info.innerHTML = `<div class="flex items-center flex-wrap gap-2"><span class="font-label-sm text-label-sm uppercase text-on-surface">${deviceName}</span>${aalBadge}${currentBadge}</div><span class="text-body-md text-on-surface-variant">${ip} · ${lastUsed}</span>`;
+
+    const revokeBtn = document.createElement("button");
+    revokeBtn.type = "button";
+    revokeBtn.className = "border border-error text-error font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-9 hover:bg-error hover:text-on-error transition-colors";
+    revokeBtn.textContent = "ABMELDEN";
+    revokeBtn.addEventListener("click", async () => {
+      revokeBtn.disabled = true;
+      revokeBtn.textContent = "WIRD ABGEMELDET…";
+      const { error: revokeError } = await supabase.rpc("revoke_my_session", { p_session_id: sid });
+      if (revokeError) {
+        alert("Fehler: " + revokeError.message);
+        revokeBtn.disabled = false;
+        revokeBtn.textContent = "ABMELDEN";
+        return;
+      }
+      if (isCurrent) {
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+        return;
+      }
+      row.remove();
+      if (sessionsList.children.length === 0) {
+        sessionsList.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine aktiven Sitzungen</p>';
+      }
+    });
+
+    row.appendChild(info);
+    row.appendChild(revokeBtn);
+    sessionsList.appendChild(row);
+  }
+}
+
+logoutBtn.addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  window.location.href = "/login";
+});
+
+loadMfaStatus();
+loadSessions();
+</script>

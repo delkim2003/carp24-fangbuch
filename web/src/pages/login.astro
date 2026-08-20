@@ -10,7 +10,7 @@ import Layout from "../layouts/Layout.astro";
         <p class="text-body-md text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
       </div>
 
-      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" aria-live="polite"></div>
       <div id="login-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
       <form id="login-form" class="flex flex-col gap-md">
@@ -29,6 +29,24 @@ import Layout from "../layouts/Layout.astro";
           ANMELDEN
         </button>
       </form>
+
+      <div id="totp-screen" class="hidden flex flex-col gap-md">
+        <div class="text-center mb-sm">
+          <h2 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Zwei-Faktor-Authentifizierung</h2>
+          <p class="text-body-md text-on-surface-variant">Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>
+        </div>
+        <div id="totp-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" aria-live="polite"></div>
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="totp-code">Bestätigungscode</label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12 text-center tracking-[0.5em] font-mono text-lg" id="totp-code" name="totp-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required />
+        </div>
+        <button type="button" id="totp-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          BESTÄTIGEN
+        </button>
+        <button type="button" id="totp-cancel-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12">
+          ABBRECHEN
+        </button>
+      </div>
 
       <div class="border-t border-primary/20 pt-md mt-sm">
         <p class="text-body-md text-on-surface-variant text-center mb-md">Noch kein Konto?</p>
@@ -68,6 +86,13 @@ import Layout from "../layouts/Layout.astro";
   var loginBtn = document.getElementById('login-btn');
   var registerBtn = document.getElementById('register-btn');
   var regHint = document.getElementById('reg-hint');
+  var totpScreen = document.getElementById('totp-screen');
+  var totpError = document.getElementById('totp-error');
+  var totpBtn = document.getElementById('totp-btn');
+  var totpCancelBtn = document.getElementById('totp-cancel-btn');
+  var totpCodeInput = document.getElementById('totp-code');
+
+  var pendingFactorId = null;
 
   loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -88,14 +113,91 @@ import Layout from "../layouts/Layout.astro";
       return;
     }
     sb.auth.signInWithPassword({ email: email, password: password }).then(function (res) {
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'ANMELDEN';
       if (res.error) {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'ANMELDEN';
         showError('Ungültige Anmeldedaten. Bitte überprüfe E-Mail und Passwort.');
+        return;
+      }
+      sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (aalRes) {
+        var currentLevel = aalRes.data && aalRes.data.currentLevel;
+        var nextLevel = aalRes.data && aalRes.data.nextLevel;
+        if (currentLevel === 'aal1' && nextLevel === 'aal2') {
+          sb.auth.mfa.listFactors().then(function (factorsRes) {
+            var factors = factorsRes.data && factorsRes.data.totp ? factorsRes.data.totp : [];
+            var verified = null;
+            for (var i = 0; i < factors.length; i++) {
+              if (factors[i].status === 'verified') { verified = factors[i]; break; }
+            }
+            if (verified) {
+              pendingFactorId = verified.id;
+              loginForm.classList.add('hidden');
+              totpScreen.classList.remove('hidden');
+              totpScreen.classList.add('flex');
+              totpCodeInput.focus();
+              loginBtn.disabled = false;
+              loginBtn.textContent = 'ANMELDEN';
+            } else {
+              window.location.href = '/fang-erfassen';
+            }
+          });
+        } else {
+          window.location.href = '/fang-erfassen';
+        }
+      }).catch(function () {
+        window.location.href = '/fang-erfassen';
+      });
+    });
+  });
+
+  totpBtn.addEventListener('click', function () {
+    var code = totpCodeInput.value.trim();
+    if (!code || code.length !== 6 || !/^[0-9]{6}$/.test(code)) {
+      showTotpError('Bitte gib einen 6-stelligen Code ein.');
+      return;
+    }
+    if (!pendingFactorId) {
+      showTotpError('Kein Faktor ausgewählt. Bitte erneut anmelden.');
+      return;
+    }
+    totpBtn.disabled = true;
+    totpBtn.textContent = 'WIRD BESTÄTIGT…';
+    var sb = getSupabase();
+    if (!sb) {
+      showTotpError('Supabase nicht initialisiert.');
+      totpBtn.disabled = false;
+      totpBtn.textContent = 'BESTÄTIGEN';
+      return;
+    }
+    sb.auth.mfa.challengeAndVerify({ factorId: pendingFactorId, code: code }).then(function (res) {
+      totpBtn.disabled = false;
+      totpBtn.textContent = 'BESTÄTIGEN';
+      if (res.error) {
+        showTotpError('Code ungültig oder abgelaufen. Bitte erneut versuchen.');
+        totpCodeInput.value = '';
+        totpCodeInput.focus();
       } else {
         window.location.href = '/fang-erfassen';
       }
     });
+  });
+
+  totpCodeInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      totpBtn.click();
+    }
+  });
+
+  totpCancelBtn.addEventListener('click', function () {
+    pendingFactorId = null;
+    totpCodeInput.value = '';
+    hideTotpError();
+    totpScreen.classList.add('hidden');
+    totpScreen.classList.remove('flex');
+    loginForm.classList.remove('hidden');
+    var sb = getSupabase();
+    if (sb) sb.auth.signOut();
   });
 
   registerForm.addEventListener('submit', function (e) {
@@ -140,10 +242,20 @@ import Layout from "../layouts/Layout.astro";
     loginError.classList.remove('hidden');
   }
 
+  function showTotpError(msg) {
+    totpError.textContent = msg;
+    totpError.classList.remove('hidden');
+  }
+
+  function hideTotpError() {
+    totpError.classList.add('hidden');
+  }
+
   function hideMessages() {
     loginError.classList.add('hidden');
     loginSuccess.classList.add('hidden');
     regHint.classList.add('hidden');
+    hideTotpError();
   }
 })();
 </script>
