@@ -16,6 +16,7 @@
 | S4 | Fangliste | Liste, Filter, FAB + FANG, Empty-State | ✅ generiert |
 | S5 | Fang-Detail | Foto groß, Gewicht mono, Wetter-Snapshot, Edit/Delete | ✅ generiert |
 | S6 | Dashboard | Gewichts-Verlauf, Monats-Chart, Top-Fänge, Statistik-Boxen | ✅ generiert |
+| S6b | **Statistik-Studio (Bedingungs-UI)** | **Condition-Chips (Mond/Luftdruck/Wind/Wetter/Gewässer/Art/Köder/Zeit), Result-Cards, Mond+Druck-Visualisierung, Drill-down, Korrelation — 1.10b-Herzstück** | ✅ generiert (20.08., direkte API) |
 | S7 | Profil/Konto | Export Art.20, Datenschutz, Impressum, Gefahrenzone Löschen | ✅ generiert |
 | S8 | Paywall/Pro | 50-Grenze, Pro-Features, 4,99-6,99 €, JETZT PRO | ✅ generiert |
 
