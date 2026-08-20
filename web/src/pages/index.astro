@@ -25,7 +25,7 @@ const icons: Record<string, string> = {
 ---
 
 <Layout title="Carp24 – Dein digitales Fangbuch">
-  <div class="max-w-[1440px] mx-auto pb-xl">
+  <main id="page-content" class="max-w-[1440px] mx-auto pb-xl">
     <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
       <div class="flex flex-col gap-6">
         <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">PASSION. FISHING. COMMUNITY.</span>
@@ -57,7 +57,7 @@ const icons: Record<string, string> = {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[f.icon]} />
             </div>
             <span class="font-label-sm text-label-sm uppercase text-tertiary">{f.tag}</span>
-            <h4 class="text-headline-md">{f.title}</h4>
+            <h2 class="text-headline-md">{f.title}</h2>
             <p class="text-body-md text-on-surface-variant">{f.text}</p>
           </div>
         ))}
@@ -80,7 +80,7 @@ const icons: Record<string, string> = {
                 <span class="text-headline-md">{ex.weight}</span>
                 <span class="font-label-sm text-label-sm text-tertiary bg-tertiary/10 px-3 py-1 rounded-full">{ex.art}</span>
               </div>
-              <div class="font-nav-item text-nav-item text-tertiary opacity-80 pt-2 border-t border-primary/10">
+              <div class="font-nav-item text-nav-item text-tertiary pt-2 border-t border-primary/10">
                 {ex.ort}
               </div>
             </div>
@@ -97,5 +97,5 @@ const icons: Record<string, string> = {
         Danach Pro ab 4,99 €/Monat
       </p>
     </section>
-  </div>
+  </main>
 </Layout>
