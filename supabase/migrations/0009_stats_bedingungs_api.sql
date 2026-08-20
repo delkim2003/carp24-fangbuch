@@ -61,6 +61,7 @@ BEGIN
                 WHEN '1005-1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1005
                                     AND (c.weather->>'pressure_hpa')::numeric < 1015
                 WHEN '1015+'     THEN (c.weather->>'pressure_hpa')::numeric >= 1015
+                WHEN '>= 1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1015
                 ELSE true
               END)
       -- Wind-Bucket
@@ -314,8 +315,9 @@ BEGIN
               WHEN '1005-1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1005
                                   AND (c.weather->>'pressure_hpa')::numeric < 1015
               WHEN '1015+'     THEN (c.weather->>'pressure_hpa')::numeric >= 1015
+              WHEN '>= 1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1015
               ELSE true END)
-    AND (p_filters->>'wind_bucket' IS NULL
+              AND (p_filters->>'wind_bucket' IS NULL
          OR CASE p_filters->>'wind_bucket'
               WHEN '<5'    THEN (c.weather->>'wind_kmh')::numeric < 5
               WHEN '5-10'  THEN (c.weather->>'wind_kmh')::numeric >= 5
@@ -396,6 +398,7 @@ BEGIN
                 WHEN '1005-1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1005
                                     AND (c.weather->>'pressure_hpa')::numeric < 1015
                 WHEN '1015+'     THEN (c.weather->>'pressure_hpa')::numeric >= 1015
+                WHEN '>= 1015' THEN (c.weather->>'pressure_hpa')::numeric >= 1015
                 ELSE true END)
       AND (p_filters->>'wind_bucket' IS NULL
            OR CASE p_filters->>'wind_bucket'
