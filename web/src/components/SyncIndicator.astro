@@ -1,3 +1,6 @@
+---
+// Env kommt zentral aus Layout.astro (data-supabase-* am <body>)
+---
 <div id="sync-indicator" class="hidden fixed top-2 right-2 z-50">
   <div id="sync-banner" class="flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm text-body-md text-sm border border-primary/20 bg-surface-container-high/95 backdrop-blur-sm">
     <span id="sync-icon" class="text-base leading-none"></span>
@@ -45,8 +48,8 @@
   }
 
   function syncDraftsNow() {
-    var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
-    var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+    var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+    var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
     var sb = null;
     if (window.__supabase) {
       sb = window.__supabase;

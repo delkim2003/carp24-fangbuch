@@ -18,6 +18,10 @@ const {
   active,
   bare = false,
 } = Astro.props;
+
+// Env-Zentrale: data-Attribute am <body> (is:inline-Scripts lesen sie per dataset — Bundler-Problem umgangen)
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 ---
 
 <!doctype html>
@@ -50,7 +54,7 @@ const {
       })();
     </script>
   </head>
-  <body class="min-h-screen flex flex-col bg-background text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+  <body class="min-h-screen flex flex-col bg-background text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container" data-supabase-url={SUPABASE_URL} data-supabase-anon-key={SUPABASE_ANON_KEY}>
     {!bare && <Header active={active} />}
     <SyncIndicator />
     <main class="flex-grow flex flex-col">

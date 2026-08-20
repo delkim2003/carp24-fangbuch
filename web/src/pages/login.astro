@@ -47,8 +47,8 @@ import Layout from "../layouts/Layout.astro";
 
 <script is:inline>
 (function () {
-  var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
-  var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
 
   function getSupabase() {
     if (window.__supabase) return window.__supabase;

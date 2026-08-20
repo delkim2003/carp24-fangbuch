@@ -1,141 +1,64 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import detailPhoto from "../../assets/stitch/catch-detail-0.jpg?url";
+import { supabase } from "../../lib/supabase-client";
 
-export function getStaticPaths() {
-  const catches = [
-    {
-      id: "silbersee-spiegelkarpfen",
-      art: "Spiegelkarpfen",
-      gewicht: "18,4 KG",
-      laenge: "92 CM",
-      datum: "12. OKT 2025",
-      gewaesser: "Silbersee",
-      luft: "14°C",
-      wasser: "11°C",
-      cr: true,
-      notiz: "Gefangen am späten Nachmittag nach einem sonnigen Tag. Der Biss kam überraschend aggressiv auf einen einzelnen Pop-up in flachem Wasser nahe der Schilfkante. Ein wunderschöner, makelloser Fisch mit markanten Schuppen.",
-      stats: [
-        { label: "Häufigkeit", value: "3. Fang in diesem Monat" },
-        { label: "Meilenstein", value: "Persönliche Bestleistung (Silbersee)" },
-        { label: "Köder", value: "Sticky Baits Krill 16mm Pop-up" },
-      ],
-      chips: ["Bewölkt", "Südwind"],
-    },
-    {
-      id: "linch-hill-schuppenkarpfen",
-      art: "Schuppenkarpfen",
-      gewicht: "14,2 KG",
-      laenge: "78 CM",
-      datum: "28. SEP 2025",
-      gewaesser: "Linch Hill",
-      luft: "11°C",
-      wasser: "9°C",
-      cr: true,
-      notiz: "Klarer Herbsttag. Der Fisch nahm eine Tigernus vor dem Schilf sicher auf. Ruhte nach dem Wiegen kurz im Kescher und schwamm dann kraftvoll davon.",
-      stats: [
-        { label: "Häufigkeit", value: "1. Fang an diesem Gewässer" },
-        { label: "Meilenstein", value: "Neue persönliche Bestleistung (Linch Hill)" },
-        { label: "Köder", value: "Tigernus 14mm Hookbait" },
-      ],
-      chips: ["Klar", "Westwind"],
-    },
-    {
-      id: "silbersee-graskarpfen",
-      art: "Graskarpfen",
-      gewicht: "21,0 KG",
-      laenge: "104 CM",
-      datum: "15. SEP 2025",
-      gewaesser: "Silbersee",
-      luft: "16°C",
-      wasser: "13°C",
-      cr: false,
-      notiz: "Starker, vorsichtiger Fisch, der nach leichtem Regen an einen Pop-Up auf einer Krautkante ging. Drill über 20 Minuten mit mehreren Fluchten ins Kraut.",
-      stats: [
-        { label: "Häufigkeit", value: "2. Fang in diesem Monat" },
-        { label: "Meilenstein", value: "Neuer Saisonrekord" },
-        { label: "Köder", value: "Pop-Up 12mm auf Krautkante" },
-      ],
-      chips: ["Regen", "Südwest"],
-    },
-  ];
+// SSR: Fang-Detail ist user-abhängig (Session), nicht vorab generierbar
+export const prerender = false;
 
-  return catches.map((c) => ({ params: { id: c.id }, props: { catch: c } }));
+const id = Astro.params.id ?? "";
+const { data: { session } } = await supabase.auth.getSession();
+let catchData: any = null;
+let notFound = false;
+if (session) {
+  const { data, error } = await supabase.from("catches").select("*").eq("id", id).eq("deleted_at", null).single();
+  catchData = data ?? null;
+  if (error || !data) notFound = true;
 }
-
-const { catch: item } = Astro.props;
-const meta = [
-  { label: "Gewicht", value: item.gewicht },
-  { label: "Länge", value: item.laenge },
-  { label: "Datum", value: item.datum },
-  { label: "Gewässer", value: item.gewaesser },
-  { label: "Lufttemperatur", value: item.luft },
-  { label: "Wassertemperatur", value: item.wasser },
-];
+const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "Lederkarpfen", SCHUPPEN: "Schuppenkarpfen", AMUR: "Amurkarpfen", ANDERE: "Andere" };
 ---
-
-<Layout title={`Carp24 – ${item.art}`} active="fangbuch">
-  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-      <div class="md:col-span-8 flex flex-col gap-lg">
-        <div class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden">
-          <img src={detailPhoto} alt={`Fangfoto ${item.art}`} class="w-full h-auto object-cover max-h-[500px]" loading="lazy" />
-        </div>
-
-        <div class="flex flex-col gap-md pt-md">
-          <div class="flex justify-between items-start gap-4">
-            <h1 class="text-display-lg text-on-surface">{item.art}</h1>
-            {item.cr && (
-              <span class="inline-flex items-center px-3 py-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest shrink-0">
-                Catch &amp; Release
-              </span>
+<Layout title={`Carp24 – ${catchData ? "Fang-Detail" : "Nicht gefunden"}`} active="fangbuch">
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    {!session ? (
+      <div class="text-center py-24">
+        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um Fänge zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+      </div>
+    ) : notFound ? (
+      <div class="text-center py-24 flex flex-col items-center gap-lg">
+        <h1 class="text-display-lg text-primary">FANG NICHT GEFUNDEN</h1>
+        <p class="text-body-lg text-on-surface-variant">Dieser Fang existiert nicht oder wurde gelöscht.</p>
+        <a href="/faenge" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ZUR FANGLISTE</a>
+      </div>
+    ) : catchData ? (
+      <>
+        <a href="/faenge" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZURÜCK</a>
+        <div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden">
+          {catchData.photos?.[0] && <img src={catchData.photos[0]} alt="Fang" class="w-full max-h-96 object-cover" />}
+          <div class="p-xl flex flex-col gap-lg">
+            <div class="font-mono text-display-xl text-primary font-bold">{(Number(catchData.weight_kg) ?? 0).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} KG</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-md">
+              <div><div class="font-label-sm text-label-sm uppercase text-secondary">ART</div><div class="text-body-lg">{speciesMap[catchData.species] ?? catchData.species}</div></div>
+              <div><div class="font-label-sm text-label-sm uppercase text-secondary">GEWÄSSER</div><div class="text-body-lg">{catchData.water_name ?? "—"}</div></div>
+              <div><div class="font-label-sm text-label-sm uppercase text-secondary">DATUM</div><div class="text-body-lg">{new Date(catchData.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div></div>
+              {catchData.length_cm && <div><div class="font-label-sm text-label-sm uppercase text-secondary">LÄNGE</div><div class="text-body-lg">{catchData.length_cm} cm</div></div>}
+              {catchData.bait && <div><div class="font-label-sm text-label-sm uppercase text-secondary">KÖDER</div><div class="text-body-lg">{catchData.bait}</div></div>}
+              {catchData.method && <div><div class="font-label-sm text-label-sm uppercase text-secondary">METHODE</div><div class="text-body-lg">{catchData.method}</div></div>}
+            </div>
+            {catchData.notes && <div><div class="font-label-sm text-label-sm uppercase text-secondary mb-1">NOTIZEN</div><div class="text-body-md text-on-surface-variant">{catchData.notes}</div></div>}
+            {catchData.weather && (
+              <div class="bg-surface-container rounded-xl border border-primary/30 p-lg">
+                <div class="font-label-sm text-label-sm uppercase text-primary mb-md">WETTER-SNAPSHOT</div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">TEMPERATUR</div><div class="font-mono text-body-lg">{catchData.weather.temp_c != null ? catchData.weather.temp_c + " °C" : "—"}</div></div>
+                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">LUFTDRUCK</div><div class="font-mono text-body-lg">{catchData.weather.pressure_hpa != null ? catchData.weather.pressure_hpa + " hPa" : "—"}</div></div>
+                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_kmh != null ? catchData.weather.wind_kmh + " km/h" : "—"}</div></div>
+                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">MOND</div><div class="font-mono text-body-lg">{catchData.weather.moon_text ?? "—"}</div></div>
+                </div>
+              </div>
             )}
           </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-y-lg gap-x-gutter py-lg border-y border-primary/40">
-            {meta.map((m) => (
-              <div class="flex flex-col gap-xs">
-                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant">{m.label}</span>
-                <span class="text-body-lg">{m.value}</span>
-              </div>
-            ))}
-          </div>
-
-          <div class="pt-md">
-            <h3 class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-sm">Beobachtungen</h3>
-            <p class="text-body-lg text-on-surface leading-relaxed">{item.notiz}</p>
-          </div>
-
-          <div class="flex items-center gap-lg pt-lg mt-lg border-t border-primary/40 flex-wrap">
-            <button type="button" class="font-label-sm text-label-sm uppercase tracking-widest text-primary hover:opacity-70 transition-opacity min-h-11">Fang bearbeiten</button>
-            <button type="button" class="font-label-sm text-label-sm uppercase tracking-widest text-error hover:opacity-70 transition-opacity min-h-11">Löschen</button>
-            <div class="flex-grow"></div>
-            <button type="button" aria-label="Teilen" class="text-primary hover:opacity-70 transition-opacity min-h-11 min-w-11 inline-flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-            </button>
-          </div>
         </div>
-      </div>
-
-      <aside class="md:col-span-4 flex flex-col gap-lg">
-        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col gap-md">
-          <h3 class="text-headline-md border-b border-primary/40 pb-sm">Statistik</h3>
-          <ul class="flex flex-col gap-md">
-            {item.stats.map((s) => (
-              <li class="flex flex-col gap-xs border-b border-outline/10 pb-md last:border-b-0 last:pb-0">
-                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant">{s.label}</span>
-                <span class="text-body-md text-on-surface">{s.value}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div class="flex flex-wrap gap-sm">
-          {item.chips.map((chip) => (
-            <span class="inline-flex items-center px-3 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm uppercase tracking-widest">{chip}</span>
-          ))}
-        </div>
-      </aside>
-    </div>
+      </>
+    ) : null}
   </main>
 </Layout>

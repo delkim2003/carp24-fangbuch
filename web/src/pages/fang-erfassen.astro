@@ -188,8 +188,8 @@ const isLoggedIn = !!session;
 
 <script is:inline>
 (function () {
-  var SUPABASE_URL = '%PUBLIC_SUPABASE_URL%';
-  var SUPABASE_ANON_KEY = '%PUBLIC_SUPABASE_ANON_KEY%';
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
 
   var DB_NAME = 'carp24-offline';
   var DB_VERSION = 1;
