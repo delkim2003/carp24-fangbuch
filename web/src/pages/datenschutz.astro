@@ -1,0 +1,101 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Carp24 – Datenschutz">
+  <div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl md:py-20">
+    <h1 class="text-headline-lg text-primary mb-lg">Datenschutzerklärung</h1>
+
+    <div class="flex flex-col gap-xl text-body-md text-on-surface-variant">
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Verantwortlicher</h2>
+        <p>Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Österreich. Kontakt: <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a></p>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Welche Daten verarbeiten wir?</h2>
+        <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
+          <li><strong>Kontodaten:</strong> E-Mail-Adresse, Anzeigename (für Registrierung/Login)</li>
+          <li><strong>Fangbuch-Daten:</strong> Art, Gewicht, Länge, Gewässer, Koordinaten (nur private Gewässer), Notizen</li>
+          <li><strong>Community-Daten:</strong> Forenbeiträge, Chat-Nachrichten, Marktplatz-Inserate</li>
+          <li><strong>Abo-Daten (optional):</strong> Zahlungsstatus über Stripe (wir speichern keine Kreditkartendaten)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Wofür und auf welcher Grundlage?</h2>
+        <div class="overflow-x-auto mt-2">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="border-b border-outline/20">
+                <th class="text-left py-2 pr-4 font-label-sm uppercase tracking-widest text-on-surface">Zweck</th>
+                <th class="text-left py-2 font-label-sm uppercase tracking-widest text-on-surface">Rechtsgrundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-outline/10">
+                <td class="py-2 pr-4">Vertragserfüllung (Fangbuch, Community)</td>
+                <td class="py-2">Art. 6(1)(b) DSGVO</td>
+              </tr>
+              <tr class="border-b border-outline/10">
+                <td class="py-2 pr-4">Sicherheit & Betrieb (Logs, Monitoring)</td>
+                <td class="py-2">Art. 6(1)(f) DSGVO</td>
+              </tr>
+              <tr class="border-b border-outline/10">
+                <td class="py-2 pr-4">KI-Chatbot (optional, mit Zustimmung)</td>
+                <td class="py-2">Art. 6(1)(a) DSGVO</td>
+              </tr>
+              <tr>
+                <td class="py-2 pr-4">Werbung/Analyse (optional, mit Zustimmung)</td>
+                <td class="py-2">Art. 6(1)(a) DSGVO</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Wer bekommt deine Daten?</h2>
+        <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
+          <li><strong>Andere Nutzer:</strong> nur was du öffentlich teilst: Forum, Marktplatz</li>
+          <li><strong>Dienstleister:</strong> Google (Backups, verschlüsselt), später Stripe (Zahlungen), MailerSend (E-Mails), Mistral (KI-Chatbot) — jeweils mit AVV</li>
+          <li>Keine Datenverkäufe.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Speicherdauer & Löschung</h2>
+        <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
+          <li>Daten bleiben bis zur Kontolöschung</li>
+          <li>Kontolöschung = vollständige Anonymisierung aller Inhalte (Automatik)</li>
+          <li>Steuerlich relevante Abodaten: 3 Jahre</li>
+          <li>Du kannst Löschung jederzeit im Dashboard oder per E-Mail anfordern</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Deine Rechte</h2>
+        <p>Auskunft (Art. 15) · Berichtigung (Art. 16) · Löschung (Art. 17) · Einschränkung (Art. 18) · Datenübertragbarkeit (Art. 20) · Widerspruch (Art. 21) · Beschwerde bei der österreichischen Datenschutzbehörde (Art. 77). Kontakt für alle Rechte: <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a></p>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Cookies & Einwilligung</h2>
+        <p class="mb-2">Beim ersten Besuch erscheint ein Consent-Banner (Klaro):</p>
+        <ul class="list-disc pl-6 flex flex-col gap-1">
+          <li><strong>Notwendig (immer aktiv):</strong> Login, Sicherheit</li>
+          <li><strong>Statistik (optional):</strong> anonyme Nutzungsanalyse</li>
+          <li><strong>Marketing (optional):</strong> Werbung</li>
+          <li><strong>KI-Funktionen (optional):</strong> Chatbot</li>
+        </ul>
+        <p class="mt-2">Einwilligung kann jederzeit widerrufen werden.</p>
+      </section>
+
+      <section>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Sicherheit</h2>
+        <p>TLS-Verschlüsselung, RLS-Datenbankzugriff, verschlüsselte Backups, regelmäßige Überwachung.</p>
+      </section>
+
+    </div>
+  </div>
+</Layout>
