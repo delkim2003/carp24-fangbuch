@@ -2,6 +2,25 @@ _format_version: '2.1'
 _transform: true
 
 ###
+### Global Security Headers (Task 1.9) — alle API-Antworten
+### HSTS nur auf HTTPS (8443); die restlichen Header überall
+###
+plugins:
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Frame-Options: DENY"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "X-Content-Type-Options: nosniff"
+          - "Permissions-Policy: geolocation=(self), camera=(), microphone=()"
+      remove:
+        headers:
+          - "Server"
+          - "X-Powered-By"
+    enabled: true
+
+###
 ### Consumers / Users
 ###
 consumers:
