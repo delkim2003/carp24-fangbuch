@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Statistics Studio - Carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#061f21",
+                        "on-tertiary-fixed-variant": "#5b3e52",
+                        "surface-dim": "#DCD4BC",
+                        "outline-variant": "#c6c8bc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#fffdff",
+                        "on-surface": "#181D14",
+                        "tertiary": "#735368",
+                        "secondary-container": "#cae5e7",
+                        "surface-bright": "#fbf9f4",
+                        "on-tertiary-fixed": "#2c1325",
+                        "tertiary-container": "#8d6b81",
+                        "on-primary-fixed": "#141f05",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-container": "#CCCA9B",
+                        "on-secondary-container": "#4f6769",
+                        "background": "#fbf9f4",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f6f3ee",
+                        "tertiary-fixed-dim": "#e3bbd4",
+                        "on-secondary-fixed-variant": "#334b4d",
+                        "secondary-fixed-dim": "#b1cbcd",
+                        "on-secondary": "#ffffff",
+                        "surface": "#E8E0C8",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "inverse-on-surface": "#f3f0eb",
+                        "inverse-surface": "#30312d",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#45483f",
+                        "secondary-fixed": "#cde7e9",
+                        "secondary": "#4a6365",
+                        "tertiary-fixed": "#ffd7ef",
+                        "primary": "#546140",
+                        "inverse-primary": "#bdcca4",
+                        "primary-container": "#6c7a57",
+                        "primary-fixed": "#d9e8be",
+                        "outline": "#76786e",
+                        "surface-container-high": "#eae8e3",
+                        "surface-tint": "#556342",
+                        "on-background": "#1b1c19",
+                        "surface-container-highest": "#e4e2dd",
+                        "on-primary-container": "#fdfff0",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e4e2dd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "1rem",
+                        "unit": "4px",
+                        "margin-desktop": "2.5rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-xl": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        /* Hide scrollbar for horizontal scrolling lists */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .chip {
+            background-color: theme('colors.surface-container-high');
+            border: 1px solid theme('colors.outline-variant');
+            transition: all 0.2s ease;
+        }
+        .chip:hover {
+            background-color: theme('colors.surface-container-highest');
+        }
+        .chip.active {
+            background-color: theme('colors.primary-container');
+            color: theme('colors.on-primary-container');
+            border-color: theme('colors.primary');
+        }
+        
+        .glass-card {
+            background: rgba(204, 202, 155, 0.6); /* surface-container with opacity */
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen relative">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim flat no shadows flex justify-between items-center px-margin-mobile h-16 w-full z-50 sticky top-0 md:hidden">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:opacity-80 transition-opacity p-2 rounded-full text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Carp24</h1>
+</div>
+<div>
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small circular user profile picture showing a portrait of a person in outdoor gear, styled in a muted, natural color palette consistent with a premium fishing logbook app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBimWtNSURcGr4TiMB2lJpsTCtDzuRlgctMy7HJ7kCZnVlW9Eejc8l_SfOSwDBxDia4pdk8iSOpOt1W6UaWMCuGfHt6H1jhaBcRdTGDIInEmnH4aV8Wa4-KfpZsmBIV0hqYFMHw70BWqQ9Abs2JAfqrjt2p0pWSliP2qRfzbvM66ENxmL1BDB378y8Fasn8VaR2zH6CNQkc8COn5v7exI2XnZ-EK-qeGDNh4su7XdGOURv5GJFeR8kwYpX6G7bdYrMeLQgIJ4gTyNZT"/>
+</div>
+</header>
+<!-- Desktop Navigation (Hidden on Mobile) -->
+<header class="hidden md:flex justify-between items-center px-margin-desktop h-20 w-full z-50 sticky top-0 bg-surface border-b border-surface-container-high shadow-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Carp24</h1>
+<nav class="flex gap-8">
+<a class="text-on-surface-variant font-label-md text-label-md flex flex-col items-center hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant font-label-md text-label-md flex flex-col items-center hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book">menu_book</span>
+                Catch Log
+            </a>
+<a class="text-primary font-label-md text-label-md flex flex-col items-center font-bold" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+                Statistics
+            </a>
+<a class="text-on-surface-variant font-label-md text-label-md flex flex-col items-center hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+                Profile
+            </a>
+</nav>
+<div class="flex items-center gap-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A circular user profile picture showing a portrait of a person in outdoor gear, styled in a muted, natural color palette consistent with a premium fishing logbook app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAuhm2IiQwLFzy2Z65vorMkcVpyNrHCZ4v4T0K0P9Lw16i6ObHgVDc76qEoHdK84tM1zsRRjN_jxdyCqGz0U5tzXnnJ4Seb-pHI8ePXyM84Sy2JSzjniRoyEE7qhn9JZSJfXAgZ1JKxSqYw_EivCsV5Le0i4s9vwYy10ds7CXI9wseY5zuNcUFN-4XmAwZ3jVzYRuVbvjGNcfeJXoxo29hy1b23IOVIiTvXVmxXWE9jAoJyBTokSB1Vfq6FM5KNVmK4jMUq24RyDDw"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 space-y-12">
+<!-- Header -->
+<section>
+<h1 class="font-headline-lg-mobile md:font-headline-xl text-headline-lg-mobile md:text-headline-xl text-primary mb-2">Condition Studio</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Analyze catch patterns across environmental variables to identify optimal fishing conditions.</p>
+</section>
+<!-- Condition Filters -->
+<section class="space-y-4">
+<!-- Filter Categories -->
+<div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+<button class="chip active px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap">Moon Phase</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Pressure</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Wind</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Weather</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Water</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Species</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Bait</button>
+<button class="chip px-4 py-2 rounded-full font-label-sm text-label-sm whitespace-nowrap text-on-surface">Time</button>
+</div>
+<!-- Sub-filters (Moon Phase) -->
+<div class="flex overflow-x-auto no-scrollbar gap-2 pl-4 border-l-2 border-surface-container-high">
+<button class="px-3 py-1.5 rounded-full font-label-sm text-label-sm border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">New</button>
+<button class="px-3 py-1.5 rounded-full font-label-sm text-label-sm border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">Waxing</button>
+<button class="px-3 py-1.5 rounded-full font-label-sm text-label-sm bg-primary-container text-on-primary-container border-primary font-bold">Full</button>
+<button class="px-3 py-1.5 rounded-full font-label-sm text-label-sm border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">Waning</button>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- KPI Cards (Left Column on Desktop) -->
+<div class="md:col-span-4 flex flex-col gap-4">
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col justify-between">
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Total Catches</h3>
+<div class="font-label-md text-4xl text-on-surface tracking-tight font-bold">142</div>
+<div class="text-xs text-on-surface-variant mt-2 uppercase tracking-widest font-label-sm">Filtered Dataset</div>
+</div>
+<div class="grid grid-cols-2 gap-4 h-full">
+<div class="bg-surface-container rounded-xl p-4 shadow-sm flex flex-col justify-center">
+<span class="text-xs text-on-surface-variant font-label-sm uppercase tracking-wider mb-2">Avg Weight</span>
+<div class="font-label-md text-2xl text-on-surface">18.5 <span class="text-sm text-on-surface-variant">lbs</span></div>
+</div>
+<div class="bg-surface-container rounded-xl p-4 shadow-sm flex flex-col justify-center">
+<span class="text-xs text-on-surface-variant font-label-sm uppercase tracking-wider mb-2">Max Weight</span>
+<div class="font-label-md text-2xl text-on-surface text-primary">34.2 <span class="text-sm text-on-surface-variant">lbs</span></div>
+</div>
+</div>
+</div>
+<!-- Visualizations (Right Column on Desktop) -->
+<div class="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Lunar Influence Chart (Placeholder) -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-surface-container-high flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Lunar Influence</h3>
+<span class="material-symbols-outlined text-outline" data-icon="dark_mode">dark_mode</span>
+</div>
+<div class="flex-grow flex items-center justify-center relative min-h-[200px]">
+<!-- Abstract Chart Representation -->
+<div class="w-40 h-40 rounded-full border-4 border-surface-container-high relative flex items-center justify-center">
+<div class="absolute w-full h-full rounded-full" style="background: conic-gradient(transparent 0% 60%, theme('colors.primary-fixed') 60% 85%, transparent 85% 100%);"></div>
+<div class="absolute w-full h-full rounded-full" style="background: conic-gradient(transparent 85%, theme('colors.secondary-container') 85% 100%, transparent 100%);"></div>
+<div class="w-32 h-32 bg-surface rounded-full z-10 flex flex-col items-center justify-center text-center p-2">
+<span class="font-label-sm text-xs text-on-surface-variant">Peak Activity</span>
+<span class="font-label-md text-lg text-primary">Full Moon</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Barometric Distribution (Placeholder) -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-surface-container-high flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Barometric Pressure</h3>
+<span class="material-symbols-outlined text-outline" data-icon="air">air</span>
+</div>
+<div class="flex-grow flex items-end justify-between gap-2 h-40 mt-4 border-b border-surface-container">
+<!-- Bars -->
+<div class="w-1/5 bg-surface-container-high h-1/4 rounded-t-sm relative group"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-on-surface-variant font-label-sm">990</span></div>
+<div class="w-1/5 bg-surface-container-high h-2/4 rounded-t-sm relative group"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-on-surface-variant font-label-sm">1000</span></div>
+<div class="w-1/5 bg-primary h-full rounded-t-sm relative group"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-primary font-bold font-label-sm">1010</span></div>
+<div class="w-1/5 bg-primary-fixed h-3/4 rounded-t-sm relative group"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-on-surface-variant font-label-sm">1020</span></div>
+<div class="w-1/5 bg-surface-container-high h-1/5 rounded-t-sm relative group"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-on-surface-variant font-label-sm">1030</span></div>
+</div>
+</div>
+</div>
+<!-- Correlation View (Full Width) -->
+<div class="md:col-span-12">
+<div class="glass-card rounded-xl p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+<h3 class="font-label-md text-label-md text-primary tracking-widest uppercase mb-2">Optimal Window Identified</h3>
+<div class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Full Moon + 1012hPa</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-xl">Historical data suggests a 45% increase in catch probability during these combined conditions, particularly between 02:00 and 05:00.</p>
+</div>
+</div>
+</div>
+<!-- Drill-down List -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Recent Matches</h2>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="bg-surface-container-low rounded-xl border border-surface-container-high overflow-hidden">
+<!-- List Header (Desktop) -->
+<div class="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-b border-surface-container bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<div class="col-span-2">Date</div>
+<div class="col-span-3">Location</div>
+<div class="col-span-2">Species</div>
+<div class="col-span-2 text-right">Weight</div>
+<div class="col-span-3 text-right">Conditions</div>
+</div>
+<!-- List Items -->
+<div class="divide-y divide-surface-container">
+<!-- Item 1 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-6 py-4 items-center hover:bg-surface-container transition-colors cursor-pointer">
+<div class="md:col-span-2 font-label-md text-label-md text-on-surface">14 Oct, 2023</div>
+<div class="md:col-span-3 font-body-md text-body-md text-on-surface">Willow Lake, Peg 4</div>
+<div class="md:col-span-2 text-on-surface-variant font-label-sm">Mirror Carp</div>
+<div class="md:col-span-2 md:text-right font-label-md text-label-md text-primary font-bold">28.4 lbs</div>
+<div class="md:col-span-3 flex md:justify-end gap-2 text-on-surface-variant">
+<span class="inline-flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-sm text-xs font-label-sm"><span class="material-symbols-outlined text-[14px]" data-icon="dark_mode">dark_mode</span> Full</span>
+<span class="inline-flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-sm text-xs font-label-sm"><span class="material-symbols-outlined text-[14px]" data-icon="air">air</span> 1011</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-6 py-4 items-center hover:bg-surface-container transition-colors cursor-pointer">
+<div class="md:col-span-2 font-label-md text-label-md text-on-surface">15 Sep, 2023</div>
+<div class="md:col-span-3 font-body-md text-body-md text-on-surface">River Trent</div>
+<div class="md:col-span-2 text-on-surface-variant font-label-sm">Common Carp</div>
+<div class="md:col-span-2 md:text-right font-label-md text-label-md text-primary font-bold">19.2 lbs</div>
+<div class="md:col-span-3 flex md:justify-end gap-2 text-on-surface-variant">
+<span class="inline-flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-sm text-xs font-label-sm"><span class="material-symbols-outlined text-[14px]" data-icon="dark_mode">dark_mode</span> Full</span>
+<span class="inline-flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-sm text-xs font-label-sm"><span class="material-symbols-outlined text-[14px]" data-icon="air">air</span> 1014</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<div class="text-center pt-12 pb-8 opacity-50">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-[0.2em] uppercase">PASSION. FISHING. COMMUNITY.</span>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface dark:bg-surface-dim border-t border-surface-container shadow-sm dark:shadow-none docked full-width bottom-0 rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest scale-95 duration-150 ease-in-out font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+            Dashboard
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest scale-95 duration-150 ease-in-out font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book">menu_book</span>
+            Catch Log
+        </a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest scale-95 duration-150 ease-in-out font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+            Statistics
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest scale-95 duration-150 ease-in-out font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+            Profile
+        </a>
+</nav>
+</body></html>
