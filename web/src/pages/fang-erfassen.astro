@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { supabase } from "../lib/supabase-client";
+import { escHtml } from "../lib/escape";
 
 const { data: { session } } = await supabase.auth.getSession();
 const isLoggedIn = !!session;
@@ -24,7 +25,6 @@ const isLoggedIn = !!session;
         </div>
 
         <form id="catch-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
-          <div id="form-error" class="hidden mb-lg p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
             <div class="flex flex-col gap-lg">
@@ -241,10 +241,12 @@ const isLoggedIn = !!session;
   }
 
   function syncDrafts() {
+    if (window.__syncing) return;
+    window.__syncing = true;
     var sb = getSupabase();
-    if (!sb) return;
+    if (!sb) { window.__syncing = false; return; }
     getDrafts(function (err, drafts) {
-      if (err || !drafts || !drafts.length) return;
+      if (err || !drafts || !drafts.length) { window.__syncing = false; return; }
       var chain = Promise.resolve();
       drafts.forEach(function (draft) {
         chain = chain.then(function () {
@@ -260,6 +262,7 @@ const isLoggedIn = !!session;
         });
       });
       chain.then(function () {
+        window.__syncing = false;
         window.dispatchEvent(new CustomEvent('drafts-synced'));
         renderDraftList();
       });
@@ -328,7 +331,6 @@ const isLoggedIn = !!session;
   var submitBtn = document.getElementById('submit-btn');
   var submitError = document.getElementById('submit-error');
   var submitSuccess = document.getElementById('submit-success');
-  var formError = document.getElementById('form-error');
 
   var debounceTimer = null;
   var uploadedPhotoUrl = null;
@@ -618,7 +620,6 @@ const isLoggedIn = !!session;
   function hideMessages() {
     submitError.classList.add('hidden');
     submitSuccess.classList.add('hidden');
-    if (formError) formError.classList.add('hidden');
   }
 
   function escapeHtml(str) {
@@ -630,10 +631,6 @@ const isLoggedIn = !!session;
   var now = new Date();
   document.getElementById('datum').value = now.toISOString().split('T')[0];
   document.getElementById('uhrzeit').value = now.toTimeString().slice(0, 5);
-
-  window.addEventListener('online', function () {
-    syncDrafts();
-  });
 
   var draftSyncBtn = document.getElementById('draft-sync-btn');
   if (draftSyncBtn) {

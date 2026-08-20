@@ -38,7 +38,9 @@ const saved = Astro.url.searchParams.get("saved") === "1";
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
           <div>
             <h1 class="text-display-lg text-on-surface mb-2">FANGBUCH</h1>
-            <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest">{catches.length} FÄNGE GESAMT</p>
+            {catches.length > 0 && (
+              <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest">{catches.length} FÄNGE GESAMT</p>
+            )}
           </div>
           <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>

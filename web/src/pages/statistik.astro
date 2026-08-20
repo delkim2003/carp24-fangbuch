@@ -215,6 +215,7 @@ const monthNamesDE: Record<string, string> = {
 
 <script>
   import { supabase } from "../lib/supabase-client";
+  import { escHtml } from "../lib/escape";
 
   const speciesDE: Record<string, string> = {
     SPIEGEL: "Spiegelkarpfen",
@@ -522,11 +523,7 @@ const monthNamesDE: Record<string, string> = {
     });
   }
 
-  function escHtml(s: string): string {
-    const d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
-  }
+  let refreshSeq = 0;
 
   async function handleChipClick(dim: string, value: string) {
     state[dim] = state[dim] === value ? null : value;
@@ -534,6 +531,7 @@ const monthNamesDE: Record<string, string> = {
   }
 
   async function refreshAll() {
+    const mySeq = ++refreshSeq;
     const filters = buildFilters();
 
     document.querySelectorAll<HTMLElement>(".chip-btn").forEach((btn) => {
@@ -556,6 +554,8 @@ const monthNamesDE: Record<string, string> = {
       if (condRes.error) throw new Error(condRes.error.message);
       if (drillRes.error) throw new Error(drillRes.error.message);
       if (kombiRes.error) throw new Error(kombiRes.error.message);
+
+      if (mySeq !== refreshSeq) return;
 
       const conditions = condRes.data;
       const drilldown = drillRes.data ?? [];

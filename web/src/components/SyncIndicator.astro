@@ -21,6 +21,14 @@
   var text = document.getElementById('sync-text');
   var btn = document.getElementById('sync-btn');
 
+  function syncDraftsOnce() {
+    if (window.__syncing) return Promise.resolve({ synced: 0, failed: 0 });
+    window.__syncing = true;
+    return syncDraftsNow().finally(function () {
+      window.__syncing = false;
+    });
+  }
+
   function openDB() {
     return new Promise(function (resolve, reject) {
       var req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -125,7 +133,7 @@
 
   window.addEventListener('online', function () {
     updateIndicator();
-    syncDraftsNow().then(function () {
+    syncDraftsOnce().then(function () {
       window.dispatchEvent(new CustomEvent('drafts-synced'));
       updateIndicator();
     });
@@ -138,7 +146,7 @@
   btn.addEventListener('click', function () {
     btn.disabled = true;
     btn.textContent = '...';
-    syncDraftsNow().then(function (result) {
+    syncDraftsOnce().then(function (result) {
       btn.disabled = false;
       btn.textContent = 'SYNCEN';
       window.dispatchEvent(new CustomEvent('drafts-synced'));

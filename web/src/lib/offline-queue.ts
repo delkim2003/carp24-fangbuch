@@ -55,6 +55,18 @@ export async function removeDraft(client_uuid: string): Promise<void> {
   });
 }
 
+let syncing = false;
+
+export async function syncDraftsOnce(): Promise<{ synced: number; failed: number }> {
+  if (syncing) return { synced: 0, failed: 0 };
+  syncing = true;
+  try {
+    return await syncDrafts();
+  } finally {
+    syncing = false;
+  }
+}
+
 export async function syncDrafts(): Promise<{ synced: number; failed: number }> {
   const drafts = await getDrafts();
   let synced = 0;
