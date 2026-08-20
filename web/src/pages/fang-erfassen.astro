@@ -24,7 +24,7 @@ const isLoggedIn = !!session;
         </div>
 
         <form id="catch-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
-          <div id="form-error" class="hidden mb-lg p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+          <div id="form-error" class="hidden mb-lg p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
             <div class="flex flex-col gap-lg">
@@ -159,7 +159,7 @@ const isLoggedIn = !!session;
               <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
             </div>
 
-            <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md"></div>
+            <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
             <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
             <div class="pt-xl flex justify-end">

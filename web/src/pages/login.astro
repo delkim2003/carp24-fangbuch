@@ -10,7 +10,7 @@ import Layout from "../layouts/Layout.astro";
         <p class="text-body-md text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
       </div>
 
-      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" aria-live="polite"></div>
+      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
       <div id="login-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
       <form id="login-form" class="flex flex-col gap-md">
@@ -35,7 +35,7 @@ import Layout from "../layouts/Layout.astro";
           <h2 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Zwei-Faktor-Authentifizierung</h2>
           <p class="text-body-md text-on-surface-variant">Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>
         </div>
-        <div id="totp-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" aria-live="polite"></div>
+        <div id="totp-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
         <div class="flex flex-col gap-xs">
           <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest" for="totp-code">Bestätigungscode</label>
           <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12 text-center tracking-[0.5em] font-mono text-lg" id="totp-code" name="totp-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required />
@@ -57,7 +57,7 @@ import Layout from "../layouts/Layout.astro";
             REGISTRIEREN
           </button>
         </form>
-        <p id="reg-hint" class="hidden text-body-md text-secondary text-center mt-sm"></p>
+        <p id="reg-hint" class="hidden text-body-md text-secondary text-center mt-sm" role="status" aria-live="polite"></p>
       </div>
     </div>
   </main>
