@@ -35,6 +35,36 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <!-- Open Graph (Social Sharing) -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`https://carp24.org${Astro.url.pathname}`} />
+    <meta property="og:image" content="https://carp24.org/assets/logo_carp24_badge.svg" />
+    <meta property="og:site_name" content="Carp24" />
+    <meta name="twitter:card" content="summary" />
+    <!-- Canonical -->
+    <link rel="canonical" href={`https://carp24.org${Astro.url.pathname}`} />
+    <!-- JSON-LD: Organization + WebSite (SEO Rich Results) -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "Carp24",
+          "url": "https://carp24.org",
+          "logo": "https://carp24.org/assets/logo_carp24_badge.svg",
+          "contactPoint": { "@type": "ContactPoint", "email": "info@einfach-online.dev", "contactType": "customer support" }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Carp24",
+          "url": "https://carp24.org",
+          "description": "Das digitale Fangbuch für Karpfenangler. Fänge erfassen, Statistiken, Community.",
+          "inLanguage": "de"
+        }
+      ]
+    })} />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' http://100.93.250.103:8055 https:; font-src 'self' data:;" />
     <title>{title}</title>
     <!-- Matomo on-Premise (DSGVO: requireConsent blockiert bis Consent) -->
