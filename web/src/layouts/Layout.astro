@@ -66,6 +66,10 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
       import { supabase } from "../lib/supabase-client";
       import { initErrorTracker } from "../lib/error-tracker";
       initErrorTracker(supabase);
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
     </script>
   </body>
 </html>
