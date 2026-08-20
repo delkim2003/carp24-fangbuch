@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /profil/
+Disallow: /dashboard/
+Disallow: /statistik/
+Disallow: /fang-erfassen/
+Disallow: /api/
+
+Sitemap: https://carp24.org/sitemap.xml
