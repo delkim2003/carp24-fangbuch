@@ -28,6 +28,23 @@ import Layout from "../layouts/Layout.astro";
         </button>
       </form>
 
+      <div class="flex items-center gap-sm my-xs">
+        <div class="flex-grow border-t border-primary/20"></div>
+        <span class="text-body-sm text-on-surface-variant uppercase tracking-widest">oder anmelden mit</span>
+        <div class="flex-grow border-t border-primary/20"></div>
+      </div>
+
+      <div id="oauth-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+
+      <div class="flex flex-col sm:flex-row gap-sm">
+        <button type="button" id="oauth-google-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="font-bold text-lg">G</span> Google
+        </button>
+        <button type="button" id="oauth-facebook-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="font-bold text-lg">f</span> Facebook
+        </button>
+      </div>
+
       <div id="totp-screen" class="hidden flex flex-col gap-md">
         <div class="text-center mb-sm">
           <h2 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Zwei-Faktor-Authentifizierung</h2>
@@ -198,6 +215,64 @@ import Layout from "../layouts/Layout.astro";
     if (sb) sb.auth.signOut();
   });
 
+  var oauthGoogleBtn = document.getElementById('oauth-google-btn');
+  var oauthFacebookBtn = document.getElementById('oauth-facebook-btn');
+  var oauthError = document.getElementById('oauth-error');
+
+  function showOAuthError(msg) {
+    oauthError.textContent = msg;
+    oauthError.classList.remove('hidden');
+  }
+
+  function getSupabaseOrShowOAuthError() {
+    var sb = getSupabase();
+    if (!sb) {
+      showOAuthError('Supabase nicht initialisiert.');
+      return null;
+    }
+    return sb;
+  }
+
+  oauthGoogleBtn.addEventListener('click', function () {
+    hideMessages();
+    oauthError.classList.add('hidden');
+    var sb = getSupabaseOrShowOAuthError();
+    if (!sb) return;
+    sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    }).then(function (res) {
+      if (res.error) {
+        var msg = res.error.message || '';
+        if (/unsupported.*provider|provider.*not.*enabled|invalid.*provider/i.test(msg)) {
+          showOAuthError('Google-Login ist noch nicht aktiviert — bald verfügbar.');
+        } else {
+          showOAuthError('Anmeldung mit Google fehlgeschlagen. Bitte versuche es später erneut.');
+        }
+      }
+    });
+  });
+
+  oauthFacebookBtn.addEventListener('click', function () {
+    hideMessages();
+    oauthError.classList.add('hidden');
+    var sb = getSupabaseOrShowOAuthError();
+    if (!sb) return;
+    sb.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: { redirectTo: window.location.origin }
+    }).then(function (res) {
+      if (res.error) {
+        var msg = res.error.message || '';
+        if (/unsupported.*provider|provider.*not.*enabled|invalid.*provider/i.test(msg)) {
+          showOAuthError('Facebook-Login ist noch nicht aktiviert — bald verfügbar.');
+        } else {
+          showOAuthError('Anmeldung mit Facebook fehlgeschlagen. Bitte versuche es später erneut.');
+        }
+      }
+    });
+  });
+
   registerForm.addEventListener('submit', function (e) {
     e.preventDefault();
     hideMessages();
@@ -253,6 +328,7 @@ import Layout from "../layouts/Layout.astro";
     loginError.classList.add('hidden');
     loginSuccess.classList.add('hidden');
     regHint.classList.add('hidden');
+    oauthError.classList.add('hidden');
     hideTotpError();
   }
 })();

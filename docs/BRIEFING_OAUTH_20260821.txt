@@ -1,0 +1,22 @@
+BAUE SOFORT — KEINE ANALYSE. Feature B1: OAuth-Login-Buttons für carp24.
+
+## KONTEXT
+GoTrue läuft in Docker (supabase-auth, Port 8055). Provider-Creds fehlen noch (Philipp holt sie) — darum: BUTTONS sichtbar + funktional (signInWithOAuth), Flow wird funktionieren sobald Env gesetzt. KEINE Creds irgendwo hartkodieren. Fasse NUR login.astro an — KEINE .env-Dateien, KEINE anderen Dateien.
+
+## DATEI: /mnt/projekte/carp24-fangbuch/web/src/pages/login.astro
+LIES die Login-Seite zuerst. Ergänze unter dem bestehenden E-Mail/Passwort-Formular einen Abschnitt "ODER ANMELDEN MIT":
+1. **Google-Button** (min-h-12, outlined, Text "Google") + **Facebook-Button** (min-h-12, outlined, Text "Facebook") — M3-Tokens, keine Emojis, keine Logos als Bilder (DSGVO/Asset-frei; optional einfache Text-Icons "G" / "f" als Span)
+2. Beim Klick: `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })` bzw. `provider: "facebook"`. Nutze den bestehenden supabase-Client aus dieser Seite (oder supabase-client.ts-Muster).
+3. Fehlerzustand: `.error` anzeigen (rot) — falls Provider nicht konfiguriert (z.B. "Unsupported provider"), zeige "Google-Login ist noch nicht aktiviert — bald verfügbar." statt kryptischem Fehler.
+4. Style: gleiche Tokens wie die restliche Seite; Buttons nebeneinander (flex gap, mobile: stacked).
+
+## DATEI (EDIT): /mnt/projekte/carp24-fangbuch/infra/.env
+**NICHT ANFASSEN — Permission verweigert. Env-Platzhalter übernimmt der Orchestrator selbst.**
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'signInWithOAuth' web/src/pages/login.astro → ≥2 (Google + FB)
+3. grep -c 'Google' web/src/pages/login.astro → ≥1
+4. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build-Ergebnis.
