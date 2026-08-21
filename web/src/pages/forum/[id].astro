@@ -1,0 +1,347 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+
+export const prerender = false;
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const id = Astro.params.id ?? "";
+const { data: { session } } = await supabase.auth.getSession();
+
+let thread: any = null;
+let posts: any[] = [];
+let notFound = false;
+
+if (session) {
+  const [threadRes, postsRes] = await Promise.all([
+    supabase.from("forum_threads").select("*, profiles(display_name)").eq("id", id).single(),
+    supabase.from("forum_posts").select("*, profiles(display_name)").eq("thread_id", id).order("created_at"),
+  ]);
+  thread = threadRes.data ?? null;
+  posts = postsRes.data ?? [];
+  if (threadRes.error || !thread) notFound = true;
+}
+
+const threadJson = JSON.stringify(thread);
+const postsJson = JSON.stringify(posts);
+const userId = session?.user?.id ?? null;
+---
+<Layout title={`Carp24 – ${thread ? thread.title : "Nicht gefunden"}`} active="forum">
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    {!session ? (
+      <div class="text-center py-24">
+        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um das Forum zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+      </div>
+    ) : notFound ? (
+      <div class="text-center py-24 flex flex-col items-center gap-lg">
+        <h1 class="text-display-lg text-primary">THREAD NICHT GEFUNDEN</h1>
+        <p class="text-body-lg text-on-surface-variant">Dieser Thread existiert nicht oder wurde gelöscht.</p>
+        <a href="/forum" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ZUM FORUM</a>
+      </div>
+    ) : thread ? (
+      <>
+        <a href="/forum" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZUM FORUM</a>
+
+        <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl">
+          <h1 class="text-display-lg text-on-surface mb-md">{thread.title}</h1>
+          <div class="flex items-center gap-md mb-lg">
+            <span class="text-body-md text-secondary">von {thread.profiles?.display_name ?? "Anonym"}</span>
+            <span class="font-label-sm text-label-sm uppercase text-secondary">{new Date(thread.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</span>
+          </div>
+          <div class="text-body-lg text-on-surface-variant whitespace-pre-wrap">{thread.body}</div>
+          {thread.user_id === userId && (
+            <div class="mt-lg pt-md border-t border-primary/10 flex gap-sm">
+              <button type="button" id="delete-thread-btn" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-error/40 text-error hover:bg-error-container hover:text-on-error-container transition-colors min-h-11 cursor-pointer text-sm">
+                THREAD LÖSCHEN
+              </button>
+            </div>
+          )}
+          <div class="mt-md pt-md border-t border-primary/10">
+            <button type="button" class="report-toggle font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11" data-target-type="forum_thread" data-target-id={thread.id}>
+              Melden
+            </button>
+            <div class="report-form hidden mt-sm" data-target-id={thread.id}>
+              <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11" rows="2" maxlength="500" placeholder="Grund der Meldung…" data-reason-input={thread.id}></textarea>
+              <div class="flex gap-sm mt-sm">
+                <button type="button" class="report-submit font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11" data-target-type="forum_thread" data-target-id={thread.id} data-reporter-id={userId}>
+                  Meldung senden
+                </button>
+                <button type="button" class="report-cancel font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11" data-target-id={thread.id}>
+                  Abbrechen
+                </button>
+              </div>
+              <div class="report-feedback hidden mt-sm text-body-md" data-target-id={thread.id}></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="posts-list" class="flex flex-col gap-md">
+          {posts.length === 0 && (
+            <p class="text-body-md text-on-surface-variant text-center py-lg">Noch keine Antworten — schreibe die erste!</p>
+          )}
+          {posts.map((p: any) => {
+            const isOwn = p.user_id === userId;
+            return (
+              <div class="bg-surface-container rounded-xl border border-primary/30 p-lg" data-post-id={p.id} data-user-id={p.user_id}>
+                <div class="flex items-center justify-between mb-md">
+                  <div class="flex items-center gap-md">
+                    <span class="text-body-md text-secondary font-nav-item text-nav-item uppercase">{p.profiles?.display_name ?? "Anonym"}</span>
+                    <span class="font-label-sm text-label-sm uppercase text-secondary">{new Date(p.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/\./g, ".")}</span>
+                  </div>
+                  {isOwn && (
+                    <button type="button" class="delete-post-btn font-nav-item text-nav-item uppercase py-1 px-3 rounded-full border border-error/40 text-error hover:bg-error-container hover:text-on-error-container transition-colors min-h-11 cursor-pointer text-sm" data-post-id={p.id}>
+                      Löschen
+                    </button>
+                  )}
+                </div>
+                <div class="text-body-md text-on-surface-variant whitespace-pre-wrap">{p.body}</div>
+                <div class="mt-md pt-md border-t border-primary/10">
+                  <button type="button" class="report-toggle font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11" data-target-type="forum_post" data-target-id={p.id}>
+                    Melden
+                  </button>
+                  <div class="report-form hidden mt-sm" data-target-id={p.id}>
+                    <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11" rows="2" maxlength="500" placeholder="Grund der Meldung…" data-reason-input={p.id}></textarea>
+                    <div class="flex gap-sm mt-sm">
+                      <button type="button" class="report-submit font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11" data-target-type="forum_post" data-target-id={p.id} data-reporter-id={userId}>
+                        Meldung senden
+                      </button>
+                      <button type="button" class="report-cancel font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11" data-target-id={p.id}>
+                        Abbrechen
+                      </button>
+                    </div>
+                    <div class="report-feedback hidden mt-sm text-body-md" data-target-id={p.id}></div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <form id="reply-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
+          <h2 class="font-headline-md text-headline-md text-primary mb-lg">ANTWORTEN</h2>
+          <div class="flex flex-col gap-sm mb-lg">
+            <textarea
+              class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-24"
+              id="reply-body" name="body" rows="3" maxlength="4000" placeholder="Schreibe eine Antwort…" required
+            ></textarea>
+          </div>
+          <div id="reply-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md mb-md" role="alert"></div>
+          <div class="flex justify-end">
+            <button type="submit" id="reply-submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+              ANTWORTEN
+            </button>
+          </div>
+        </form>
+      </>
+    ) : null}
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ threadJson, postsJson, userId }}>
+(function () {
+  var thread = null;
+  var posts = [];
+  try { thread = JSON.parse(threadJson); } catch (e) { thread = null; }
+  try { posts = JSON.parse(postsJson); } catch (e) { posts = []; }
+
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  // Delete thread
+  var delThreadBtn = document.getElementById('delete-thread-btn');
+  if (delThreadBtn && thread) {
+    delThreadBtn.addEventListener('click', function () {
+      if (!confirm('Thread wirklich löschen? Alle Antworten werden ebenfalls gelöscht.')) return;
+      var sb = getSupabase();
+      if (!sb) return;
+      sb.from("forum_threads").delete().eq("id", thread.id).then(function (res) {
+        if (res.error) {
+          alert('Fehler: ' + res.error.message);
+        } else {
+          window.location.href = '/forum';
+        }
+      });
+    });
+  }
+
+  // Delete post
+  document.querySelectorAll('.delete-post-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var postId = btn.getAttribute('data-post-id');
+      if (!confirm('Antwort wirklich löschen?')) return;
+      var sb = getSupabase();
+      if (!sb) return;
+      sb.from("forum_posts").delete().eq("id", postId).then(function (res) {
+        if (res.error) {
+          alert('Fehler: ' + res.error.message);
+        } else {
+          var el = document.querySelector('[data-post-id="' + postId + '"]');
+          if (el) el.remove();
+        }
+      });
+    });
+  });
+
+  // Reply form
+  var replyForm = document.getElementById('reply-form');
+  if (replyForm && thread) {
+    replyForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var errorDiv = document.getElementById('reply-error');
+      var submitBtn = document.getElementById('reply-submit-btn');
+      errorDiv.classList.add('hidden');
+
+      var body = document.getElementById('reply-body').value.trim();
+      if (body.length < 1) {
+        errorDiv.textContent = 'Antwort darf nicht leer sein.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      var sb = getSupabase();
+      if (!sb) {
+        errorDiv.textContent = 'Supabase nicht initialisiert.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'WIRD GESENDET…';
+
+      sb.from("forum_posts").insert({
+        thread_id: thread.id,
+        user_id: userId,
+        body: body
+      }).select().single().then(function (res) {
+        if (res.error) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'ANTWORTEN';
+          errorDiv.textContent = 'Fehler: ' + res.error.message;
+          errorDiv.classList.remove('hidden');
+        } else {
+          // Update thread.updated_at for sorting
+          sb.from("forum_threads").update({ updated_at: new Date().toISOString() }).eq("id", thread.id).then(function () {
+            window.location.reload();
+          });
+        }
+      });
+    });
+  }
+
+  // Report toggle
+  document.querySelectorAll('.report-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = btn.getAttribute('data-target-id');
+      var form = document.querySelector('.report-form[data-target-id="' + targetId + '"]');
+      if (form) form.classList.toggle('hidden');
+    });
+  });
+
+  // Report cancel
+  document.querySelectorAll('.report-cancel').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = btn.getAttribute('data-target-id');
+      var form = document.querySelector('.report-form[data-target-id="' + targetId + '"]');
+      if (form) form.classList.add('hidden');
+      var feedback = document.querySelector('.report-feedback[data-target-id="' + targetId + '"]');
+      if (feedback) { feedback.classList.add('hidden'); feedback.textContent = ''; }
+    });
+  });
+
+  // Report submit
+  document.querySelectorAll('.report-submit').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = btn.getAttribute('data-target-id');
+      var targetType = btn.getAttribute('data-target-type');
+      var reporterId = btn.getAttribute('data-reporter-id');
+      var reasonInput = document.querySelector('[data-reason-input="' + targetId + '"]');
+      var feedback = document.querySelector('.report-feedback[data-target-id="' + targetId + '"]');
+      if (!reasonInput || !feedback) return;
+
+      var reason = reasonInput.value.trim();
+      if (reason.length < 3) {
+        feedback.textContent = 'Bitte mindestens 3 Zeichen eingeben.';
+        feedback.className = 'report-feedback mt-sm text-body-md text-error';
+        feedback.classList.remove('hidden');
+        return;
+      }
+
+      var sb = getSupabase();
+      if (!sb) {
+        feedback.textContent = 'Fehler: Supabase nicht initialisiert.';
+        feedback.className = 'report-feedback mt-sm text-body-md text-error';
+        feedback.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Wird gesendet…';
+
+      sb.from("content_reports").insert({
+        target_type: targetType,
+        target_id: targetId,
+        reporter_id: reporterId,
+        reason: reason
+      }).then(function (res) {
+        btn.disabled = false;
+        btn.textContent = 'Meldung senden';
+        if (res.error) {
+          feedback.textContent = 'Fehler: ' + res.error.message;
+          feedback.className = 'report-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+        } else {
+          feedback.textContent = 'Meldung gesendet — danke!';
+          feedback.className = 'report-feedback mt-sm text-body-md text-primary';
+          feedback.classList.remove('hidden');
+          reasonInput.value = '';
+          setTimeout(function () {
+            var form = document.querySelector('.report-form[data-target-id="' + targetId + '"]');
+            if (form) form.classList.add('hidden');
+            feedback.classList.add('hidden');
+          }, 2000);
+        }
+      });
+    });
+  });
+})();
+</script>

@@ -1,0 +1,64 @@
+BAUE SOFORT — KEINE ANALYSE. Feature C2: Forum für carp24.
+
+## MIGRATION (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0021_forum.sql
+```sql
+-- 0021_forum.sql — Forum (C2)
+CREATE TABLE IF NOT EXISTS public.forum_threads (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title text NOT NULL CHECK (char_length(title) BETWEEN 3 AND 120),
+  body text NOT NULL CHECK (char_length(body) BETWEEN 1 AND 4000),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS public.forum_posts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  thread_id uuid NOT NULL REFERENCES public.forum_threads(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  body text NOT NULL CHECK (char_length(body) BETWEEN 1 AND 4000),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.forum_threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
+-- Threads: alle eingeloggten lesen, Autor schreibt/editiert/löscht
+CREATE POLICY "forum_threads_read" ON public.forum_threads FOR SELECT TO authenticated USING (true);
+CREATE POLICY "forum_threads_insert" ON public.forum_threads FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+CREATE POLICY "forum_threads_update_own" ON public.forum_threads FOR UPDATE TO authenticated USING (user_id = auth.uid());
+CREATE POLICY "forum_threads_delete_own" ON public.forum_threads FOR DELETE TO authenticated USING (user_id = auth.uid());
+-- Posts: analog
+CREATE POLICY "forum_posts_read" ON public.forum_posts FOR SELECT TO authenticated USING (true);
+CREATE POLICY "forum_posts_insert" ON public.forum_posts FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+CREATE POLICY "forum_posts_update_own" ON public.forum_posts FOR UPDATE TO authenticated USING (user_id = auth.uid());
+CREATE POLICY "forum_posts_delete_own" ON public.forum_posts FOR DELETE TO authenticated USING (user_id = auth.uid());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_threads TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_posts TO authenticated;
+-- Index für Antworten-Count
+CREATE INDEX IF NOT EXISTS forum_posts_thread_idx ON public.forum_posts(thread_id, created_at);
+```
+PRÜFE ob user_id-Spalten NOT NULL sind — falls ja, brauchen sie KEINEN DEFAULT (Client sendet user_id explizit, da RLS WITH CHECK user_id = auth.uid() — WICHTIG: der Client MUSS user_id senden, siehe trips-Lektion; falls das UI das vergisst, kommt 42501).
+
+## SEITE 1 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/forum.astro
+- SSR-Auth-Guard. Kicker + H1 "FORUM". M3-Tokens.
+- Lade Threads: `supabase.from("forum_threads").select("*, profiles(username), forum_posts(count)").order("updated_at", { ascending: false }).limit(50)` — profiles-Relations-Muster wie board.astro (username-Spalte prüfen).
+- "NEUER THREAD"-Formular (oben, klappbar): Titel (Pflicht, min-h-12) + Text (textarea) → INSERT mit user_id = user.id (NICHT vergessen!) → Liste neu laden.
+- Thread-Liste: Titel (Link zu /forum/[id]), Autor, Datum, Antworten-Count.
+- Thread-Karte: Meldelink? NEIN — Melden im Thread-Detail. Leerer Zustand: "Noch keine Themen — starte das erste!"
+
+## SEITE 2 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/forum/[id].astro
+- SSR-Auth-Guard. Lädt Thread: `supabase.from("forum_threads").select("*, profiles(username)").eq("id", params.id).single()` + Posts: `supabase.from("forum_posts").select("*, profiles(username)").eq("thread_id", params.id).order("created_at")`.
+- Zeigt: Titel, Erstpost (body), Antworten-Liste (Autor, Datum, body).
+- **ANTWORTEN-Formular** (eingeloggt): Textarea + "ANTWORTEN" → INSERT forum_posts (thread_id, user_id, body) → danach `supabase.from("forum_threads").update({ updated_at: new Date().toISOString() }).eq("id", threadId)` (für Sortierung).
+- **EIGENE Post/Thread löschen** (nur eigene: wenn post.user_id === user.id): Lösch-Button (confirm) → DELETE (RLS own).
+- **MELDEN-Link** auf jedem Thread/Post (fremde + eigene): klicken → Textarea (Grund) + "Meldung senden" → `supabase.from("content_reports").insert({ target_type: "forum_post", target_id: postId, reporter_id: user.id, reason })` (bzw. "forum_thread"). Erfolgshinweis.
+- Header-Link "Forum" (Desktop + Mobile).
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'forum_threads' web/src/pages/forum.astro → ≥2
+3. grep -c 'forum_posts' web/src/pages/forum/[id].astro → ≥2
+4. grep -c 'content_reports' web/src/pages/forum/[id].astro → ≥1
+5. grep -c 'Forum' web/src/components/Header.astro → ≥1
+6. Migration 0021 einspielen (docker exec psql als supabase_admin) ODER dokumentieren.
+7. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build + Migration-Status.
