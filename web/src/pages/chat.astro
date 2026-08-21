@@ -1,0 +1,424 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+
+export const prerender = false;
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect("/login/");
+}
+
+let messages: any[] = [];
+let loadError: string | null = null;
+const { data, error } = await supabase
+  .from("chat_messages")
+  .select("*, profiles(display_name)")
+  .order("created_at", { ascending: true })
+  .limit(100);
+messages = data ?? [];
+if (error) loadError = error.message;
+
+const messagesJson = JSON.stringify(messages);
+const userId = session.user.id;
+---
+<Layout title="Carp24 – Chat" active="chat">
+  <main class="flex-grow w-full max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    <div>
+      <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-display-lg text-on-surface mb-2">CHAT</h1>
+    </div>
+
+    {loadError && <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>}
+
+    <div id="chat-messages" class="flex flex-col gap-sm max-h-[60vh] overflow-y-auto bg-surface-container-high rounded-xl border border-primary/40 p-lg">
+      <div id="chat-empty" class:list={["text-center py-12 text-body-lg text-on-surface-variant", messages.length > 0 && "hidden"]}>
+        Noch keine Nachrichten — schreib die erste!
+      </div>
+    </div>
+
+    <div class="flex gap-sm items-stretch">
+      <input
+        id="chat-input"
+        type="text"
+        maxlength="500"
+        placeholder="Nachricht schreiben…"
+        class="flex-1 bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+        autocomplete="off"
+      />
+      <button
+        id="chat-send"
+        type="button"
+        class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        SENDEN
+      </button>
+    </div>
+    <div id="chat-error" class="hidden text-body-md text-error"></div>
+    <div id="chat-flood" class="hidden text-body-md text-secondary">Bitte kurz warten…</div>
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ messagesJson, userId }}>
+(function () {
+  var messages = [];
+  try { messages = JSON.parse(messagesJson); } catch (e) { messages = []; }
+
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var nameMap = {};
+  var container = document.getElementById('chat-messages');
+  var emptyHint = document.getElementById('chat-empty');
+  var input = document.getElementById('chat-input');
+  var sendBtn = document.getElementById('chat-send');
+  var errorDiv = document.getElementById('chat-error');
+  var floodDiv = document.getElementById('chat-flood');
+  var lastSendAt = 0;
+
+  function formatTime(iso) {
+    try {
+      return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function renderMessage(msg) {
+    if (!container) return;
+    emptyHint && emptyHint.classList.add('hidden');
+
+    var isOwn = msg.user_id === userId;
+    var displayName = nameMap[msg.user_id] || 'Angler';
+    var time = formatTime(msg.created_at);
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'flex flex-col gap-1 ' + (isOwn ? 'items-end' : 'items-start');
+    wrapper.setAttribute('data-msg-id', msg.id);
+
+    var bubble = document.createElement('div');
+    bubble.className = 'max-w-[80%] rounded-xl px-4 py-3 text-body-md ' +
+      (isOwn
+        ? 'bg-primary-container text-on-primary-container'
+        : 'bg-surface-container-lowest text-on-surface');
+
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'font-label-sm text-label-sm uppercase tracking-widest text-secondary block mb-1';
+    nameSpan.textContent = displayName;
+
+    var bodySpan = document.createElement('span');
+    bodySpan.className = 'block break-words';
+    bodySpan.textContent = msg.body;
+
+    bubble.appendChild(nameSpan);
+    bubble.appendChild(bodySpan);
+
+    var metaRow = document.createElement('div');
+    metaRow.className = 'flex items-center gap-sm text-label-sm text-secondary/60';
+
+    var timeSpan = document.createElement('span');
+    timeSpan.textContent = time;
+    metaRow.appendChild(timeSpan);
+
+    var reportBtn = document.createElement('button');
+    reportBtn.type = 'button';
+    reportBtn.className = 'font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11';
+    reportBtn.textContent = 'Melden';
+    reportBtn.addEventListener('click', function () { toggleReport(msg.id); });
+    metaRow.appendChild(reportBtn);
+
+    if (isOwn) {
+      var deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11';
+      deleteBtn.textContent = 'Löschen';
+      deleteBtn.addEventListener('click', function () { deleteMessage(msg.id, wrapper); });
+      metaRow.appendChild(deleteBtn);
+    }
+
+    wrapper.appendChild(bubble);
+    wrapper.appendChild(metaRow);
+
+    var reportForm = buildReportForm(msg.id);
+    wrapper.appendChild(reportForm);
+
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function buildReportForm(msgId) {
+    var form = document.createElement('div');
+    form.className = 'hidden mt-1 w-full max-w-[80%]';
+    form.setAttribute('data-report-form', msgId);
+
+    var ta = document.createElement('textarea');
+    ta.className = 'w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11';
+    ta.rows = 2;
+    ta.maxLength = 500;
+    ta.placeholder = 'Grund der Meldung…';
+    ta.setAttribute('data-report-reason', msgId);
+
+    var btnRow = document.createElement('div');
+    btnRow.className = 'flex gap-sm mt-sm';
+
+    var submitBtn = document.createElement('button');
+    submitBtn.type = 'button';
+    submitBtn.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11';
+    submitBtn.textContent = 'Meldung senden';
+    submitBtn.addEventListener('click', function () { submitReport(msgId, ta, submitBtn, feedback); });
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11';
+    cancelBtn.textContent = 'Abbrechen';
+    cancelBtn.addEventListener('click', function () { form.classList.add('hidden'); ta.value = ''; feedback.classList.add('hidden'); });
+
+    var feedback = document.createElement('div');
+    feedback.className = 'hidden mt-sm text-body-md';
+    feedback.setAttribute('data-report-feedback', msgId);
+
+    btnRow.appendChild(submitBtn);
+    btnRow.appendChild(cancelBtn);
+    form.appendChild(ta);
+    form.appendChild(btnRow);
+    form.appendChild(feedback);
+
+    return form;
+  }
+
+  function toggleReport(msgId) {
+    var form = document.querySelector('[data-report-form="' + msgId + '"]');
+    if (form) form.classList.toggle('hidden');
+  }
+
+  function submitReport(msgId, ta, btn, feedback) {
+    var reason = ta.value.trim();
+    if (reason.length < 3) {
+      feedback.textContent = 'Bitte mindestens 3 Zeichen eingeben.';
+      feedback.className = 'mt-sm text-body-md text-error';
+      feedback.classList.remove('hidden');
+      return;
+    }
+
+    var sb = getSupabase();
+    if (!sb) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Wird gesendet…';
+
+    sb.from('content_reports').insert({
+      target_type: 'chat_message',
+      target_id: msgId,
+      reporter_id: userId,
+      reason: reason
+    }).then(function (res) {
+      btn.disabled = false;
+      btn.textContent = 'Meldung senden';
+      if (res.error) {
+        feedback.textContent = 'Fehler: ' + res.error.message;
+        feedback.className = 'mt-sm text-body-md text-error';
+      } else {
+        feedback.textContent = 'Meldung gesendet — danke!';
+        feedback.className = 'mt-sm text-body-md text-primary';
+        ta.value = '';
+        setTimeout(function () {
+          var form = document.querySelector('[data-report-form="' + msgId + '"]');
+          if (form) form.classList.add('hidden');
+          feedback.classList.add('hidden');
+        }, 2000);
+      }
+      feedback.classList.remove('hidden');
+    });
+  }
+
+  function deleteMessage(msgId, wrapper) {
+    if (!confirm('Nachricht wirklich löschen?')) return;
+    var sb = getSupabase();
+    if (!sb) return;
+
+    sb.from('chat_messages').delete().eq('id', msgId).then(function (res) {
+      if (res.error) {
+        alert('Fehler: ' + res.error.message);
+      } else if (wrapper && wrapper.parentNode) {
+        wrapper.parentNode.removeChild(wrapper);
+      }
+    });
+  }
+
+  function renderMessages(list) {
+    if (!container) return;
+    container.innerHTML = '';
+    var empty = document.createElement('div');
+    empty.id = 'chat-empty';
+    empty.className = 'text-center py-12 text-body-lg text-on-surface-variant';
+    empty.textContent = 'Noch keine Nachrichten — schreib die erste!';
+    if (list.length === 0) {
+      container.appendChild(empty);
+    }
+    emptyHint = empty;
+    list.forEach(function (msg) { renderMessage(msg); });
+  }
+
+  function loadNamesForMessages(list) {
+    var unknownIds = [];
+    list.forEach(function (msg) {
+      if (msg.user_id && !nameMap[msg.user_id]) {
+        var dn = msg.profiles && msg.profiles.display_name;
+        if (dn) {
+          nameMap[msg.user_id] = dn;
+        } else {
+          unknownIds.push(msg.user_id);
+        }
+      }
+    });
+    if (unknownIds.length === 0) return Promise.resolve();
+    var sb = getSupabase();
+    if (!sb) return Promise.resolve();
+    return sb.from('profiles').select('id, display_name').in('id', unknownIds).then(function (res) {
+      if (res.data) {
+        res.data.forEach(function (p) {
+          nameMap[p.id] = p.display_name || 'Angler';
+        });
+      }
+    });
+  }
+
+  function waitForSupabase(callback) {
+    var waited = 0;
+    var maxWait = 8000;
+    var interval = 100;
+    function check() {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        callback();
+        return;
+      }
+      waited += interval;
+      if (waited >= maxWait) {
+        callback();
+        return;
+      }
+      setTimeout(check, interval);
+    }
+    check();
+  }
+
+  waitForSupabase(function () {
+    var sb = getSupabase();
+
+    loadNamesForMessages(messages).then(function () {
+      renderMessages(messages);
+    });
+
+    if (sb) {
+      var channel = sb.channel('chat-main')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, function (payload) {
+          var msg = payload.new;
+          if (!nameMap[msg.user_id]) {
+            var s = getSupabase();
+            if (s) {
+              s.from('profiles').select('id, display_name').eq('id', msg.user_id).single().then(function (res) {
+                nameMap[msg.user_id] = (res.data && res.data.display_name) || 'Angler';
+                renderMessage(msg);
+              });
+            } else {
+              nameMap[msg.user_id] = 'Angler';
+              renderMessage(msg);
+            }
+          } else {
+            renderMessage(msg);
+          }
+        })
+        .subscribe();
+    }
+  });
+
+  function sendMessage() {
+    var body = input.value.trim();
+    if (!body) return;
+    if (body.length > 500) {
+      errorDiv.textContent = 'Maximal 500 Zeichen.';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+
+    var now = Date.now();
+    if (now - lastSendAt < 2000) {
+      floodDiv.classList.remove('hidden');
+      setTimeout(function () { floodDiv.classList.add('hidden'); }, 2000);
+      return;
+    }
+
+    errorDiv.classList.add('hidden');
+    floodDiv.classList.add('hidden');
+    sendBtn.disabled = true;
+
+    var s = getSupabase();
+    if (!s) {
+      errorDiv.textContent = 'Supabase nicht initialisiert.';
+      errorDiv.classList.remove('hidden');
+      sendBtn.disabled = false;
+      return;
+    }
+
+    s.from('chat_messages').insert({ user_id: userId, body: body }).then(function (res) {
+      sendBtn.disabled = false;
+      if (res.error) {
+        errorDiv.textContent = 'Fehler: ' + res.error.message;
+        errorDiv.classList.remove('hidden');
+      } else {
+        input.value = '';
+        lastSendAt = Date.now();
+      }
+    });
+  }
+
+  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+  if (input) input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+})();
+</script>

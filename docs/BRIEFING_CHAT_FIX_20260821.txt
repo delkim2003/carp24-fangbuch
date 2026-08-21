@@ -1,0 +1,16 @@
+BAUE SOFORT — KEINE ANALYSE. Chat-Realtime-Fix für carp24.
+
+## PROBLEM
+In web/src/pages/chat.astro läuft der Seiten-Init (`var sb = getSupabase(); ... .subscribe()`) beim Script-Parse — aber das globale `window.supabase` (supabase-js) ist zu diesem Zeitpunkt evtl. noch nicht geladen (type=module / async). `getSupabase()` gibt dann null zurück → `if (sb)` ist false → die Realtime-Subscription wird NIE aufgebaut. Später (beim Klick auf SENDEN) existiert window.supabase dann doch — deshalb funktioniert Senden, aber Live-Empfang nicht.
+
+## FIX (NUR web/src/pages/chat.astro)
+1. Füge eine `waitForSupabase(callback)`-Hilfsfunktion hinzu: pollt alle 100ms ob `typeof window.supabase !== 'undefined' && window.supabase.createClient` (max 8s), ruft dann `callback()` auf; bei Timeout `callback()` trotzdem (getSupabase() gibt dann null zurück, Code bricht sauber ab).
+2. Verlege den gesamten Init-Block (Historie-Rendern `loadNamesForMessages(...).then(renderMessages)`, `var sb = getSupabase()`, `if (sb) { channel...subscribe() }`) in `waitForSupabase(function () { ... })` — sodass subscribe() erst NACH dem supabase-Load aufgerufen wird.
+3. getSupabase() unverändert lassen (cached window.__supabase).
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'waitForSupabase' web/src/pages/chat.astro → ≥2
+3. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: geänderte Stellen + Build.

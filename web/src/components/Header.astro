@@ -1,6 +1,6 @@
 ---
 interface Props {
-  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum";
+  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat";
 }
 const { active } = Astro.props;
 
@@ -8,6 +8,7 @@ const navItems = [
   { key: "fangbuch", label: "Fangbuch", href: "/faenge" },
   { key: "board", label: "Board", href: "/board" },
   { key: "forum", label: "Forum", href: "/forum" },
+  { key: "chat", label: "Chat", href: "/chat" },
   { key: "statistik", label: "Statistik", href: "/statistik" },
   { key: "rueckblick", label: "Rückblick", href: "/rueckblick" },
   { key: "trips", label: "Trips", href: "/trips" },
