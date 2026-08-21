@@ -1,0 +1,507 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
+
+export const prerender = false;
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let isPro = false;
+let role = "USER";
+let displayName = "";
+
+if (session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro, role, display_name")
+    .eq("id", session.user.id)
+    .single();
+
+  if (profile) {
+    isPro = profile.is_pro ?? false;
+    role = profile.role ?? "USER";
+    displayName = profile.display_name ?? "";
+  }
+}
+
+const isAdmin = role === "ADMIN";
+const isPaid = isPro || isAdmin;
+
+let activeItems: any[] = [];
+let mySoldItems: any[] = [];
+
+if (session && isPaid) {
+  const { data: active } = await supabase
+    .from("marketplace_items")
+    .select("*, profiles(display_name)")
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  activeItems = active ?? [];
+
+  const { data: sold } = await supabase
+    .from("marketplace_items")
+    .select("*, profiles(display_name)")
+    .eq("status", "sold")
+    .eq("user_id", session.user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  mySoldItems = sold ?? [];
+}
+
+const categoryLabels: Record<string, { de: string; en: string }> = {
+  rute: { de: "Rute", en: "Rod" },
+  boilies: { de: "Boilies", en: "Boilies" },
+  rolle: { de: "Rolle", en: "Reel" },
+  zubehoer: { de: "Zubehör", en: "Accessories" },
+  andere: { de: "Andere", en: "Other" },
+};
+
+const activeItemsJson = JSON.stringify(activeItems);
+const mySoldItemsJson = JSON.stringify(mySoldItems);
+const categoryLabelsJson = JSON.stringify(categoryLabels);
+---
+
+<Layout title="Carp24 – Marktplatz" active="marktplatz">
+  <!-- MARKTPLATZ MARKETPLACE -->
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    {!session ? (
+      <div class="text-center py-24">
+        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">{t("kicker")}</p>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("marketplace.titel", "de")} data-en={t("marketplace.titel", "en")}>{t("marketplace.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("marketplace.anmelden_text", "de")} data-en={t("marketplace.anmelden_text", "en")}>{t("marketplace.anmelden_text")}</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("marketplace.anmelden", "de")} data-en={t("marketplace.anmelden", "en")}>{t("marketplace.anmelden")}</a>
+      </div>
+    ) : !isPaid ? (
+      <div class="text-center py-24 flex flex-col items-center gap-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">{t("kicker")}</p>
+        <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("marketplace.titel", "de")} data-en={t("marketplace.titel", "en")}>{t("marketplace.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl i18n" data-de={t("marketplace.pro_hint", "de")} data-en={t("marketplace.pro_hint", "en")}>{t("marketplace.pro_hint")}</p>
+        <a href="/premium/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("marketplace.zu_premium", "de")} data-en={t("marketplace.zu_premium", "en")}>{t("marketplace.zu_premium")}</a>
+      </div>
+    ) : (
+      <>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+          <div>
+            <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">{t("kicker")}</p>
+            <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("marketplace.titel", "de")} data-en={t("marketplace.titel", "en")}>{t("marketplace.titel")}</h1>
+          </div>
+          <button id="toggle-new-item" type="button" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            {t("marketplace.neue_anzeige")}
+          </button>
+        </div>
+
+        <form id="new-item-form" class="hidden bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
+          <h2 class="font-headline-md text-headline-md text-primary mb-lg">{t("marketplace.anzeige_erstellen")}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-lg">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="item-title">{t("marketplace.titel_label")}<span class="text-primary">*</span></label>
+              <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="item-title" name="title" type="text" required minlength="3" maxlength="120" placeholder="z.B. Shimano Rute neu" />
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="item-price">{t("marketplace.preis")} (€)<span class="text-primary">*</span></label>
+              <input class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="item-price" name="price" type="number" min="0" step="0.01" required placeholder="0.00" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-sm mb-lg">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="item-desc">{t("marketplace.beschreibung")}</label>
+            <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-24" id="item-desc" name="description" rows="3" maxlength="2000" placeholder="Details zum Artikel..."></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-lg">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="item-category">{t("marketplace.kategorie")}</label>
+              <select class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12" id="item-category" name="category">
+                <option value="rute">{t("marketplace.kat_rute")}</option>
+                <option value="boilies">{t("marketplace.kat_boilies")}</option>
+                <option value="rolle">{t("marketplace.kat_rolle")}</option>
+                <option value="zubehoer">{t("marketplace.kat_zubehoer")}</option>
+                <option value="andere" selected>{t("marketplace.kat_andere")}</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary">{t("marketplace.foto")}</label>
+              <div id="mp-photo-drop" class="w-full h-12 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
+                <span class="font-nav-item text-nav-item text-secondary text-sm">{t("marketplace.foto_waehlen")}</span>
+              </div>
+              <input type="file" id="mp-photo-input" accept="image/*" class="hidden" />
+              <span id="mp-photo-name" class="text-body-md text-primary text-xs hidden"></span>
+              <input type="hidden" id="mp-photos" name="photos" />
+            </div>
+          </div>
+          <div id="mp-submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md mb-md" role="alert"></div>
+          <div class="flex justify-end">
+            <button type="submit" id="mp-submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+              {t("marketplace.veroeffentlichen")}
+            </button>
+          </div>
+        </form>
+
+        <div id="mp-active-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+          {activeItems.length === 0 && (
+            <div class="col-span-full text-center py-xl">
+              <p class="text-body-lg text-on-surface-variant">{t("marketplace.leer")}</p>
+            </div>
+          )}
+        </div>
+
+        {mySoldItems.length > 0 && (
+          <div class="mt-xl">
+            <h2 class="font-headline-md text-headline-md text-secondary mb-md">{t("marketplace.verkauft")}</h2>
+            <div id="mp-sold-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter"></div>
+          </div>
+        )}
+      </>
+    )}
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ activeItemsJson, mySoldItemsJson, categoryLabelsJson, userId: session?.user?.id ?? null }}>
+(function () {
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  var activeItems = [];
+  var mySoldItems = [];
+  var categoryLabels = {};
+  try { activeItems = JSON.parse(activeItemsJson); } catch (e) {}
+  try { mySoldItems = JSON.parse(mySoldItemsJson); } catch (e) {}
+  try { categoryLabels = JSON.parse(categoryLabelsJson); } catch (e) {}
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str || ''));
+    return div.innerHTML;
+  }
+
+  function getLang() {
+    return localStorage.getItem('carp24-lang') || 'de';
+  }
+
+  function catLabel(cat) {
+    var lang = getLang();
+    var entry = categoryLabels[cat];
+    return entry ? (entry[lang] || entry.de || cat) : cat;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function formatPrice(p) {
+    return Number(p).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  function renderCard(item, isOwner) {
+    var photoUrl = '';
+    if (item.photos && item.photos.length > 0 && item.photos[0]) {
+      var ref = item.photos[0];
+      if (ref.startsWith('foto:')) {
+        photoUrl = '__SIGNED__' + ref.slice(5);
+      } else if (ref.startsWith('http')) {
+        photoUrl = ref;
+      }
+    }
+    var sellerName = (item.profiles && item.profiles.display_name) ? item.profiles.display_name : 'Unbekannt';
+    var statusBadge = item.status === 'sold'
+      ? '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-surface-container-highest text-on-surface-variant">VERKAUFT</span>'
+      : '';
+    var ownerBtns = '';
+    if (isOwner && item.status === 'active') {
+      ownerBtns = '<div class="flex gap-2 mt-2">' +
+        '<button data-action="sold" data-id="' + item.id + '" class="mp-action-btn font-nav-item text-nav-item uppercase text-xs py-1 px-3 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors cursor-pointer min-h-8">VERKAUFT</button>' +
+        '<button data-action="delete" data-id="' + item.id + '" class="mp-action-btn font-nav-item text-nav-item uppercase text-xs py-1 px-3 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors cursor-pointer min-h-8">LÖSCHEN</button>' +
+        '</div>';
+    }
+    return '<div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden shadow-sm flex flex-col">' +
+      (photoUrl && !photoUrl.startsWith('__SIGNED__')
+        ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />'
+        : '<div class="w-full h-48 bg-surface-container-lowest flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-on-surface-variant/40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>'
+      ) +
+      '<div class="p-lg flex flex-col gap-sm flex-grow">' +
+      '<div class="flex items-center justify-between gap-2">' +
+      '<h3 class="text-headline-sm text-on-surface truncate">' + escapeHtml(item.title) + '</h3>' +
+      statusBadge +
+      '</div>' +
+      '<div class="font-mono text-display-sm text-primary font-bold">' + formatPrice(item.price) + '</div>' +
+      '<div class="flex items-center gap-2">' +
+      '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-primary-container text-on-primary-container">' + escapeHtml(catLabel(item.category)) + '</span>' +
+      '</div>' +
+      '<div class="text-body-md text-on-surface-variant text-xs mt-auto">' +
+      escapeHtml(sellerName) + ' · ' + formatDate(item.created_at) +
+      '</div>' +
+      ownerBtns +
+      '</div></div>';
+  }
+
+  function renderSignedUrls(container) {
+    var sb = getSupabase();
+    if (!sb) return;
+    var imgs = container.querySelectorAll('img[data-signed-path]');
+    imgs.forEach(function (img) {
+      var path = img.getAttribute('data-signed-path');
+      if (!path) return;
+      sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
+        if (res.data && res.data.signedUrl) {
+          img.src = res.data.signedUrl;
+        }
+      });
+    });
+  }
+
+  function renderActiveItems() {
+    var container = document.getElementById('mp-active-list');
+    if (!container) return;
+    if (activeItems.length === 0) {
+      container.innerHTML = '<div class="col-span-full text-center py-xl"><p class="text-body-lg text-on-surface-variant" data-de="Noch keine Anzeigen." data-en="No listings yet.">Noch keine Anzeigen.</p></div>';
+      applyLang(container);
+      return;
+    }
+    container.innerHTML = '';
+    activeItems.forEach(function (item) {
+      var isOwner = userId && item.user_id === userId;
+      var html = renderCard(item, isOwner);
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+      var card = wrapper.firstChild;
+      container.appendChild(card);
+      if (item.photos && item.photos.length > 0 && item.photos[0] && item.photos[0].startsWith('foto:')) {
+        var path = item.photos[0].slice(5);
+        var img = card.querySelector('div.w-full');
+        if (img) {
+          var sb = getSupabase();
+          if (sb) {
+            sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
+              if (res.data && res.data.signedUrl) {
+                img.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />';
+              }
+            });
+          }
+        }
+      }
+    });
+    bindActionButtons(container);
+  }
+
+  function renderSoldItems() {
+    var container = document.getElementById('mp-sold-list');
+    if (!container) return;
+    container.innerHTML = '';
+    mySoldItems.forEach(function (item) {
+      var html = renderCard(item, false);
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+      container.appendChild(wrapper.firstChild);
+      if (item.photos && item.photos.length > 0 && item.photos[0] && item.photos[0].startsWith('foto:')) {
+        var path = item.photos[0].slice(5);
+        var sb = getSupabase();
+        if (sb) {
+          sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
+            if (res.data && res.data.signedUrl) {
+              var lastCard = container.lastElementChild;
+              if (lastCard) {
+                var imgDiv = lastCard.querySelector('div.w-full');
+                if (imgDiv) {
+                  imgDiv.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />';
+                }
+              }
+            }
+          });
+        }
+      }
+    });
+  }
+
+  function bindActionButtons(container) {
+    container.querySelectorAll('.mp-action-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var action = btn.getAttribute('data-action');
+        var id = btn.getAttribute('data-id');
+        if (!id) return;
+        var sb = getSupabase();
+        if (!sb) return;
+        if (action === 'sold') {
+          sb.from('marketplace_items').update({ status: 'sold' }).eq('id', id).eq('user_id', userId).then(function (res) {
+            if (!res.error) location.reload();
+          });
+        } else if (action === 'delete') {
+          if (!confirm('Anzeige wirklich löschen?')) return;
+          sb.from('marketplace_items').delete().eq('id', id).eq('user_id', userId).then(function (res) {
+            if (!res.error) location.reload();
+          });
+        }
+      });
+    });
+  }
+
+  function applyLang(root) {
+    var lang = getLang();
+    (root || document).querySelectorAll('[data-de]').forEach(function (el) {
+      var txt = el.getAttribute('data-' + lang);
+      if (txt) el.textContent = txt;
+    });
+  }
+
+  renderActiveItems();
+  renderSoldItems();
+
+  var toggleBtn = document.getElementById('toggle-new-item');
+  var form = document.getElementById('new-item-form');
+  if (toggleBtn && form) {
+    toggleBtn.addEventListener('click', function () {
+      form.classList.toggle('hidden');
+    });
+  }
+
+  var photoDrop = document.getElementById('mp-photo-drop');
+  var photoInput = document.getElementById('mp-photo-input');
+  var photoName = document.getElementById('mp-photo-name');
+  var photosHidden = document.getElementById('mp-photos');
+
+  if (photoDrop && photoInput) {
+    photoDrop.addEventListener('click', function () { photoInput.click(); });
+    photoDrop.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); photoInput.click(); }
+    });
+    photoInput.addEventListener('change', function () {
+      if (!this.files || !this.files[0]) return;
+      var file = this.files[0];
+      var sb = getSupabase();
+      if (!sb) return;
+      sb.auth.getUser().then(function (ur) {
+        var uid = ur.data && ur.data.user ? ur.data.user.id : null;
+        if (!uid) return;
+        var img = new Image();
+        var objUrl = URL.createObjectURL(file);
+        img.onload = function () {
+          var maxDim = 1600;
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(objUrl);
+          canvas.toBlob(function (blob) {
+            var ts = Date.now();
+            var filePath = 'marketplace/' + uid + '/' + ts + '.jpg';
+            sb.storage.from('catch-photos').upload(filePath, blob, { contentType: 'image/jpeg' }).then(function (res) {
+              if (res.error) {
+                showMpError('Foto-Upload fehlgeschlagen: ' + res.error.message);
+                return;
+              }
+              photosHidden.value = JSON.stringify(['foto:' + filePath]);
+              if (photoName) {
+                photoName.textContent = file.name + ' ✓';
+                photoName.classList.remove('hidden');
+              }
+            });
+          }, 'image/jpeg', 0.85);
+        };
+        img.onerror = function () { URL.revokeObjectURL(objUrl); };
+        img.src = objUrl;
+      });
+    });
+  }
+
+  var submitForm = document.getElementById('new-item-form');
+  var submitBtn = document.getElementById('mp-submit-btn');
+  var submitError = document.getElementById('mp-submit-error');
+
+  function showMpError(msg) {
+    if (submitError) {
+      submitError.textContent = msg;
+      submitError.classList.remove('hidden');
+    }
+  }
+
+  if (submitForm) {
+    submitForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (submitError) submitError.classList.add('hidden');
+      var title = (document.getElementById('item-title')).value.trim();
+      var price = parseFloat((document.getElementById('item-price')).value);
+      var desc = (document.getElementById('item-desc')).value.trim();
+      var cat = (document.getElementById('item-category')).value;
+      var photosVal = photosHidden.value;
+
+      if (!title || title.length < 3) { showMpError('Titel muss mind. 3 Zeichen lang sein.'); return; }
+      if (isNaN(price) || price < 0) { showMpError('Bitte einen gültigen Preis eingeben.'); return; }
+
+      var photos = [];
+      if (photosVal) {
+        try { photos = JSON.parse(photosVal); } catch (e) {}
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '...';
+
+      var sb = getSupabase();
+      if (!sb) { showMpError('Supabase nicht initialisiert.'); submitBtn.disabled = false; return; }
+
+      sb.from('marketplace_items').insert({
+        user_id: userId,
+        title: title,
+        description: desc,
+        price: price,
+        category: cat,
+        photos: photos,
+        status: 'active'
+      }).select().single().then(function (res) {
+        if (res.error) {
+          showMpError('Fehler: ' + res.error.message);
+          submitBtn.disabled = false;
+          return;
+        }
+        location.reload();
+      });
+    });
+  }
+})();
+</script>

@@ -1,0 +1,47 @@
+BAUE SOFORT — KEINE ANALYSE. Feature E4: Marktplatz für carp24 (Pro-Feature).
+
+## MIGRATION (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0026_marketplace.sql
+```sql
+-- 0026_marketplace.sql — Marktplatz (E4)
+CREATE TABLE IF NOT EXISTS public.marketplace_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title text NOT NULL CHECK (char_length(title) BETWEEN 3 AND 120),
+  description text NOT NULL DEFAULT '' CHECK (char_length(description) <= 2000),
+  price numeric(10,2) NOT NULL CHECK (price >= 0),
+  category text NOT NULL DEFAULT 'andere',
+  photos text[] NOT NULL DEFAULT '{}',
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active','sold')),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.marketplace_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "marketplace_read" ON public.marketplace_items FOR SELECT TO authenticated USING (status = 'active' OR user_id = auth.uid());
+CREATE POLICY "marketplace_insert" ON public.marketplace_items FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+CREATE POLICY "marketplace_update" ON public.marketplace_items FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+CREATE POLICY "marketplace_delete" ON public.marketplace_items FOR DELETE TO authenticated USING (user_id = auth.uid());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.marketplace_items TO authenticated;
+ALTER TABLE public.marketplace_items DROP CONSTRAINT IF EXISTS marketplace_items_user_profiles_fk;
+ALTER TABLE public.marketplace_items ADD CONSTRAINT marketplace_items_user_profiles_fk FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS marketplace_items_status_idx ON public.marketplace_items(status, created_at DESC);
+```
+
+## SEITE (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/marktplatz.astro
+- SSR-Auth-Guard. Kicker + H1 "MARKTPLATZ" (i18n de/en "MARKTPLATZ"/"MARKETPLACE").
+- **Pro-Gating (D1):** Lade `profiles` des Users (is_pro + role). Wenn NICHT (is_pro || role='admin') → zeige Premium-Hinweis mit Lock (Button zu /premium/), KEINE Anzeigen. Admin/Pro sehen alles. (Hinweis: e2e-User ist Free → wird den Lock sehen; Admin-Flag setzt der Orchestrator separat.)
+- Listengrid: aktive Anzeigen (alle User) + eigene verkaufte unten: Titel, Preis (€, de-DE), Kategorie-Badge, Foto (erste photo via signed URL — Muster aus faenge-Detail), Verkäufer (display_name), Datum.
+- "NEUE ANZEIGE"-Formular (klappbar): Titel (Pflicht), Beschreibung, Preis (Pflicht, number min 0), Kategorie (select: rute/boilies/rolle/zubehoer/andere), Foto-Upload (max 3, Storage-Bucket "catch-photos" mit Ordner-Pfad `marketplace/{userId}/{ts}` — LIES die Storage-Upload-Logik aus fang-erfassen.astro und verwende dasselbe Muster; is_public=false analog).
+- Eigene Anzeigen: "ALS VERKAUFT MARKIEREN" (status='sold') + "LÖSCHEN" (confirm).
+- Leerer Zustand: "Noch keine Anzeigen."
+
+## HEADER (EDIT): web/src/components/Header.astro
+- Nav-Item "Marktplatz"/"Marketplace" (i18n de/en) → /marktplatz/ — nach "Assistent".
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'marketplace_items' web/src/pages/marktplatz.astro → ≥2
+3. grep -c 'MARKTPLATZ\|MARKETPLACE' web/src/pages/marktplatz.astro → ≥1
+4. grep -c 'Marktplatz\|Marketplace' web/src/components/Header.astro → ≥1
+5. Migration 0026 einspielen ODER dokumentieren.
+6. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build + Migration-Status.
