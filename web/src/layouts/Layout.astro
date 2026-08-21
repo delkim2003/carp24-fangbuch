@@ -4,6 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import KlaroBanner from "../components/KlaroBanner.astro";
 import SyncIndicator from "../components/SyncIndicator.astro";
+import { getLang } from "../lib/i18n";
 
 interface Props {
   title?: string;
@@ -24,10 +25,13 @@ const {
 // Env-Zentrale: data-Attribute am <body> (is:inline-Scripts lesen sie per dataset — Bundler-Problem umgangen)
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+// i18n: Serverseitig "de" als Default, Client korrigiert via localStorage
+const lang = getLang();
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={lang}>
   <head>
     <script is:inline>
       (function () {

@@ -4,9 +4,19 @@
   <div class="flex flex-col md:flex-row justify-between items-center py-lg px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto gap-lg">
     <span class="font-headline-md text-headline-md text-primary hidden md:block mr-auto">Carp24</span>
     <nav class="flex flex-wrap justify-center gap-6" aria-label="Footer Navigation">
-      <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/impressum">Impressum</a>
-      <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/datenschutz">Datenschutz</a>
+      <a class="nav-label font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/impressum" data-de="Impressum" data-en="Legal">Impressum</a>
+      <a class="nav-label font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/datenschutz" data-de="Datenschutz" data-en="Privacy">Datenschutz</a>
     </nav>
-    <span class="font-label-sm text-label-sm text-secondary md:ml-auto">© 2026 Carp24. All rights reserved.</span>
+    <span class="nav-label font-label-sm text-label-sm text-secondary md:ml-auto" data-de="© 2026 Carp24. All rights reserved." data-en="© 2026 Carp24. All rights reserved.">© 2026 Carp24. All rights reserved.</span>
   </div>
 </footer>
+
+<script is:inline>
+(function () {
+  var lang = localStorage.getItem("carp24-lang") || "de";
+  document.querySelectorAll("footer .nav-label").forEach(function (el) {
+    var txt = el.getAttribute("data-" + lang);
+    if (txt) el.textContent = txt;
+  });
+})();
+</script>

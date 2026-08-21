@@ -5,14 +5,14 @@ interface Props {
 const { active } = Astro.props;
 
 const navItems = [
-  { key: "fangbuch", label: "Fangbuch", href: "/faenge" },
-  { key: "board", label: "Board", href: "/board" },
-  { key: "forum", label: "Forum", href: "/forum" },
-  { key: "chat", label: "Chat", href: "/chat" },
-  { key: "statistik", label: "Statistik", href: "/statistik" },
-  { key: "rueckblick", label: "Rückblick", href: "/rueckblick" },
-  { key: "trips", label: "Trips", href: "/trips" },
-  { key: "preis", label: "Premium", href: "/premium" },
+  { key: "fangbuch", de: "Fänge", en: "Catches", href: "/faenge" },
+  { key: "board", de: "Board", en: "Board", href: "/board" },
+  { key: "forum", de: "Forum", en: "Forum", href: "/forum" },
+  { key: "chat", de: "Chat", en: "Chat", href: "/chat" },
+  { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik" },
+  { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick" },
+  { key: "trips", de: "Trips", en: "Trips", href: "/trips" },
+  { key: "preis", de: "Premium", en: "Premium", href: "/premium" },
 ];
 ---
 
@@ -27,29 +27,35 @@ const navItems = [
       {navItems.map((item) => (
         <a
           href={item.href}
+          data-de={item.de}
+          data-en={item.en}
           class:list={[
-            "font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200",
+            "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200",
             active === item.key
               ? "text-primary font-bold border-b border-primary pb-1"
               : "text-on-surface-variant hover:text-primary",
           ]}
         >
-          {item.label}
+          {item.de}
         </a>
       ))}
     </nav>
 
     <div class="flex items-center gap-4">
-      <a id="auth-link" href="/login" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
-        Sign In
+      <div id="lang-switcher" class="hidden md:inline-flex items-center rounded-full bg-surface-container-highest p-0.5">
+        <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
+        <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
+      </div>
+      <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
+        Anmelden
       </a>
-      <button id="logout-btn" type="button" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
+      <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
         Abmelden
       </button>
       <a href="/profil" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
       </a>
-      <button id="theme-toggle" type="button" class="hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">THEMA</button>
+      <button id="theme-toggle" type="button" data-de="Thema" data-en="Theme" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">THEMA</button>
 
       <button id="mobile-burger" type="button" class="md:hidden inline-flex items-center justify-center w-11 h-11 text-primary" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav">
         <svg id="burger-open" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -63,24 +69,30 @@ const navItems = [
       {navItems.map((item) => (
         <a
           href={item.href}
+          data-de={item.de}
+          data-en={item.en}
           class:list={[
-            "font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
+            "nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
             active === item.key ? "text-primary" : "text-on-surface-variant hover:text-primary",
           ]}
         >
-          {item.label}
+          {item.de}
         </a>
       ))}
-      <a id="mobile-auth-link" href="/login" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
-        Sign In
+      <div class="flex items-center gap-2 border-t border-outline/20 mt-2 pt-4">
+        <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
+        <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
+      </div>
+      <a id="mobile-auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
+        Anmelden
       </a>
-      <button id="mobile-logout-btn" type="button" class="hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
+      <button id="mobile-logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
         Abmelden
       </button>
-      <a href="/profil" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
+      <a href="/profil" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
         Profil
       </a>
-      <button id="mobile-theme-toggle" type="button" class="font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hover:text-primary cursor-pointer text-left w-full">
+      <button id="mobile-theme-toggle" type="button" data-de="Thema" data-en="Theme" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hover:text-primary cursor-pointer text-left w-full">
         Thema
       </button>
     </nav>
@@ -99,6 +111,35 @@ const navItems = [
     btn.setAttribute("aria-expanded", String(!open));
     iconOpen.classList.toggle("hidden", !open);
     iconClose.classList.toggle("hidden", open);
+  });
+
+  // i18n: Sprache lesen & Labels setzen
+  var lang = localStorage.getItem("carp24-lang") || "de";
+  document.documentElement.lang = lang;
+
+  function applyLang(l) {
+    document.querySelectorAll(".nav-label").forEach(function (el) {
+      var txt = el.getAttribute("data-" + l);
+      if (txt) el.textContent = txt;
+    });
+    document.querySelectorAll(".lang-btn").forEach(function (b) {
+      var isActive = b.getAttribute("data-lang") === l;
+      b.classList.toggle("bg-primary", isActive);
+      b.classList.toggle("text-on-primary", isActive);
+      b.classList.toggle("font-bold", isActive);
+    });
+  }
+  applyLang(lang);
+
+  document.querySelectorAll(".lang-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var newLang = b.getAttribute("data-lang");
+      if (newLang && newLang !== lang) {
+        localStorage.setItem("carp24-lang", newLang);
+        document.documentElement.lang = newLang;
+        location.reload();
+      }
+    });
   });
 
   var SUPABASE_URL = document.body.dataset.supabaseUrl || "";

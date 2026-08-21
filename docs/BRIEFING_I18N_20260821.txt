@@ -1,0 +1,29 @@
+BAUE SOFORT — KEINE ANALYSE. Feature E1 Teil 1: i18n-Basis für carp24 (de/en).
+
+## DATEI 1 (NEU): /mnt/projekte/carp24-fangbuch/web/src/lib/i18n.ts
+- Typ `Lang = "de" | "en"`, `dict`-Objekt mit Unterschlüsseln. Starte mit den NAVIGATIONS-/GLOBAL-Texten:
+  - nav: start (Start/Home), faenge (Fänge/Catches), erfassen (Erfassen/Log), rueckblick (Rückblick/Review), trips (Trips/Trips), board (Board/Board), forum (Forum/Forum), chat (Chat/Chat), premium (Premium/Premium), profil (Profil/Profile), abmelden (Abmelden/Sign out), thema (Thema/Theme)
+  - kicker: "PASSION. FISHING. COMMUNITY." (beide gleich)
+  - footer: impressum (Impressum/Legal), datenschutz (Datenschutz/Privacy)
+- `export function getLang(): Lang` — aus localStorage `carp24-lang` (fallback "de").
+- `export function t(key: string, lang?: Lang): string` — dict[key]?.[lang] ?? dict[key]?.de ?? key (dot-Paths "nav.start").
+- `export const LANGS: { code: Lang; label: string }[] = [{ code: "de", label: "DE" }, { code: "en", label: "EN" }]`.
+
+## DATEI 2 (EDIT): /mnt/projekte/carp24-fangbuch/web/src/components/Header.astro
+- Sprach-Umschalter (DE/EN): zwei kleine Buttons/segmented control (min-h-11), aktiv = primary, inaktiv = sekundär. Klick setzt `localStorage.carp24-lang` + `document.documentElement.lang` + re-render (location.reload() reicht — einfach und robust).
+- Nav-Labels: statt hardcoded deutsch, nutze die aktuelle Sprache aus `getLang()` (im inline-Script: Labels aus dict rendern ODER als data-Lang-Attribute). PRAGMATISCH: Labels serverseitig via t() wenn möglich; wenn Header rein client-seitig rendert, im JS mit t().
+
+## DATEI 3 (EDIT): /mnt/projekte/carp24-fangbuch/web/src/layouts/Layout.astro
+- `<html lang={getLang()}>` setzen (serverseitig).
+
+## WICHTIG
+Nur Header/Footer/Nav/i18n-Basis in diesem Briefing. Andere Seiten folgen in E1 Teil 2. KEINE bestehende Funktionalität brechen (Login, Toggle, Sync, Konsent etc. bleiben).
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'carp24-lang' web/src/lib/i18n.ts → ≥1
+3. grep -c 'carp24-lang' web/src/components/Header.astro → ≥1
+4. grep -c 'getLang' web/src/layouts/Layout.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build.
