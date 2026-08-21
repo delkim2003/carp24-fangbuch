@@ -154,14 +154,16 @@ if (createdAt) {
                   </div>
                 </div>
 
-                <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
-                  <div>
-                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Daten-Export</h3>
-                    <p class="text-body-md text-on-surface-variant">ALLE PERSONENBEZOGENEN DATEN (JSON + CSV)</p>
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md">DEINE DATEN (DSGVO)</h2>
+                  <p class="text-body-md text-on-surface-variant mb-md">
+                    Du hast jederzeit Anspruch auf eine Kopie aller deiner personenbezogenen Daten (Art. 20 DSGVO). Wähle ein Format:
+                  </p>
+                  <div class="flex flex-wrap gap-sm">
+                    <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer">JSON EXPORTIEREN</button>
+                    <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer">CSV EXPORTIEREN</button>
                   </div>
-                  <button type="button" class="border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300">
-                    EXPORTIEREN
-                  </button>
+                  <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
                 </div>
 
                 <a href="/datenschutz" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
@@ -568,6 +570,121 @@ async function loadSessions() {
     sessionsList.appendChild(row);
   }
 }
+
+const exportJsonBtn = document.getElementById("export-json-btn") as HTMLButtonElement;
+const exportCsvBtn = document.getElementById("export-csv-btn") as HTMLButtonElement;
+const exportStatus = document.getElementById("export-status")!;
+
+function showExportStatus(msg: string) {
+  exportStatus.textContent = msg;
+  exportStatus.classList.remove("hidden");
+}
+
+async function fetchAllMyData() {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user?.id)
+    .single();
+
+  const { data: catches } = await supabase
+    .from("catches")
+    .select("*")
+    .order("catch_ts", { ascending: false });
+
+  return {
+    exported_at: new Date().toISOString(),
+    user: user ? {
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at,
+      user_metadata: user.user_metadata,
+    } : null,
+    profile: profile ?? null,
+    catches: catches ?? [],
+  };
+}
+
+function downloadBlob(filename: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeCsvField(val: unknown): string {
+  if (val === null || val === undefined) return "";
+  const s = String(val);
+  if (s.includes(";") || s.includes('"') || s.includes("\n")) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function fmtDateVienna(ts: string | null | undefined): string {
+  if (!ts) return "";
+  const d = new Date(ts);
+  return d.toLocaleString("de-AT", {
+    timeZone: "Europe/Vienna",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+exportJsonBtn.addEventListener("click", async () => {
+  showExportStatus("Export wird erstellt…");
+  try {
+    const data = await fetchAllMyData();
+    const json = JSON.stringify(data, null, 2);
+    const today = new Date().toISOString().slice(0, 10);
+    downloadBlob(`carp24-datenexport-${today}.json`, json, "application/json");
+    showExportStatus("✓ Export bereit — Download gestartet");
+  } catch (err: any) {
+    showExportStatus("Fehler: " + (err?.message || "Unbekannter Fehler"));
+  }
+});
+
+exportCsvBtn.addEventListener("click", async () => {
+  showExportStatus("Export wird erstellt…");
+  try {
+    const data = await fetchAllMyData();
+    const header = "Datum;Gewicht_kg;Fischart;Gewaesser;Laenge_cm;Koeder;Methode;Notizen;Lat;Lng;Wetter;Foto_URLs";
+    const rows = (data.catches as any[]).map((c) => {
+      return [
+        escapeCsvField(fmtDateVienna(c.catch_ts)),
+        escapeCsvField(c.weight_kg),
+        escapeCsvField(c.species),
+        escapeCsvField(c.water_name),
+        escapeCsvField(c.length_cm),
+        escapeCsvField(c.bait),
+        escapeCsvField(c.method),
+        escapeCsvField(c.notes),
+        escapeCsvField(c.lat),
+        escapeCsvField(c.lng),
+        escapeCsvField(c.weather),
+        escapeCsvField(Array.isArray(c.photo_urls) ? c.photo_urls.join(" | ") : c.photo_urls),
+      ].join(";");
+    });
+    const csv = [header, ...rows].join("\n");
+    const bom = "\uFEFF";
+    const today = new Date().toISOString().slice(0, 10);
+    downloadBlob(`carp24-faenge-${today}.csv`, bom + csv, "text/csv;charset=utf-8");
+    showExportStatus("✓ Export bereit — Download gestartet");
+  } catch (err: any) {
+    showExportStatus("Fehler: " + (err?.message || "Unbekannter Fehler"));
+  }
+});
 
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();

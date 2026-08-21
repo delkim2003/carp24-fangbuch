@@ -1,0 +1,45 @@
+BAUE SOFORT — KEINE ANALYSE. Ein Feature in EINER Datei.
+
+Datei: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+
+## Feature: DSGVO-Datenexport (Art. 20) — Task 1.5.1a, Pflicht VOR Beta-Usern
+Im Profil einen Abschnitt "DEINE DATEN (DSGVO)" ergänzen: User kann ALLE eigenen personenbezogenen Daten als **JSON** und **CSV** exportieren (unentgeltlich, ein Klick, Download im Browser — kein Server, kein E-Mail-Link nötig).
+
+### 1) HTML (im eingeloggten Profil-Bereich, vor dem Abmelden-Bereich oder passend im Layout, nach der bestehenden Sektion "SICHERHEIT" bzw. vor dem Ende des Profil-Contents):
+```html
+<div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+  <h2 class="font-headline-md text-headline-md text-primary mb-md">DEINE DATEN (DSGVO)</h2>
+  <p class="text-body-md text-on-surface-variant mb-md">
+    Du hast jederzeit Anspruch auf eine Kopie aller deiner personenbezogenen Daten (Art. 20 DSGVO). Wähle ein Format:
+  </p>
+  <div class="flex flex-wrap gap-sm">
+    <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer">JSON EXPORTIEREN</button>
+    <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer">CSV EXPORTIEREN</button>
+  </div>
+  <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
+</div>
+```
+
+### 2) Client-Script (im bestehenden `<script is:inline>` von profil.astro ergänzen — nutzt das vorhandene getSupabase()-Muster!):
+- Lade `getSupabase()` wie die bestehenden Funktionen (window.supabase.createClient aus body.dataset).
+- `async function fetchAllMyData()`: 
+  - `supabase.auth.getUser()` → Profil-Infos (id, email, created_at, user_metadata)
+  - `supabase.from("profiles").select("*").single()` → display_name, bio, home_water, avatar_url
+  - `supabase.from("catches").select("*").order("catch_ts", { ascending: false })` → ALLE eigenen Fänge (RLS liefert nur eigene; inkl. draft-Fänge — das sind auch personenbezogene Daten!)
+  - Rückgabe: { exported_at: ISO, user: {...}, profile: {...}, catches: [...] }
+- `function downloadBlob(filename, content, mime)`: Blob + URL.createObjectURL + a[download]-Klick + URL.revokeObjectURL.
+- JSON-Export: JSON.stringify(data, null, 2), MIME "application/json", Dateiname `carp24-datenexport-YYYY-MM-DD.json`
+- CSV-Export: Kopfzeile `Datum;Gewicht_kg;Fischart;Gewaesser;Laenge_cm;Koeder;Methode;Notizen;Lat;Lng;Wetter;Foto_URLs` — Fänge als Zeilen, Felder mit Semikolon getrennt, Text in Anführungszeichen, escape doppelte Quotes. Keine Koordinaten-Rundung (eigene Daten = exakt). Datum in Europe/Vienna-Format (DD.MM.YYYY HH:mm). MIME "text/csv;charset=utf-8", Dateiname `carp24-faenge-YYYY-MM-DD.csv` (CSV = nur Fänge; Profil-Daten nur im JSON).
+- Buttons: click-Handler mit Status-Meldung ("Export wird erstellt…" / "✓ Export bereit — Download gestartet" / Fehler).
+- Fehlerbehandlung: showExportStatus(msg) mit Sichtbarkeit.
+
+### 3) Verpflichtend
+- Nutze exakt die bestehenden Muster aus profil.astro (getSupabase, escHtml nicht nötig — keine innerHTML mit Nutzerdaten!).
+- KEINE neuen Dateien, KEINE Änderungen an anderen Stellen. Der Rest von profil.astro bleibt unangetastet.
+- createClient/`@supabase` muss in profil.astro weiterhin ≥1 Treffer haben.
+- KEINE %PLATZHOLDER%, keine import.meta.env in Scripts (body.dataset-Muster).
+- Verifiziere: `cd /mnt/projekte/carp24-fangbuch/web && npm run build` → exit 0.
+- KEIN git commit (ich committe selbst).
+
+## AUSGABE
+Kurz auf Deutsch: geänderte Stellen, Build-Ergebnis.

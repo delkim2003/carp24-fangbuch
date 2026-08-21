@@ -1,0 +1,57 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Fix in EINER Datei.
+
+Datei: /mnt/projekte/carp24-fangbuch/web/src/lib/supabase-client.ts
+
+Problem: Der Browser-Login setzt die Session über @supabase/ssr createBrowserClient in COOKIES, aber supabase-client.ts erstellt den Client weiterhin mit createClient (@supabase/supabase-js) → liest Session aus localStorage → in gebündelten Scripts (profil.astro, Layout.astro) ist die Session unsichtbar (getUser()=null, DSGVO-Export leer, MFA-Sessions leer).
+
+Fix: createClient durch createBrowserClient (@supabase/ssr) ersetzen — gleiche Signatur, liest/schreibt Cookies und funktioniert in allen gebündelten Browser-Scripts.
+
+VORHER (aktuell):
+  import { createClient } from '@supabase/supabase-js';
+
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Supabase-Credentials fehlen. Bitte PUBLIC_SUPABASE_URL und PUBLIC_SUPABASE_ANON_KEY in web/.env setzen (siehe .env.example).'
+    );
+  }
+
+  export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+
+NACHHER:
+  import { createBrowserClient } from '@supabase/ssr';
+
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Supabase-Credentials fehlen. Bitte PUBLIC_SUPABASE_URL und PUBLIC_SUPABASE_ANON_KEY in web/.env setzen (siehe .env.example).'
+    );
+  }
+
+  export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+
+NICHTS anderes ändern. Die Type-Export-Zeile (`export type { SupabaseClient } ...`) bleibt.
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c "createBrowserClient" web/src/lib/supabase-client.ts → ≥1
+3. grep -c "from '@supabase/supabase-js'" web/src/lib/supabase-client.ts → 0 (Import ersetzt)
+4. KEIN git commit (ich committe selbst).
+
+AUSGABE kurz auf Deutsch: Commit-Bestätigung nicht nötig, nur Datei + Build-Ergebnis.
