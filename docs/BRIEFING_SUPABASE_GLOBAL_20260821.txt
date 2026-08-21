@@ -1,0 +1,18 @@
+BAUE SOFORT — KEINE ANALYSE. Eine einzige, präzise Änderung:
+
+Datei: /mnt/projekte/carp24-fangbuch/web/src/layouts/Layout.astro
+
+Im <script>-Block am Dateiende (beginnt mit `import { supabase } from "../lib/supabase-client";`):
+Füge direkt NACH der Zeile `import { supabase } from "../lib/supabase-client";` eine neue Zeile ein:
+    window.supabase = supabase;
+
+Begründung (Kontext, nicht zu ändern): Die is:inline-Scripts auf login.astro / fang-erfassen.astro / Header.astro / SyncIndicator.astro rufen `getSupabase()` auf und erwarten `window.supabase.createClient` — aber bisher setzte NIE ein Script window.supabase, wodurch alle Client-seitigen Supabase-Funktionen (Login, Registrierung, Fang-Submit, Abmelden, Sync) im Browser mit "Supabase nicht initialisiert" scheitern. Das Layout-Script läuft als gebündeltes Modul-Script und setzt ab sofort das Global.
+
+NICHTS anderes ändern. Keine weiteren Zeilen, keine Umstrukturierung.
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -n "window.supabase" web/src/layouts/Layout.astro → 1 Treffer (die neue Zeile)
+3. git add -A && git commit -m "Fix: window.supabase im Layout global setzen (is:inline-Scripts fanden nie einen Supabase-Client — Login/Registrierung/Submit tot)"
+
+Ausgabe kurz auf Deutsch: geänderte Datei, Commit-Hash, Build-Ergebnis.

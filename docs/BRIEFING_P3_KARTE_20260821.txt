@@ -1,0 +1,109 @@
+# Briefing: P3-Kosmetik + Karten-Pick (carp24, 21.08.2026)
+
+Projekt: /mnt/projekte/carp24-fangbuch (Branch sprint-1, Astro + Supabase)
+BAUE SOFORT — KEINE ANALYSE. Lies die genannten Dateien, schreibe die Änderungen, fertig.
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+Erfinde KEINE neuen Bilder/Assets/Logos. Kein Unsplash/Picsum.
+
+## Task 1 — web/src/pages/index.astro (3 kleine Fixes)
+
+1. Zeile ~35: Der primäre CTA "LOS GEHT'S" (href="/login") hat `min-h-11` → ändere auf `min-h-12` (einheitliche Höhe: primäre Buttons/Inputs = min-h-12).
+2. Zeile ~38-40: Der sekundäre Link "ANMELDEN" (href="/login") ist redundant (führt wie "LOS GEHT'S" zu /login). Ersetze ihn durch "FUNKTIONEN ENTDECKEN" mit `href="/#funktionen"` (gleiche Klassen behalten: font-nav-item text-nav-item uppercase text-primary border-b ...).
+3. Die Feature-Section (die mit den 3 Feature-Karten "ERFASSEN/VERWALTEN/ANALYSIEREN", beginnt ca. Zeile 52 `<section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">`) bekommt `id="funktionen"` als erstes Attribut.
+
+## Task 2 — web/src/pages/fang-erfassen.astro (Pflichtfeld-Sternchen + Karten-Pick)
+
+### 2a) Pflichtfeld-Sternchen
+Die Labels der Pflichtfelder bekommen ein sichtbares Sternchen. Genau diese 3 Labels:
+- Zeile ~32: `<label ... for="gewicht">GEWICHT (KG)</label>` → Text wird `GEWICHT (KG)` + direkt danach `<span class="text-primary" aria-hidden="true">*</span>` (innerhalb des label, nach dem Text)
+- Zeile ~62: `<label ... for="datum">DATUM</label>` → `DATUM` + Sternchen-span
+- Zeile ~48: `<label ...>FISCHART</label>` (ohne for) → `FISCHART` + Sternchen-span
+
+### 2b) Karten-Pick (3. Geo-Methode)
+Im Bereich "GEWÄSSER" (nach dem GPS-Button `STANDORT VERWENDEN` und VOR dem Breitengrad/Längengrad-Grid, ca. Zeile 114):
+1. Neuer Button direkt unter dem GPS-Button:
+```html
+<button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+  AUF KARTE WÄHLEN
+</button>
+```
+2. Consent-Hinweis (direkt nach dem Button):
+```html
+<p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs">Für die Karten-Auswahl bitte im Cookie-Banner „Alle akzeptieren" wählen.</p>
+```
+3. Karten-Container (direkt nach dem lat/lng-Grid, nach dem Hinweis "Privatgewässer: ...", ca. Zeile 132):
+```html
+<div id="map-pick-container" class="hidden mt-sm rounded-lg overflow-hidden border border-primary/20" style="height: 320px; z-index: 1;"></div>
+```
+
+4. Im Frontmatter (ganz oben, nach den bestehenden imports): `import "leaflet/dist/leaflet.css";`
+
+5. GANZ AM ENDE der Datei, NACH dem bestehenden `<script is:inline>...</script>`, ein NEUES gebündeltes Script (NICHT is:inline) mit exakt dieser Logik:
+```astro
+<script>
+  // Karten-Pick: Leaflet dynamisch, OSM-Tiles nur mit Klaro-Consent ("all")
+  const mapPickBtn = document.getElementById("map-pick-btn");
+  const mapContainer = document.getElementById("map-pick-container");
+  const mapConsentHint = document.getElementById("map-consent-hint");
+  const latInput = document.getElementById("lat");
+  const lngInput = document.getElementById("lng");
+
+  function hasMapConsent() {
+    try { return localStorage.getItem("klaro-consent") === "all"; } catch (e) { return false; }
+  }
+
+  if (mapPickBtn && mapContainer && latInput && lngInput) {
+    mapPickBtn.addEventListener("click", async function () {
+      if (!hasMapConsent()) {
+        if (mapConsentHint) mapConsentHint.classList.remove("hidden");
+        return;
+      }
+      if (mapConsentHint) mapConsentHint.classList.add("hidden");
+      mapContainer.classList.remove("hidden");
+      const L = await import("leaflet");
+      const pinIcon = L.divIcon({
+        className: "",
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 24 24" fill="none" stroke="#0b6e4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#0b6e4f" stroke="none"/></svg>',
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+      });
+      let marker = null;
+      if (!window.__mapPick) {
+        window.__mapPick = L.map(mapContainer, { zoomControl: true, attributionControl: true });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(window.__mapPick);
+        window.__mapPick.on("click", function (e) {
+          const lat = e.latlng.lat.toFixed(6);
+          const lng = e.latlng.lng.toFixed(6);
+          latInput.value = lat;
+          lngInput.value = lng;
+          if (marker) window.__mapPick.removeLayer(marker);
+          marker = L.marker([lat, lng], { icon: pinIcon }).addTo(window.__mapPick);
+        });
+        const curLat = parseFloat(latInput.value);
+        const curLng = parseFloat(lngInput.value);
+        if (!isNaN(curLat) && !isNaN(curLng)) {
+          window.__mapPick.setView([curLat, curLng], 13);
+        } else {
+          window.__mapPick.setView([47.5, 14.3], 7);
+        }
+      } else {
+        window.__mapPick.invalidateSize();
+      }
+    });
+  }
+</script>
+```
+
+## Verbote / Pflichten
+- Ändere NICHTS anderes an fang-erfassen.astro: Die komplette bestehende Formular-Logik (is:inline-Script, sync_catch/publish_catch, IndexedDB, Gewässer-Suche, Foto-Upload) bleibt 1:1 erhalten.
+- Keine `%PLATZHOLDER%`, keine import.meta.env in Scripts. Env kommt wie gehabt vom body-Dataset.
+- Nach dem Schreiben: `grep -rn "%PUBLIC_\|%VITE_" web/src/` muss 0 Treffer liefern.
+- Verifiziere mit: `cd /mnt/projekte/carp24-fangbuch/web && npm run build` → muss mit exit 0 durchlaufen (wenn der Build fehlschlägt, fixe deine Änderungen, bis er grün ist).
+- Danach: `git add -A && git commit -m "P3-Kosmetik + Karten-Pick (Leaflet+OSM, Klaro-Gate)"` im Projekt-Repo.
+
+## Ausgabe
+Kurz auf Deutsch: welche Dateien geändert, Commit-Hash, Build-Ergebnis.

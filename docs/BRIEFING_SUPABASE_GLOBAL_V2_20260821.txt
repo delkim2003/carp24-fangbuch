@@ -1,0 +1,27 @@
+BAUE SOFORT — KEINE ANALYSE. Eine einzige, präzise Korrektur:
+
+Datei: /mnt/projekte/carp24-fangbuch/web/src/layouts/Layout.astro
+
+Im <script>-Block am Dateiende: Die Zeile `window.supabase = supabase;` ist FALSCH — sie weist den fertigen Supabase-CLIENT zu, aber die is:inline-Scripts (login.astro, fang-erfassen.astro, Header.astro, SyncIndicator.astro) erwarten `window.supabase.createClient(...)` (die Modul-Funktion). Der Client hat KEINE createClient-Methode → getSupabase() bleibt null.
+
+Ersetze die aktuelle Import- und Zuweisungs-Zeile:
+
+VORHER (aktuell):
+  import { supabase } from "../lib/supabase-client";
+  import { initErrorTracker } from "../lib/error-tracker";
+  window.supabase = supabase;
+
+NACHHER:
+  import { supabase } from "../lib/supabase-client";
+  import { createClient } from "@supabase/supabase-js";
+  import { initErrorTracker } from "../lib/error-tracker";
+  window.supabase = { createClient };
+
+NICHTS anderes ändern (initErrorTracker und SW-Registrierung bleiben wie sie sind).
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c "window.supabase = { createClient }" web/src/layouts/Layout.astro → mindestens 1
+3. git add web/src/layouts/Layout.astro && git commit -m "Fix v2: window.supabase = { createClient } (Modul-Funktion, nicht Client-Objekt — is:inline-Scripts rufen createClient() selbst auf)"
+
+Ausgabe kurz auf Deutsch: geänderte Datei, Commit-Hash, Build-Ergebnis.

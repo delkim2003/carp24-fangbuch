@@ -1,0 +1,24 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Fix.
+
+Datei: /mnt/projekte/carp24-fangbuch/web/src/layouts/Layout.astro
+
+Problem: Der Browser speichert die Supabase-Session NUR im localStorage (supabase-js v2 setzt seit v2.39 keine Cookies mehr automatisch) → der SSR (createServerClient mit Cookie-Parse) sieht nie eine Session → geschützte Seiten rendern immer "Du musst angemeldet sein". Offizieller Fix laut @supabase/ssr-Doku: im Browser `createBrowserClient` verwenden — der synchronisiert Session in Cookies, damit der Server sie lesen kann.
+
+Im <script>-Block am Dateiende: Ersetze
+
+VORHER:
+  import { createClient } from "@supabase/supabase-js";
+  window.supabase = { createClient };
+
+NACHHER:
+  import { createBrowserClient } from "@supabase/ssr";
+  window.supabase = { createClient: createBrowserClient };
+
+Die is:inline-Scripts (login, fang-erfassen, Header, SyncIndicator) rufen weiterhin `window.supabase.createClient(URL, KEY, options)` auf — createBrowserClient hat dieselbe Signatur und liefert einen normalen SupabaseClient, der zusätzlich die Session-Cookies setzt. NICHTS anderes ändern.
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c "createBrowserClient" web/src/layouts/Layout.astro → mindestens 2 (Import + Zuweisung)
+3. git add web/src/layouts/Layout.astro && git commit -m "Fix: createBrowserClient (@supabase/ssr) statt createClient — setzt Session-Cookies, SSR-Auth-Guard sieht Login endlich"
+
+Ausgabe kurz auf Deutsch: Commit-Hash, Build-Ergebnis.

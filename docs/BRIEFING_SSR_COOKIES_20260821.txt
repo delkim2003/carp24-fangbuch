@@ -1,0 +1,44 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Umbau, 6 Dateien.
+
+Problem: Alle geschützten Seiten rendern im SSR den ausgeloggten Zustand + leere Daten, weil sie den shared `supabase`-Client aus "../lib/supabase-client" nutzen, der im SSR-Kontext KEINE Cookies liest (keine User-Session → Auth-Guard greift immer). Fix: pro Seite einen `createServerClient` aus "@supabase/ssr" mit `Astro.cookies` erzeugen.
+
+GENAU diese 6 Dateien umbauen (keine anderen):
+
+1. /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+2. /mnt/projekte/carp24-fangbuch/web/src/pages/faenge.astro
+3. /mnt/projekte/carp24-fangbuch/web/src/pages/faenge/[id].astro
+4. /mnt/projekte/carp24-fangbuch/web/src/pages/dashboard.astro
+5. /mnt/projekte/carp24-fangbuch/web/src/pages/statistik.astro
+6. /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+
+In JEDER dieser Dateien:
+- Ersetze die Zeile `import { supabase } from "../lib/supabase-client";` durch:
+```ts
+import { createServerClient } from "@supabase/ssr";
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        return Astro.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+```
+- NICHTS anderes in den Dateien ändern. Der Rest des Frontmatters (getSession, Queries, Variablen) bleibt unverändert und nutzt jetzt automatisch die Request-Session mit Cookies.
+- Achtung: In [id].astro und faenge.astro gibt es evtl. auch einen zweite Import-Zeile (z.B. nur lib-Imports). NUR den supabase-Import ersetzen, den Rest lassen.
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -rl "createServerClient" src/pages/ | wc -l → mindestens 6
+3. git add -A && git commit -m "Fix SSR-Session: createServerClient mit Astro.cookies in 6 geschützten Seiten (Auth-Guard + Frontmatter-Queries sehen jetzt die User-Session)"
+
+Ausgabe kurz auf Deutsch: geänderte Dateien, Commit-Hash, Build-Ergebnis.

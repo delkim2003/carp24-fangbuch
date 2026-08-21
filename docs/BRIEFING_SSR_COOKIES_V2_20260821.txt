@@ -1,0 +1,45 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Fix in 6 Dateien.
+
+Problem: `Astro.cookies.getAll()` existiert in Astro 7 NICHT (offizielle API: nur get/has/set/delete/merge/headers). Die 6 geschützten Seiten werfen beim Rendern `TypeError: Astro2.cookies.getAll is not a function` → HTTP 500.
+
+GENAU diese 6 Dateien (nur den getAll-Block ersetzen, nichts anderes):
+1. /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+2. /mnt/projekte/carp24-fangbuch/web/src/pages/faenge.astro
+3. /mnt/projekte/carp24-fangbuch/web/src/pages/faenge/[id].astro
+4. /mnt/projekte/carp24-fangbuch/web/src/pages/dashboard.astro
+5. /mnt/projekte/carp24-fangbuch/web/src/pages/statistik.astro
+6. /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+
+In JEDER Datei: Ersetze exakt diesen Block:
+```ts
+      getAll() {
+        return Astro.cookies.getAll();
+      },
+```
+durch:
+```ts
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+```
+Der setAll-Block und der Rest der Dateien bleiben UNVERÄNDERT.
+
+Danach verifizieren:
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c "Astro.cookies.getAll" src/pages/ → 0 (kein getAll mehr)
+3. grep -rl "Astro.request.headers.get(\"cookie\")" src/pages/ | wc -l → 6
+4. git add -A && git commit -m "Fix SSR v2: getAll via Cookie-Header-Parse (Astro 7 hat kein Astro.cookies.getAll — HTTP-500-Fix)"
+
+Ausgabe kurz auf Deutsch: geänderte Dateien, Commit-Hash, Build-Ergebnis.
