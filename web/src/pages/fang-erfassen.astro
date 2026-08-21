@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { supabase } from "../lib/supabase-client";
 import { escHtml } from "../lib/escape";
+import "leaflet/dist/leaflet.css";
 
 const { data: { session } } = await supabase.auth.getSession();
 const isLoggedIn = !!session;
@@ -29,7 +30,7 @@ const isLoggedIn = !!session;
           <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
             <div class="flex flex-col gap-lg">
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)<span class="text-primary" aria-hidden="true">*</span></label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" required
@@ -45,7 +46,7 @@ const isLoggedIn = !!session;
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary">FISCHART</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary">FISCHART<span class="text-primary" aria-hidden="true">*</span></label>
                 <div id="species-chips" class="flex flex-wrap gap-sm">
                   <button type="button" data-species="SPIEGEL" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">SPIEGEL</button>
                   <button type="button" data-species="LEDER" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">LEDER</button>
@@ -59,7 +60,7 @@ const isLoggedIn = !!session;
 
             <div class="flex flex-col gap-lg">
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM<span class="text-primary" aria-hidden="true">*</span></label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="datum" name="datum" type="date" required
@@ -113,6 +114,12 @@ const isLoggedIn = !!session;
               </button>
               <span id="gps-status" class="text-body-md text-secondary hidden"></span>
 
+              <button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                AUF KARTE WÄHLEN
+              </button>
+              <p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs">Für die Karten-Auswahl bitte im Cookie-Banner „Alle akzeptieren" wählen.</p>
+
               <div class="grid grid-cols-2 gap-gutter mt-sm">
                 <div class="flex flex-col gap-xs">
                   <label class="font-label-sm text-label-sm uppercase text-secondary" for="lat">BREITENGRAD</label>
@@ -130,6 +137,7 @@ const isLoggedIn = !!session;
                 </div>
               </div>
               <p class="text-body-md text-on-surface-variant text-xs mt-xs">Privatgewässer: Name eintragen, Koordinaten optional</p>
+              <div id="map-pick-container" class="hidden mt-sm rounded-lg overflow-hidden border border-primary/20" style="height: 320px; z-index: 1;"></div>
             </div>
 
             <div class="flex flex-col gap-sm">
@@ -652,4 +660,60 @@ const isLoggedIn = !!session;
 
   renderDraftList();
 })();
+</script>
+
+<script>
+  // Karten-Pick: Leaflet dynamisch, OSM-Tiles nur mit Klaro-Consent ("all")
+  const mapPickBtn = document.getElementById("map-pick-btn");
+  const mapContainer = document.getElementById("map-pick-container");
+  const mapConsentHint = document.getElementById("map-consent-hint");
+  const latInput = document.getElementById("lat");
+  const lngInput = document.getElementById("lng");
+
+  function hasMapConsent() {
+    try { return localStorage.getItem("klaro-consent") === "all"; } catch (e) { return false; }
+  }
+
+  if (mapPickBtn && mapContainer && latInput && lngInput) {
+    mapPickBtn.addEventListener("click", async function () {
+      if (!hasMapConsent()) {
+        if (mapConsentHint) mapConsentHint.classList.remove("hidden");
+        return;
+      }
+      if (mapConsentHint) mapConsentHint.classList.add("hidden");
+      mapContainer.classList.remove("hidden");
+      const L = await import("leaflet");
+      const pinIcon = L.divIcon({
+        className: "",
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 24 24" fill="none" stroke="#0b6e4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#0b6e4f" stroke="none"/></svg>',
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+      });
+      let marker = null;
+      if (!window.__mapPick) {
+        window.__mapPick = L.map(mapContainer, { zoomControl: true, attributionControl: true });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(window.__mapPick);
+        window.__mapPick.on("click", function (e) {
+          const lat = e.latlng.lat.toFixed(6);
+          const lng = e.latlng.lng.toFixed(6);
+          latInput.value = lat;
+          lngInput.value = lng;
+          if (marker) window.__mapPick.removeLayer(marker);
+          marker = L.marker([lat, lng], { icon: pinIcon }).addTo(window.__mapPick);
+        });
+        const curLat = parseFloat(latInput.value);
+        const curLng = parseFloat(lngInput.value);
+        if (!isNaN(curLat) && !isNaN(curLng)) {
+          window.__mapPick.setView([curLat, curLng], 13);
+        } else {
+          window.__mapPick.setView([47.5, 14.3], 7);
+        }
+      } else {
+        window.__mapPick.invalidateSize();
+      }
+    });
+  }
 </script>
