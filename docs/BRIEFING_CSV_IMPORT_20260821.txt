@@ -1,0 +1,32 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A1: CSV-Import für carp24-Fangbuch (Astro 7 + Supabase self-hosted).
+
+## ZIEL
+Im Profil (/profil.astro) einen "Fänge importieren"-Bereich: CSV hochladen → Spalten-Mapping automatisch erkennen → Vorschau → Import via RPC → Erfolg/Fehlerreport. Max 500 Zeilen/Lauf. Nach Import: Badge-Check nicht nötig (kommt in A3).
+
+## DATEI 1 (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0016_import_catches.sql
+RPC `import_catches` (p_catches JSONB, p_user_id uuid) — nutzt die GLEICHE Validierungslogik wie publish_catch (s. bestehende publish_catch-Funktion in Migration 0004 oder 0001 — LIES sie zuerst):
+- security definer, search_path=public
+- Input: JSONB-Array von Objekten: {catch_ts, weight_kg, species, water_name, lat, lng, notes, koeder}
+- Validierung pro Zeile: species IN (SPIEGEL, LEDER, SCHUPPEN, AMUR, ANDERE); weight_kg > 0; lat/lng BEIDE gesetzt oder BEIDE null (Pair-CHECK wie publish_catch); catch_ts nicht in Zukunft
+- Ungültige Zeilen: NICHT abbrechen — in Ergebnis als fehlerhafte Zeilen mit Grund sammeln
+- Gültige Zeilen: INSERT in catches (user_id = p_user_id, alle Felder, photos = '[]'::jsonb, draft = false)
+- Rückgabe: JSONB {imported: int, failed: [{row, reason}]}
+- Max 500 Zeilen (bei >500: nur erste 500, failed-Meldung "max 500")
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+Ergänze im Profil einen Abschnitt "FÄNGE IMPORTIEREN" (unterhalb des DSGVO-Export-Blocks, gleiche M3-Design-Tokens, min-h-12 Inputs):
+- <input type="file" accept=".csv"> + Beispiel-Link (CSV-Format: catch_ts,weight_kg,species,water_name,lat,lng,notes,koeder — eine Beispielzeile)
+- Vorschau-Button: liest CSV client-seitig (papaparse NICHT nötig — einfacher Split: erste Zeile = Header, Komma-getrennt; unterstütze auch Semikolon wenn keine Kommas in Zahlen), zeigt die ersten 5 Zeilen + Anzahl
+- Spalten-Mapping: Header-Spalten automatisch matchen (catch_ts/Datum, weight_kg/Gewicht/kg, species/Fischart/Art, water_name/Gewässer, lat, lng, notes/Notizen, koeder/Köder) — Datum akzeptiert ISO (2026-08-21) und dd.mm.yyyy (→ ISO umwandeln)
+- Import-Button: ruft supabase.rpc("import_catches", { p_catches: rowsJson, p_user_id: user.id }) auf
+- Ergebnis-Anzeige: "X Fänge importiert, Y Zeilen fehlerhaft" + Fehlerliste (Zeile + Grund)
+- Fehlerzustand: Netzwerkfehler/RLS-Fehler als rotes Div
+
+## VERIFIKATION
+1. Migration in DB einspielen: docker exec supabase-db psql -U supabase_admin -d postgres -f supabase/migrations/0016_import_catches.sql (NUR falls du es sicher kannst — sonst dokumentiere: "Migration einspielen: wie 0015, supabase_admin")
+2. cd web && npm run build → exit 0
+3. grep -c 'import_catches' web/src/pages/profil.astro → ≥1
+4. E2E-Hinweis: Test-CSV mit 3 gültigen + 1 ungültigen Zeile → 3 importiert, 1 Fehler (ich führe den E2E selbst aus)
+5. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: gebaute Dateien + Build-Ergebnis + ob Migration eingespielt.

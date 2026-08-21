@@ -166,6 +166,32 @@ if (createdAt) {
                   <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
                 </div>
 
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md">FÄNGE IMPORTIEREN</h2>
+                  <p class="text-body-md text-on-surface-variant mb-md">
+                    Importiere Fänge aus einer CSV-Datei. Max. 500 Zeilen.
+                  </p>
+                  <p class="text-body-sm text-on-surface-variant mb-md">
+                    Erwartetes Format: <code class="bg-surface-container-lowest px-1 rounded text-xs">catch_ts,weight_kg,species,water_name,lat,lng,notes,koeder</code><br/>
+                    Beispiel: <code class="bg-surface-container-lowest px-1 rounded text-xs">2026-08-01,8.4,SPIEGEL,Musterteich,47.5,14.2,Abendfang,Boilie</code>
+                  </p>
+                  <div class="flex flex-wrap items-center gap-sm mb-md">
+                    <input type="file" id="csv-import-file" accept=".csv,text/csv" class="text-body-md text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-label-sm file:text-label-sm file:uppercase file:bg-primary-container file:text-on-primary-container file:min-h-12 file:cursor-pointer" />
+                    <button type="button" id="csv-preview-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>VORSCHAU</button>
+                  </div>
+                  <div id="csv-preview-feedback" class="hidden mb-md"></div>
+                  <div id="csv-preview-table-wrap" class="hidden mb-md overflow-x-auto">
+                    <p id="csv-row-count" class="text-body-md text-on-surface mb-2"></p>
+                    <div id="csv-missing-cols" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md mb-4"></div>
+                    <table class="w-full text-body-sm text-on-surface border-collapse">
+                      <thead id="csv-preview-thead"></thead>
+                      <tbody id="csv-preview-tbody"></tbody>
+                    </table>
+                  </div>
+                  <button type="button" id="csv-import-btn" class="hidden bg-primary text-on-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:opacity-90 transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>IMPORTIEREN</button>
+                  <div id="csv-import-result" class="hidden mt-md" role="status" aria-live="polite"></div>
+                </div>
+
                 <a href="/datenschutz" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
                   <div>
                     <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Datenschutz</h3>
@@ -694,4 +720,280 @@ logoutBtn.addEventListener("click", async () => {
 
 loadMfaStatus();
 loadSessions();
+
+// --- CSV Import ---
+const csvFileInput = document.getElementById("csv-import-file") as HTMLInputElement;
+const csvPreviewBtn = document.getElementById("csv-preview-btn") as HTMLButtonElement;
+const csvPreviewFeedback = document.getElementById("csv-preview-feedback")!;
+const csvPreviewTableWrap = document.getElementById("csv-preview-table-wrap")!;
+const csvRowCount = document.getElementById("csv-row-count")!;
+const csvMissingCols = document.getElementById("csv-missing-cols")!;
+const csvPreviewThead = document.getElementById("csv-preview-thead")!;
+const csvPreviewTbody = document.getElementById("csv-preview-tbody")!;
+const csvImportBtn = document.getElementById("csv-import-btn") as HTMLButtonElement;
+const csvImportResult = document.getElementById("csv-import-result")!;
+
+const CSV_MAX_ROWS = 500;
+const CSV_REQUIRED = ["catch_ts", "weight_kg", "species"] as const;
+
+const HEADER_MAP: Record<string, string[]> = {
+  catch_ts: ["catch_ts", "datum", "date"],
+  weight_kg: ["weight_kg", "gewicht", "kg"],
+  species: ["species", "fischart", "art"],
+  water_name: ["water_name", "gewässer", "gewaesser", "wasser"],
+  lat: ["lat", "breite", "latitude"],
+  lng: ["lng", "laenge", "longitude"],
+  notes: ["notes", "notizen"],
+  koeder: ["koeder", "köder", "bait"],
+};
+
+let parsedRows: Record<string, string | number | null>[] = [];
+
+function detectDelimiter(line: string): string {
+  if (line.includes(";") && !/(?<=\d),(?=\d)/.test(line)) return ";";
+  return ",";
+}
+
+function matchHeader(raw: string): string | null {
+  const low = raw.trim().toLowerCase();
+  for (const [key, aliases] of Object.entries(HEADER_MAP)) {
+    if (aliases.includes(low)) return key;
+  }
+  return null;
+}
+
+function parseIsoOrDE(val: string): string | null {
+  const v = val.trim();
+  if (!v) return null;
+  const isoMatch = v.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2})(?::\d{2})?)?/);
+  if (isoMatch) {
+    return isoMatch[2] ? `${isoMatch[1]}T${isoMatch[2]}:00Z` : `${isoMatch[1]}T00:00:00Z`;
+  }
+  const deMatch = v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+(\d{1,2}:\d{2}))?/);
+  if (deMatch) {
+    const dd = deMatch[1].padStart(2, "0");
+    const mm = deMatch[2].padStart(2, "0");
+    const yyyy = deMatch[3];
+    const time = deMatch[4] ? `T${deMatch[4]}:00Z` : "T00:00:00Z";
+    return `${yyyy}-${mm}-${dd}${time}`;
+  }
+  return null;
+}
+
+function parseWeight(val: string): number | null {
+  const v = val.trim().replace(",", ".");
+  const n = Number(v);
+  return isNaN(n) ? null : n;
+}
+
+function parseCsvText(text: string): { rows: Record<string, string | number | null>[]; errors: string[] } {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length < 2) return { rows: [], errors: ["Datei enthält keine Datenzeilen."] };
+
+  const delim = detectDelimiter(lines[0]);
+  const headerCells = lines[0].split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));
+  const colMap: (string | null)[] = headerCells.map(matchHeader);
+
+  const errors: string[] = [];
+  const rows: Record<string, string | number | null>[] = [];
+
+  const dataLines = lines.slice(1, CSV_MAX_ROWS + 1);
+  for (let i = 0; i < dataLines.length; i++) {
+    const cells = dataLines[i].split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const row: Record<string, string | number | null> = {};
+    for (let j = 0; j < colMap.length; j++) {
+      const key = colMap[j];
+      if (!key || j >= cells.length) continue;
+      const raw = cells[j];
+      if (key === "catch_ts") {
+        const iso = parseIsoOrDE(raw);
+        if (iso) row.catch_ts = iso;
+        else { errors.push(`Zeile ${i + 2}: ungültiges Datum "${raw}"`); continue; }
+      } else if (key === "weight_kg") {
+        const w = parseWeight(raw);
+        if (w !== null) row.weight_kg = w;
+        else { errors.push(`Zeile ${i + 2}: ungültiges Gewicht "${raw}"`); continue; }
+      } else {
+        row[key] = raw || null;
+      }
+    }
+    rows.push(row);
+  }
+  if (lines.length > CSV_MAX_ROWS + 1) {
+    errors.push(`Hinweis: Es werden nur die ersten ${CSV_MAX_ROWS} Zeilen verarbeitet.`);
+  }
+  return { rows, errors };
+}
+
+function renderPreview(rows: Record<string, unknown>[]) {
+  csvPreviewThead.innerHTML = "";
+  csvPreviewTbody.innerHTML = "";
+
+  const cols = ["catch_ts", "weight_kg", "species", "water_name", "lat", "lng", "notes", "koeder"];
+  const tr = document.createElement("tr");
+  for (const c of cols) {
+    const th = document.createElement("th");
+    th.className = "text-left p-2 border-b border-primary/20 font-label-sm text-label-sm uppercase text-on-surface-variant";
+    th.textContent = c;
+    tr.appendChild(th);
+  }
+  csvPreviewThead.appendChild(tr);
+
+  const preview = rows.slice(0, 5);
+  for (const row of preview) {
+    const tr = document.createElement("tr");
+    for (const c of cols) {
+      const td = document.createElement("td");
+      td.className = "p-2 border-b border-primary/10 text-body-sm text-on-surface";
+      td.textContent = row[c] !== null && row[c] !== undefined ? String(row[c]) : "–";
+      tr.appendChild(td);
+    }
+    csvPreviewTbody.appendChild(tr);
+  }
+}
+
+csvFileInput.addEventListener("change", () => {
+  csvPreviewBtn.disabled = !csvFileInput.files || csvFileInput.files.length === 0;
+  csvPreviewFeedback.classList.add("hidden");
+  csvPreviewTableWrap.classList.add("hidden");
+  csvImportBtn.classList.add("hidden");
+  csvImportResult.classList.add("hidden");
+  parsedRows = [];
+});
+
+csvPreviewBtn.addEventListener("click", () => {
+  const file = csvFileInput.files?.[0];
+  if (!file) return;
+
+  csvPreviewBtn.disabled = true;
+  csvPreviewBtn.textContent = "WIRD GELESEN…";
+  csvPreviewFeedback.classList.add("hidden");
+  csvPreviewTableWrap.classList.add("hidden");
+  csvImportBtn.classList.add("hidden");
+  csvImportResult.classList.add("hidden");
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    csvPreviewBtn.textContent = "VORSCHAU";
+    csvPreviewBtn.disabled = false;
+
+    const text = reader.result as string;
+    const { rows, errors } = parseCsvText(text);
+    parsedRows = rows;
+
+    if (rows.length === 0) {
+      csvPreviewFeedback.textContent = errors.join(" ") || "Keine Daten erkannt.";
+      csvPreviewFeedback.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      csvPreviewFeedback.classList.remove("hidden");
+      return;
+    }
+
+    // Check required columns
+    const missingCols: string[] = [];
+    if (!rows.some((r) => r.catch_ts !== null && r.catch_ts !== undefined)) missingCols.push("catch_ts");
+    if (!rows.some((r) => r.weight_kg !== null && r.weight_kg !== undefined)) missingCols.push("weight_kg");
+    if (!rows.some((r) => r.species !== null && r.species !== undefined)) missingCols.push("species");
+
+    if (missingCols.length > 0) {
+      csvMissingCols.textContent = `Pflichtspalten fehlen: ${missingCols.join(", ")}`;
+      csvMissingCols.classList.remove("hidden");
+      csvPreviewTableWrap.classList.add("hidden");
+      csvImportBtn.classList.add("hidden");
+      csvPreviewFeedback.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      csvPreviewFeedback.textContent = "Import nicht möglich.";
+      csvPreviewFeedback.classList.remove("hidden");
+      return;
+    }
+
+    csvMissingCols.classList.add("hidden");
+    csvRowCount.textContent = `${rows.length} Zeile${rows.length !== 1 ? "n" : ""} erkannt`;
+    csvPreviewTableWrap.classList.remove("hidden");
+    renderPreview(rows);
+
+    if (errors.length > 0) {
+      csvPreviewFeedback.innerHTML = errors.map((e) => `<p>${e}</p>`).join("");
+      csvPreviewFeedback.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      csvPreviewFeedback.classList.remove("hidden");
+    }
+
+    csvImportBtn.classList.remove("hidden");
+    csvImportBtn.disabled = false;
+    csvImportResult.classList.add("hidden");
+  };
+  reader.onerror = () => {
+    csvPreviewBtn.textContent = "VORSCHAU";
+    csvPreviewBtn.disabled = false;
+    csvPreviewFeedback.textContent = "Fehler beim Lesen der Datei.";
+    csvPreviewFeedback.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+    csvPreviewFeedback.classList.remove("hidden");
+  };
+  reader.readAsText(file, "UTF-8");
+});
+
+csvImportBtn.addEventListener("click", async () => {
+  if (parsedRows.length === 0) return;
+
+  csvImportBtn.disabled = true;
+  csvImportBtn.textContent = "WIRD IMPORTIERT…";
+  csvImportResult.classList.add("hidden");
+
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) {
+      csvImportResult.textContent = "Nicht eingeloggt.";
+      csvImportResult.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      csvImportResult.classList.remove("hidden");
+      csvImportBtn.disabled = false;
+      csvImportBtn.textContent = "IMPORTIEREN";
+      return;
+    }
+
+    const { data, error } = await supabase.rpc("import_catches", {
+      p_catches: parsedRows,
+      p_user_id: userData.user.id,
+    });
+
+    if (error) {
+      csvImportResult.textContent = `⚠️ Import fehlgeschlagen: ${error.message}`;
+      csvImportResult.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      csvImportResult.classList.remove("hidden");
+      csvImportBtn.disabled = false;
+      csvImportBtn.textContent = "IMPORTIEREN";
+      return;
+    }
+
+    const result = data as any;
+    if (Array.isArray(result) && result.length > 0) {
+      const imported = result.filter((r: any) => r.status === "ok").length;
+      const failed = result.filter((r: any) => r.status === "error");
+      if (failed.length > 0) {
+        csvImportResult.innerHTML = `⚠️ ${failed.length} Zeile${failed.length !== 1 ? "n" : ""} fehlerhaft:<br/>` +
+          failed.map((f: any) => `Zeile ${f.line ?? "?"}: ${f.error ?? "unbekannt"}`).join("<br/>");
+        csvImportResult.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+      } else {
+        csvImportResult.textContent = `✅ ${imported} Fänge importiert`;
+        csvImportResult.className = "p-md bg-primary-container/20 text-primary rounded-lg text-body-md";
+        parsedRows = [];
+        csvPreviewTableWrap.classList.add("hidden");
+        csvImportBtn.classList.add("hidden");
+        try { localStorage.removeItem("catches-cache"); } catch {}
+      }
+    } else {
+      csvImportResult.textContent = "✅ Import abgeschlossen";
+      csvImportResult.className = "p-md bg-primary-container/20 text-primary rounded-lg text-body-md";
+      parsedRows = [];
+      csvPreviewTableWrap.classList.add("hidden");
+      csvImportBtn.classList.add("hidden");
+      try { localStorage.removeItem("catches-cache"); } catch {}
+    }
+    csvImportResult.classList.remove("hidden");
+  } catch (err: any) {
+    csvImportResult.textContent = `⚠️ Netzwerkfehler: ${err?.message || "Unbekannter Fehler"}`;
+    csvImportResult.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
+    csvImportResult.classList.remove("hidden");
+  }
+
+  csvImportBtn.disabled = false;
+  csvImportBtn.textContent = "IMPORTIEREN";
+});
 </script>

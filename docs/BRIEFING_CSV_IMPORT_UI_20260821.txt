@@ -1,0 +1,40 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A1-Teil 2: CSV-Import-UI in profil.astro.
+
+## WICHTIG
+Die RPC `import_catches(p_catches jsonb, p_user_id uuid)` existiert BEREITS in der DB (Migration 0016 eingespielt, EXECUTE für authenticated ✅). Du baust NUR das Frontend. KEINE neue Migration, KEINE neue RPC.
+
+## DATEI: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+Ergänze einen Abschnitt "FÄNGE IMPORTIEREN" im Profil (unterhalb des DSGVO-Export-Blocks, gleiche M3-Design-Tokens wie die Seite, Inputs/Buttons mit min-h-12, Chips min-h-11):
+
+1. **Datei-Input:** `<input type="file" accept=".csv,text/csv">` + Button "VORSCHAU" + Hinweistext mit CSV-Format: `catch_ts,weight_kg,species,water_name,lat,lng,notes,koeder` und Beispielzeile `2026-08-01,8.4,SPIEGEL,Musterteich,47.5,14.2,Abendfang,Boilie` + max 500 Zeilen.
+
+2. **CSV-Parsing (client-seitig, KEIN papaparse — einfacher Split):**
+   - Datei via FileReader als Text lesen
+   - Trennzeichen erkennen: wenn Zeile ein `;` enthält und KEINE Kommas in Zahlen → `;` sonst `,`
+   - Erste Zeile = Header; Header-Spalten matchen (case-insensitiv, Alternativen):
+     - catch_ts: catch_ts | datum | date
+     - weight_kg: weight_kg | gewicht | kg
+     - species: species | fischart | art
+     - water_name: water_name | gewässer | gewaesser | wasser
+     - lat: lat | breite | latitude
+     - lng: lng | laenge | longitude
+     - notes: notes | notizen
+     - koeder: koeder | köder | bait
+   - Datum akzeptiert: ISO `2026-08-21`, `2026-08-21T10:00:00Z`, oder `21.08.2026` / `21.08.2026 10:00` (→ ISO umwandeln)
+   - Gewicht: Komma als Dezimaltrenner akzeptieren (`8,4` → 8.4)
+   - Nicht-gematchte Header-Spalten: ignorieren
+   - Output: Array von Objekten mit den gemappten Schlüsseln (für die RPC: `koeder` NICHT `bait` — die RPC liest `v_row ->> 'koeder'`!)
+
+3. **Vorschau:** zeigt die ersten 5 Zeilen als Tabelle + "X Zeilen erkannt". Fehlende Pflichtspalten (catch_ts, weight_kg, species) → roter Hinweis "Pflichtspalten fehlen: ...".
+
+4. **Import-Button** (disabled bis Vorschau ok): `supabase.rpc("import_catches", { p_catches: rows, p_user_id: user.id })` — user.id aus der Session (im Frontmatter gibt es die Session-Variable; nutze das gleiche Muster wie der bestehende DSGVO-Export in dieser Datei).
+
+5. **Ergebnis:** "✅ X Fänge importiert" grün ODER "⚠️ Y Zeilen fehlerhaft" mit Liste (Zeile + Grund) rot. Netzwerkfehler als rotes Div. Nach Erfolg: Fangliste-Cache invalidieren (falls localStorage-Key existiert, sonst nichts).
+
+## VERIFIKATION
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c 'import_catches' web/src/pages/profil.astro → ≥1
+3. grep -c 'FÄNGE IMPORTIEREN' web/src/pages/profil.astro → ≥1
+4. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: geänderte Stellen + Build-Ergebnis.
