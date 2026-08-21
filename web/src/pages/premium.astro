@@ -1,129 +1,135 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
 
-const freeFeatures = [
-  "Bis zu 50 Fänge",
-  "Grundlegende Statistiken",
-  "Standard-Gewässerverzeichnis",
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let isPro = false;
+let role = "USER";
+let displayName = "";
+
+if (session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro, role, display_name")
+    .eq("id", session.user.id)
+    .single();
+
+  if (profile) {
+    isPro = profile.is_pro ?? false;
+    role = profile.role ?? "USER";
+    displayName = profile.display_name ?? "";
+  }
+}
+
+const isAdmin = role === "ADMIN";
+const isPaid = isPro || isAdmin;
+
+const statusLabel = isAdmin ? "ADMIN" : isPro ? "PRO" : "FREE";
+const statusColor = isAdmin
+  ? "bg-tertiary text-on-tertiary"
+  : isPro
+    ? "bg-primary text-on-primary"
+    : "bg-surface-container-highest text-on-surface-variant";
+
+const features = [
+  { name: "KI-ANGELASSISTENT", desc: "Intelligente Fangberatung basierend auf deinen Daten.", pro: true },
+  { name: "MARKTPLATZ", desc: "Ausrüstung kaufen und verkaufen in der Community.", pro: true },
+  { name: "ERWEITERTE STATISTIK", desc: "Detaillierte Auswertungen, Trends und Gewässeranalysen.", pro: true },
 ];
-
-const premiumFeatures = [
-  { text: "Unbegrenzte Fänge", icon: "star" },
-  { text: "Cloud-Sync & Backup", icon: "cloud" },
-  { text: "Detaillierte Gewässeranalyse", icon: "chart" },
-  { text: "Premium Offline-Karten", icon: "map" },
-  { text: "Legacy-Export-Unterstützung", icon: "history" },
-];
-
-const icons: Record<string, string> = {
-  star: '<path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 21l1.1-6.5L2.6 9.8l6.5-.9z"/>',
-  cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.5A4 4 0 0 0 6 19z"/>',
-  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
-  map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',
-  history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 3"/>',
-  check: '<path d="M5 12l5 5L20 7"/>',
-};
 ---
 
 <Layout title="Carp24 – Premium" active="preis">
-  <main class="flex-grow flex flex-col items-center justify-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="text-center mb-xl">
-      <h1 class="text-display-lg text-on-surface mb-lg">UPGRADE TO PREMIUM</h1>
-      <div class="inline-flex items-center justify-center gap-2 bg-transparent border border-primary/40 rounded-full p-2">
-        <button type="button" data-toggle="monthly" class="toggle-btn px-6 py-2 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface bg-surface-container-highest transition-colors min-h-11">
-          Monatlich
-        </button>
-        <button type="button" data-toggle="yearly" class="toggle-btn px-6 py-2 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors min-h-11">
-          Jährlich
-        </button>
+      <h1 class="text-display-lg text-on-surface mb-lg">PREMIUM</h1>
+      <div class="flex items-center justify-center gap-3">
+        <span class:list={["inline-block px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest", statusColor]}>
+          {statusLabel}
+        </span>
+        {session && displayName && (
+          <span class="text-body-md text-on-surface-variant">{displayName}</span>
+        )}
       </div>
+      {isAdmin && (
+        <p class="text-body-md text-tertiary mt-sm">Alle Funktionen freigeschaltet</p>
+      )}
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full max-w-5xl">
-      <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col h-full opacity-90 transition-opacity hover:opacity-100">
-        <div class="mb-lg border-b border-primary/20 pb-lg">
-          <h2 class="text-headline-md text-on-surface mb-sm">FREE</h2>
-          <p class="text-body-md text-on-surface-variant">Das Wesentliche für die Dokumentation deiner Fänge.</p>
-        </div>
-        <div class="mb-xl flex-grow">
-          <div class="flex items-baseline mb-lg gap-2">
-            <span class="text-display-lg text-on-surface">0 €</span>
-            <span class="text-body-md text-on-surface-variant">/für immer</span>
-          </div>
-          <ul class="flex flex-col gap-4">
-            {freeFeatures.map((f) => (
-              <li class="flex items-center text-on-surface text-body-md gap-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-primary" aria-hidden="true" set:html={icons.check} />
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <button type="button" class="w-full py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface border border-primary/40 hover:bg-surface-container-highest transition-colors mt-auto min-h-12">
-          Aktueller Plan
-        </button>
+    {!session && (
+      <div class="mb-xl text-center">
+        <p class="text-body-lg text-on-surface-variant mb-md">Melde dich an, um deinen Status zu sehen.</p>
+        <a href="/login" class="inline-block px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors min-h-12">
+          Anmelden
+        </a>
       </div>
+    )}
 
-      <div class="bg-primary-container border border-primary rounded-2xl p-lg flex flex-col h-full md:-translate-y-4 shadow-xl shadow-primary/10">
-        <div class="mb-lg border-b border-on-primary-container/20 pb-lg">
-          <div class="flex justify-between items-center mb-sm gap-2">
-            <h2 class="text-headline-md text-on-primary-container">PREMIUM</h2>
-            <span class="bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-widest">Empfohlen</span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full max-w-5xl mb-xl">
+      {features.map((f) => {
+        const unlocked = !f.pro || isPaid;
+        return (
+          <div class:list={[
+            "rounded-2xl p-lg flex flex-col border transition-opacity",
+            unlocked
+              ? "bg-surface-container-high border-primary/40"
+              : "bg-surface-container-high border-outline/20 opacity-80",
+          ]}>
+            <div class="flex items-center gap-2 mb-md">
+              {unlocked ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-primary" aria-hidden="true">
+                  <path d="M5 12l5 5L20 7"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              )}
+              <h3 class="text-headline-sm text-on-surface">{f.name}</h3>
+            </div>
+            <p class="text-body-md text-on-surface-variant flex-grow">{f.desc}</p>
+            {!unlocked && (
+              <p class="text-label-sm text-primary font-label-sm uppercase tracking-widest mt-md">Mit Premium freischalten</p>
+            )}
           </div>
-          <p class="text-body-md text-on-primary-container/80">Vollständige Archivierung und erweiterte Auswertungen.</p>
-        </div>
-        <div class="mb-xl flex-grow">
-          <div class="flex items-baseline mb-lg gap-2">
-            <span class="text-display-lg text-on-primary-container premium-price">4,99 €</span>
-            <span class="text-body-md text-on-primary-container/80 premium-period">/Monat</span>
-          </div>
-          <ul class="flex flex-col gap-4">
-            {premiumFeatures.map((f, i) => (
-              <li class:list={["flex items-center text-on-primary-container text-body-md gap-sm", i < premiumFeatures.length - 1 && "border-b border-on-primary-container/10 pb-2"]}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-secondary-fixed" aria-hidden="true" set:html={icons[f.icon]} />
-                {f.text}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <button type="button" class="w-full py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-primary-container bg-surface-container-lowest hover:bg-surface-container-low transition-colors mt-auto min-h-12">
-          PRO STARTEN
-        </button>
-      </div>
+        );
+      })}
     </div>
 
-    <div class="mt-xl text-center max-w-md">
-      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">
-        * Die Free-Version ist auf 50 Fänge begrenzt. Lifetime-Optionen in den Einstellungen.
-      </p>
+    <div class="text-center">
+      <button type="button" disabled class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant bg-surface-container-highest border border-outline/20 cursor-not-allowed opacity-70 min-h-12">
+        Upgrade kommt bald
+      </button>
+      <p class="text-body-sm text-on-surface-variant mt-sm">Stripe-Integration folgt in Kürze.</p>
     </div>
   </main>
 </Layout>
-
-<script is:inline>
-  (function () {
-    var buttons = document.querySelectorAll(".toggle-btn");
-    if (!buttons.length) return;
-    var monthly = { price: "4,99 €", period: "/Monat" };
-    var yearly = { price: "49,99 €", period: "/Jahr" };
-    function setActive(btn) {
-      buttons.forEach(function (b) {
-        b.classList.remove("bg-surface-container-highest", "text-on-surface");
-        b.classList.add("text-on-surface-variant");
-      });
-      btn.classList.add("bg-surface-container-highest", "text-on-surface");
-      btn.classList.remove("text-on-surface-variant");
-      var mode = btn.getAttribute("data-toggle");
-      var priceEl = document.querySelector(".premium-price");
-      var periodEl = document.querySelector(".premium-period");
-      if (priceEl && periodEl) {
-        var data = mode === "yearly" ? yearly : monthly;
-        priceEl.textContent = data.price;
-        periodEl.textContent = data.period;
-      }
-    }
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () { setActive(btn); });
-    });
-  })();
-</script>

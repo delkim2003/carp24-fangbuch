@@ -1,0 +1,33 @@
+BAUE SOFORT — KEINE ANALYSE. Feature D1: Pro-Gating-Basis für carp24.
+
+## MIGRATION (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0023_pro_gating.sql
+PRÜFE zuerst: profiles hat bereits `role` (grep) und eine bestehende RLS. Dann:
+```sql
+-- 0023_pro_gating.sql — Pro-Gating (D1)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_pro boolean NOT NULL DEFAULT false;
+-- User darf eigenes is_pro lesen (für UI); Schreiben nur via RPC/Webhook (service_role)
+-- Prüfe bestehende profiles-RLS: falls eine own-Read-Policy existiert, reicht sie. Sonst:
+-- CREATE POLICY "profiles_read_own_is_pro" ON public.profiles FOR SELECT TO authenticated USING (id = auth.uid());
+-- Admin-Flag: Philipp's Profil (finde per email info@einfach-online.dev) auf role='admin' setzen NUR falls role-Spalte existiert:
+-- UPDATE public.profiles SET role='admin' WHERE email = 'info@einfach-online.dev';  (nur wenn email-Spalte existiert; sonst per id aus auth.users)
+```
+
+## SEITE (EDIT/NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/premium.astro
+LIES die bestehende premium.astro (existiert evtl. als Platzhalter) und BAUE sie zu einer echten Premium-Seite aus:
+- SSR-Auth-Guard. Kicker + H1 "PREMIUM". M3-Tokens.
+- Zeigt: Aktueller Status (FREE/PRO/ADMIN — aus profiles.is_pro + role; ADMIN sieht "Alle Funktionen freigeschaltet").
+- Feature-Liste (3 Karten): "KI-ANGELASSISTENT" (Pro), "MARKTPLATZ" (Pro), "ERWEITERTE STATISTIK" (Pro) — je mit Lock-Hinweis für Free-User ("Mit Premium freischalten") und ✅ für Pro/Admin.
+- CTA: "UPGRADE KOMMT BALD" (disabled Button, da Stripe D2 folgt) — kein Fake-Checkout.
+- Header-Link "Premium" (falls nicht vorhanden).
+
+## PROZESS-HINWEIS
+Keine echten Locks in bestehenden Seiten einbauen (E-Features kommen später und gaten dann). Nur die Basis: Feld + Seite + Anzeige.
+
+## VERIFIKATION
+1. Migration 0023 einspielen (docker exec psql supabase_admin) ODER dokumentieren.
+2. cd web && npm run build → exit 0
+3. grep -c 'is_pro' web/src/pages/premium.astro → ≥1
+4. grep -c 'Premium' web/src/components/Header.astro → ≥1 (falls Link ergänzt)
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + ob role/admin-Spalte gefunden + Migration-Status.
