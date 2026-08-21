@@ -97,6 +97,10 @@ const dict: Record<string, Record<Lang, string>> = {
   "forum.antworten": { de: "Antworten", en: "Replies" },
   "forum.antwort": { de: "Antwort", en: "Reply" },
 
+  // melden
+  "melden.bereits_gemeldet": { de: "Du hast diesen Inhalt bereits gemeldet.", en: "You have already reported this content." },
+  "melden.fehlgeschlagen": { de: "Melden fehlgeschlagen. Bitte versuche es später.", en: "Reporting failed. Please try again later." },
+
   // trips
   "trips.titel": { de: "TRIPS", en: "TRIPS" },
   "trips.anmelden_text": { de: "Du musst angemeldet sein, um deine Trips zu sehen.", en: "You must be signed in to see your trips." },

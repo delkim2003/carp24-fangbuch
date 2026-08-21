@@ -56,33 +56,94 @@ export const POST = async ({ request }) => {
     });
   }
 
-  // Event-Typ verarbeiten
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const customerEmail = session.customer_email || session.customer_details?.email;
-
-    if (customerEmail) {
-      // User-ID über E-Mail aus auth.users ermitteln
-      const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-      const user = userData.users.find((u) => u.email === customerEmail);
-
-      if (user) {
-        await supabaseAdmin
-          .from("profiles")
-          .update({ is_pro: true })
-          .eq("id", user.id);
-      }
-    }
-  }
-
-  // TODO: customer.subscription.deleted → is_pro=false (Kündigung) — implementieren wenn Abo-Produkt final
-
-  // Event speichern (Idempotenz)
+  // FIX 3: Event VOR Verarbeitung speichern
   await supabaseAdmin.from("stripe_events").insert({
     id: event.id,
     type: event.type,
-    status: "received",
+    status: "processing",
   });
+
+  try {
+    // Event-Typ verarbeiten
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const customerEmail = session.customer_email || session.customer_details?.email;
+
+      if (customerEmail) {
+        const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
+        const user = userData.users.find((u) => u.email === customerEmail);
+
+        if (user) {
+          await supabaseAdmin
+            .from("profiles")
+            .update({ is_pro: true })
+            .eq("id", user.id);
+        }
+      }
+    }
+
+    // FIX 2: Subscription-Kündigung / Status-Änderung → is_pro=false
+    if (
+      event.type === "customer.subscription.deleted" ||
+      event.type === "customer.subscription.updated"
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+
+      let shouldRevoke = false;
+      if (event.type === "customer.subscription.deleted") {
+        shouldRevoke = true;
+      } else if (event.type === "customer.subscription.updated") {
+        const status = subscription.status;
+        if (status === "canceled" || status === "past_due" || status === "unpaid") {
+          shouldRevoke = true;
+        }
+      }
+
+      if (shouldRevoke) {
+        let customerEmail: string | null = null;
+
+        try {
+          if (typeof subscription.customer === "string") {
+            const customer = await stripe.customers.retrieve(subscription.customer);
+            if (!("deleted" in customer)) {
+              customerEmail = customer.email ?? null;
+            }
+          }
+        } catch {
+          // Kundenabruf fehlgeschlagen — keine E-Mail verfügbar
+        }
+
+        if (customerEmail) {
+          const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
+          const user = userData.users.find((u) => u.email === customerEmail);
+
+          if (user) {
+            await supabaseAdmin
+              .from("profiles")
+              .update({ is_pro: false })
+              .eq("id", user.id);
+          }
+        }
+      }
+    }
+
+    // Event als verarbeitet markieren
+    await supabaseAdmin
+      .from("stripe_events")
+      .update({ status: "processed" })
+      .eq("id", event.id);
+  } catch {
+    // Bei Fehler: Event als "error" markieren (kein Doppel-Processing)
+    await supabaseAdmin
+      .from("stripe_events")
+      .update({ status: "error" })
+      .eq("id", event.id);
+
+    return new Response(JSON.stringify({ error: "Verarbeitung fehlgeschlagen." }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   return new Response(JSON.stringify({ received: true }), {
     status: 200,

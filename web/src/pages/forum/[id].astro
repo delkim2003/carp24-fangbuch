@@ -326,7 +326,12 @@ const userId = session?.user?.id ?? null;
         btn.disabled = false;
         btn.textContent = 'Meldung senden';
         if (res.error) {
-          feedback.textContent = 'Fehler: ' + res.error.message;
+          var errMsg = res.error.message || '';
+          if (errMsg.indexOf('content_reports_') !== -1 || errMsg.indexOf('duplicate') !== -1 || errMsg.indexOf('unique') !== -1) {
+            feedback.textContent = 'Du hast diesen Inhalt bereits gemeldet.';
+          } else {
+            feedback.textContent = 'Melden fehlgeschlagen. Bitte versuche es später.';
+          }
           feedback.className = 'report-feedback mt-sm text-body-md text-error';
           feedback.classList.remove('hidden');
         } else {
