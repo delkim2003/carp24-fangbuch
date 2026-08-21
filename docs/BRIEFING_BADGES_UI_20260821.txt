@@ -1,0 +1,35 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A3 Teil 2: Badges-UI für carp24.
+
+## KONTEXT
+Die RPC `public.check_badges(p_user_id uuid, p_imported boolean default false)` existiert BEREITS (Migration 0018 eingespielt, EXECUTE authenticated). Sie gibt JSONB der NEU verdienten Badges zurück ([] wenn keine). Tabellen: `badges` (code, name, description, icon, sort — 10 Seeds) + `user_badges` (user_id, badge_id, earned_at). RLS: badges lesbar für alle, user_badges nur Owner.
+
+## DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+Füge einen Abschnitt "BADGES" hinzu (nach dem CSV-Import-Block, M3-Tokens, Grid):
+- Lade beim Seitenaufbau: `supabase.from("badges").select("*").order("sort")` + `supabase.from("user_badges").select("badge_id")` (für eingeloggte User)
+- Grid (flex-wrap gap): pro Badge eine Karte — erhalten: Icon + Name + Beschreibung in primary-Farbe; nicht erhalten: ausgegraut (opacity-40) + Beschreibung + "—" statt earned
+- Wenn ausgeloggt: Hinweis "Melde dich an, um deine Badges zu sehen."
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+Nach ERFOLGREICHEM Speichern eines Fangs (nach publish_catch-Erfolg im bestehenden Flow):
+```js
+supabase.rpc("check_badges", { p_user_id: user.id, p_imported: false }).then(({ data }) => {
+  if (data && Array.isArray(data) && data.length > 0) {
+    // Toast: "Neues Badge: {name}" für jedes — badge-Namen via badges-Query laden
+    showBadgeToast(data);
+  }
+});
+```
+- `showBadgeToast(codes)`: lädt `badges`-Liste, zeigt für jeden neu verdienten Code einen kurzen Toast oben rechts (fixed, M3-Tokens, 4s, dismissible). Falls bereits ein Toast-System existiert, nutze es.
+- Fehler beim check_badges: still ignorieren (nicht den Fang-Flow stören).
+
+## DATEI 3: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro (Import-Flow)
+Nach ERFOLGREICHEM CSV-Import (im Import-Erfolgs-Pfad): `supabase.rpc("check_badges", { p_user_id: user.id, p_imported: true })` → wenn neue Badges: gleiche showBadgeToast-Funktion (in dieser Datei definieren, falls nötig) + Badge-Grid neu laden.
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'check_badges' web/src/pages/profil.astro → ≥2
+3. grep -c 'check_badges' web/src/pages/fang-erfassen.astro → ≥1
+4. grep -c 'BADGES' web/src/pages/profil.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build-Ergebnis.

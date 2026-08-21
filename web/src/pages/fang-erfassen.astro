@@ -600,6 +600,37 @@ const isLoggedIn = !!session;
     return input;
   }
 
+  function showBadgeToast(data) {
+    var codes = data.map(function (d) { return typeof d === 'string' ? d : d.code || d.badge_code || d.badge_id; });
+    if (codes.length === 0) return;
+    var sb = getSupabase();
+    if (!sb) return;
+    sb.from("badges").select("code, name, id").then(function (res) {
+      if (res.error || !res.data) return;
+      var nameMap = {};
+      res.data.forEach(function (b) {
+        nameMap[b.code] = b.name;
+        nameMap[b.id] = b.name;
+      });
+      codes.forEach(function (code, i) {
+        var name = nameMap[code] || code;
+        setTimeout(function () {
+          var toast = document.createElement("div");
+          toast.className = "fixed top-4 right-4 z-50 bg-primary-container text-on-primary-container px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 cursor-pointer";
+          toast.style.opacity = "1";
+          toast.style.transition = "opacity 0.3s";
+          toast.textContent = "Neues Badge: " + name;
+          toast.addEventListener("click", function () { toast.remove(); });
+          document.body.appendChild(toast);
+          setTimeout(function () {
+            toast.style.opacity = "0";
+            setTimeout(function () { toast.remove(); }, 300);
+          }, 4000);
+        }, i * 500);
+      });
+    });
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     hideMessages();
@@ -653,6 +684,19 @@ const isLoggedIn = !!session;
       } else {
         submitSuccess.textContent = 'Fang erfolgreich gespeichert!';
         submitSuccess.classList.remove('hidden');
+        var sb = getSupabase();
+        if (sb) {
+          sb.auth.getUser().then(function (ur) {
+            var userId = ur.data && ur.data.user ? ur.data.user.id : null;
+            if (userId) {
+              sb.rpc('check_badges', { p_user_id: userId, p_imported: false }).then(function (badgeRes) {
+                if (badgeRes.data && Array.isArray(badgeRes.data) && badgeRes.data.length > 0) {
+                  showBadgeToast(badgeRes.data);
+                }
+              }).catch(function () {});
+            }
+          });
+        }
         setTimeout(function () {
           window.location.href = '/faenge';
         }, 1200);

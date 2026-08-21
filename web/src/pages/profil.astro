@@ -36,6 +36,8 @@ const { data: { session } } = await supabase.auth.getSession();
 let catchCount = 0;
 let heaviestKg: string | null = null;
 let waterCount = 0;
+let badges: any[] = [];
+let earnedBadgeIds: Set<string> = new Set();
 
 if (session) {
   const { data: catches } = await supabase
@@ -56,6 +58,18 @@ if (session) {
     if (maxW > 0) heaviestKg = maxW.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     waterCount = waters.size;
   }
+
+  const { data: allBadges } = await supabase
+    .from("badges")
+    .select("*")
+    .order("sort");
+  if (allBadges) badges = allBadges;
+
+  const { data: userBadges } = await supabase
+    .from("user_badges")
+    .select("badge_id")
+    .eq("user_id", session.user.id);
+  if (userBadges) earnedBadgeIds = new Set(userBadges.map((ub: any) => ub.badge_id));
 }
 
 const userEmail = session?.user?.email ?? "";
@@ -190,6 +204,33 @@ if (createdAt) {
                   </div>
                   <button type="button" id="csv-import-btn" class="hidden bg-primary text-on-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:opacity-90 transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>IMPORTIEREN</button>
                   <div id="csv-import-result" class="hidden mt-md" role="status" aria-live="polite"></div>
+                </div>
+
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md">BADGES</h2>
+                  {!session ? (
+                    <p class="text-body-md text-on-surface-variant">Melde dich an, um deine Badges zu sehen.</p>
+                  ) : badges.length === 0 ? (
+                    <p class="text-body-md text-on-surface-variant">Keine Badges verfügbar.</p>
+                  ) : (
+                    <div id="badges-grid" class="flex flex-wrap gap-sm">
+                      {badges.map((badge: any) => {
+                        const earned = earnedBadgeIds.has(badge.id);
+                        return (
+                          <div class={`bg-surface-container-lowest border border-primary/20 rounded-xl p-4 flex flex-col items-center text-center min-w-[120px] ${earned ? '' : 'opacity-40'}`}>
+                            <span class="text-2xl mb-2">{badge.icon || '🏆'}</span>
+                            <span class="font-label-sm text-label-sm uppercase text-on-surface mb-1">{badge.name}</span>
+                            <span class="text-body-sm text-on-surface-variant">{badge.description || ''}</span>
+                            {earned ? (
+                              <span class="text-body-sm text-primary mt-1">ERHALTEN</span>
+                            ) : (
+                              <span class="text-body-sm text-on-surface-variant mt-1">—</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <a href="/datenschutz" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
@@ -742,6 +783,34 @@ logoutBtn.addEventListener("click", async () => {
 loadMfaStatus();
 loadSessions();
 
+function showBadgeToast(data: any[]) {
+  const codes = data.map((d: any) => typeof d === 'string' ? d : d.code || d.badge_code || d.badge_id);
+  if (codes.length === 0) return;
+  supabase.from("badges").select("code, name, id").then(({ data: allBadges }) => {
+    if (!allBadges) return;
+    const nameMap = new Map<string, string>();
+    allBadges.forEach((b: any) => {
+      nameMap.set(b.code, b.name);
+      nameMap.set(b.id, b.name);
+    });
+    codes.forEach((code: string, i: number) => {
+      const name = nameMap.get(code) || code;
+      setTimeout(() => {
+        const toast = document.createElement("div");
+        toast.className = "fixed top-4 right-4 z-50 bg-primary-container text-on-primary-container px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 cursor-pointer transition-opacity duration-300";
+        toast.style.opacity = "1";
+        toast.textContent = "Neues Badge: " + name;
+        toast.addEventListener("click", () => toast.remove());
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 300);
+        }, 4000);
+      }, i * 500);
+    });
+  });
+}
+
 // --- CSV Import ---
 const csvFileInput = document.getElementById("csv-import-file") as HTMLInputElement;
 const csvPreviewBtn = document.getElementById("csv-preview-btn") as HTMLButtonElement;
@@ -998,6 +1067,15 @@ csvImportBtn.addEventListener("click", async () => {
         csvPreviewTableWrap.classList.add("hidden");
         csvImportBtn.classList.add("hidden");
         try { localStorage.removeItem("catches-cache"); } catch {}
+        supabase.auth.getUser().then(({ data: userData }) => {
+          if (userData?.user) {
+            supabase.rpc("check_badges", { p_user_id: userData.user.id, p_imported: true }).then(({ data }) => {
+              if (data && Array.isArray(data) && data.length > 0) {
+                showBadgeToast(data);
+              }
+            }).catch(() => {});
+          }
+        });
       }
     } else {
       csvImportResult.textContent = "✅ Import abgeschlossen";
@@ -1006,6 +1084,15 @@ csvImportBtn.addEventListener("click", async () => {
       csvPreviewTableWrap.classList.add("hidden");
       csvImportBtn.classList.add("hidden");
       try { localStorage.removeItem("catches-cache"); } catch {}
+      supabase.auth.getUser().then(({ data: userData }) => {
+        if (userData?.user) {
+          supabase.rpc("check_badges", { p_user_id: userData.user.id, p_imported: true }).then(({ data }) => {
+            if (data && Array.isArray(data) && data.length > 0) {
+              showBadgeToast(data);
+            }
+          }).catch(() => {});
+        }
+      });
     }
     csvImportResult.classList.remove("hidden");
   } catch (err: any) {

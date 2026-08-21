@@ -1,0 +1,103 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A3 Teil 1: Badges-Migration für carp24.
+
+## DATEI (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0018_badges.sql
+LIES zuerst die Wetter-Migration (supabase/migrations/0008* oder grep "weather" in migrations) um das ECHTE Wetter-Feld auf catches zu finden (für Badge "regenfischer"). Nutze das gefundene Feld (z.B. weather_data JSON oder rain bool). Falls KEIN Wetter-Feld existiert, setze regenfischer-Bedingung auf FALSE (Badge bleibt im Seed, Bedingung nie erfüllt).
+
+```sql
+-- 0018_badges.sql — Gamification (A3)
+CREATE TABLE IF NOT EXISTS public.badges (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  name text NOT NULL,
+  description text NOT NULL,
+  icon text NOT NULL,
+  sort int NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS public.user_badges (
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  badge_id uuid NOT NULL REFERENCES public.badges(id) ON DELETE CASCADE,
+  earned_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, badge_id)
+);
+
+ALTER TABLE public.badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_badges ENABLE ROW LEVEL SECURITY;
+
+-- badges: jeder (auch anonym) kann lesen
+CREATE POLICY "badges_read_all" ON public.badges FOR SELECT USING (true);
+-- user_badges: nur Owner liest eigene
+CREATE POLICY "user_badges_select_own" ON public.user_badges FOR SELECT TO authenticated USING (user_id = auth.uid());
+GRANT SELECT ON public.badges TO anon, authenticated;
+GRANT SELECT ON public.user_badges TO authenticated;
+
+-- Seed 10 Badges (Carp24-Branding: deutsch, Icon = kurzer Emoji-freier Text wie "01" oder Symbol-Zeichen; nutze einfache Icons: ★ ♟ ✦ ⚑ ☾ ≈ ⌛ ☂ ⇢ © — KEINE Emojis, stattdessen Text-Icons)
+INSERT INTO public.badges (code, name, description, icon, sort) VALUES
+  ('erster_fang',    'Erster Fang',       'Deinen ersten Fang erfasst',            '01', 1),
+  ('zehn_faenge',    'Zehn Fänge',        '10 Fänge im Fangbuch',                  '10', 2),
+  ('hundert_kg',     '100 Kilo',          '100 kg Gesamtgewicht',                  '100', 3),
+  ('nachtfischer',   'Nachtfischer',      'Ein Fang zwischen 22 und 5 Uhr',        '☾', 4),
+  ('fuenf_gewaesser','Vielwasser',        'Fänge an 5 verschiedenen Gewässern',    '≈', 5),
+  ('sieben_fangtage','Woche voll',        'An 7 verschiedenen Tagen gefischt',     '7d', 6),
+  ('foto_profi',     'Foto-Profi',        'Deinen ersten Fang mit Foto',           '✧', 7),
+  ('regenfischer',   'Regenfischer',      'Ein Fang bei Tiefdruck (< 1000 hPa)',   '☂', 8),
+  ('jahr_mitglied',  'Jahresmitglied',    '1 Jahr Mitglied bei CARP24',            '©', 9),
+  ('import_pionier', 'Import-Pionier',    'Fänge per CSV importiert',              '⇢', 10)
+ON CONFLICT (code) DO NOTHING;
+
+-- check_badges: berechnet + vergibt fehlende Badges für p_user_id; p_imported=true → import_pionier
+CREATE OR REPLACE FUNCTION public.check_badges(p_user_id uuid, p_imported boolean DEFAULT false)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $fn$
+DECLARE
+  v_new jsonb := '[]'::jsonb;
+  v_uid uuid := auth.uid();
+  v_badge uuid;
+  v_ts timestamptz;
+BEGIN
+  IF v_uid IS NULL OR v_uid <> p_user_id THEN
+    RAISE EXCEPTION 'not authenticated or mismatch';
+  END IF;
+
+  -- Bedingungen (jede INSERT-geschuetzte Badge)
+  -- erster_fang
+  IF EXISTS (SELECT 1 FROM public.catches c WHERE c.user_id = p_user_id AND c.deleted_at IS NULL) THEN
+    SELECT id INTO v_badge FROM public.badges WHERE code = 'erster_fang';
+    IF v_badge IS NOT NULL AND NOT EXISTS (SELECT 1 FROM public.user_badges ub WHERE ub.user_id = p_user_id AND ub.badge_id = v_badge) THEN
+      INSERT INTO public.user_badges (user_id, badge_id) VALUES (p_user_id, v_badge);
+      v_new := v_new || jsonb_build_object('code','erster_fang');
+    END IF;
+  END IF;
+  -- zehn_faenge
+  IF (SELECT COUNT(*) FROM public.catches c WHERE c.user_id = p_user_id AND c.deleted_at IS NULL) >= 10 THEN ... analog
+  -- hundert_kg
+  IF (SELECT COALESCE(SUM(c.weight_kg),0) FROM public.catches c WHERE c.user_id = p_user_id AND c.deleted_at IS NULL) >= 100 THEN ... analog
+  -- nachtfischer: EXTRACT(HOUR FROM c.catch_ts AT TIME ZONE 'Europe/Vienna') IN (22,23,0,1,2,3,4)
+  -- fuenf_gewaesser: COUNT(DISTINCT c.water_name) >= 5 (water_name NOT NULL)
+  -- sieben_fangtage: COUNT(DISTINCT c.catch_ts::date) >= 7
+  -- foto_profi: EXISTS mit array_length(c.photos,1) > 0
+  -- regenfischer: EXISTS mit (c.<wetterfeld> ->> 'pressure')::numeric < 1000 — nutze das echte Feld; wenn kein Feld: Bedingung FALSE
+  -- jahr_mitglied: EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p_user_id AND u.created_at < now() - interval '365 days')
+  -- import_pionier: IF p_imported THEN ... analog
+
+  RETURN v_new;
+END;
+$fn$;
+
+REVOKE EXECUTE ON FUNCTION public.check_badges(uuid, boolean) FROM PUBLIC, anon;
+GRANT  EXECUTE ON FUNCTION public.check_badges(uuid, boolean) TO authenticated;
+COMMENT ON FUNCTION public.check_badges(uuid, boolean) IS 'Gamification: vergibt fehlende Badges, gibt neu verdiente als JSONB zurueck. EXECUTE nur authenticated.';
+```
+
+WICHTIG: Schreibe die komplette Funktion mit ALLEN 10 Bedingungen (nicht nur erster_fang ausformulieren + "... analog" — das Muster 10× voll ausschreiben, jede mit IF/NOT EXISTS/INSERT/v_new-append).
+
+## VERIFIKATION
+1. Migration einspielen: docker exec -i supabase-db psql -U supabase_admin -d postgres < supabase/migrations/0018_badges.sql (NUR wenn du es sicher kannst; sonst dokumentieren)
+2. grep -c 'check_badges' supabase/migrations/0018_badges.sql → ≥3
+3. grep -c "INSERT INTO public.user_badges" supabase/migrations/0018_badges.sql → = 10 (alle Bedingungen)
+4. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: Datei + Anzahl Bedingungen + welches Wetterfeld du gefunden hast.
