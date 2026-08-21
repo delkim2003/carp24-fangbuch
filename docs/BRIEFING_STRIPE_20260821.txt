@@ -1,0 +1,55 @@
+BAUE SOFORT — KEINE ANALYSE. Feature D2: Stripe-Abo-Infrastruktur für carp24 (Test-Mode).
+
+## KONTEXT
+Stripe-Keys fehlen noch (Philipp holt sie). Baue die komplette Infrastruktur so, dass sie nach dem Setzen der Keys funktioniert. KEINE Keys hartkodieren — nur Env lesen. `stripe` npm-Paket: `cd web && npm install stripe` (falls noch nicht installiert).
+
+## MIGRATION (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0024_stripe.sql
+```sql
+-- 0024_stripe.sql — Stripe (D2)
+CREATE TABLE IF NOT EXISTS public.stripe_events (
+  id text PRIMARY KEY,           -- Stripe-Event-ID (Idempotenz)
+  type text NOT NULL,
+  status text NOT NULL DEFAULT 'received',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.stripe_events ENABLE ROW LEVEL SECURITY;
+-- kein User-Zugriff (nur service_role/Server via Webhook); keine Policies
+REVOKE ALL ON public.stripe_events FROM anon, authenticated;
+GRANT ALL ON public.stripe_events TO service_role;
+```
+Prüfe, ob profiles einen brauchbaren Unique-Key hat (id). is_pro existiert bereits (0023).
+
+## API-ROUTE 1 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/api/stripe/checkout.ts
+Astro-Server-Route (export const POST). LIES eine bestehende Server-Route als Muster (z.B. export_api in diesem Projekt — falls keine existiert, standard Astro: `export const POST = async ({ request }) => { ... }` mit `export const prerender = false`).
+- Auth: Session via Cookies (Muster aus supabase-client.ts / chat.astro SSR-Auth-Guard) — kein User → 401.
+- `const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY)` — wenn STRIPE_SECRET_KEY fehlt → 503 { error: "Stripe ist noch nicht konfiguriert." }
+- `stripe.checkout.sessions.create({ mode: "subscription", customer_email: user.email, line_items: [{ price: import.meta.env.STRIPE_PRICE_ID, quantity: 1 }], success_url: ..., cancel_url: ... })` — URLs auf `/premium/?status=success|cancel`.
+- Return { url } (Client redirectet).
+
+## API-ROUTE 2 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/api/stripe/webhook.ts
+- `export const POST = async ({ request }) => { ... }` + `export const prerender = false`.
+- Liest raw body (await request.text()) + stripe-signature-Header.
+- `const sig = request.headers.get("stripe-signature")`; wenn STRIPE_WEBHOOK_SECRET fehlt → 503.
+- `stripe.webhooks.constructEvent(payload, sig, secret)` — bei Fehler 400.
+- **Idempotenz:** `check if event.id exists in stripe_events` → wenn ja, sofort 200 (auch bei Replays).
+- Bei `checkout.session.completed` (event.data.object.customer_email oder client_reference_id): `UPDATE public.profiles SET is_pro = true WHERE id = (SELECT id FROM auth.users WHERE email = customer_email)` — via Server-Supabase-Client mit service_role Key ODER direkt SQL? Nutze den Server-Client (createClient mit SERVICE_ROLE_KEY aus Env, falls gesetzt) — dokumentiere: service-role-Updates via `supabase.from("profiles").update({ is_pro: true }).eq("id", userId)`.
+- Stripe-Event in stripe_events speichern (insert, id=event.id).
+- Return 200 { received: true }.
+- TODO-Kommentar: "customer.subscription.deleted → is_pro=false (Kündigung) — implementieren wenn Abo-Produkt final".
+
+## PREMIUM-SEITE (EDIT): /mnt/projekte/carp24-fangbuch/web/src/pages/premium.astro
+- Wenn Status FREE: "JETZT UPGRADEN"-Button (statt disabled) → POST an /api/stripe/checkout → bei { url } → window.location.href = url; bei 503 → Hinweis "Abo bald verfügbar".
+- Wenn PRO/ADMIN: "✓ Du bist Premium" + kein Upgrade-Button.
+
+## ENV (NICHT ANFASSEN — macht der Orchestrator)
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_ID werden vom Orchestrator in infra/.env + web/.env ergänzt.
+
+## VERIFIKATION
+1. cd web && npm install stripe (falls fehlt) && npm run build → exit 0
+2. grep -c 'stripe' web/src/pages/api/stripe/checkout.ts → ≥3
+3. grep -c 'constructEvent' web/src/pages/api/stripe/webhook.ts → ≥1
+4. grep -c 'stripe_events' supabase/migrations/0024_stripe.sql → ≥2
+5. Migration 0024 einspielen ODER dokumentieren.
+6. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + ob stripe installiert + Migration-Status.
