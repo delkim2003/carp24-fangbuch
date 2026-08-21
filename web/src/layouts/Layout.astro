@@ -97,9 +97,9 @@ const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     {!bare && <KlaroBanner />}
     <script>
       import { supabase } from "../lib/supabase-client";
-      import { createClient } from "@supabase/supabase-js";
+      import { createBrowserClient } from "@supabase/ssr";
       import { initErrorTracker } from "../lib/error-tracker";
-      window.supabase = { createClient };
+      window.supabase = { createClient: createBrowserClient };
       initErrorTracker(supabase);
 
       if ("serviceWorker" in navigator) {
