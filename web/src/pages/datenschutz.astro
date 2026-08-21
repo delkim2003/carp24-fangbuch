@@ -1,53 +1,54 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { t } from "../lib/i18n";
 ---
 
 <Layout title="Carp24 – Datenschutz">
   <main class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl md:py-20">
-    <h1 class="text-headline-lg text-primary mb-lg">Datenschutzerklärung</h1>
+    <h1 class="text-headline-lg text-primary mb-lg i18n" data-de={t("datenschutz.titel", "de")} data-en={t("datenschutz.titel", "en")}>{t("datenschutz.titel")}</h1>
 
     <div class="flex flex-col gap-xl text-body-md text-on-surface-variant">
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Verantwortlicher</h2>
-        <p>Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Österreich. Kontakt: <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a></p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.verantwortlicher_titel", "de")} data-en={t("datenschutz.verantwortlicher_titel", "en")}>{t("datenschutz.verantwortlicher_titel")}</h2>
+        <p>Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, <span class="i18n" data-de="Österreich" data-en="Austria">Österreich</span>. <span class="i18n" data-de="Kontakt:" data-en="Contact:">Kontakt:</span> <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a></p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Welche Daten verarbeiten wir?</h2>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.daten_titel", "de")} data-en={t("datenschutz.daten_titel", "en")}>{t("datenschutz.daten_titel")}</h2>
         <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
-          <li><strong>Kontodaten:</strong> E-Mail-Adresse, Anzeigename (für Registrierung/Login)</li>
-          <li><strong>Fangbuch-Daten:</strong> Art, Gewicht, Länge, Gewässer, Koordinaten (nur private Gewässer), Notizen</li>
-          <li><strong>Community-Daten:</strong> Forenbeiträge, Chat-Nachrichten, Marktplatz-Inserate</li>
-          <li><strong>Abo-Daten (optional):</strong> Zahlungsstatus über Stripe (wir speichern keine Kreditkartendaten)</li>
+          <li><strong class="i18n" data-de="Kontodaten:" data-en="Account data:">Kontodaten:</strong> <span class="i18n" data-de={t("datenschutz.daten_kontodaten", "de")} data-en={t("datenschutz.daten_kontodaten", "en")}>{t("datenschutz.daten_kontodaten")}</span></li>
+          <li><strong class="i18n" data-de="Fangbuch-Daten:" data-en="Catch log data:">Fangbuch-Daten:</strong> <span class="i18n" data-de={t("datenschutz.daten_fangbuch", "de")} data-en={t("datenschutz.daten_fangbuch", "en")}>{t("datenschutz.daten_fangbuch")}</span></li>
+          <li><strong class="i18n" data-de="Community-Daten:" data-en="Community data:">Community-Daten:</strong> <span class="i18n" data-de={t("datenschutz.daten_community", "de")} data-en={t("datenschutz.daten_community", "en")}>{t("datenschutz.daten_community")}</span></li>
+          <li><strong class="i18n" data-de="Abo-Daten (optional):" data-en="Subscription data (optional):">Abo-Daten (optional):</strong> <span class="i18n" data-de={t("datenschutz.daten_abo", "de")} data-en={t("datenschutz.daten_abo", "en")}>{t("datenschutz.daten_abo")}</span></li>
         </ul>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Wofür und auf welcher Grundlage?</h2>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.grundlage_titel", "de")} data-en={t("datenschutz.grundlage_titel", "en")}>{t("datenschutz.grundlage_titel")}</h2>
         <div class="overflow-x-auto mt-2">
           <table class="w-full border-collapse">
             <thead>
               <tr class="border-b border-outline/20">
-                <th class="text-left py-2 pr-4 font-label-sm uppercase tracking-widest text-on-surface">Zweck</th>
-                <th class="text-left py-2 font-label-sm uppercase tracking-widest text-on-surface">Rechtsgrundlage</th>
+                <th class="text-left py-2 pr-4 font-label-sm uppercase tracking-widest text-on-surface i18n" data-de={t("datenschutz.grundlage_zweck", "de")} data-en={t("datenschutz.grundlage_zweck", "en")}>{t("datenschutz.grundlage_zweck")}</th>
+                <th class="text-left py-2 font-label-sm uppercase tracking-widest text-on-surface i18n" data-de={t("datenschutz.grundlage_rechtsgrundlage", "de")} data-en={t("datenschutz.grundlage_rechtsgrundlage", "en")}>{t("datenschutz.grundlage_rechtsgrundlage")}</th>
               </tr>
             </thead>
             <tbody>
               <tr class="border-b border-outline/10">
-                <td class="py-2 pr-4">Vertragserfüllung (Fangbuch, Community)</td>
+                <td class="py-2 pr-4 i18n" data-de={t("datenschutz.grundlage_vertrag", "de")} data-en={t("datenschutz.grundlage_vertrag", "en")}>{t("datenschutz.grundlage_vertrag")}</td>
                 <td class="py-2">Art. 6(1)(b) DSGVO</td>
               </tr>
               <tr class="border-b border-outline/10">
-                <td class="py-2 pr-4">Sicherheit & Betrieb (Logs, Monitoring)</td>
+                <td class="py-2 pr-4 i18n" data-de={t("datenschutz.grundlage_sicherheit", "de")} data-en={t("datenschutz.grundlage_sicherheit", "en")}>{t("datenschutz.grundlage_sicherheit")}</td>
                 <td class="py-2">Art. 6(1)(f) DSGVO</td>
               </tr>
               <tr class="border-b border-outline/10">
-                <td class="py-2 pr-4">KI-Chatbot (optional, mit Zustimmung)</td>
+                <td class="py-2 pr-4 i18n" data-de={t("datenschutz.grundlage_ki", "de")} data-en={t("datenschutz.grundlage_ki", "en")}>{t("datenschutz.grundlage_ki")}</td>
                 <td class="py-2">Art. 6(1)(a) DSGVO</td>
               </tr>
               <tr>
-                <td class="py-2 pr-4">Werbung/Analyse (optional, mit Zustimmung)</td>
+                <td class="py-2 pr-4 i18n" data-de={t("datenschutz.grundlage_werbung", "de")} data-en={t("datenschutz.grundlage_werbung", "en")}>{t("datenschutz.grundlage_werbung")}</td>
                 <td class="py-2">Art. 6(1)(a) DSGVO</td>
               </tr>
             </tbody>
@@ -56,44 +57,44 @@ import Layout from "../layouts/Layout.astro";
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Wer bekommt deine Daten?</h2>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.empfaenger_titel", "de")} data-en={t("datenschutz.empfaenger_titel", "en")}>{t("datenschutz.empfaenger_titel")}</h2>
         <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
-          <li><strong>Andere Nutzer:</strong> nur was du öffentlich teilst: Forum, Marktplatz</li>
-          <li><strong>Dienstleister:</strong> Google (Backups, verschlüsselt), später Stripe (Zahlungen), MailerSend (E-Mails), Mistral (KI-Chatbot) — jeweils mit AVV</li>
-          <li>Keine Datenverkäufe.</li>
+          <li class="i18n" data-de={t("datenschutz.empfaenger_nutzer", "de")} data-en={t("datenschutz.empfaenger_nutzer", "en")}>{t("datenschutz.empfaenger_nutzer")}</li>
+          <li class="i18n" data-de={t("datenschutz.empfaenger_dienstleister", "de")} data-en={t("datenschutz.empfaenger_dienstleister", "en")}>{t("datenschutz.empfaenger_dienstleister")}</li>
+          <li class="i18n" data-de={t("datenschutz.empfaenger_keine_verkaeufe", "de")} data-en={t("datenschutz.empfaenger_keine_verkaeufe", "en")}>{t("datenschutz.empfaenger_keine_verkaeufe")}</li>
         </ul>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Speicherdauer & Löschung</h2>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.speicherdauer_titel", "de")} data-en={t("datenschutz.speicherdauer_titel", "en")}>{t("datenschutz.speicherdauer_titel")}</h2>
         <ul class="list-disc pl-6 flex flex-col gap-1 mt-2">
-          <li>Daten bleiben bis zur Kontolöschung</li>
-          <li>Kontolöschung = vollständige Anonymisierung aller Inhalte (Automatik)</li>
-          <li>Steuerlich relevante Abodaten: 3 Jahre</li>
-          <li>Du kannst Löschung jederzeit im Dashboard oder per E-Mail anfordern</li>
+          <li class="i18n" data-de={t("datenschutz.speicherdauer_bis_loeschung", "de")} data-en={t("datenschutz.speicherdauer_bis_loeschung", "en")}>{t("datenschutz.speicherdauer_bis_loeschung")}</li>
+          <li class="i18n" data-de={t("datenschutz.speicherdauer_anonymisierung", "de")} data-en={t("datenschutz.speicherdauer_anonymisierung", "en")}>{t("datenschutz.speicherdauer_anonymisierung")}</li>
+          <li class="i18n" data-de={t("datenschutz.speicherdauer_abo", "de")} data-en={t("datenschutz.speicherdauer_abo", "en")}>{t("datenschutz.speicherdauer_abo")}</li>
+          <li class="i18n" data-de={t("datenschutz.speicherdauer_jederzeit", "de")} data-en={t("datenschutz.speicherdauer_jederzeit", "en")}>{t("datenschutz.speicherdauer_jederzeit")}</li>
         </ul>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Deine Rechte</h2>
-        <p>Auskunft (Art. 15) · Berichtigung (Art. 16) · Löschung (Art. 17) · Einschränkung (Art. 18) · Benachrichtigung bei Berichtigung/Löschung/Einschränkung (Art. 19) · Datenübertragbarkeit (Art. 20) · Widerspruch (Art. 21) · Beschwerde bei der österreichischen Datenschutzbehörde (Art. 77). Kontakt für alle Rechte: <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a></p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.rechte_titel", "de")} data-en={t("datenschutz.rechte_titel", "en")}>{t("datenschutz.rechte_titel")}</h2>
+        <p class="i18n" data-de={t("datenschutz.rechte_text", "de")} data-en={t("datenschutz.rechte_text", "en")}>{t("datenschutz.rechte_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Cookies & Einwilligung</h2>
-        <p class="mb-2">Beim ersten Besuch erscheint ein Consent-Banner (Klaro):</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.cookies_titel", "de")} data-en={t("datenschutz.cookies_titel", "en")}>{t("datenschutz.cookies_titel")}</h2>
+        <p class="mb-2 i18n" data-de={t("datenschutz.cookies_intro", "de")} data-en={t("datenschutz.cookies_intro", "en")}>{t("datenschutz.cookies_intro")}</p>
         <ul class="list-disc pl-6 flex flex-col gap-1">
-          <li><strong>Notwendig (immer aktiv):</strong> Login, Sicherheit</li>
-          <li><strong>Statistik (optional):</strong> anonyme Nutzungsanalyse</li>
-          <li><strong>Marketing (optional):</strong> Werbung</li>
-          <li><strong>KI-Funktionen (optional):</strong> Chatbot</li>
+          <li class="i18n" data-de={t("datenschutz.cookies_notwendig", "de")} data-en={t("datenschutz.cookies_notwendig", "en")}>{t("datenschutz.cookies_notwendig")}</li>
+          <li class="i18n" data-de={t("datenschutz.cookies_statistik", "de")} data-en={t("datenschutz.cookies_statistik", "en")}>{t("datenschutz.cookies_statistik")}</li>
+          <li class="i18n" data-de={t("datenschutz.cookies_marketing", "de")} data-en={t("datenschutz.cookies_marketing", "en")}>{t("datenschutz.cookies_marketing")}</li>
+          <li class="i18n" data-de={t("datenschutz.cookies_ki", "de")} data-en={t("datenschutz.cookies_ki", "en")}>{t("datenschutz.cookies_ki")}</li>
         </ul>
-        <p class="mt-2">Einwilligung kann jederzeit widerrufen werden.</p>
+        <p class="mt-2 i18n" data-de={t("datenschutz.cookies_widerruf", "de")} data-en={t("datenschutz.cookies_widerruf", "en")}>{t("datenschutz.cookies_widerruf")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Sicherheit</h2>
-        <p>TLS-Verschlüsselung, RLS-Datenbankzugriff, verschlüsselte Backups, regelmäßige Überwachung.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("datenschutz.sicherheit_titel", "de")} data-en={t("datenschutz.sicherheit_titel", "en")}>{t("datenschutz.sicherheit_titel")}</h2>
+        <p class="i18n" data-de={t("datenschutz.sicherheit_text", "de")} data-en={t("datenschutz.sicherheit_text", "en")}>{t("datenschutz.sicherheit_text")}</p>
       </section>
 
     </div>

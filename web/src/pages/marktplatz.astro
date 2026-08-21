@@ -59,24 +59,33 @@ const isPaid = isPro || isAdmin;
 
 let activeItems: any[] = [];
 let mySoldItems: any[] = [];
+let myContacts: any[] = [];
 
 if (session && isPaid) {
-  const { data: active } = await supabase
-    .from("marketplace_items")
-    .select("*, profiles(display_name)")
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  activeItems = active ?? [];
-
-  const { data: sold } = await supabase
-    .from("marketplace_items")
-    .select("*, profiles(display_name)")
-    .eq("status", "sold")
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: false })
-    .limit(20);
-  mySoldItems = sold ?? [];
+  const [activeRes, soldRes, contactsRes] = await Promise.all([
+    supabase
+      .from("marketplace_items")
+      .select("*, profiles(display_name)")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("marketplace_items")
+      .select("*, profiles(display_name)")
+      .eq("status", "sold")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("marketplace_contacts")
+      .select("*, marketplace_items(title), profiles!marketplace_contacts_from_user_fkey(display_name)")
+      .eq("to_user", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+  activeItems = activeRes.data ?? [];
+  mySoldItems = soldRes.data ?? [];
+  myContacts = contactsRes.data ?? [];
 }
 
 const categoryLabels: Record<string, { de: string; en: string }> = {
@@ -90,6 +99,7 @@ const categoryLabels: Record<string, { de: string; en: string }> = {
 const activeItemsJson = JSON.stringify(activeItems);
 const mySoldItemsJson = JSON.stringify(mySoldItems);
 const categoryLabelsJson = JSON.stringify(categoryLabels);
+const myContactsJson = JSON.stringify(myContacts);
 ---
 
 <Layout title="Carp24 – Marktplatz" active="marktplatz">
@@ -184,12 +194,21 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
             <div id="mp-sold-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter"></div>
           </div>
         )}
+
+        <div class="mt-xl">
+          <h2 class="font-headline-md text-headline-md text-secondary mb-md i18n" data-de={t("marketplace.meine_nachrichten", "de")} data-en={t("marketplace.meine_nachrichten", "en")}>{t("marketplace.meine_nachrichten")}</h2>
+          <div id="mp-messages-list" class="flex flex-col gap-md">
+            {myContacts.length === 0 && (
+              <p class="text-body-md text-on-surface-variant i18n" data-de={t("marketplace.keine_nachrichten", "de")} data-en={t("marketplace.keine_nachrichten", "en")}>{t("marketplace.keine_nachrichten")}</p>
+            )}
+          </div>
+        </div>
       </>
     )}
   </main>
 </Layout>
 
-<script is:inline define:vars={{ activeItemsJson, mySoldItemsJson, categoryLabelsJson, userId: session?.user?.id ?? null }}>
+<script is:inline define:vars={{ activeItemsJson, mySoldItemsJson, categoryLabelsJson, myContactsJson, userId: session?.user?.id ?? null }}>
 (function () {
   var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
   var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
@@ -197,9 +216,11 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
   var activeItems = [];
   var mySoldItems = [];
   var categoryLabels = {};
+  var myContacts = [];
   try { activeItems = JSON.parse(activeItemsJson); } catch (e) {}
   try { mySoldItems = JSON.parse(mySoldItemsJson); } catch (e) {}
   try { categoryLabels = JSON.parse(categoryLabelsJson); } catch (e) {}
+  try { myContacts = JSON.parse(myContactsJson); } catch (e) {}
 
   function getSupabase() {
     if (window.__supabase) return window.__supabase;
@@ -259,6 +280,20 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
         '<button data-action="delete" data-id="' + item.id + '" class="mp-action-btn font-nav-item text-nav-item uppercase text-xs py-1 px-3 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors cursor-pointer min-h-8">LÖSCHEN</button>' +
         '</div>';
     }
+    var contactBtn = '';
+    if (!isOwner && item.status === 'active') {
+      contactBtn = '<div class="mt-2">' +
+        '<button data-action="contact" data-id="' + item.id + '" class="mp-contact-btn font-nav-item text-nav-item uppercase text-xs py-1 px-3 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors cursor-pointer min-h-11" data-de="KONTAKT" data-en="CONTACT">KONTAKT</button>' +
+        '<div class="mp-contact-form hidden mt-sm" data-item-id="' + item.id + '">' +
+        '<textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11" rows="2" maxlength="2000" minlength="3" placeholder="Deine Nachricht…" data-contact-msg="' + item.id + '"></textarea>' +
+        '<div class="flex gap-sm mt-sm">' +
+        '<button type="button" class="mp-contact-submit font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11" data-item-id="' + item.id + '" data-de="NACHRICHT SENDEN" data-en="SEND MESSAGE">NACHRICHT SENDEN</button>' +
+        '<button type="button" class="mp-contact-cancel font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11" data-item-id="' + item.id + '" data-de="Abbrechen" data-en="Cancel">Abbrechen</button>' +
+        '</div>' +
+        '<div class="mp-contact-feedback hidden mt-sm text-body-md" data-item-id="' + item.id + '"></div>' +
+        '</div>' +
+        '</div>';
+    }
     return '<div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden shadow-sm flex flex-col">' +
       (photoUrl && !photoUrl.startsWith('__SIGNED__')
         ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />'
@@ -277,21 +312,15 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
       escapeHtml(sellerName) + ' · ' + formatDate(item.created_at) +
       '</div>' +
       ownerBtns +
+      contactBtn +
       '</div></div>';
   }
 
-  function renderSignedUrls(container) {
-    var sb = getSupabase();
-    if (!sb) return;
-    var imgs = container.querySelectorAll('img[data-signed-path]');
-    imgs.forEach(function (img) {
-      var path = img.getAttribute('data-signed-path');
-      if (!path) return;
-      sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
-        if (res.data && res.data.signedUrl) {
-          img.src = res.data.signedUrl;
-        }
-      });
+  function applyLang(root) {
+    var lang = getLang();
+    (root || document).querySelectorAll('[data-de]').forEach(function (el) {
+      var txt = el.getAttribute('data-' + lang);
+      if (txt) el.textContent = txt;
     });
   }
 
@@ -327,6 +356,8 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
       }
     });
     bindActionButtons(container);
+    bindContactButtons(container);
+    applyLang(container);
   }
 
   function renderSoldItems() {
@@ -358,6 +389,33 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
     });
   }
 
+  function renderContacts() {
+    var container = document.getElementById('mp-messages-list');
+    if (!container) return;
+    if (myContacts.length === 0) return;
+    container.innerHTML = '';
+    myContacts.forEach(function (contact) {
+      var senderName = 'Unbekannt';
+      if (contact.profiles && contact.profiles.display_name) {
+        senderName = contact.profiles.display_name;
+      }
+      var itemTitle = 'Anzeige';
+      if (contact.marketplace_items && contact.marketplace_items.title) {
+        itemTitle = contact.marketplace_items.title;
+      }
+      var div = document.createElement('div');
+      div.className = 'bg-surface-container rounded-xl border border-primary/30 p-lg';
+      div.innerHTML =
+        '<div class="flex items-center justify-between mb-sm">' +
+        '<span class="text-body-md text-secondary font-nav-item text-nav-item uppercase">' + escapeHtml(senderName) + '</span>' +
+        '<span class="font-label-sm text-label-sm uppercase text-secondary">' + formatDate(contact.created_at) + '</span>' +
+        '</div>' +
+        '<div class="text-body-sm text-on-surface-variant mb-sm">Re: ' + escapeHtml(itemTitle) + '</div>' +
+        '<div class="text-body-md text-on-surface whitespace-pre-wrap">' + escapeHtml(contact.message) + '</div>';
+      container.appendChild(div);
+    });
+  }
+
   function bindActionButtons(container) {
     container.querySelectorAll('.mp-action-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -380,16 +438,84 @@ const categoryLabelsJson = JSON.stringify(categoryLabels);
     });
   }
 
-  function applyLang(root) {
-    var lang = getLang();
-    (root || document).querySelectorAll('[data-de]').forEach(function (el) {
-      var txt = el.getAttribute('data-' + lang);
-      if (txt) el.textContent = txt;
+  function bindContactButtons(container) {
+    container.querySelectorAll('.mp-contact-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var itemId = btn.getAttribute('data-id');
+        var form = container.querySelector('.mp-contact-form[data-item-id="' + itemId + '"]');
+        if (form) form.classList.toggle('hidden');
+      });
+    });
+    container.querySelectorAll('.mp-contact-cancel').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var itemId = btn.getAttribute('data-item-id');
+        var form = container.querySelector('.mp-contact-form[data-item-id="' + itemId + '"]');
+        if (form) form.classList.add('hidden');
+        var feedback = container.querySelector('.mp-contact-feedback[data-item-id="' + itemId + '"]');
+        if (feedback) { feedback.classList.add('hidden'); feedback.textContent = ''; }
+      });
+    });
+    container.querySelectorAll('.mp-contact-submit').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var itemId = btn.getAttribute('data-item-id');
+        var msgInput = container.querySelector('[data-contact-msg="' + itemId + '"]');
+        var feedback = container.querySelector('.mp-contact-feedback[data-item-id="' + itemId + '"]');
+        if (!msgInput || !feedback) return;
+        var msg = msgInput.value.trim();
+        if (msg.length < 3) {
+          feedback.textContent = 'Mindestens 3 Zeichen.';
+          feedback.className = 'mp-contact-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+          return;
+        }
+        btn.disabled = true;
+        var lang = getLang();
+        btn.textContent = '...';
+        fetch('/api/marketplace/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_id: itemId, message: msg })
+        }).then(function (res) { return res.json(); }).then(function (data) {
+          btn.disabled = false;
+          if (data.ok) {
+            var successText = lang === 'en' ? 'Message sent!' : 'Nachricht gesendet!';
+            feedback.textContent = successText;
+            feedback.className = 'mp-contact-feedback mt-sm text-body-md text-primary';
+            feedback.classList.remove('hidden');
+            msgInput.value = '';
+            setTimeout(function () {
+              var form = container.querySelector('.mp-contact-form[data-item-id="' + itemId + '"]');
+              if (form) form.classList.add('hidden');
+              feedback.classList.add('hidden');
+            }, 2000);
+          } else {
+            var errorText = lang === 'en' ? 'Sending failed.' : 'Senden fehlgeschlagen.';
+            if (data.error && data.error.indexOf('eigene Anzeige') !== -1) {
+              errorText = lang === 'en' ? 'You cannot contact your own listing.' : 'Du kannst nicht deine eigene Anzeige kontaktieren.';
+            }
+            feedback.textContent = errorText;
+            feedback.className = 'mp-contact-feedback mt-sm text-body-md text-error';
+            feedback.classList.remove('hidden');
+          }
+          btn.textContent = lang === 'en' ? 'SEND MESSAGE' : 'NACHRICHT SENDEN';
+          applyLang(container);
+        }).catch(function () {
+          btn.disabled = false;
+          var lang2 = getLang();
+          var errorText = lang2 === 'en' ? 'Sending failed.' : 'Senden fehlgeschlagen.';
+          feedback.textContent = errorText;
+          feedback.className = 'mp-contact-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+          btn.textContent = lang2 === 'en' ? 'SEND MESSAGE' : 'NACHRICHT SENDEN';
+          applyLang(container);
+        });
+      });
     });
   }
 
   renderActiveItems();
   renderSoldItems();
+  renderContacts();
 
   var toggleBtn = document.getElementById('toggle-new-item');
   var form = document.getElementById('new-item-form');

@@ -81,7 +81,10 @@ const catchesJson = JSON.stringify(catches);
           <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de={t("rueckblick.beschreibung", "de")} data-en={t("rueckblick.beschreibung", "en")}>{t("rueckblick.beschreibung")}</p>
         </div>
 
-        <div id="year-chips" class="flex flex-wrap gap-sm mb-xl"></div>
+        <div class="flex flex-wrap items-center gap-sm mb-xl">
+          <div id="year-chips" class="flex flex-wrap gap-sm"></div>
+          <button id="share-btn" type="button" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors min-h-11 cursor-pointer ml-auto i18n" data-de={t("rueckblick.teilen", "de")} data-en={t("rueckblick.teilen", "en")}>{t("rueckblick.teilen")}</button>
+        </div>
 
         <div id="rueckblick-content" class="flex flex-col gap-xl"></div>
 
@@ -118,6 +121,21 @@ const catchesJson = JSON.stringify(catches);
     return new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
   }
 
+  function moonPhase(date) {
+    var knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+    var synodic = 29.53058867 * 86400000;
+    var diff = date.getTime() - knownNewMoon;
+    return ((diff % synodic) + synodic) % synodic / synodic;
+  }
+
+  function moonLabel(phase) {
+    if (phase < 0.0625 || phase >= 0.9375) return "NEUMOND";
+    if (phase >= 0.4375 && phase < 0.5625) return "VOLLMOND";
+    if (phase >= 0.1875 && phase < 0.3125) return "ERSTES VIERTEL";
+    if (phase >= 0.6875 && phase < 0.8125) return "LETZTES VIERTEL";
+    return phase < 0.5 ? "ZUNEHMEND" : "ABNEHMEND";
+  }
+
   var years = [];
   var yearSet = {};
   catches.forEach(function (c) {
@@ -131,6 +149,22 @@ const catchesJson = JSON.stringify(catches);
   var chipsContainer = document.getElementById("year-chips");
   var contentContainer = document.getElementById("rueckblick-content");
   var emptyState = document.getElementById("empty-state");
+  var shareBtn = document.getElementById("share-btn");
+
+  // Share button
+  if (shareBtn) {
+    shareBtn.addEventListener("click", function () {
+      if (navigator.share) {
+        navigator.share({ title: "Carp24 Jahres-Rückblick", url: window.location.href }).catch(function () {});
+      } else {
+        navigator.clipboard.writeText(window.location.href).then(function () {
+          var orig = shareBtn.textContent;
+          shareBtn.textContent = "Link kopiert!";
+          setTimeout(function () { shareBtn.textContent = orig; }, 2000);
+        }).catch(function () {});
+      }
+    });
+  }
 
   function renderChips() {
     chipsContainer.innerHTML = "";
@@ -160,6 +194,7 @@ const catchesJson = JSON.stringify(catches);
     var speciesCount = {};
     var waterCount = {};
     var monthCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var moonBuckets = { NEUMOND: 0, "ERSTES VIERTEL": 0, VOLLMOND: 0, "LETZTES VIERTEL": 0 };
 
     filtered.forEach(function (c) {
       var w = Number(c.weight_kg) || 0;
@@ -169,6 +204,8 @@ const catchesJson = JSON.stringify(catches);
       if (c.water_name) waterCount[c.water_name] = (waterCount[c.water_name] || 0) + 1;
       var m = getMonth(c.catch_ts);
       monthCount[m]++;
+      var ml = moonLabel(moonPhase(new Date(c.catch_ts)));
+      if (moonBuckets[ml] !== undefined) moonBuckets[ml]++;
     });
 
     var avgWeight = count > 0 ? totalWeight / count : 0;
@@ -190,6 +227,15 @@ const catchesJson = JSON.stringify(catches);
     var maxMonth = 0;
     monthCount.forEach(function (v) { if (v > maxMonth) maxMonth = v; });
 
+    var topMoon = "—";
+    var topMoonCount = 0;
+    Object.keys(moonBuckets).forEach(function (k) {
+      if (moonBuckets[k] > topMoonCount) { topMoonCount = moonBuckets[k]; topMoon = k; }
+    });
+
+    var maxMoon = 0;
+    Object.keys(moonBuckets).forEach(function (k) { if (moonBuckets[k] > maxMoon) maxMoon = moonBuckets[k]; });
+
     return {
       count: count,
       totalWeight: totalWeight,
@@ -199,6 +245,9 @@ const catchesJson = JSON.stringify(catches);
       maxMonth: maxMonth,
       waters: waters,
       biggest: biggest,
+      topMoon: topMoon,
+      moonBuckets: moonBuckets,
+      maxMoon: maxMoon,
     };
   }
 
@@ -219,24 +268,67 @@ const catchesJson = JSON.stringify(catches);
 
     // KPI Grid
     var kpiGrid = document.createElement("div");
-    kpiGrid.className = "grid grid-cols-2 md:grid-cols-4 gap-gutter";
+    kpiGrid.className = "grid grid-cols-2 md:grid-cols-5 gap-gutter";
 
     var kpis = [
       { label: "FÄNGE", value: String(agg.count) },
       { label: "GESAMTGEWICHT", value: agg.totalWeight.toFixed(1) + " kg" },
       { label: "Ø-GEWICHT", value: agg.avgWeight.toFixed(1) + " kg" },
       { label: "TOP-ART", value: agg.topSpecies },
+      { label: "MOND", value: agg.topMoon, icon: "☾" },
     ];
 
     kpis.forEach(function (kpi) {
       var card = document.createElement("div");
       card.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg flex flex-col gap-sm";
+      var iconHtml = kpi.icon ? '<div class="text-display-md text-primary">' + kpi.icon + '</div>' : '';
       card.innerHTML =
         '<div class="font-label-sm text-label-sm uppercase text-secondary">' + escapeHtml(kpi.label) + '</div>' +
+        iconHtml +
         '<div class="font-mono text-display-md text-primary font-bold">' + escapeHtml(kpi.value) + '</div>';
       kpiGrid.appendChild(card);
     });
     contentContainer.appendChild(kpiGrid);
+
+    // Moon distribution bars
+    var moonSection = document.createElement("div");
+    moonSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
+    moonSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">MONDVERTEILUNG</div>';
+    var moonBarContainer = document.createElement("div");
+    moonBarContainer.className = "flex items-end gap-xs min-h-24";
+
+    var moonLabels = ["NEUMOND", "ERSTES VIERTEL", "VOLLMOND", "LETZTES VIERTEL"];
+    moonLabels.forEach(function (label) {
+      var col = document.createElement("div");
+      col.className = "flex-1 flex flex-col items-center gap-xs";
+
+      var barWrapper = document.createElement("div");
+      barWrapper.className = "w-full flex flex-col items-center justify-end min-h-24";
+
+      var bar = document.createElement("div");
+      bar.className = "w-full rounded-t bg-primary-container transition-all duration-300";
+      var pct = agg.maxMoon > 0 ? (agg.moonBuckets[label] / agg.maxMoon) * 100 : 0;
+      bar.style.height = pct + "%";
+      bar.style.minHeight = agg.moonBuckets[label] > 0 ? "4px" : "0";
+
+      var countLabel = document.createElement("span");
+      countLabel.className = "font-label-sm text-label-sm text-secondary";
+      countLabel.textContent = agg.moonBuckets[label] > 0 ? String(agg.moonBuckets[label]) : "";
+
+      barWrapper.appendChild(countLabel);
+      barWrapper.appendChild(bar);
+      col.appendChild(barWrapper);
+
+      var lbl = document.createElement("span");
+      lbl.className = "font-label-sm text-label-sm text-secondary text-center";
+      lbl.style.fontSize = "0.6rem";
+      lbl.textContent = label;
+      col.appendChild(lbl);
+
+      moonBarContainer.appendChild(col);
+    });
+    moonSection.appendChild(moonBarContainer);
+    contentContainer.appendChild(moonSection);
 
     // Monthly bars
     var barSection = document.createElement("div");

@@ -1,0 +1,81 @@
+# BRIEFING: GAP B — MARKTPLATZ-KONTAKT + PUSH-TRIGGER + RECHTSTEXTE-EN (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Schließe 3 Plan-Lücken im Projekt /mnt/projekte/carp24-fangbuch (Astro 7 + Supabase, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## GAP B1: MARKTPLATZ KONTAKT-FORMULAR (Plan E4: „Kontakt über internes Formular")
+
+### Migration 0029_marketplace_contacts.sql (NEU unter supabase/migrations/)
+```sql
+CREATE TABLE IF NOT EXISTS public.marketplace_contacts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  item_id uuid NOT NULL REFERENCES public.marketplace_items(id) ON DELETE CASCADE,
+  from_user uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  to_user uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  message text NOT NULL CHECK (char_length(message) BETWEEN 3 AND 2000),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.marketplace_contacts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY marketplace_contacts_insert_own ON public.marketplace_contacts
+  FOR INSERT TO authenticated WITH CHECK (from_user = auth.uid());
+CREATE POLICY marketplace_contacts_select_participant ON public.marketplace_contacts
+  FOR SELECT TO authenticated USING (from_user = auth.uid() OR to_user = auth.uid());
+```
+
+### API web/src/pages/api/marketplace/contact.ts (NEU)
+- POST, export const prerender = false
+- SSR-Client (Cookie-Muster wie andere API-Routen), session prüfen → 401
+- Body: { item_id, message } — validieren: message 3–2000 Zeichen, item_id uuid
+- Item laden (marketplace_items select user_id where id) → 404 wenn nicht existiert; from_user = session.user.id, to_user = item.user_id; wenn from_user === to_user → 400 „Du kannst nicht deine eigene Anzeige kontaktieren."
+- INSERT marketplace_contacts → 201 {ok:true}; Fehler → 500
+
+### web/src/pages/marktplatz.astro
+1. Auf JEDER Anzeigen-Karte (auch fremde): Button **KONTAKT** (min-h-11, rounded-full, bg-primary-container; i18n marketplace.kontakt). Klick öffnet Inline-Formular (textarea 3–2000 + Button „NACHRICHT SENDEN") — Muster wie report-form in forum/[id].astro (hidden toggle).
+2. Submit → fetch /api/marketplace/contact.ts → Erfolg: „Nachricht gesendet!" (grün, 2s); Fehler: Meldung anzeigen.
+3. **MEINE NACHRICHTEN**-Sektion (unterhalb der Liste): eingehende Nachrichten (to_user = session.user.id) mit Absender (profiles display_name via FK-Join), Anzeige-Titel (marketplace_items title via Join — Achtung: marketplace_contacts hat FK zu marketplace_items, PostgREST-Join `marketplace_items(title)` funktioniert), Text, Datum (de-DE). Leer → „Noch keine Nachrichten."
+4. i18n-Keys (de/en) in web/src/lib/i18n.ts: marketplace.kontakt (Kontakt/Contact), marketplace.nachricht_senden (Nachricht senden/Send message), marketplace.nachricht_gesendet (Nachricht gesendet!/Message sent!), marketplace.nachricht_fehler (Senden fehlgeschlagen./Sending failed.), marketplace.meine_nachrichten (Meine Nachrichten/My messages), marketplace.keine_nachrichten (Noch keine Nachrichten./No messages yet.), marketplace.eigene_anzeige (Du kannst nicht deine eigene Anzeige kontaktieren./You cannot contact your own listing.)
+
+### WICHTIG (i18n-Falle)
+In KEINEM map()-Callback darf der Parameter `t` heißen (t = i18n-Funktion). Benenne Parameter IMMER sprechend (item, msg, contact) — NIE `t`.
+
+## GAP B2: PUSH-TRIGGER (Plan E2: Community-Antwort + Fang-Erinnerung)
+
+### API web/src/pages/api/push/notify.ts (NEU)
+- POST, prerender = false; SSR-Auth (401 ohne Session)
+- Body: { type: "forum_reply", thread_id?: string }
+- Nur type forum_reply implementieren:
+  1. thread_id validieren → forum_threads select user_id where id → 404 wenn fehlt
+  2. push_subscriptions des Thread-Owners laden (select endpoint, keys where user_id = owner AND owner != session.user.id)
+  3. web-push senden (import webpush von "web-push"; VAPID aus import.meta.env.VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT — falls fehlen → 503 {error: "Push ist noch nicht konfiguriert."})
+  4. payload: { title: "Neue Antwort", body: "Jemand hat auf deinen Thread geantwortet.", url: "/forum/{thread_id}" } — pro Subscription send (try/catch je Subscription; 410 → Subscription löschen)
+  5. Antwort: {sent: n} 200
+
+### web/src/pages/forum/[id].astro
+- Nach ERFOLGREICHEM Antwort-Insert (im then-Block des Antworten-Submits): fire-and-forget fetch('/api/push/notify', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type:'forum_reply', thread_id: THREAD_ID})}) — THREAD_ID ist im Astro-define-vars verfügbar (prüfe vorhandene Variablen; falls threadId nicht existiert, im define-vars ergänzen). Kein await/warten, Fehler ignorieren.
+
+### API web/src/pages/api/push/daily-reminder.ts (NEU)
+- POST, prerender = false. Interner Endpunkt für Cron (systemd-Timer), KEINE Session-Auth — stattdessen Header-Check: `x-cron-key` muss === import.meta.env.CRON_KEY sein (falls CRON_KEY nicht gesetzt → 503 „Cron nicht konfiguriert.")
+- Logik:
+  1. supabaseAdmin (service role) nutzen: alle push_subscriptions (mit user_id) holen
+  2. Für jeden User: letzten Fang (catches max catch_ts where user_id and deleted_at null) — wenn keiner ODER letzter Fang älter als 7 Tage → Push senden „Zeit für einen neuen Fang!" (url: "/fang-erfassen")
+  3. Pro Subscription senden (try/catch, 410 → delete)
+  4. {sent: n, skipped: m} 200
+
+## GAP B3: RECHTSTEXTE EN-VERSION (Plan E1: „Rechtstexte EN-Version")
+
+### web/src/pages/impressum.astro + web/src/pages/datenschutz.astro
+- Die BESTEHENDEN Inhalte in i18n.ts auslagern als Keys (impressum.zeile1…, datenschutz.abschnitt1… — sinnvolle Struktur), mit data-de/data-en Muster (class="i18n" data-de={t(key,"de")} data-en={t(key,"en")}).
+- EN-Übersetzung = treue Übersetzung des bestehenden Texts (KEINE neuen Rechtsaussagen erfinden; juristisch verantwortlich bleibt Philipp).
+- Der bestehende Sprach-Umschalter (Header) wirkt dadurch auch auf den Rechtstext-Seiten.
+- Struktur/Format der Seiten (Headings, Abstände) unverändert lassen.
+
+## VERBOTEN
+- KEINE neuen Dependencies (web-push ist bereits installiert)
+- KEINE SVG-Icons, kein Overdesign — Editorial/minimalistisch
+- KEINE Änderungen an bestehenden Migrationen/RLS außer 0029
+- KEINE E-Mail-Versand-Logik (In-App-Nachricht reicht)
+- map-Callback-Parameter NIE `t` nennen
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Migration 0029 NICHT einspielen (macht der Orchestrator). Berichte: geänderte Dateien, Build-Status.

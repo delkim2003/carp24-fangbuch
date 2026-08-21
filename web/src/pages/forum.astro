@@ -85,6 +85,18 @@ const userId = session?.user?.id ?? null;
               id="thread-title" name="title" type="text" placeholder="Thema des Threads…" required minlength="3" maxlength="120"
             />
           </div>
+          <div class="flex flex-col gap-sm mb-md">
+            <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="thread-category" data-de={t("forum.kategorie", "de")} data-en={t("forum.kategorie", "en")}>{t("forum.kategorie")}</label>
+            <select
+              class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12 cursor-pointer"
+              id="thread-category" name="category"
+            >
+              <option value="allgemein" class="i18n" data-de={t("forum.kategorie_allgemein", "de")} data-en={t("forum.kategorie_allgemein", "en")}>{t("forum.kategorie_allgemein")}</option>
+              <option value="gewaesser" class="i18n" data-de={t("forum.kategorie_gewaesser", "de")} data-en={t("forum.kategorie_gewaesser", "en")}>{t("forum.kategorie_gewaesser")}</option>
+              <option value="ausruestung" class="i18n" data-de={t("forum.kategorie_ausruestung", "de")} data-en={t("forum.kategorie_ausruestung", "en")}>{t("forum.kategorie_ausruestung")}</option>
+              <option value="kueche" class="i18n" data-de={t("forum.kategorie_kueche", "de")} data-en={t("forum.kategorie_kueche", "en")}>{t("forum.kategorie_kueche")}</option>
+            </select>
+          </div>
           <div class="flex flex-col gap-sm mb-lg">
             <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="thread-body" data-de={t("forum.text_label", "de")} data-en={t("forum.text_label", "en")}>{t("forum.text_label")}<span class="text-primary" aria-hidden="true">*</span></label>
             <textarea
@@ -105,6 +117,14 @@ const userId = session?.user?.id ?? null;
 
         {loadError && <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>}
 
+        <div id="category-chips" class="flex flex-wrap gap-sm">
+          <button type="button" data-cat="all" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer bg-primary-container text-on-primary-container border-primary-container i18n" data-de={t("forum.alle", "de")} data-en={t("forum.alle", "en")}>{t("forum.alle")}</button>
+          <button type="button" data-cat="allgemein" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container i18n" data-de={t("forum.kategorie_allgemein", "de")} data-en={t("forum.kategorie_allgemein", "en")}>{t("forum.kategorie_allgemein")}</button>
+          <button type="button" data-cat="gewaesser" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container i18n" data-de={t("forum.kategorie_gewaesser", "de")} data-en={t("forum.kategorie_gewaesser", "en")}>{t("forum.kategorie_gewaesser")}</button>
+          <button type="button" data-cat="ausruestung" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container i18n" data-de={t("forum.kategorie_ausruestung", "de")} data-en={t("forum.kategorie_ausruestung", "en")}>{t("forum.kategorie_ausruestung")}</button>
+          <button type="button" data-cat="kueche" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container i18n" data-de={t("forum.kategorie_kueche", "de")} data-en={t("forum.kategorie_kueche", "en")}>{t("forum.kategorie_kueche")}</button>
+        </div>
+
         <div id="threads-list" class="flex flex-col gap-md">
           {threads.length === 0 ? (
             <div class="text-center py-24 flex flex-col items-center gap-lg">
@@ -119,11 +139,15 @@ const userId = session?.user?.id ?? null;
               const replyCount = thread.forum_posts?.[0]?.count ?? 0;
               const userName = thread.profiles?.display_name ?? "Anonym";
               const datum = new Date(thread.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/\./g, ".");
+              const cat = thread.category || "allgemein";
               return (
-                <a href={`/forum/${thread.id}`} class="block bg-surface-container-high rounded-xl border border-primary/40 p-lg hover:bg-surface-container-highest transition-colors shadow-sm">
+                <a href={`/forum/${thread.id}`} class="block bg-surface-container-high rounded-xl border border-primary/40 p-lg hover:bg-surface-container-highest transition-colors shadow-sm" data-category={cat}>
                   <div class="flex items-start justify-between gap-md">
                     <div class="flex-1 min-w-0">
-                      <h3 class="font-headline-md text-headline-md text-primary truncate">{thread.title}</h3>
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="font-label-sm text-label-sm uppercase bg-surface-container-highest text-secondary px-2 py-0.5 rounded">{cat}</span>
+                        <h3 class="font-headline-md text-headline-md text-primary truncate">{thread.title}</h3>
+                      </div>
                       <p class="text-body-md text-on-surface-variant mt-sm line-clamp-2">{thread.body}</p>
                     </div>
                     <div class="flex flex-col items-end gap-sm shrink-0">
@@ -185,6 +209,31 @@ const userId = session?.user?.id ?? null;
     });
   }
 
+  // Category filter chips
+  var activeCat = 'all';
+  var chipsContainer = document.getElementById('category-chips');
+  if (chipsContainer) {
+    chipsContainer.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-cat]');
+      if (!btn) return;
+      activeCat = btn.getAttribute('data-cat');
+      chipsContainer.querySelectorAll('button[data-cat]').forEach(function (b) {
+        if (b.getAttribute('data-cat') === activeCat) {
+          b.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer bg-primary-container text-on-primary-container border-primary-container';
+        } else {
+          b.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container';
+        }
+      });
+      document.querySelectorAll('#threads-list a[data-category]').forEach(function (card) {
+        if (activeCat === 'all' || card.getAttribute('data-category') === activeCat) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  }
+
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -194,6 +243,7 @@ const userId = session?.user?.id ?? null;
 
       var title = document.getElementById('thread-title').value.trim();
       var body = document.getElementById('thread-body').value.trim();
+      var category = document.getElementById('thread-category').value;
 
       if (title.length < 3) {
         errorDiv.textContent = 'Titel muss mindestens 3 Zeichen lang sein.';
@@ -219,6 +269,7 @@ const userId = session?.user?.id ?? null;
       sb.from("forum_threads").insert({
         title: title,
         body: body,
+        category: category,
         user_id: userId
       }).select().single().then(function (res) {
         submitBtn.disabled = false;

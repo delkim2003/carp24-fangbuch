@@ -72,7 +72,12 @@ const userId = session?.user?.id ?? null;
         <a href="/forum" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZUM FORUM</a>
 
         <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl">
-          <h1 class="text-display-lg text-on-surface mb-md">{thread.title}</h1>
+          <h1 class="text-display-lg text-on-surface mb-md flex items-center gap-sm">
+            {thread.category && thread.category !== 'allgemein' && (
+              <span class="font-label-sm text-label-sm uppercase bg-surface-container-highest text-secondary px-2 py-0.5 rounded shrink-0">{thread.category}</span>
+            )}
+            <span>{thread.title}</span>
+          </h1>
           <div class="flex items-center gap-md mb-lg">
             <span class="text-body-md text-secondary">von {thread.profiles?.display_name ?? "Anonym"}</span>
             <span class="font-label-sm text-label-sm uppercase text-secondary">{new Date(thread.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</span>
@@ -166,7 +171,7 @@ const userId = session?.user?.id ?? null;
   </main>
 </Layout>
 
-<script is:inline define:vars={{ threadJson, postsJson, userId }}>
+<script is:inline define:vars={{ threadJson, postsJson, userId, threadId: id }}>
 (function () {
   var thread = null;
   var posts = [];
@@ -259,6 +264,14 @@ const userId = session?.user?.id ?? null;
           errorDiv.textContent = 'Fehler: ' + res.error.message;
           errorDiv.classList.remove('hidden');
         } else {
+          // Fire-and-forget push notification
+          try {
+            fetch('/api/push/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'forum_reply', thread_id: threadId })
+            });
+          } catch (pushErr) {}
           // Update thread.updated_at for sorting
           sb.from("forum_threads").update({ updated_at: new Date().toISOString() }).eq("id", thread.id).then(function () {
             window.location.reload();

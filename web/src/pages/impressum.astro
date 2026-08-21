@@ -1,56 +1,57 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { t } from "../lib/i18n";
 ---
 
 <Layout title="Carp24 – Impressum">
   <main class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl md:py-20">
-    <h1 class="text-headline-lg text-primary mb-lg">Impressum</h1>
+    <h1 class="text-headline-lg text-primary mb-lg i18n" data-de={t("impressum.titel", "de")} data-en={t("impressum.titel", "en")}>{t("impressum.titel")}</h1>
 
     <div class="flex flex-col gap-xl text-body-md text-on-surface-variant">
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Medieninhaber & Verantwortlicher</h2>
-        <p>Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Österreich</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.medieninhaber_titel", "de")} data-en={t("impressum.medieninhaber_titel", "en")}>{t("impressum.medieninhaber_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.medieninhaber_text", "de")} data-en={t("impressum.medieninhaber_text", "en")}>{t("impressum.medieninhaber_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Kontakt</h2>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.kontakt_titel", "de")} data-en={t("impressum.kontakt_titel", "en")}>{t("impressum.kontakt_titel")}</h2>
         <p>E-Mail: <a href="mailto:info@einfach-online.dev" class="underline decoration-primary/30 hover:text-primary transition-colors">info@einfach-online.dev</a> · Web: <a href="https://carp24.org" target="_blank" rel="noopener" class="underline decoration-primary/30 hover:text-primary transition-colors">carp24.org</a></p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Unternehmensgegenstand</h2>
-        <p>Betrieb eines digitalen Fangbuchs („Carp24") für Karpfenangler: Aufzeichnung von Fängen, Gewässern und Wetterbedingungen, Statistik-Auswertung sowie Community-Funktionen.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.gegenstand_titel", "de")} data-en={t("impressum.gegenstand_titel", "en")}>{t("impressum.gegenstand_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.gegenstand_text", "de")} data-en={t("impressum.gegenstand_text", "en")}>{t("impressum.gegenstand_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Hinweis gemäß § 25 MedienG</h2>
-        <p>Inhaber der Website: Philipp Schlemmer (Anschrift siehe oben).</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.medieng_titel", "de")} data-en={t("impressum.medieng_titel", "en")}>{t("impressum.medieng_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.medieng_text", "de")} data-en={t("impressum.medieng_text", "en")}>{t("impressum.medieng_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Haftung für Inhalte</h2>
-        <p>Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.haftung_inhalte_titel", "de")} data-en={t("impressum.haftung_inhalte_titel", "en")}>{t("impressum.haftung_inhalte_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.haftung_inhalte_text", "de")} data-en={t("impressum.haftung_inhalte_text", "en")}>{t("impressum.haftung_inhalte_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Haftung für Links</h2>
-        <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.haftung_links_titel", "de")} data-en={t("impressum.haftung_links_titel", "en")}>{t("impressum.haftung_links_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.haftung_links_text", "de")} data-en={t("impressum.haftung_links_text", "en")}>{t("impressum.haftung_links_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Urheberrecht</h2>
-        <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem Urheberrecht. Beiträge Dritter sind als solche gekennzeichnet. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.urheberrecht_titel", "de")} data-en={t("impressum.urheberrecht_titel", "en")}>{t("impressum.urheberrecht_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.urheberrecht_text", "de")} data-en={t("impressum.urheberrecht_text", "en")}>{t("impressum.urheberrecht_text")}</p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">EU-Streitschlichtung</h2>
-        <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener" class="underline decoration-primary/30 hover:text-primary transition-colors">https://ec.europa.eu/consumers/odr/</a>. Unsere E-Mail-Adresse findest du oben im Impressum.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.streitschlichtung_titel", "de")} data-en={t("impressum.streitschlichtung_titel", "en")}>{t("impressum.streitschlichtung_titel")}</h2>
+        <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener" class="underline decoration-primary/30 hover:text-primary transition-colors">https://ec.europa.eu/consumers/odr/</a>. <span class="i18n" data-de="Unsere E-Mail-Adresse findest du oben im Impressum." data-en="Our email address can be found above in the legal notice.">Unsere E-Mail-Adresse findest du oben im Impressum.</span></p>
       </section>
 
       <section>
-        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2">Verbraucherstreitbeilegung</h2>
-        <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+        <h2 class="font-label-sm uppercase tracking-widest text-on-surface mb-2 i18n" data-de={t("impressum.verbraucher_titel", "de")} data-en={t("impressum.verbraucher_titel", "en")}>{t("impressum.verbraucher_titel")}</h2>
+        <p class="i18n" data-de={t("impressum.verbraucher_text", "de")} data-en={t("impressum.verbraucher_text", "en")}>{t("impressum.verbraucher_text")}</p>
       </section>
 
     </div>

@@ -1,0 +1,62 @@
+# BRIEFING: GAP A — FORUM-KATEGORIEN + RÜCKBLICK MOND/TEILEN (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Schließe 2 Plan-Lücken im Projekt /mnt/projekte/carp24-fangbuch (Astro 7 + Supabase, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## GAP A1: FORUM-KATEGORIEN (Plan C2: 4 Kategorien)
+
+### Migration 0028_forum_categories.sql (NEU unter supabase/migrations/)
+```sql
+ALTER TABLE public.forum_threads ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'allgemein';
+```
+
+### web/src/pages/forum.astro
+1. Thread-Formular (#new-thread-form): Kategorie-Select ergänzen (id="thread-category") mit Optionen: allgemein, gewaesser, ausruestung, kueche (Werte lowercase, Labels aus i18n).
+2. Über der Thread-Liste (#threads-list): Filter-Chips (ALLE + 4 Kategorien) als Buttons (Muster wie year-chips in rueckblick.astro: min-h-11, rounded-full, active = bg-primary-container). Klick filtert client-seitig die Threads (Data-Attribut category auf Thread-Karte).
+3. Thread-Karte: Kategorie-Badge (kleines Label, uppercase, bg-surface-container-highest, text-secondary).
+4. Beim Thread-Anlegen: category aus Select an insert übergeben.
+5. Neue i18n-Keys in web/src/lib/i18n.ts (de/en): forum.kategorie (Kategorie/Kategorie), forum.kategorien (Kategorien/Kategorien), forum.alle (Alle/All), forum.kategorie_allgemein (Allgemein/General), forum.kategorie_gewaesser (Gewässer/Waters), forum.kategorie_ausruestung (Ausrüstung/Gear), forum.kategorie_kueche (Karpfen-Küche/Carp Kitchen).
+
+### web/src/pages/forum/[id].astro
+- Kategorie-Badge neben dem Thread-Titel anzeigen (gleiche Optik).
+
+### WICHTIG
+- Die i18n-Überschattungs-Falle beachten: In KEINEM map()-Callback darf der Parameter `t` heißen (forum.astro hatte genau diesen Bug: `threads.map((t: any)` → heißt jetzt `thread`). Wenn du map-Callbacks anfasst, benenne Parameter IMMER sprechend (thread, post, item) — NIE `t` (t = i18n-Funktion).
+
+## GAP A2: RÜCKBLICK — MOND-STATISTIK + TEILEN (Plan A2)
+
+### web/src/pages/rueckblick.astro
+1. **Mond-Statistik** (client-seitig, keine Dependencies):
+   - Funktion ergänzen:
+     ```js
+     function moonPhase(date) {
+       var knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+       var synodic = 29.53058867 * 86400000;
+       var diff = date.getTime() - knownNewMoon;
+       return ((diff % synodic) + synodic) % synodic / synodic;
+     }
+     function moonLabel(phase) {
+       if (phase < 0.0625 || phase >= 0.9375) return "NEUMOND";
+       if (phase >= 0.4375 && phase < 0.5625) return "VOLLMOND";
+       if (phase >= 0.1875 && phase < 0.3125) return "ERSTES VIERTEL";
+       if (phase >= 0.6875 && phase < 0.8125) return "LETZTES VIERTEL";
+       return phase < 0.5 ? "ZUNEHMEND" : "ABNEHMEND";
+     }
+     ```
+   - In der Jahres-Aggregation: Für jeden Fang moonLabel(moonPhase(new Date(c.catch_ts))) zählen; zusätzlich 4 Zähl-Buckets für die Hauptphasen (NEUMOND, VOLLMOND, ERSTES VIERTEL, LETZTES VIERTEL).
+   - Neue KPI-Karte **MOND** in der KPI-Zeile: häufigste Hauptphase (z.B. „VOLLMOND") mit kleinem Icon (☾ als Text, KEIN SVG nötig — Design-Regel: keine SVG-Icons, minimalistisch).
+   - Kleine Verteilungs-Balken (4 schmale divs, gleiche Optik wie Monats-Balken): NEUMOND / ERSTES VIERTEL / VOLLMOND / LETZTES VIERTEL mit relativer Höhe (height: %), Labels darunter.
+2. **Teilen-Button**:
+   - Button „TEILEN" (min-h-11, rounded-full, bg-primary-container) oben rechts neben den Jahr-Chips.
+   - onClick: if (navigator.share) → navigator.share({title: "Carp24 Jahres-Rückblick", url: window.location.href}); else → navigator.clipboard.writeText(window.location.href) + Text „Link kopiert!" für 2s.
+   - i18n-Keys: rueckblick.teilen (Teilen/Share), rueckblick.link_kopiert (Link kopiert!/Link copied!).
+
+## VERBOTEN
+- KEINE neuen Dependencies (kein moon-js, kein canvas-libs)
+- KEINE SVG-Icons (Text-Symbole ok), kein Overdesign — Editorial/minimalistisch, Weißraum
+- KEINE Änderungen an RLS/Migrationen außer 0028
+- i18n-Pattern beibehalten: class="i18n" data-de data-en + t()-Aufruf
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Migration 0028 NICHT einspielen (macht der Orchestrator). Berichte: geänderte Dateien, Build-Status.
