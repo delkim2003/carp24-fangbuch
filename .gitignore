@@ -37,3 +37,6 @@ Thumbs.db
 # Secrets-Backups NIE committen (generate-keys.sh erzeugt .old)
 .env.*
 !*.env.example
+
+# ===== Deploy-Artefakte (Quellen in supabase/functions/) =====
+infra/volumes/functions/
