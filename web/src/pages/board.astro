@@ -1,0 +1,262 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let catches: any[] = [];
+let loadError: string | null = null;
+if (session) {
+  const { data, error } = await supabase
+    .from("catches")
+    .select("id, catch_ts, weight_kg, species, water_name, lat, lng, notes, photos, is_public, user_id, profiles(display_name)")
+    .eq("is_public", true)
+    .is("deleted_at", null)
+    .order("catch_ts", { ascending: false })
+    .limit(50);
+  catches = data ?? [];
+  if (error) loadError = error.message;
+}
+
+const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "Lederkarpfen", SCHUPPEN: "Schuppenkarpfen", AMUR: "Amurkarpfen", ANDERE: "Andere" };
+
+function roundCoord(val: number | null): string {
+  if (val == null) return "—";
+  return val.toFixed(2);
+}
+
+function truncate(str: string | null, len: number): string {
+  if (!str) return "";
+  return str.length > len ? str.slice(0, len) + "…" : str;
+}
+
+const catchesJson = JSON.stringify(catches);
+const userId = session?.user?.id ?? null;
+---
+<Layout title="Carp24 – Community-Board" active="board">
+  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+    {!session ? (
+      <div class="text-center py-24">
+        <h1 class="text-display-lg text-primary mb-4">COMMUNITY-BOARD</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um das Community-Board zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+      </div>
+    ) : (
+      <>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+          <div>
+            <h1 class="text-display-lg text-on-surface mb-2">COMMUNITY-BOARD</h1>
+            {catches.length > 0 && (
+              <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest">{catches.length} ÖFFENTLICHE FÄNGE</p>
+            )}
+          </div>
+          <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            NEUER FANG
+          </a>
+        </div>
+
+        {loadError && <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>}
+
+        {catches.length === 0 ? (
+          <div class="text-center py-24 flex flex-col items-center gap-lg">
+            <div class="w-32 h-32 rounded-full border-2 border-primary/40 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7B9496" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h2 class="text-display-md text-primary">NOCH KEINE ÖFFENTLICHEN FÄNGE</h2>
+            <p class="text-body-lg text-on-surface-variant max-w-md">Noch keine öffentlichen Fänge — teile deinen ersten Fang!</p>
+            <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12">ERSTEN FANG TEILEN</a>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md" id="board-grid">
+            {catches.map((c: any) => {
+              const speciesDe = speciesMap[c.species] ?? c.species;
+              const gewicht = (Number(c.weight_kg) ?? 0).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " KG";
+              const datum = new Date(c.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/\./g, ".");
+              const userName = c.profiles?.display_name ?? "Anonym";
+              const notes = truncate(c.notes, 200);
+              const latRounded = roundCoord(c.lat);
+              const lngRounded = roundCoord(c.lng);
+              const hasPhoto = Array.isArray(c.photos) && c.photos[0] && c.photos[0].startsWith("foto:");
+              const photoPath = hasPhoto ? c.photos[0].slice(5) : null;
+
+              return (
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg flex flex-col gap-md board-card" data-catch-id={c.id} data-user-id={c.user_id} data-is-public={c.is_public}>
+                  {hasPhoto && (
+                    <div class="w-full h-48 rounded-lg overflow-hidden bg-surface-container-lowest" data-photo-path={photoPath}>
+                      <div class="w-full h-full flex items-center justify-center text-secondary text-body-md">Foto wird geladen…</div>
+                    </div>
+                  )}
+                  <div class="flex items-center justify-between">
+                    <div class="font-mono text-display-sm text-primary font-bold">{gewicht}</div>
+                    <div class="font-label-sm text-label-sm uppercase text-secondary">{datum}</div>
+                  </div>
+                  <div class="font-label-sm text-label-sm uppercase text-secondary">{speciesDe} · {c.water_name ?? "Unbekanntes Gewässer"}</div>
+                  <div class="text-body-md text-on-surface-variant">von {userName}</div>
+                  {notes && <div class="text-body-md text-on-surface-variant">{notes}</div>}
+                  <div class="font-label-sm text-label-sm uppercase text-secondary/60">ca. {latRounded}, {lngRounded}</div>
+
+                  <div class="mt-auto pt-md border-t border-primary/10">
+                    <button type="button" class="report-toggle font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11" data-catch-id={c.id}>
+                      Melden
+                    </button>
+                    <div class="report-form hidden mt-sm" data-catch-id={c.id}>
+                      <textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11" rows="2" maxlength="500" placeholder="Grund der Meldung…" data-reason-input={c.id}></textarea>
+                      <div class="flex gap-sm mt-sm">
+                        <button type="button" class="report-submit font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11" data-catch-id={c.id} data-reporter-id={userId}>
+                          Meldung senden
+                        </button>
+                        <button type="button" class="report-cancel font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11" data-catch-id={c.id}>
+                          Abbrechen
+                        </button>
+                      </div>
+                      <div class="report-feedback hidden mt-sm text-body-md" data-catch-id={c.id}></div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </>
+    )}
+  </main>
+</Layout>
+
+<script is:inline>
+(function () {
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  // Load signed photo URLs
+  var photoContainers = document.querySelectorAll('[data-photo-path]');
+  photoContainers.forEach(function (container) {
+    var path = container.getAttribute('data-photo-path');
+    if (!path) return;
+    var sb = getSupabase();
+    if (!sb) return;
+    sb.storage.from("catch-photos").createSignedUrl(path, 3600).then(function (res) {
+      if (res.data && res.data.signedUrl) {
+        container.innerHTML = '<img src="' + res.data.signedUrl + '" alt="Fang" class="w-full h-48 rounded-lg object-cover" loading="lazy" />';
+      } else {
+        container.innerHTML = '<div class="w-full h-48 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary text-body-md">Foto nicht verfügbar</div>';
+      }
+    });
+  });
+
+  // Report toggle
+  document.querySelectorAll('.report-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var catchId = btn.getAttribute('data-catch-id');
+      var form = document.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+      if (form) form.classList.toggle('hidden');
+    });
+  });
+
+  // Report cancel
+  document.querySelectorAll('.report-cancel').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var catchId = btn.getAttribute('data-catch-id');
+      var form = document.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+      if (form) form.classList.add('hidden');
+      var feedback = document.querySelector('.report-feedback[data-catch-id="' + catchId + '"]');
+      if (feedback) { feedback.classList.add('hidden'); feedback.textContent = ''; }
+    });
+  });
+
+  // Report submit
+  document.querySelectorAll('.report-submit').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var catchId = btn.getAttribute('data-catch-id');
+      var reporterId = btn.getAttribute('data-reporter-id');
+      var reasonInput = document.querySelector('[data-reason-input="' + catchId + '"]');
+      var feedback = document.querySelector('.report-feedback[data-catch-id="' + catchId + '"]');
+      if (!reasonInput || !feedback) return;
+
+      var reason = reasonInput.value.trim();
+      if (reason.length < 3) {
+        feedback.textContent = 'Bitte mindestens 3 Zeichen eingeben.';
+        feedback.className = 'report-feedback mt-sm text-body-md text-error';
+        feedback.classList.remove('hidden');
+        return;
+      }
+
+      var sb = getSupabase();
+      if (!sb) {
+        feedback.textContent = 'Fehler: Supabase nicht initialisiert.';
+        feedback.className = 'report-feedback mt-sm text-body-md text-error';
+        feedback.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Wird gesendet…';
+
+      sb.from("content_reports").insert({
+        target_type: "catch",
+        target_id: catchId,
+        reporter_id: reporterId,
+        reason: reason
+      }).then(function (res) {
+        btn.disabled = false;
+        btn.textContent = 'Meldung senden';
+        if (res.error) {
+          feedback.textContent = 'Fehler: ' + res.error.message;
+          feedback.className = 'report-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+        } else {
+          feedback.textContent = 'Meldung gesendet — danke!';
+          feedback.className = 'report-feedback mt-sm text-body-md text-primary';
+          feedback.classList.remove('hidden');
+          reasonInput.value = '';
+          setTimeout(function () {
+            var form = document.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+            if (form) form.classList.add('hidden');
+            feedback.classList.add('hidden');
+          }, 2000);
+        }
+      });
+    });
+  });
+})();
+</script>

@@ -1,0 +1,30 @@
+BAUE SOFORT — KEINE ANALYSE. Feature C1: Community-Board für carp24.
+
+## KONTEXT
+`content_reports` existiert (Migration 0017, RLS: insert own, select own). `catches.is_public` — PRÜFE zuerst in den Migrationen (grep "is_public") ob die Spalte existiert; falls NICHT, ergänze sie am Ende deiner Änderungen als kleine Migration 0020_community.sql:
+```sql
+ALTER TABLE public.catches ADD COLUMN IF NOT EXISTS is_public boolean NOT NULL DEFAULT false;
+```
+RLS: `catches` hat vermutlich bereits own-Policies (SELECT/INSERT/UPDATE für eigene). Füge NUR wenn nötig eine Policy hinzu: öffentliche Fänge lesbar für alle: `CREATE POLICY "catches_public_read" ON public.catches FOR SELECT TO authenticated USING (is_public = true);` (analog anon). Keine neuen Löschrechte.
+
+## DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+- Toggle "ÖFFENTLICH TEILEN" (checkbox/switch, M3-Tokens) im Fang-Formular — speichert `is_public` beim publish_catch? NEIN: publish_catch hat kein is_public. Stattdessen: nach erfolgreichem Speichern `supabase.from("catches").update({ is_public: checkbox.checked }).eq("id", catchId)` (catchId aus publish_catch-Rückgabe oder der lokalen Fang-ID). Falls publish_catch die ID zurückgibt, nutze sie; sonst zuletzt erstellten Fang laden.
+- Standard: false.
+
+## DATEI 2 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/board.astro
+- Öffentlich (KEIN Login nötig? NEIN — nur eingeloggt, da content_reports-Melden eingeloggt sein muss. SSR-Auth-Guard wie andere Seiten).
+- Lädt: `supabase.from("catches").select("id, catch_ts, weight_kg, species, water_name, lat, lng, notes, photos, is_public, user_id, profiles(username)").eq("is_public", true).is("deleted_at", null).order("catch_ts", { ascending: false }).limit(50)` — LIES eine bestehende Seite (faenge.astro) für das profiles-Relations-Muster (username-Spalte prüfen; falls anders heißt, anpassen).
+- **PRIVACY BY DESIGN (P2-4):** lat/lng beim Rendern auf 2 Dezimalstellen runden (~1 km Genauigkeit) — zeige "ca. 47.50, 14.20" ODER verberge komplett. KEINE exakten Koordinaten im Board.
+- Karten: Datum, Art, Gewicht (kg), Gewässer, User-Name, Notizen (gekürzt 200 Zeichen), Foto (falls vorhanden — createSignedUrl-Muster aus faenge/[id].astro), runde Koordinaten.
+- **MELDEN-Link** auf jeder Karte: klicken → kleines Inline-Formular (Grund-Textarea, min-h-11) → `supabase.from("content_reports").insert({ target_type: "catch", target_id: id, reporter_id: user.id, reason })` → Erfolgshinweis "Meldung gesendet" / Fehler rot. Nach Erfolg: Formular schließen.
+- Leerer Zustand: "Noch keine öffentlichen Fänge — teile deinen ersten Fang!" + Link zu /fang-erfassen/.
+- Header-Link "Board" ergänzen (Desktop + Mobile).
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'is_public' web/src/pages/board.astro → ≥3
+3. grep -c 'content_reports' web/src/pages/board.astro → ≥1
+4. grep -c 'Board' web/src/components/Header.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + ob is_public existierte + Build.

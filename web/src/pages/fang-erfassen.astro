@@ -207,6 +207,12 @@ const userTripsJson = JSON.stringify(userTrips);
               <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
             </div>
 
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="is_public" name="is_public" type="checkbox" />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="is_public">ÖFFENTLICH TEILEN</label>
+              <span class="text-body-md text-on-surface-variant text-xs">(Im Community-Board sichtbar)</span>
+            </div>
+
             <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
             <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
@@ -719,6 +725,13 @@ const userTripsJson = JSON.stringify(userTrips);
       } else {
         submitSuccess.textContent = 'Fang erfolgreich gespeichert!';
         submitSuccess.classList.remove('hidden');
+        var isPublicCheckbox = document.getElementById('is_public');
+        if (isPublicCheckbox && isPublicCheckbox.checked && result.id) {
+          var sbPub = getSupabase();
+          if (sbPub) {
+            sbPub.from("catches").update({ is_public: true }).eq("id", result.id).then(function () {});
+          }
+        }
         if (tripSelect) tripSelect.value = '';
         var sb = getSupabase();
         if (sb) {
