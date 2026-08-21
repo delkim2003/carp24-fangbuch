@@ -1,0 +1,155 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin: Reports" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">REPORTS</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+    </nav>
+
+    <div class="flex gap-3 mb-lg">
+      <button id="tab-open" type="button" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer">Offen</button>
+      <button id="tab-resolved" type="button" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Erledigt</button>
+    </div>
+
+    <div id="reports-container" class="w-full space-y-4">
+      <p class="text-body-md text-on-surface-variant">Lade…</p>
+    </div>
+  </main>
+
+  <script>
+    let currentStatus = "open";
+
+    function previewText(type: string, preview: any) {
+      if (!preview) return "";
+      if (type === "catch") {
+        const parts = [];
+        if (preview.species) parts.push(preview.species);
+        if (preview.weight_kg) parts.push(preview.weight_kg + " kg");
+        if (preview.water_name) parts.push(preview.water_name);
+        return parts.join(" · ");
+      }
+      if (type === "forum_thread") return preview.title || preview.body || "";
+      if (type === "forum_post" || type === "chat_message") return (preview.body || "").slice(0, 100);
+      if (type === "marketplace_item") return preview.title || "";
+      return "";
+    }
+
+    async function loadReports() {
+      const container = document.getElementById("reports-container");
+      if (!container) return;
+      container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
+
+      try {
+        const res = await fetch(`/api/admin/reports?status=${currentStatus}`);
+        if (!res.ok) throw new Error();
+        const { reports } = await res.json();
+
+        if (!reports || reports.length === 0) {
+          container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Reports gefunden.</p>';
+          return;
+        }
+
+        container.innerHTML = reports
+          .map((r: any) => {
+            const date = new Date(r.created_at).toLocaleDateString("de-DE");
+            const preview = previewText(r.target_type, r.preview);
+            const resolvedInfo = r.resolved_at
+              ? `<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ${new Date(r.resolved_at).toLocaleDateString("de-DE")}</p>`
+              : "";
+            return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${r.id}" data-target-id="${r.target_id || ""}" data-target-type="${r.target_type || ""}">
+              <div class="flex justify-between items-start gap-4 mb-sm">
+                <div>
+                  <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">${r.target_type}</p>
+                  <p class="text-body-md text-on-surface font-medium">${r.reason || "Kein Grund angegeben"}</p>
+                </div>
+                <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
+              </div>
+              <p class="text-body-sm text-on-surface-variant mb-sm">Gemeldet von: ${r.reporter_name || "Unbekannt"}</p>
+              ${preview ? `<p class="text-body-sm text-on-surface bg-surface-container-high rounded-lg px-3 py-2 mb-md">${preview}</p>` : ""}
+              ${resolvedInfo}
+              ${r.status === "open" ? `<div class="flex gap-3 mt-md">
+                <button type="button" class="resolve-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:bg-primary-container transition-colors">Erledigt</button>
+                <button type="button" class="delete-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Inhalt löschen</button>
+              </div>` : ""}
+            </div>`;
+          })
+          .join("");
+
+        container.querySelectorAll(".resolve-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const card = btn.closest("[data-id]");
+            if (!card) return;
+            const id = card.getAttribute("data-id");
+            btn.setAttribute("disabled", "true");
+            btn.textContent = "…";
+            await fetch("/api/admin/reports", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
+            });
+            loadReports();
+          });
+        });
+
+        container.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const card = btn.closest("[data-id]");
+            if (!card) return;
+            const id = card.getAttribute("data-id") || "";
+            const targetId = card.getAttribute("data-target-id") || "";
+            const targetType = card.getAttribute("data-target-type") || "";
+            if (!confirm("Inhalt wirklich löschen?")) return;
+            btn.setAttribute("disabled", "true");
+            btn.textContent = "…";
+            await fetch("/api/admin/reports", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id, target_id: targetId, target_type: targetType }),
+            });
+            loadReports();
+          });
+        });
+      } catch {
+        container.innerHTML = '<p class="text-body-md text-error">Fehler beim Laden.</p>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabOpen = document.getElementById("tab-open");
+      const tabResolved = document.getElementById("tab-resolved");
+
+      function setActive(status: string) {
+        currentStatus = status;
+        if (tabOpen && tabResolved) {
+          if (status === "open") {
+            tabOpen.className = "font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer";
+            tabResolved.className = "font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer";
+          } else {
+            tabResolved.className = "font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer";
+            tabOpen.className = "font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer";
+          }
+        }
+        loadReports();
+      }
+
+      tabOpen?.addEventListener("click", () => setActive("open"));
+      tabResolved?.addEventListener("click", () => setActive("resolved"));
+      loadReports();
+    });
+  </script>
+</Layout>

@@ -1,0 +1,109 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">ADMIN-BEREICH</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+    </nav>
+
+    <div id="kpi-grid" class="grid grid-cols-2 md:grid-cols-4 gap-gutter w-full mb-xl">
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Nutzer</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="users">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Fänge</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="catches">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Offene Reports</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="openReports">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Forum-Threads</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="forumThreads">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Forum-Antworten</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="forumPosts">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Chat-Nachrichten</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="chatMessages">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Marktplatz-Anzeigen</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="marketplaceItems">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Trips</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="trips">–</p>
+      </div>
+    </div>
+
+    <div class="w-full">
+      <h2 class="text-headline-md text-on-surface mb-lg">Offene Reports</h2>
+      <div id="reports-list" class="space-y-3">
+        <p class="text-body-md text-on-surface-variant">Lade…</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (!res.ok) return;
+        const { stats } = await res.json();
+        for (const [key, value] of Object.entries(stats)) {
+          const el = document.querySelector(`[data-kpi="${key}"]`);
+          if (el) el.textContent = String(value);
+        }
+      } catch {}
+
+      try {
+        const res = await fetch("/api/admin/reports?status=open");
+        if (!res.ok) return;
+        const { reports } = await res.json();
+        const container = document.getElementById("reports-list");
+        if (!container) return;
+
+        if (!reports || reports.length === 0) {
+          container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine offenen Reports.</p>';
+          return;
+        }
+
+        container.innerHTML = reports
+          .slice(0, 10)
+          .map((r: any) => {
+            const date = new Date(r.created_at).toLocaleDateString("de-DE");
+            return `<a href="/admin/reports/" class="block bg-surface-container-lowest rounded-xl p-lg border border-outline/20 hover:border-primary/40 transition-colors">
+              <div class="flex justify-between items-start gap-4">
+                <div>
+                  <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">${r.target_type}</p>
+                  <p class="text-body-md text-on-surface">${r.reason || "Kein Grund angegeben"}</p>
+                </div>
+                <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
+              </div>
+            </a>`;
+          })
+          .join("");
+      } catch {}
+    });
+  </script>
+</Layout>

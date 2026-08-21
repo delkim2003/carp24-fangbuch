@@ -41,6 +41,7 @@ const navItems = [
           {item.de}
         </a>
       ))}
+      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 text-on-surface-variant hover:text-primary">ADMIN</a>
     </nav>
 
     <div class="flex items-center gap-4">
@@ -94,6 +95,7 @@ const navItems = [
       <a href="/profil" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
         Profil
       </a>
+      <a id="admin-link-mobile" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">ADMIN</a>
       <button id="mobile-theme-toggle" type="button" data-de="Thema" data-en="Theme" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hover:text-primary cursor-pointer text-left w-full">
         Thema
       </button>
@@ -205,5 +207,15 @@ const navItems = [
 
   if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
   if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
+
+  // Admin-Link anzeigen wenn Admin/Moderator
+  fetch('/api/admin/me').then(function(r) { return r.json(); }).then(function(d) {
+    if (d.isAdmin) {
+      var dl = document.getElementById('admin-link-desktop');
+      var ml = document.getElementById('admin-link-mobile');
+      if (dl) dl.removeAttribute('hidden');
+      if (ml) ml.removeAttribute('hidden');
+    }
+  }).catch(function() {});
 })();
 </script>

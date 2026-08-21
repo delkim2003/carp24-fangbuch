@@ -1,0 +1,136 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin: Nutzer" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">NUTZER</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+    </nav>
+
+    <div class="w-full overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-outline/20">
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Name</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Rolle</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">PRO</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Fänge</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="users-body">
+          <tr><td colspan="7" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    async function loadUsers() {
+      const tbody = document.getElementById("users-body");
+      if (!tbody) return;
+
+      try {
+        const res = await fetch("/api/admin/users");
+        if (!res.ok) throw new Error();
+        const { users } = await res.json();
+
+        if (!users || users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = users
+          .map((u: any) => {
+            const date = new Date(u.created_at).toLocaleDateString("de-DE");
+            const deleted = u.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
+            return `<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors" data-id="${u.id}">
+              <td class="text-body-md text-on-surface py-3 px-4">${u.display_name || "–"}${deleted}</td>
+              <td class="text-body-sm text-on-surface-variant py-3 px-4">${u.email || "–"}</td>
+              <td class="py-3 px-4">
+                <select class="role-select bg-surface-container-highest text-on-surface rounded-lg px-2 py-1 text-body-sm border border-outline/20 min-h-11 cursor-pointer">
+                  <option value="USER" ${u.role === "USER" ? "selected" : ""}>USER</option>
+                  <option value="MODERATOR" ${u.role === "MODERATOR" ? "selected" : ""}>MODERATOR</option>
+                  <option value="ADMIN" ${u.role === "ADMIN" ? "selected" : ""}>ADMIN</option>
+                </select>
+              </td>
+              <td class="py-3 px-4">
+                <input type="checkbox" class="pro-check w-5 h-5 accent-primary cursor-pointer min-h-11" ${u.is_pro ? "checked" : ""} />
+              </td>
+              <td class="text-body-md text-on-surface py-3 px-4">${u.catches_count ?? 0}</td>
+              <td class="text-body-sm text-on-surface-variant py-3 px-4">${date}</td>
+              <td class="py-3 px-4">
+                <button type="button" class="delete-user-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
+              </td>
+            </tr>`;
+          })
+          .join("");
+
+        tbody.querySelectorAll(".role-select").forEach((sel) => {
+          sel.addEventListener("change", async () => {
+            const tr = sel.closest("tr");
+            if (!tr) return;
+            const id = tr.getAttribute("data-id");
+            const role = (sel as HTMLSelectElement).value;
+            await fetch("/api/admin/users", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id, role }),
+            });
+          });
+        });
+
+        tbody.querySelectorAll(".pro-check").forEach((chk) => {
+          chk.addEventListener("change", async () => {
+            const tr = chk.closest("tr");
+            if (!tr) return;
+            const id = tr.getAttribute("data-id");
+            const is_pro = (chk as HTMLInputElement).checked;
+            await fetch("/api/admin/users", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id, is_pro }),
+            });
+          });
+        });
+
+        tbody.querySelectorAll(".delete-user-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const tr = btn.closest("tr");
+            if (!tr) return;
+            const id = tr.getAttribute("data-id");
+            if (!confirm("Nutzer wirklich löschen? (Soft Delete)")) return;
+            btn.setAttribute("disabled", "true");
+            btn.textContent = "…";
+            await fetch("/api/admin/users", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
+            });
+            loadUsers();
+          });
+        });
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadUsers);
+  </script>
+</Layout>

@@ -1,0 +1,117 @@
+# BRIEFING: F1 ADMIN-DASHBOARD — Carp24 (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Ein KOMPLETTES funktionsfähiges Admin-Dashboard für Carp24 Fangbuch.
+Projekt: /mnt/projekte/carp24-fangbuch (Astro 7 + Supabase self-hosted, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## BESTEHENDE MUSTER (NUR DIESE VERWENDEN)
+
+### SSR-Auth-Muster (Seiten, z.B. premium.astro):
+```ts
+import { createServerClient } from "@supabase/ssr";
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  { cookies: { getAll() { const h = Astro.request.headers.get("cookie"); if (!h) return []; return h.split(";").map(p => { const i = p.indexOf("="); if (i === -1) return null; return { name: p.slice(0, i).trim(), value: p.slice(i + 1).trim() }; }).filter(Boolean) as { name: string; value: string }[]; }, setAll(cs) { cs.forEach(({ name, value, options }) => { Astro.cookies.set(name, value, options); }); } } }
+);
+const { data: { session } } = await supabase.auth.getSession();
+```
+
+### Admin-Client (API-Routen, z.B. webhook.ts):
+```ts
+import { createClient } from "@supabase/supabase-js";
+const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+```
+
+### role-Spalte (EXISTIERT BEREITS):
+`profiles.role text NOT NULL DEFAULT 'USER'` mit CHECK IN ('USER','MODERATOR','ADMIN').
+Admin-Check: `profile.role === 'ADMIN' || profile.role === 'MODERATOR'`.
+`profiles.is_pro boolean NOT NULL DEFAULT false` existiert ebenfalls.
+
+## MIGRATION 0027_admin.sql (unter supabase/migrations/)
+```sql
+-- Admin-Moderation: resolved-Infos für content_reports
+ALTER TABLE public.content_reports ADD COLUMN IF NOT EXISTS resolved_at timestamptz;
+ALTER TABLE public.content_reports ADD COLUMN IF NOT EXISTS resolved_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL;
+```
+
+## DATEIEN (ALLE NEU ANLEGEN)
+
+### 1. web/src/lib/admin.ts — Guard-Helfer
+```ts
+import { createServerClient } from "@supabase/ssr";
+import type { AstroGlobal } from "astro";
+
+export async function getSessionAndProfile(Astro: AstroGlobal) {
+  const supabase = createServerClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.PUBLIC_SUPABASE_ANON_KEY, { cookies: { getAll() { const h = Astro.request.headers.get("cookie"); if (!h) return []; return h.split(";").map(p => { const i = p.indexOf("="); if (i === -1) return null; return { name: p.slice(0, i).trim(), value: p.slice(i + 1).trim() }; }).filter(Boolean) as { name: string; value: string }[]; }, setAll(cs) { cs.forEach(({ name, value, options }) => { Astro.cookies.set(name, value, options); }); } } });
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { supabase, session: null, profile: null, isAdmin: false };
+  const { data: profile } = await supabase.from("profiles").select("id, display_name, role, is_pro").eq("id", session.user.id).single();
+  const role = profile?.role ?? "USER";
+  return { supabase, session, profile, isAdmin: role === "ADMIN" || role === "MODERATOR" };
+}
+```
+
+### 2. web/src/pages/admin/index.astro — Übersicht
+- SSR: getSessionAndProfile; wenn !session → Astro.redirect("/login/"); wenn !isAdmin → Astro.redirect("/");
+- Admin-Layout (Header „ADMIN-BEREICH" + Nav: Übersicht | Reports | Nutzer | Inhalte; gleiche Designsprache wie Rest: hell #E2DECC, Karten #FFFFFF, Text #0B0C0B, Button #6C7A57, Kicker „PASSION. FISHING. COMMUNITY.", min-h-12, uppercase tracking-widest, Inline-CSS)
+- KPI-Karten (fetch /api/admin/stats.ts client-seitig nach Mount): Nutzer, Fänge, Offene Reports, Forum-Threads, Forum-Antworten, Chat-Nachrichten, Marktplatz-Anzeigen, Trips
+- Liste der 10 neuesten OFFENEN Reports (target_type, reason, created_at) mit Link zu /admin/reports/
+
+### 3. web/src/pages/admin/reports.astro — Meldungen moderieren
+- SSR-Guard wie oben; client-seitig fetch /api/admin/reports.ts
+- Filter: offen / erledigt (Tabs)
+- Pro Report: target_type + target_id, reason, reporter display_name, created_at; Ziel-Content-Vorschau (je Typ: catch → Gewicht/Art/Gewässer; forum_thread → Titel; forum_post → body; chat_message → body; marketplace_item → title)
+- Buttons: „ERLEDIGT" (PATCH status=resolved) und „INHALT LÖSCHEN" (DELETE → löscht Ziel-Content UND setzt Report resolved; confirm-Dialog)
+- Nach Aktion: Liste neu laden
+
+### 4. web/src/pages/admin/users.astro — Nutzer verwalten
+- SSR-Guard; client-seitig fetch /api/admin/users.ts
+- Tabelle: display_name, E-Mail (aus auth.admin.listUsers — im API-Antwort mitgeben), role (USER/MODERATOR/ADMIN), is_pro (Ja/Nein), Fänge (count), created_at
+- Pro Zeile: Rolle-Select (Ändern → PATCH), is_pro-Checkbox (PATCH), „LÖSCHEN"-Button (DELETE → profiles.deleted_at=now(); confirm)
+
+### 5. web/src/pages/admin/content.astro — Inhalte moderieren
+- SSR-Guard; Tabs: FÄNGE | FORUM | CHAT | MARKTPLATZ
+- Client-seitig fetch /api/admin/content.ts?type=... (limit 50)
+- FÄNGE: catches (user display_name, species, weight_kg, water_name, created_at, deleted_at-Status) + LÖSCHEN (soft: deleted_at=now())
+- FORUM: forum_threads + forum_posts (Autor, Titel/body, created_at) + LÖSCHEN (hard DELETE)
+- CHAT: chat_messages (Autor, body, created_at) + LÖSCHEN (hard DELETE)
+- MARKTPLATZ: marketplace_items (title, price, status, user) + LÖSCHEN (hard DELETE)
+
+### 6. API-Routen (ALLE mit identischem Admin-Guard-Pattern)
+Für JEDE Route: SSR-Client bauen (gleiches Cookie-Muster), session prüfen (401), profiles.role prüfen (403), DANN supabaseAdmin für alle Datenzugriffe.
+
+#### /api/admin/stats.ts — GET
+Counts via supabaseAdmin: profiles (eq deleted_at null), catches (eq deleted_at null), content_reports (eq status open), forum_threads, forum_posts, chat_messages, marketplace_items, trips. → { stats: {...} }
+
+#### /api/admin/reports.ts
+- GET?status=open|resolved: content_reports (order created_at desc, limit 100) + reporter profile (display_name via join profiles!reporter) + Ziel-Vorschau je target_type (extra Queries: catches/forum_threads/forum_posts/chat_messages/marketplace_items)
+- PATCH {id}: set status='resolved', resolved_at=now(), resolved_by=session.user.id
+- DELETE {id} (+ optional target_id/target_type im Body): Inhalt löschen (catch → UPDATE catches SET deleted_at=now() WHERE id; forum_thread → DELETE forum_threads; forum_post → DELETE forum_posts; chat_message → DELETE chat_messages; marketplace_item → DELETE marketplace_items) UND Report: status='resolved', resolved_at=now(), resolved_by=session.user.id
+
+#### /api/admin/users.ts
+- GET: supabaseAdmin.auth.admin.listUsers() → users (email) + profiles (role, is_pro, display_name, created_at, deleted_at) + counts (catches per user, limit 200)
+- PATCH {id, role?, is_pro?}: UPDATE profiles SET role/is_pro WHERE id (nur wenn Ziel nicht der letzte ADMIN — einfach halten: erlauben)
+- DELETE {id}: UPDATE profiles SET deleted_at=now() WHERE id (soft delete; KEIN hard delete — auth.users bleibt)
+
+#### /api/admin/content.ts
+- GET?type=catch|forum|chat|marketplace&q=: Listen (limit 50, order created_at desc, mit display_name-Join via profiles-FK; q filtert ILIKE auf species/body/title/display_name)
+- DELETE {type, id}: catch → soft delete (deleted_at=now()); forum/chat/marketplace → hard DELETE
+
+#### /api/admin/me.ts — GET
+Session + role → { isAdmin: boolean, role: string } (für Header-Link client-seitig)
+
+### 7. Header.astro — Admin-Link
+Im Header (web/src/components/Header.astro) NACH dem bestehenden Nav einen Link „ADMIN" auf /admin/ ergänzen, der NUR für Admins sichtbar ist: kleines Inline-Script (DOMContentLoaded → fetch /api/admin/me.ts → wenn isAdmin: <a href="/admin/">ADMIN</a> einblenden, Stil wie Nav-Links, min-h-11). Im HTML versteckt (hidden) rendern — kein Server-Umbau nötig. i18n: data-de="ADMIN" data-en="ADMIN" (kein Übersetzungsbedarf).
+
+## VERBOTEN
+- KEINE neuen Dependencies
+- KEINE Änderungen an RLS/Policy-Dateien (service_role umgeht RLS — alle Admin-Zugriffe via supabaseAdmin)
+- KEINE Passwörter/Secrets ins Repo
+- KEINE Änderungen an login.astro, profil.astro, bestehenden API-Routen
+- Nicht vergessen: export const prerender = false bei allen API-Routen und Admin-Seiten (SSR!)
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein (Astro type-check + build).
+Danach NICHT deployen (macht der Orchestrator). Berichte: welche Dateien angelegt, Build-Status, kurze Funktionsbeschreibung.
