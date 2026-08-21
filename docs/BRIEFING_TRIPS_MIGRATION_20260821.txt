@@ -1,0 +1,39 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A4 Teil 1: Trips-Migration für carp24.
+
+## DATEI (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0019_trips.sql
+LIES ZUERST die publish_catch-Funktion (Migration 0004 oder wo sie definiert ist) um sie zu erweitern.
+
+```sql
+-- 0019_trips.sql — Angelausflüge (A4)
+CREATE TABLE IF NOT EXISTS public.trips (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name text NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100),
+  start_date date,
+  end_date date,
+  notes text CHECK (char_length(notes) <= 1000),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "trips_own" ON public.trips FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.trips TO authenticated;
+
+-- catches.trip_id (nullable FK)
+ALTER TABLE public.catches ADD COLUMN IF NOT EXISTS trip_id uuid REFERENCES public.trips(id) ON DELETE SET NULL;
+```
+
+**Erweitere publish_catch** (die bestehende Funktion, in-place UPDATE — nicht neu schreiben): neuer Parameter `p_trip_id uuid DEFAULT NULL`. Beim INSERT: `trip_id` setzen — ABER nur wenn der Trip dem User gehört (sonst NULL):
+```sql
+-- im Validierungs-/INSERT-Teil:
+CASE WHEN p_trip_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.trips t WHERE t.id = p_trip_id AND t.user_id = v_user_id) THEN p_trip_id ELSE NULL END
+```
+Falls publish_catch bereits einen v_uid/auth.uid()-Check hat, nutze v_uid. Passe die Funktion per CREATE OR REPLACE mit gleicher Signatur+neuem Parameter an (REVOKE/GRANT wie gehabt erhalten).
+
+## VERIFIKATION
+1. Migration einspielen (docker exec psql als supabase_admin, wie 0016) ODER dokumentieren
+2. grep -c 'trip_id' supabase/migrations/0019_trips.sql → ≥2
+3. grep -c 'p_trip_id' supabase/migrations/*.sql → ≥1 (publish_catch-Erweiterung)
+4. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: Datei + publish_catch-Erweiterung + ob Migration eingespielt.

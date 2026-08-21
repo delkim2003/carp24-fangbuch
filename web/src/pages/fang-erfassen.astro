@@ -35,6 +35,17 @@ import "leaflet/dist/leaflet.css";
 
 const { data: { session } } = await supabase.auth.getSession();
 const isLoggedIn = !!session;
+
+let userTrips: any[] = [];
+if (isLoggedIn && session) {
+  const { data } = await supabase
+    .from("trips")
+    .select("id, name")
+    .eq("user_id", session.user.id)
+    .order("created_at", { ascending: false });
+  userTrips = data ?? [];
+}
+const userTripsJson = JSON.stringify(userTrips);
 ---
 
 <Layout title="Carp24 – Neuen Fang eintragen" noindex>
@@ -199,6 +210,16 @@ const isLoggedIn = !!session;
             <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
             <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-select">TRIP (OPTIONAL)</label>
+              <select
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                id="trip-select" name="trip_id"
+              >
+                <option value="">— Kein Trip —</option>
+              </select>
+            </div>
+
             <div class="pt-xl flex justify-end">
               <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
                 FANG SPEICHERN
@@ -223,10 +244,24 @@ const isLoggedIn = !!session;
   </main>
 </Layout>
 
-<script is:inline>
+<script is:inline define:vars={{ userTripsJson }}>
 (function () {
   var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
   var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  var userTrips = [];
+  try { userTrips = JSON.parse(userTripsJson); } catch (e) { userTrips = []; }
+
+  // Populate trip select
+  var tripSelect = document.getElementById('trip-select');
+  if (tripSelect && userTrips.length > 0) {
+    userTrips.forEach(function (t) {
+      var opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name;
+      tripSelect.appendChild(opt);
+    });
+  }
 
   function genClientUuid() {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -684,6 +719,7 @@ const isLoggedIn = !!session;
       } else {
         submitSuccess.textContent = 'Fang erfolgreich gespeichert!';
         submitSuccess.classList.remove('hidden');
+        if (tripSelect) tripSelect.value = '';
         var sb = getSupabase();
         if (sb) {
           sb.auth.getUser().then(function (ur) {
@@ -722,7 +758,10 @@ const isLoggedIn = !!session;
         return;
       }
       var catch_id = res.data;
-      sb.rpc('publish_catch', { p_catch_id: catch_id }).then(function (pubRes) {
+      var tripId = tripSelect ? tripSelect.value || null : null;
+      var rpcParams = { p_catch_id: catch_id };
+      if (tripId) rpcParams.p_trip_id = tripId;
+      sb.rpc('publish_catch', rpcParams).then(function (pubRes) {
         if (pubRes.error) {
           cb({ id: catch_id, error: pubRes.error.message });
         } else {

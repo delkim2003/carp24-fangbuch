@@ -1,0 +1,29 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A4 Teil 2: Trips-UI für carp24.
+
+## KONTEXT
+Backend existiert BEREITS (Migration 0019 eingespielt): `trips` (id, user_id, name, water_id, start_date, end_date, notes, RLS own) + `catches.trip_id` FK + `publish_catch(p_catch_id, p_trip_id DEFAULT NULL)`. Du baust NUR die UI.
+
+## DATEI 1 (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/trips.astro
+- SSR-Auth-Guard (Session, Redirect /login/). M3-Tokens wie andere Seiten, Kicker "PASSION. FISHING. COMMUNITY.", H1 "TRIPS".
+- Lade Trips des Users: `supabase.from("trips").select("*, catches(count)")` — RLS own; zusätzlich SUM(weight_kg) pro Trip: `catches!inner(weight_kg)` mit .select + group? Einfacher: lade zusätzlich pro Trip die Fänge-Statistik via zweitem Query `.from("catches").select("trip_id, weight_kg")` (eigene, nicht gelöscht) und aggregiere client-seitig (count + sum).
+- Liste: Karten pro Trip — Name, Zeitraum (start_date–end_date, formatiert), Fanganzahl, kg-Summe, Notizen. Button "LÖSCHEN" (bestätigen via confirm()) → supabase delete (RLS own). 
+- Neuer-Trip-Formular (oben): Name (Pflicht, min-h-12), Gewässer (water_id — nur wenn water-Tabelle existiert; LIES Migration 0019 und prüfe ob water_id FK auf eine public.waters-Tabelle zeigt — wenn ja: Dropdown aus waters; wenn nein: Textfeld "Gewässer"), Start/End (date-Inputs), Notizen (textarea). POST via supabase.from("trips").insert → Liste neu laden. Fehler rot anzeigen.
+- Leerer Zustand: "Noch keine Trips." + Hinweis.
+- Klick auf Trip → Detailseite (s.u.) ODER Klapp-Detail mit Fängen (einfacher: Detail-Klapp in der Karte — zeige Fänge des Trips mit Datum/kg/Art).
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+- Lade beim Seiteneinstieg die Trips des Users (nicht gelöschte? trips hat kein deleted_at — einfach alle eigenen): `supabase.from("trips").select("id, name").order("created_at")`
+- UI: Select "TRIP (optional)" vor dem Speichern-Button (min-h-12, Option "— Kein Trip —" + Trips). Beim publish_catch-Aufruf: `p_trip_id` mitgeben (null wenn kein Trip) — nutze die ZWEITE Signatur `publish_catch(catch_id, trip_id)`.
+- Nach Erfolg: Select zurücksetzen.
+
+## DATEI 3: /mnt/projekte/carp24-fangbuch/web/src/components/Header.astro
+- Menü-Link "Trips" ergänzen (Desktop + Mobile), wie "Rückblick" eingefügt.
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'from("trips")' web/src/pages/trips.astro → ≥2
+3. grep -c 'p_trip_id' web/src/pages/fang-erfassen.astro → ≥1
+4. grep -c 'Trips' web/src/components/Header.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build-Ergebnis.

@@ -1,0 +1,392 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+
+export const prerender = false;
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let trips: any[] = [];
+let catchesForTrips: any[] = [];
+let waters: any[] = [];
+let loadError: string | null = null;
+
+if (session) {
+  const [tripsRes, catchesRes, watersRes] = await Promise.all([
+    supabase
+      .from("trips")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("catches")
+      .select("trip_id, weight_kg, species, catch_ts, water_name")
+      .eq("user_id", session.user.id)
+      .is("deleted_at", null)
+      .not("trip_id", "is", null),
+    supabase
+      .from("waters")
+      .select("id, name")
+      .order("name"),
+  ]);
+
+  trips = tripsRes.data ?? [];
+  catchesForTrips = catchesRes.data ?? [];
+  waters = watersRes.data ?? [];
+  if (tripsRes.error) loadError = tripsRes.error.message;
+}
+
+const tripsJson = JSON.stringify(trips);
+const catchesJson = JSON.stringify(catchesForTrips);
+const watersJson = JSON.stringify(waters);
+---
+
+<Layout title="Carp24 – Trips" active="trips" noindex>
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    {!session ? (
+      <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
+        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary">PASSION. FISHING. COMMUNITY.</p>
+        <h1 class="text-display-lg text-primary mb-2">TRIPS</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl">Du musst angemeldet sein, um deine Trips zu sehen.</p>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+          Anmelden
+        </a>
+      </div>
+    ) : (
+      <>
+        <div class="mb-xl text-center md:text-left">
+          <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">PASSION. FISHING. COMMUNITY.</p>
+          <h1 class="text-display-lg text-primary mb-2">TRIPS</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">Plane und verwalte deine Angelausflüge.</p>
+        </div>
+
+        {loadError && <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md mb-xl">{loadError}</div>}
+
+        <form id="trip-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mb-xl">
+          <h2 class="font-headline-md text-headline-md text-primary mb-lg">NEUER TRIP</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-lg">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-name">NAME<span class="text-primary" aria-hidden="true">*</span></label>
+              <input
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                id="trip-name" name="name" type="text" placeholder="z.B. Wochenende am See" required maxlength="100"
+              />
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-water">GEWÄSSER</label>
+              <select
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                id="trip-water" name="water_id"
+              >
+                <option value="">— Kein Gewässer —</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-start">START</label>
+              <input
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                id="trip-start" name="start_date" type="date"
+              />
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-end">ENDE</label>
+              <input
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                id="trip-end" name="end_date" type="date"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-sm mb-lg">
+            <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-notes">NOTIZEN</label>
+            <textarea
+              class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-24"
+              id="trip-notes" name="notes" rows="3" maxlength="1000" placeholder="Beschreibe deinen Trip..."
+            ></textarea>
+          </div>
+          <div id="trip-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md mb-md" role="alert"></div>
+          <div class="flex justify-end">
+            <button type="submit" id="trip-submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+              TRIP ERSTELLEN
+            </button>
+          </div>
+        </form>
+
+        <div id="trips-list" class="flex flex-col gap-md"></div>
+
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-3xl text-center gap-lg">
+          <div class="w-32 h-32 rounded-full border-2 border-primary/40 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7B9496" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h2 class="text-display-md text-primary">NOCH KEINE TRIPS</h2>
+          <p class="text-body-lg text-on-surface-variant max-w-md">Erstelle deinen ersten Trip, um deine Angelausflüge zu planen und Fänge zuzuordnen.</p>
+        </div>
+      </>
+    )}
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ tripsJson, catchesJson, watersJson }}>
+(function () {
+  var trips = [];
+  var catches = [];
+  var waters = [];
+  try { trips = JSON.parse(tripsJson); } catch (e) { trips = []; }
+  try { catches = JSON.parse(catchesJson); } catch (e) { catches = []; }
+  try { waters = JSON.parse(watersJson); } catch (e) { waters = []; }
+
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str || ''));
+    return div.innerHTML;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  var speciesMap = { SPIEGEL: 'Spiegelkarpfen', LEDER: 'Lederkarpfen', SCHUPPEN: 'Schuppenkarpfen', AMUR: 'Amurkarpfen', ANDERE: 'Andere' };
+
+  // Populate waters dropdown
+  var waterSelect = document.getElementById('trip-water');
+  if (waterSelect && waters.length > 0) {
+    waters.forEach(function (w) {
+      var opt = document.createElement('option');
+      opt.value = w.id;
+      opt.textContent = w.name || '(unbenannt)';
+      waterSelect.appendChild(opt);
+    });
+  }
+
+  // Build catch stats per trip
+  var tripStats = {};
+  catches.forEach(function (c) {
+    if (!c.trip_id) return;
+    if (!tripStats[c.trip_id]) tripStats[c.trip_id] = { count: 0, sumKg: 0, catches: [] };
+    tripStats[c.trip_id].count++;
+    tripStats[c.trip_id].sumKg += Number(c.weight_kg) || 0;
+    tripStats[c.trip_id].catches.push(c);
+  });
+
+  var waterMap = {};
+  waters.forEach(function (w) { waterMap[w.id] = w.name; });
+
+  var listContainer = document.getElementById('trips-list');
+  var emptyState = document.getElementById('empty-state');
+
+  function renderTrips() {
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    if (trips.length === 0) {
+      if (emptyState) emptyState.classList.remove('hidden');
+      return;
+    }
+    if (emptyState) emptyState.classList.add('hidden');
+
+    trips.forEach(function (trip) {
+      var stats = tripStats[trip.id] || { count: 0, sumKg: 0, catches: [] };
+      var waterName = trip.water_id ? waterMap[trip.water_id] : null;
+
+      var card = document.createElement('div');
+      card.className = 'bg-surface-container-high rounded-xl border border-primary/40 p-lg shadow-sm';
+
+      var header = document.createElement('div');
+      header.className = 'flex flex-col md:flex-row md:items-center justify-between gap-md cursor-pointer';
+      header.innerHTML =
+        '<div class="flex-1">' +
+          '<h3 class="font-headline-md text-headline-md text-primary">' + escapeHtml(trip.name) + '</h3>' +
+          '<div class="flex flex-wrap gap-md mt-sm text-body-md text-secondary">' +
+            '<span>' + formatDate(trip.start_date) + (trip.end_date ? ' – ' + formatDate(trip.end_date) : '') + '</span>' +
+            (waterName ? '<span>' + escapeHtml(waterName) + '</span>' : '') +
+          '</div>' +
+          '<div class="flex gap-lg mt-sm">' +
+            '<span class="font-mono text-body-lg text-primary font-bold">' + stats.count + ' Fänge</span>' +
+            '<span class="font-mono text-body-lg text-secondary">' + stats.sumKg.toFixed(1) + ' kg</span>' +
+          '</div>' +
+          (trip.notes ? '<p class="text-body-md text-on-surface-variant mt-sm line-clamp-2">' + escapeHtml(trip.notes) + '</p>' : '') +
+        '</div>';
+
+      var actions = document.createElement('div');
+      actions.className = 'flex items-center gap-sm';
+
+      var expandBtn = document.createElement('button');
+      expandBtn.type = 'button';
+      expandBtn.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer text-sm';
+      expandBtn.textContent = 'FÄNGE';
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-error/40 text-error hover:bg-error-container hover:text-on-error-container transition-colors min-h-11 cursor-pointer text-sm';
+      delBtn.textContent = 'LÖSCHEN';
+
+      actions.appendChild(expandBtn);
+      actions.appendChild(delBtn);
+      header.appendChild(actions);
+      card.appendChild(header);
+
+      var detail = document.createElement('div');
+      detail.className = 'hidden mt-lg pt-lg border-t border-primary/20';
+      card.appendChild(detail);
+
+      var expanded = false;
+      expandBtn.addEventListener('click', function () {
+        expanded = !expanded;
+        if (expanded) {
+          detail.classList.remove('hidden');
+          expandBtn.textContent = 'ZUKLAPPEN';
+          renderDetail(detail, stats.catches);
+        } else {
+          detail.classList.add('hidden');
+          expandBtn.textContent = 'FÄNGE';
+        }
+      });
+
+      delBtn.addEventListener('click', function () {
+        if (!confirm('Trip "' + trip.name + '" wirklich löschen? Die Fänge bleiben erhalten.')) return;
+        var sb = getSupabase();
+        if (!sb) return;
+        sb.from("trips").delete().eq("id", trip.id).then(function (res) {
+          if (res.error) {
+            alert('Fehler: ' + res.error.message);
+          } else {
+            trips = trips.filter(function (t) { return t.id !== trip.id; });
+            renderTrips();
+          }
+        });
+      });
+
+      listContainer.appendChild(card);
+    });
+  }
+
+  function renderDetail(container, tripCatches) {
+    container.innerHTML = '';
+    if (tripCatches.length === 0) {
+      container.innerHTML = '<p class="text-body-md text-on-surface-variant">Noch keine Fänge in diesem Trip.</p>';
+      return;
+    }
+    var table = document.createElement('div');
+    table.className = 'flex flex-col gap-sm';
+    tripCatches.sort(function (a, b) { return new Date(b.catch_ts).getTime() - new Date(a.catch_ts).getTime(); });
+    tripCatches.forEach(function (c) {
+      var row = document.createElement('div');
+      row.className = 'flex items-center justify-between py-sm px-md bg-surface-container-lowest rounded border border-primary/10';
+      var dateStr = new Date(c.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+      row.innerHTML =
+        '<div class="flex gap-md text-body-md items-center">' +
+          '<span class="text-secondary">' + dateStr + '</span>' +
+          '<span class="text-on-surface font-nav-item text-nav-item uppercase">' + escapeHtml(speciesMap[c.species] || c.species || '—') + '</span>' +
+          '<span class="font-mono text-primary font-bold">' + (Number(c.weight_kg) || 0).toFixed(1) + ' kg</span>' +
+          (c.water_name ? '<span class="text-secondary">' + escapeHtml(c.water_name) + '</span>' : '') +
+        '</div>';
+      table.appendChild(row);
+    });
+    container.appendChild(table);
+  }
+
+  // New trip form
+  var form = document.getElementById('trip-form');
+  var tripError = document.getElementById('trip-error');
+  var submitBtn = document.getElementById('trip-submit-btn');
+
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      tripError.classList.add('hidden');
+
+      var name = document.getElementById('trip-name').value.trim();
+      if (!name) {
+        tripError.textContent = 'Bitte einen Namen eingeben.';
+        tripError.classList.remove('hidden');
+        return;
+      }
+
+      var waterId = document.getElementById('trip-water').value || null;
+      var startDate = document.getElementById('trip-start').value || null;
+      var endDate = document.getElementById('trip-end').value || null;
+      var notes = document.getElementById('trip-notes').value.trim() || null;
+
+      if (endDate && startDate && endDate < startDate) {
+        tripError.textContent = 'Das Enddatum darf nicht vor dem Startdatum liegen.';
+        tripError.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'WIRD ERSTELLT…';
+
+      var sb = getSupabase();
+      if (!sb) {
+        tripError.textContent = 'Supabase nicht initialisiert.';
+        tripError.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'TRIP ERSTELLEN';
+        return;
+      }
+
+      var insert = { name: name, notes: notes, start_date: startDate, end_date: endDate };
+      if (waterId) insert.water_id = waterId;
+
+      sb.from("trips").insert(insert).select().single().then(function (res) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'TRIP ERSTELLEN';
+        if (res.error) {
+          tripError.textContent = 'Fehler: ' + res.error.message;
+          tripError.classList.remove('hidden');
+        } else {
+          trips.unshift(res.data);
+          tripStats[res.data.id] = { count: 0, sumKg: 0, catches: [] };
+          renderTrips();
+          form.reset();
+        }
+      });
+    });
+  }
+
+  renderTrips();
+})();
+</script>
