@@ -49,6 +49,16 @@ async function guard(request: Request) {
   return { supabaseAdmin, session };
 }
 
+async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
+  await supabaseAdmin.from("admin_audit_log").insert({
+    actor_id: actorId,
+    action,
+    target_type: targetType,
+    target_id: targetId,
+    details,
+  });
+}
+
 export const GET = async ({ request }: { request: Request }) => {
   const g = await guard(request);
   if ("error" in g) {
@@ -95,12 +105,13 @@ export const GET = async ({ request }: { request: Request }) => {
       }
 
       let preview: any = null;
+      let ownerId: string | null = null;
       const tableMap: Record<string, { table: string; fields: string }> = {
-        catch: { table: "catches", fields: "species,weight_kg,water_id,created_at" },
-        forum_thread: { table: "forum_threads", fields: "title,body,created_at" },
-        forum_post: { table: "forum_posts", fields: "body,created_at" },
-        chat_message: { table: "chat_messages", fields: "body,created_at" },
-        marketplace_item: { table: "marketplace_items", fields: "title,price,status,created_at" },
+        catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
+        forum_thread: { table: "forum_threads", fields: "id,user_id,title,body,created_at" },
+        forum_post: { table: "forum_posts", fields: "id,user_id,body,created_at" },
+        chat_message: { table: "chat_messages", fields: "id,user_id,body,created_at" },
+        marketplace_item: { table: "marketplace_items", fields: "id,user_id,title,price,status,created_at" },
       };
 
       const mapping = tableMap[r.target_type];
@@ -112,6 +123,7 @@ export const GET = async ({ request }: { request: Request }) => {
           .single();
         if (content) {
           preview = content;
+          ownerId = content.user_id ?? null;
           if (r.target_type === "catch" && content.water_id) {
             const { data: water } = await supabaseAdmin
               .from("waters")
@@ -123,7 +135,21 @@ export const GET = async ({ request }: { request: Request }) => {
         }
       }
 
-      return { ...r, reporter_name: reporterName, preview };
+      let ownerName = "Unbekannt";
+      let ownerDisplay: any = null;
+      if (ownerId) {
+        const { data: ownerProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name")
+          .eq("id", ownerId)
+          .single();
+        if (ownerProfile) {
+          ownerName = ownerProfile.display_name;
+          ownerDisplay = { id: ownerProfile.id, display_name: ownerProfile.display_name };
+        }
+      }
+
+      return { ...r, reporter_name: reporterName, preview, owner: ownerDisplay, owner_name: ownerName };
     })
   );
 
@@ -171,6 +197,8 @@ export const PATCH = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  await writeAudit(supabaseAdmin, session.user.id, "report.resolve", "report", body.id, {});
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
@@ -239,6 +267,11 @@ export const DELETE = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  await writeAudit(supabaseAdmin, session.user.id, "report.delete_content", "report", body.id, {
+    target_type: body.target_type,
+    target_id: body.target_id,
+  });
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,

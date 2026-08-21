@@ -19,6 +19,8 @@ if (!isAdmin) return Astro.redirect("/");
       <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
       <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
       <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
     </nav>
 
     <div class="flex gap-3 mb-lg flex-wrap">
@@ -38,81 +40,87 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
-    let currentType = "catch";
-    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+    var currentType = "catch";
+    var searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function renderCatch(item: any) {
-      const date = new Date(item.created_at).toLocaleDateString("de-DE");
-      const deleted = item.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
-      return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${item.id}" data-type="catch">
-        <div class="flex justify-between items-start gap-4">
-          <div>
-            <p class="text-body-md text-on-surface font-medium">${item.display_name || "–"}${deleted}</p>
-            <p class="text-body-sm text-on-surface-variant">${item.species || "–"} · ${item.weight_kg ?? "–"} kg · ${item.water_name || "–"}</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
-            <button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
-          </div>
-        </div>
-      </div>`;
+      var date = new Date(item.created_at).toLocaleDateString("de-DE");
+      var deleted = item.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
+      return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="catch">' +
+        '<div class="flex justify-between items-start gap-4">' +
+          '<div>' +
+            '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(item.display_name || "–") + deleted + '</p>' +
+            '<p class="text-body-sm text-on-surface-variant">' + escapeHtml(item.species || "–") + ' · ' + (item.weight_kg ?? "–") + ' kg · ' + escapeHtml(item.water_name || "–") + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }
 
     function renderForum(item: any) {
-      const date = new Date(item.created_at).toLocaleDateString("de-DE");
-      const isThread = item._type === "thread";
-      const label = isThread ? "THREAD" : "BEITRAG";
-      const title = isThread ? (item.title || "–") : "";
-      const body = (item.body || "").slice(0, 120);
-      return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${item.id}" data-type="forum">
-        <div class="flex justify-between items-start gap-4">
-          <div>
-            <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">${label}</p>
-            <p class="text-body-md text-on-surface font-medium">${item.display_name || "–"}</p>
-            ${title ? `<p class="text-body-md text-on-surface mt-sm">${title}</p>` : ""}
-            <p class="text-body-sm text-on-surface-variant mt-sm">${body}</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
-            <button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
-          </div>
-        </div>
-      </div>`;
+      var date = new Date(item.created_at).toLocaleDateString("de-DE");
+      var isThread = item._type === "thread";
+      var label = isThread ? "THREAD" : "BEITRAG";
+      var title = isThread ? (item.title || "–") : "";
+      var body = (item.body || "").slice(0, 120);
+      return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="forum">' +
+        '<div class="flex justify-between items-start gap-4">' +
+          '<div>' +
+            '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">' + label + '</p>' +
+            '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(item.display_name || "–") + '</p>' +
+            (title ? '<p class="text-body-md text-on-surface mt-sm">' + escapeHtml(title) + '</p>' : "") +
+            '<p class="text-body-sm text-on-surface-variant mt-sm">' + escapeHtml(body) + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }
 
     function renderChat(item: any) {
-      const date = new Date(item.created_at).toLocaleDateString("de-DE");
-      return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${item.id}" data-type="chat">
-        <div class="flex justify-between items-start gap-4">
-          <div>
-            <p class="text-body-md text-on-surface font-medium">${item.display_name || "–"}</p>
-            <p class="text-body-sm text-on-surface-variant mt-sm">${(item.body || "").slice(0, 150)}</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
-            <button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
-          </div>
-        </div>
-      </div>`;
+      var date = new Date(item.created_at).toLocaleDateString("de-DE");
+      return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="chat">' +
+        '<div class="flex justify-between items-start gap-4">' +
+          '<div>' +
+            '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(item.display_name || "–") + '</p>' +
+            '<p class="text-body-sm text-on-surface-variant mt-sm">' + escapeHtml((item.body || "").slice(0, 150)) + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }
 
     function renderMarketplace(item: any) {
-      const date = new Date(item.created_at).toLocaleDateString("de-DE");
-      return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${item.id}" data-type="marketplace">
-        <div class="flex justify-between items-start gap-4">
-          <div>
-            <p class="text-body-md text-on-surface font-medium">${item.title || "–"}</p>
-            <p class="text-body-sm text-on-surface-variant">${item.display_name || "–"} · ${item.price ?? "–"} € · ${item.status || "–"}</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
-            <button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
-          </div>
-        </div>
-      </div>`;
+      var date = new Date(item.created_at).toLocaleDateString("de-DE");
+      return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="marketplace">' +
+        '<div class="flex justify-between items-start gap-4">' +
+          '<div>' +
+            '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(item.title || "–") + '</p>' +
+            '<p class="text-body-sm text-on-surface-variant">' + escapeHtml(item.display_name || "–") + ' · ' + (item.price ?? "–") + ' € · ' + escapeHtml(item.status || "–") + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }
 
-    const renderers: Record<string, (item: any) => string> = {
+    function escapeHtml(str: string) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
+    var renderers: Record<string, (item: any) => string> = {
       catch: renderCatch,
       forum: renderForum,
       chat: renderChat,
@@ -120,38 +128,38 @@ if (!isAdmin) return Astro.redirect("/");
     };
 
     async function loadContent() {
-      const container = document.getElementById("content-container");
-      const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+      var container = document.getElementById("content-container");
+      var searchInput = document.getElementById("search-input") as HTMLInputElement | null;
       if (!container) return;
       container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
 
-      const q = searchInput?.value?.trim() || "";
+      var q = searchInput?.value?.trim() || "";
       try {
-        const res = await fetch(`/api/admin/content?type=${currentType}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
+        var res = await fetch("/api/admin/content?type=" + currentType + (q ? "&q=" + encodeURIComponent(q) : ""));
         if (!res.ok) throw new Error();
-        const { items } = await res.json();
+        var data = await res.json();
 
-        if (!items || items.length === 0) {
+        if (!data.items || data.items.length === 0) {
           container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Inhalte gefunden.</p>';
           return;
         }
 
-        const renderer = renderers[currentType] || renderCatch;
-        container.innerHTML = items.map(renderer).join("");
+        var renderer = renderers[currentType] || renderCatch;
+        container.innerHTML = data.items.map(renderer).join("");
 
-        container.querySelectorAll(".delete-content-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const card = btn.closest("[data-id]");
+        container.querySelectorAll(".delete-content-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
             if (!card) return;
-            const id = card.getAttribute("data-id") || "";
-            const type = card.getAttribute("data-type") || currentType;
+            var id = card.getAttribute("data-id") || "";
+            var type = card.getAttribute("data-type") || currentType;
             if (!confirm("Inhalt wirklich löschen?")) return;
-            btn.setAttribute("disabled", "true");
-            btn.textContent = "…";
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
             await fetch("/api/admin/content", {
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type, id }),
+              body: JSON.stringify({ type: type, id: id }),
             });
             loadContent();
           });
@@ -161,32 +169,32 @@ if (!isAdmin) return Astro.redirect("/");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const tabs = document.querySelectorAll(".content-tab");
-      const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    document.addEventListener("DOMContentLoaded", function() {
+      var tabs = document.querySelectorAll(".content-tab");
+      var searchInput = document.getElementById("search-input") as HTMLInputElement | null;
 
       function setActive(type: string) {
         currentType = type;
-        tabs.forEach((t) => {
-          const tabType = t.getAttribute("data-type");
+        tabs.forEach(function(item) {
+          var tabType = item.getAttribute("data-type");
           if (tabType === type) {
-            t.className = "content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer";
+            item.className = "content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer";
           } else {
-            t.className = "content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer";
+            item.className = "content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer";
           }
         });
         if (searchInput) searchInput.value = "";
         loadContent();
       }
 
-      tabs.forEach((t) => {
-        t.addEventListener("click", () => {
-          const type = t.getAttribute("data-type");
+      tabs.forEach(function(item) {
+        item.addEventListener("click", function() {
+          var type = item.getAttribute("data-type");
           if (type) setActive(type);
         });
       });
 
-      searchInput?.addEventListener("input", () => {
+      searchInput?.addEventListener("input", function() {
         if (searchTimeout) clearTimeout(searchTimeout);
         searchTimeout = setTimeout(loadContent, 300);
       });

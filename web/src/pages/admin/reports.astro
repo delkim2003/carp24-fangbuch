@@ -19,6 +19,8 @@ if (!isAdmin) return Astro.redirect("/");
       <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Reports</a>
       <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
       <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
     </nav>
 
     <div class="flex gap-3 mb-lg">
@@ -32,12 +34,12 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
-    let currentStatus = "open";
+    var currentStatus = "open";
 
     function previewText(type: string, preview: any) {
       if (!preview) return "";
       if (type === "catch") {
-        const parts = [];
+        var parts = [];
         if (preview.species) parts.push(preview.species);
         if (preview.weight_kg) parts.push(preview.weight_kg + " kg");
         if (preview.water_name) parts.push(preview.water_name);
@@ -49,77 +51,110 @@ if (!isAdmin) return Astro.redirect("/");
       return "";
     }
 
+    function escapeHtml(str: string) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
     async function loadReports() {
-      const container = document.getElementById("reports-container");
+      var container = document.getElementById("reports-container");
       if (!container) return;
       container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
 
       try {
-        const res = await fetch(`/api/admin/reports?status=${currentStatus}`);
+        var res = await fetch("/api/admin/reports?status=" + currentStatus);
         if (!res.ok) throw new Error();
-        const { reports } = await res.json();
+        var data = await res.json();
 
-        if (!reports || reports.length === 0) {
+        if (!data.reports || data.reports.length === 0) {
           container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Reports gefunden.</p>';
           return;
         }
 
-        container.innerHTML = reports
-          .map((r: any) => {
-            const date = new Date(r.created_at).toLocaleDateString("de-DE");
-            const preview = previewText(r.target_type, r.preview);
-            const resolvedInfo = r.resolved_at
-              ? `<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ${new Date(r.resolved_at).toLocaleDateString("de-DE")}</p>`
+        container.innerHTML = data.reports
+          .map(function(r: any) {
+            var date = new Date(r.created_at).toLocaleDateString("de-DE");
+            var preview = previewText(r.target_type, r.preview);
+            var resolvedInfo = r.resolved_at
+              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ' + new Date(r.resolved_at).toLocaleDateString("de-DE") + '</p>'
               : "";
-            return `<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="${r.id}" data-target-id="${r.target_id || ""}" data-target-type="${r.target_type || ""}">
-              <div class="flex justify-between items-start gap-4 mb-sm">
-                <div>
-                  <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">${r.target_type}</p>
-                  <p class="text-body-md text-on-surface font-medium">${r.reason || "Kein Grund angegeben"}</p>
-                </div>
-                <span class="text-body-sm text-on-surface-variant whitespace-nowrap">${date}</span>
-              </div>
-              <p class="text-body-sm text-on-surface-variant mb-sm">Gemeldet von: ${r.reporter_name || "Unbekannt"}</p>
-              ${preview ? `<p class="text-body-sm text-on-surface bg-surface-container-high rounded-lg px-3 py-2 mb-md">${preview}</p>` : ""}
-              ${resolvedInfo}
-              ${r.status === "open" ? `<div class="flex gap-3 mt-md">
-                <button type="button" class="resolve-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:bg-primary-container transition-colors">Erledigt</button>
-                <button type="button" class="delete-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Inhalt löschen</button>
-              </div>` : ""}
-            </div>`;
+            var ownerHtml = r.owner
+              ? '<p class="text-body-sm text-on-surface-variant">Gemeldeter Nutzer: <a href="/admin/users/?id=' + r.owner.id + '" class="text-primary underline">' + escapeHtml(r.owner.display_name) + '</a></p>'
+              : "";
+            var banShortcut = "";
+            if (r.status === "open" && r.owner) {
+              banShortcut = '<button type="button" class="ban-user-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-owner-id="' + r.owner.id + '">User bannen</button>';
+            }
+            return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + r.id + '" data-target-id="' + (r.target_id || "") + '" data-target-type="' + (r.target_type || "") + '">' +
+              '<div class="flex justify-between items-start gap-4 mb-sm">' +
+              '<div>' +
+              '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">' + escapeHtml(r.target_type) + '</p>' +
+              '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(r.reason || "Kein Grund angegeben") + '</p>' +
+              '</div>' +
+              '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+              '</div>' +
+              '<p class="text-body-sm text-on-surface-variant mb-sm">Gemeldet von: ' + escapeHtml(r.reporter_name || "Unbekannt") + '</p>' +
+              ownerHtml +
+              (preview ? '<p class="text-body-sm text-on-surface bg-surface-container-high rounded-lg px-3 py-2 mb-md">' + escapeHtml(preview) + '</p>' : "") +
+              resolvedInfo +
+              (r.status === "open" ? '<div class="flex gap-3 mt-md flex-wrap">' +
+                '<button type="button" class="resolve-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:bg-primary-container transition-colors">Erledigt</button>' +
+                '<button type="button" class="delete-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Inhalt löschen</button>' +
+                banShortcut +
+                '</div>' : "") +
+              '</div>';
           })
           .join("");
 
-        container.querySelectorAll(".resolve-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const card = btn.closest("[data-id]");
+        container.querySelectorAll(".resolve-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
             if (!card) return;
-            const id = card.getAttribute("data-id");
-            btn.setAttribute("disabled", "true");
-            btn.textContent = "…";
+            var id = card.getAttribute("data-id");
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
             await fetch("/api/admin/reports", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id }),
+              body: JSON.stringify({ id: id }),
             });
             loadReports();
           });
         });
 
-        container.querySelectorAll(".delete-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const card = btn.closest("[data-id]");
+        container.querySelectorAll(".delete-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
             if (!card) return;
-            const id = card.getAttribute("data-id") || "";
-            const targetId = card.getAttribute("data-target-id") || "";
-            const targetType = card.getAttribute("data-target-type") || "";
+            var id = card.getAttribute("data-id") || "";
+            var targetId = card.getAttribute("data-target-id") || "";
+            var targetType = card.getAttribute("data-target-type") || "";
             if (!confirm("Inhalt wirklich löschen?")) return;
-            btn.setAttribute("disabled", "true");
-            btn.textContent = "…";
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
             await fetch("/api/admin/reports", {
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id, target_id: targetId, target_type: targetType }),
+              body: JSON.stringify({ id: id, target_id: targetId, target_type: targetType }),
+            });
+            loadReports();
+          });
+        });
+
+        container.querySelectorAll(".ban-user-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var ownerId = (btn as HTMLElement).getAttribute("data-owner-id");
+            if (!ownerId) return;
+            var reason = prompt("Grund für den Bann:");
+            if (reason === null) return;
+            if (!confirm("User wirklich bannen?")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            await fetch("/api/admin/users", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: ownerId, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
             });
             loadReports();
           });
@@ -129,9 +164,9 @@ if (!isAdmin) return Astro.redirect("/");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const tabOpen = document.getElementById("tab-open");
-      const tabResolved = document.getElementById("tab-resolved");
+    document.addEventListener("DOMContentLoaded", function() {
+      var tabOpen = document.getElementById("tab-open");
+      var tabResolved = document.getElementById("tab-resolved");
 
       function setActive(status: string) {
         currentStatus = status;
@@ -147,8 +182,8 @@ if (!isAdmin) return Astro.redirect("/");
         loadReports();
       }
 
-      tabOpen?.addEventListener("click", () => setActive("open"));
-      tabResolved?.addEventListener("click", () => setActive("resolved"));
+      tabOpen?.addEventListener("click", function() { setActive("open"); });
+      tabResolved?.addEventListener("click", function() { setActive("resolved"); });
       loadReports();
     });
   </script>

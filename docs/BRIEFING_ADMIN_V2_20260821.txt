@@ -1,0 +1,108 @@
+# BRIEFING: ADMIN-DASHBOARD v2 — VOLLAUSBAU (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Erweitere das Carp24-Admin-Dashboard (web/src/pages/admin/* + web/src/pages/api/admin/*) zu einem VOLLWERTIGEN Admin-Panel: Moderation + Support + Compliance (Batch 1) UND Analytics + Revenue + System (Batch 2).
+Projekt: /mnt/projekte/carp24-fangbuch (Astro 7 + Supabase self-hosted, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## BESTEHENDE STRUKTUR (v1, NICHT kaputt machen)
+- Guard: web/src/lib/admin.ts `getSessionAndProfile(Astro)` → {supabase, session, profile, isAdmin}; Rollen 'ADMIN'/'MODERATOR'
+- API-Muster: createServerClient mit Cookie-Handling (aus admin/*.ts übernehmen), session 401, role 403, DANN supabaseAdmin (createClient mit import.meta.env.SUPABASE_SERVICE_ROLE_KEY) für Datenzugriff
+- Seiten: admin/index.astro (KPI-Karten + 10 offene Reports), admin/users.astro, admin/reports.astro, admin/content.astro — mit gemeinsamer Admin-Nav (prüfe wie die Nav gebaut ist und nutze sie für neue Seiten weiter)
+- Bestehende API-Routen: me.ts, stats.ts, reports.ts (GET/PATCH/DELETE), users.ts (GET/PATCH/DELETE), content.ts (GET/DELETE)
+- ALLE API-Routen und Seiten: export const prerender = false
+
+## MIGRATION 0030_admin_v2.sql (NEU unter supabase/migrations/)
+```sql
+-- Bann + Audit-Log für Admin v2
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS banned_at timestamptz;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS ban_reason text;
+
+CREATE TABLE IF NOT EXISTS public.admin_audit_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE SET NULL,
+  action text NOT NULL,
+  target_type text,
+  target_id text,
+  details jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.admin_audit_log ENABLE ROW LEVEL SECURITY;
+-- KEINE Policies: nur service_role darf lesen/schreiben (Admin-API nutzt supabaseAdmin)
+```
+
+## API-ERWEITERUNGEN
+
+### 1. /api/admin/users.ts (erweitern — Datei VOLLSTÄNDIG überschreiben)
+- **GET**: Parameter q (Suche display_name/email, ILIKE), role, pro (true/false), banned (true/false/alle), limit 200. Response pro User zusätzlich: banned_at, ban_reason, open_reports_count (Anzahl content_reports status=open mit target_id in dessen Inhalten ODER reporter_id = user — einfacher: count content_reports where reporter_id = user AND status='open'). Sortierung: created_at desc.
+- **PATCH**: Body kann enthalten: role, is_pro, ban (bool + reason), unban (bool).
+  - ban=true: UPDATE profiles SET banned_at=now(), ban_reason=? WHERE id=?; ZUSÄTZLICH supabaseAdmin.auth.admin.updateUserById(user_id, { ban_duration: "876000h" }) — blockt echten Login
+  - unban=true: UPDATE profiles SET banned_at=NULL, ban_reason=NULL; + supabaseAdmin.auth.admin.updateUserById(user_id, { ban_duration: "none" })
+  - Jede Änderung → admin_audit_log insert (action: 'user.role'/'user.pro'/'user.ban'/'user.unban', target_type:'user', target_id, details:{field, from, to})
+- **POST {action:"reset_password", id}**: supabaseAdmin.auth.admin.updateUserById(id, {password: generiertes 12-Zeichen-Passwort (crypto.randomBytes(6).toString('hex') + "Aa1!")}) → Response {password} (NUR einmal anzeigen); audit_log 'user.reset_password'
+- **DELETE** (soft delete wie bisher) + audit_log 'user.delete'
+
+### 2. /api/admin/user-feed.ts (NEU)
+- GET ?id={userId}: ALLE Daten eines Users in EINEM Response:
+  - profile (profiles row), catches (limit 100, inkl. water_name, species, weight_kg, photo_url, created_at, deleted_at), trips, user_badges (mit badge name via Join), forum_threads, forum_posts, chat_messages, marketplace_items, push_subscriptions (nur count), reports_as_reporter (content_reports), reports_against (content_reports where target_id in deren Inhalten — vereinfacht: where reporter_id != user AND target_id in (catches/forum/chat ids des Users) → limit 50)
+  - Reihenfolge: alles nach created_at desc
+- audit_log: NICHT bei reinem Lesen.
+
+### 3. /api/admin/reports.ts (erweitern — VOLLSTÄNDIG überschreiben)
+- GET ?status=open|resolved: pro Report zusätzlich INLINE-KONTEXT: ziel-Inhalt (je target_type: catch → species/weight/water; forum_thread → title; forum_post → body; chat_message → body; marketplace_item → title) UND reporter display_name + gemeldeter User (owner des Ziels) id+display_name.
+- PATCH {id} resolve: status='resolved', resolved_at=now(), resolved_by=actor + audit_log 'report.resolve'
+- DELETE {id} content löschen: wie bisher (catch soft, rest hard) + report resolved + audit_log 'report.delete_content' mit details:{target_type, target_id}
+
+### 4. /api/admin/audit.ts (NEU)
+- GET ?limit=100: admin_audit_log join actor display_name, order created_at desc → Liste (action, target_type, target_id, details, actor, created_at)
+
+### 5. /api/admin/stats.ts (erweitern — VOLLSTÄNDIG überschreiben)
+- Bestehende 8 Counts BEHALTEN, zusätzlich:
+  - proUsers (profiles is_pro=true, banned_at null)
+  - bannedUsers (banned_at not null)
+  - growth: userSignupsByDay (letzte 14 Tage: count profiles created_at per day, nur auth.users? profiles.created_at reicht) + catchesByDay (letzte 14 Tage: catches created_at per day)
+  - stripeEvents: count stripe_events per type (top 5) + status-Verteilung (processing/processed/error/received)
+  - openReports (schon da), marketContacts (marketplace_contacts count)
+
+### 6. /api/admin/integrations.ts (NEU)
+- GET: NUR BOOLEAN-STATUS (NIE Werte!): { stripe_keys: boolean (STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET gesetzt), openrouter: boolean (OPENROUTER_API_KEY), vapid: boolean (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY), service_role: boolean (SUPABASE_SERVICE_ROLE_KEY), smtp: true (Zoho konfiguriert — fest), realtime: boolean (PUBLIC_SUPABASE_URL enthält 'realtime' Proxy? einfach: true wenn PUBLIC_SUPABASE_URL gesetzt) }
+- Prüfung via import.meta.env.X — nur truthy-Check.
+
+## SEITEN
+
+### 7. /admin/index.astro (Übersicht erweitern — VOLLSTÄNDIG überschreiben)
+- KPI-Zeile: wie bisher (8 KPIs) + 3 neue: Aktive Pro, Gebannte User, Offene Reports (Zahl rot wenn >0)
+- **Wachstums-Chart** (14 Tage): 2 div-Balken-Reihen (User-Signups grün, Fänge primary) — Muster wie rueckblick.astro Monats-Balken (relative Höhe, Labels darunter, KEINE Chart-Lib, KEINE SVG)
+- **Integrations-Status-Karte**: aus /api/admin/integrations.ts — je Dienst: Punkt ● grün/rot + Name (Stripe, KI-Assistent, Push, Service-Role, Realtime) — nur Status, keine Werte
+- **Letzte 10 offene Reports** (wie bisher, aber mit Inline-Kontext: was wurde gemeldet)
+
+### 8. /admin/users.astro (erweitern — VOLLSTÄNDIG überschreiben)
+- **Suche + Filter** über der Tabelle: Textsuche (Name/E-Mail), Select Rolle (ALLE/USER/MODERATOR/ADMIN), Select Status (ALLE/AKTIV/GEBANNT/PRO)
+- Tabelle: display_name, email, role, pro, Status (AKTIV/GEBANNT — rot), offene Meldungen (Zahl, rot wenn ≥3 mit ⚠), created_at
+- Zeilen-Aktionen: Rolle-Select, Pro-Checkbox, **BANNEN/ENTBANNEN** (mit Grund-Input-Prompt), **PASSWORT ZURÜCKSETZEN** (zeigt generiertes Passwort in Modal), LÖSCHEN (confirm), **DETAIL** (öffnet User-Feed)
+- **User-Feed-Drawer**: Klick auf DETAIL → rechts aufklappender Bereich (fixed right panel) mit /api/admin/user-feed.ts Daten: Profil-Info, Fänge-Liste, Forum/Posts, Chat, Anzeigen, Trips, Badges, Meldungen (als Melder + gegen ihn). Bei Inhalten Löschen-Buttons (gleiche Logik wie content.ts — DELETE /api/admin/content.ts?type=&id=).
+
+### 9. /admin/reports.astro (erweitern — VOLLSTÄNDIG überschreiben)
+- Wie bisher (Tabs offen/erledigt), aber: Report-Zeile zeigt INLINE den Ziel-Inhalt (Text-Vorschau), Reporter + Gemeldeten-User (Link auf User-Detail via users.astro?id=), Grund. Aktionen: ERLEDIGT, INHALT LÖSCHEN (+ optional USER BANNEN shortcut wenn gemeldeter User ≥3 offene Meldungen — Button „BANNEN" mit confirm)
+
+### 10. /admin/audit.astro (NEU)
+- Tabelle: Zeit, Admin (display_name), Aktion, Ziel, Details (JSON schön formatiert), Filter nach Aktion (Select). Limit 100, Refresh-Button.
+
+### 11. /admin/revenue.astro (NEU)
+- KPI-Karten: Aktive Pro-User, Free-User, Pro-Quote (%)
+- Stripe-Events: Tabelle letzte 50 stripe_events (type, status, created_at) mit Status-Farben; Hinweis wenn STRIPE_SECRET_KEY fehlt: „Stripe ist noch nicht konfiguriert — Keys in web/.env setzen."
+- Pro-User-Liste: profiles is_pro=true (display_name, email via auth, created_at)
+
+### 12. Admin-Nav
+- Alle Admin-Seiten (index, reports, users, content, audit, revenue) teilen sich EINE konsistente Admin-Nav: Übersicht | Reports | Nutzer | Inhalte | Revenue | Audit. Wenn v1 bereits eine Nav hat → um die 2 neuen Punkte erweitern. Aktiver Punkt hervorgehoben.
+
+## VERBOTEN
+- KEINE neuen Dependencies (kein Chart.js, keine UI-Lib — div-Balken + Tabellen reichen)
+- KEINE SVG-Icons (Text-Symbole wie ● ⚠ ☾ ok), Editorial/minimalistisch, Weißraum
+- KEINE Werte/Secrets in Integrations-API (nur Booleans)
+- KEINE Änderungen an Migrationen außer 0030 (NICHT einspielen — macht Orchestrator)
+- map-Callback-Parameter NIE `t` nennen (i18n-Überschattung!)
+- Bestehende Endpunkte NICHT entfernen (nur erweitern) — andere Seiten nutzen sie
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: geänderte/neue Dateien, Build-Status.

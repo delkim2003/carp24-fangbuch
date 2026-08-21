@@ -1,0 +1,173 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin: Revenue" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">REVENUE</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
+    </nav>
+
+    <div id="kpi-grid" class="grid grid-cols-3 gap-gutter w-full mb-xl">
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktive Pro-User</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="proUsers">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Free-User</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="freeUsers">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Pro-Quote</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="proRate">–</p>
+      </div>
+    </div>
+
+    <div class="w-full mb-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Events</h2>
+      <div id="stripe-section" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="text-body-md text-on-surface-variant">Lade…</p>
+      </div>
+    </div>
+
+    <div class="w-full mb-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Events (letzte 50)</h2>
+      <div class="w-full overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-outline/20">
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Type</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Status</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Zeit</th>
+            </tr>
+          </thead>
+          <tbody id="stripe-events-body">
+            <tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="w-full">
+      <h2 class="text-headline-md text-on-surface mb-lg">Pro-User-Liste</h2>
+      <div class="w-full overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-outline/20">
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Name</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
+            </tr>
+          </thead>
+          <tbody id="pro-users-body">
+            <tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function escapeHtml(str: string) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
+    document.addEventListener("DOMContentLoaded", async function() {
+      try {
+        var statsRes = await fetch("/api/admin/stats");
+        if (!statsRes.ok) throw new Error();
+        var statsData = await statsRes.json();
+        var stats = statsData.stats;
+        var proUsers = stats.proUsers ?? 0;
+        var freeUsers = (stats.users ?? 0) - proUsers;
+        var proRate = stats.users > 0 ? ((proUsers / stats.users) * 100).toFixed(1) + "%" : "0%";
+
+        var proEl = document.querySelector('[data-kpi="proUsers"]');
+        var freeEl = document.querySelector('[data-kpi="freeUsers"]');
+        var rateEl = document.querySelector('[data-kpi="proRate"]');
+        if (proEl) proEl.textContent = String(proUsers);
+        if (freeEl) freeEl.textContent = String(freeUsers);
+        if (rateEl) rateEl.textContent = proRate;
+
+        var stripe = statsData.stripeEvents;
+        var stripeSection = document.getElementById("stripe-section");
+        if (stripeSection && stripe) {
+          var html = "";
+          if (stripe.topTypes && stripe.topTypes.length > 0) {
+            html += '<div class="mb-md"><p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Top Event-Typen</p>';
+            html += '<div class="space-y-sm">';
+            stripe.topTypes.forEach(function(entry: any) {
+              html += '<div class="flex justify-between items-center py-xs"><span class="text-body-sm text-on-surface">' + escapeHtml(entry.type) + '</span><span class="font-mono text-body-md text-primary font-bold">' + entry.count + '</span></div>';
+            });
+            html += '</div></div>';
+          }
+          if (stripe.statusDistribution) {
+            html += '<div><p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Status-Verteilung</p>';
+            html += '<div class="flex gap-md flex-wrap">';
+            Object.keys(stripe.statusDistribution).forEach(function(status) {
+              var color = status === "error" ? "text-error" : status === "processed" ? "text-green-600" : "text-on-surface";
+              html += '<span class="text-body-sm ' + color + '">' + escapeHtml(status) + ': ' + stripe.statusDistribution[status] + '</span>';
+            });
+            html += '</div></div>';
+          }
+          stripeSection.innerHTML = html || '<p class="text-body-md text-on-surface-variant">Keine Stripe-Events gefunden.</p>';
+        }
+      } catch {}
+
+      try {
+        var eventsRes = await fetch("/api/admin/stats");
+        if (eventsRes.ok) {
+          var evData = await eventsRes.json();
+          var evBody = document.getElementById("stripe-events-body");
+          if (evBody && evData.stripeEvents) {
+            evBody.innerHTML = '<tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Stripe-Events werden über die Stats-API geladen.</td></tr>';
+          }
+        }
+      } catch {}
+
+      try {
+        var usersRes = await fetch("/api/admin/users?pro=true");
+        if (!usersRes.ok) throw new Error();
+        var usersData = await usersRes.json();
+        var proBody = document.getElementById("pro-users-body");
+        if (!proBody) return;
+
+        if (!usersData.users || usersData.users.length === 0) {
+          proBody.innerHTML = '<tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Keine Pro-User gefunden.</td></tr>';
+          return;
+        }
+
+        proBody.innerHTML = usersData.users
+          .map(function(u: any) {
+            var date = new Date(u.created_at).toLocaleDateString("de-DE");
+            return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors">' +
+              '<td class="text-body-md text-on-surface py-3 px-4">' + escapeHtml(u.display_name || "–") + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escapeHtml(u.email || "–") + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + date + '</td>' +
+            '</tr>';
+          })
+          .join("");
+      } catch {
+        var proBody2 = document.getElementById("pro-users-body");
+        if (proBody2) proBody2.innerHTML = '<tr><td colspan="3" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+      }
+    });
+  </script>
+</Layout>

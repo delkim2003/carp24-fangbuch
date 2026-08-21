@@ -19,7 +19,25 @@ if (!isAdmin) return Astro.redirect("/");
       <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
       <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Nutzer</a>
       <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
     </nav>
+
+    <div class="w-full flex flex-wrap gap-3 mb-lg">
+      <input id="search-input" type="text" placeholder="Name / E-Mail suchen…" class="flex-1 min-w-48 max-w-md bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 placeholder:text-on-surface-variant/60 min-h-12" />
+      <select id="filter-role" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
+        <option value="">Alle Rollen</option>
+        <option value="USER">USER</option>
+        <option value="MODERATOR">MODERATOR</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+      <select id="filter-status" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
+        <option value="">Alle Status</option>
+        <option value="active">AKTIV</option>
+        <option value="banned">GEBANNT</option>
+        <option value="pro">PRO</option>
+      </select>
+    </div>
 
     <div class="w-full overflow-x-auto">
       <table class="w-full text-left border-collapse">
@@ -29,108 +47,400 @@ if (!isAdmin) return Astro.redirect("/");
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Rolle</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">PRO</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Fänge</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Status</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Meldungen</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
           </tr>
         </thead>
         <tbody id="users-body">
-          <tr><td colspan="7" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          <tr><td colspan="8" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
         </tbody>
       </table>
     </div>
+
+    <div id="user-feed-drawer" class="fixed top-0 right-0 h-full w-full max-w-xl bg-surface-container-lowest border-l border-outline/20 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 overflow-y-auto">
+      <div class="p-lg">
+        <div class="flex justify-between items-center mb-xl">
+          <h2 class="text-headline-md text-on-surface">Nutzer-Details</h2>
+          <button id="close-drawer" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Schliessen</button>
+        </div>
+        <div id="feed-content">
+          <p class="text-body-md text-on-surface-variant">Lade…</p>
+        </div>
+      </div>
+    </div>
+    <div id="drawer-overlay" class="fixed inset-0 bg-black/40 z-40 hidden"></div>
   </main>
 
   <script>
+    var searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    function escapeHtml(str: string) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
     async function loadUsers() {
-      const tbody = document.getElementById("users-body");
+      var tbody = document.getElementById("users-body");
       if (!tbody) return;
 
-      try {
-        const res = await fetch("/api/admin/users");
-        if (!res.ok) throw new Error();
-        const { users } = await res.json();
+      var q = (document.getElementById("search-input") as HTMLInputElement)?.value?.trim() || "";
+      var role = (document.getElementById("filter-role") as HTMLSelectElement)?.value || "";
+      var status = (document.getElementById("filter-status") as HTMLSelectElement)?.value || "";
 
-        if (!users || users.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
+      var params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (role) params.set("role", role);
+      if (status === "banned") params.set("banned", "true");
+      if (status === "pro") params.set("pro", "true");
+
+      try {
+        var res = await fetch("/api/admin/users?" + params.toString());
+        if (!res.ok) throw new Error();
+        var data = await res.json();
+
+        if (!data.users || data.users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
           return;
         }
 
-        tbody.innerHTML = users
-          .map((u: any) => {
-            const date = new Date(u.created_at).toLocaleDateString("de-DE");
-            const deleted = u.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
-            return `<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors" data-id="${u.id}">
-              <td class="text-body-md text-on-surface py-3 px-4">${u.display_name || "–"}${deleted}</td>
-              <td class="text-body-sm text-on-surface-variant py-3 px-4">${u.email || "–"}</td>
-              <td class="py-3 px-4">
-                <select class="role-select bg-surface-container-highest text-on-surface rounded-lg px-2 py-1 text-body-sm border border-outline/20 min-h-11 cursor-pointer">
-                  <option value="USER" ${u.role === "USER" ? "selected" : ""}>USER</option>
-                  <option value="MODERATOR" ${u.role === "MODERATOR" ? "selected" : ""}>MODERATOR</option>
-                  <option value="ADMIN" ${u.role === "ADMIN" ? "selected" : ""}>ADMIN</option>
-                </select>
-              </td>
-              <td class="py-3 px-4">
-                <input type="checkbox" class="pro-check w-5 h-5 accent-primary cursor-pointer min-h-11" ${u.is_pro ? "checked" : ""} />
-              </td>
-              <td class="text-body-md text-on-surface py-3 px-4">${u.catches_count ?? 0}</td>
-              <td class="text-body-sm text-on-surface-variant py-3 px-4">${date}</td>
-              <td class="py-3 px-4">
-                <button type="button" class="delete-user-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>
-              </td>
-            </tr>`;
+        tbody.innerHTML = data.users
+          .map(function(u: any) {
+            var date = new Date(u.created_at).toLocaleDateString("de-DE");
+            var deleted = u.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
+            var banned = u.banned_at ? '<span class="text-error font-medium">GEBANNT</span>' : '<span class="text-green-600">AKTIV</span>';
+            var reportsHtml = "";
+            if (u.open_reports_count >= 3) {
+              reportsHtml = '<span class="text-error font-medium">' + u.open_reports_count + ' ⚠</span>';
+            } else {
+              reportsHtml = String(u.open_reports_count ?? 0);
+            }
+            return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors" data-id="' + u.id + '">' +
+              '<td class="text-body-md text-on-surface py-3 px-4">' + escapeHtml(u.display_name || "–") + deleted + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escapeHtml(u.email || "–") + '</td>' +
+              '<td class="py-3 px-4">' +
+                '<select class="role-select bg-surface-container-highest text-on-surface rounded-lg px-2 py-1 text-body-sm border border-outline/20 min-h-11 cursor-pointer">' +
+                  '<option value="USER"' + (u.role === "USER" ? " selected" : "") + '>USER</option>' +
+                  '<option value="MODERATOR"' + (u.role === "MODERATOR" ? " selected" : "") + '>MODERATOR</option>' +
+                  '<option value="ADMIN"' + (u.role === "ADMIN" ? " selected" : "") + '>ADMIN</option>' +
+                '</select>' +
+              '</td>' +
+              '<td class="py-3 px-4">' +
+                '<input type="checkbox" class="pro-check w-5 h-5 accent-primary cursor-pointer min-h-11"' + (u.is_pro ? " checked" : "") + ' />' +
+              '</td>' +
+              '<td class="text-body-sm py-3 px-4">' + banned + '</td>' +
+              '<td class="text-body-md text-on-surface py-3 px-4">' + reportsHtml + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + date + '</td>' +
+              '<td class="py-3 px-4">' +
+                '<div class="flex gap-2 flex-wrap">' +
+                  '<button type="button" class="detail-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Detail</button>' +
+                  (u.banned_at
+                    ? '<button type="button" class="unban-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Entbannen</button>'
+                    : '<button type="button" class="ban-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Bannen</button>') +
+                  '<button type="button" class="reset-pw-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">PW Reset</button>' +
+                  '<button type="button" class="delete-user-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+                '</div>' +
+              '</td>' +
+            '</tr>';
           })
           .join("");
 
-        tbody.querySelectorAll(".role-select").forEach((sel) => {
-          sel.addEventListener("change", async () => {
-            const tr = sel.closest("tr");
-            if (!tr) return;
-            const id = tr.getAttribute("data-id");
-            const role = (sel as HTMLSelectElement).value;
+        tbody.querySelectorAll(".role-select").forEach(function(sel) {
+          sel.addEventListener("change", async function() {
+            var row = (sel as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            var newRole = (sel as HTMLSelectElement).value;
             await fetch("/api/admin/users", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id, role }),
+              body: JSON.stringify({ id: id, role: newRole }),
             });
           });
         });
 
-        tbody.querySelectorAll(".pro-check").forEach((chk) => {
-          chk.addEventListener("change", async () => {
-            const tr = chk.closest("tr");
-            if (!tr) return;
-            const id = tr.getAttribute("data-id");
-            const is_pro = (chk as HTMLInputElement).checked;
+        tbody.querySelectorAll(".pro-check").forEach(function(chk) {
+          chk.addEventListener("change", async function() {
+            var row = (chk as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            var isPro = (chk as HTMLInputElement).checked;
             await fetch("/api/admin/users", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id, is_pro }),
+              body: JSON.stringify({ id: id, is_pro: isPro }),
             });
           });
         });
 
-        tbody.querySelectorAll(".delete-user-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const tr = btn.closest("tr");
-            if (!tr) return;
-            const id = tr.getAttribute("data-id");
-            if (!confirm("Nutzer wirklich löschen? (Soft Delete)")) return;
-            btn.setAttribute("disabled", "true");
-            btn.textContent = "…";
+        tbody.querySelectorAll(".ban-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var row = (btn as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            var reason = prompt("Grund für den Bann:");
+            if (reason === null) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
             await fetch("/api/admin/users", {
-              method: "DELETE",
+              method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id }),
+              body: JSON.stringify({ id: id, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
             });
             loadUsers();
           });
         });
+
+        tbody.querySelectorAll(".unban-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var row = (btn as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            await fetch("/api/admin/users", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: id, unban: true }),
+            });
+            loadUsers();
+          });
+        });
+
+        tbody.querySelectorAll(".reset-pw-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var row = (btn as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            if (!confirm("Passwort wirklich zurücksetzen?")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            var res2 = await fetch("/api/admin/users", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "reset_password", id: id }),
+            });
+            var result = await res2.json();
+            if (result.password) {
+              alert("Neues Passwort: " + result.password + "\n\nBitte sofort notieren — es wird nur einmal angezeigt!");
+            }
+            (btn as HTMLButtonElement).disabled = false;
+            (btn as HTMLElement).textContent = "PW Reset";
+          });
+        });
+
+        tbody.querySelectorAll(".delete-user-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var row = (btn as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            if (!confirm("Nutzer wirklich löschen? (Soft Delete)")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            await fetch("/api/admin/users", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: id }),
+            });
+            loadUsers();
+          });
+        });
+
+        tbody.querySelectorAll(".detail-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var row = (btn as HTMLElement).closest("tr");
+            if (!row) return;
+            var id = row.getAttribute("data-id");
+            if (id) openDrawer(id);
+          });
+        });
       } catch {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
       }
     }
 
-    document.addEventListener("DOMContentLoaded", loadUsers);
+    async function openDrawer(userId: string) {
+      var drawer = document.getElementById("user-feed-drawer");
+      var overlay = document.getElementById("drawer-overlay");
+      var content = document.getElementById("feed-content");
+      if (!drawer || !overlay || !content) return;
+
+      drawer.classList.remove("translate-x-full");
+      overlay.classList.remove("hidden");
+      content.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
+
+      try {
+        var res = await fetch("/api/admin/user-feed?id=" + userId);
+        if (!res.ok) throw new Error();
+        var data = await res.json();
+        var p = data.profile;
+        var banned = p.banned_at ? '<span class="text-error">GEBANNT</span>' : '<span class="text-green-600">AKTIV</span>';
+        var html = '<div class="space-y-lg">';
+        html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+        html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Profil</p>';
+        html += '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(p.display_name || "–") + '</p>';
+        html += '<p class="text-body-sm text-on-surface-variant">' + escapeHtml(p.email || "–") + '</p>';
+        html += '<p class="text-body-sm text-on-surface-variant">Rolle: ' + escapeHtml(p.role) + ' · PRO: ' + (p.is_pro ? "Ja" : "Nein") + ' · ' + banned + '</p>';
+        if (p.ban_reason) html += '<p class="text-body-sm text-error">Bann-Grund: ' + escapeHtml(p.ban_reason) + '</p>';
+        html += '</div>';
+
+        if (data.catches.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Fänge (' + data.catches.length + ')</p>';
+          html += '<div class="space-y-sm max-h-64 overflow-y-auto">';
+          data.catches.forEach(function(c: any) {
+            var del = c.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
+            html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
+            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(c.species || "–") + " · " + (c.weight_kg ?? "–") + " kg · " + escapeHtml(c.water_name || "–") + del + '</span>';
+            html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="catch" data-id="' + c.id + '">X</button>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        if (data.forum_threads.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Forum-Threads (' + data.forum_threads.length + ')</p>';
+          html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
+          data.forum_threads.forEach(function(item: any) {
+            html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
+            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(item.title || "–") + '</span>';
+            html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="forum" data-id="' + item.id + '">X</button>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        if (data.forum_posts.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Forum-Beiträge (' + data.forum_posts.length + ')</p>';
+          html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
+          data.forum_posts.forEach(function(item: any) {
+            html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
+            html += '<span class="text-body-sm text-on-surface">' + escapeHtml((item.body || "").slice(0, 80)) + '</span>';
+            html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="forum" data-id="' + item.id + '">X</button>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        if (data.chat_messages.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Chat (' + data.chat_messages.length + ')</p>';
+          html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
+          data.chat_messages.forEach(function(item: any) {
+            html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
+            html += '<span class="text-body-sm text-on-surface">' + escapeHtml((item.body || "").slice(0, 80)) + '</span>';
+            html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="chat" data-id="' + item.id + '">X</button>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        if (data.marketplace_items.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Marktplatz (' + data.marketplace_items.length + ')</p>';
+          html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
+          data.marketplace_items.forEach(function(item: any) {
+            html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
+            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(item.title || "–") + " · " + (item.price ?? "–") + " €</span>";
+            html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="marketplace" data-id="' + item.id + '">X</button>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        if (data.trips.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Trips (' + data.trips.length + ')</p>';
+          data.trips.forEach(function(item: any) {
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(item.title || "–") + '</p>';
+          });
+          html += '</div>';
+        }
+
+        if (data.badges.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Badges (' + data.badges.length + ')</p>';
+          data.badges.forEach(function(item: any) {
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(item.badge_name) + '</p>';
+          });
+          html += '</div>';
+        }
+
+        html += '<p class="text-body-sm text-on-surface-variant">Push-Subscriptions: ' + data.push_subscriptions_count + '</p>';
+
+        if (data.reports_as_reporter.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Gemeldete Inhalte (' + data.reports_as_reporter.length + ')</p>';
+          data.reports_as_reporter.forEach(function(r: any) {
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(r.target_type) + ": " + escapeHtml(r.reason || "–") + " (" + escapeHtml(r.status) + ")</p>";
+          });
+          html += '</div>';
+        }
+
+        if (data.reports_against.length > 0) {
+          html += '<div class="bg-surface-container-high rounded-xl p-lg">';
+          html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-error mb-sm">Meldungen gegen Nutzer (' + data.reports_against.length + ')</p>';
+          data.reports_against.forEach(function(r: any) {
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(r.target_type) + ": " + escapeHtml(r.reason || "–") + " (" + escapeHtml(r.status) + ")</p>";
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+        content.innerHTML = html;
+
+        content.querySelectorAll(".feed-delete-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var type = (btn as HTMLElement).getAttribute("data-type") || "";
+            var id = (btn as HTMLElement).getAttribute("data-id") || "";
+            if (!confirm("Inhalt wirklich löschen?")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            await fetch("/api/admin/content", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ type: type, id: id }),
+            });
+            openDrawer(userId);
+          });
+        });
+      } catch {
+        content.innerHTML = '<p class="text-body-md text-error">Fehler beim Laden.</p>';
+      }
+    }
+
+    function closeDrawer() {
+      var drawer = document.getElementById("user-feed-drawer");
+      var overlay = document.getElementById("drawer-overlay");
+      if (drawer) drawer.classList.add("translate-x-full");
+      if (overlay) overlay.classList.add("hidden");
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("close-drawer")?.addEventListener("click", closeDrawer);
+      document.getElementById("drawer-overlay")?.addEventListener("click", closeDrawer);
+
+      var searchInput = document.getElementById("search-input");
+      var filterRole = document.getElementById("filter-role");
+      var filterStatus = document.getElementById("filter-status");
+
+      searchInput?.addEventListener("input", function() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadUsers, 300);
+      });
+      filterRole?.addEventListener("change", loadUsers);
+      filterStatus?.addEventListener("change", loadUsers);
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var urlId = urlParams.get("id");
+      if (urlId) {
+        openDrawer(urlId);
+      }
+
+      loadUsers();
+    });
   </script>
 </Layout>

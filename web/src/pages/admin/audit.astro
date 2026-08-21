@@ -1,0 +1,120 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin: Audit" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">AUDIT-LOG</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Audit</a>
+    </nav>
+
+    <div class="w-full flex flex-wrap gap-3 mb-lg">
+      <select id="filter-action" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
+        <option value="">Alle Aktionen</option>
+        <option value="user.role">user.role</option>
+        <option value="user.pro">user.pro</option>
+        <option value="user.ban">user.ban</option>
+        <option value="user.unban">user.unban</option>
+        <option value="user.reset_password">user.reset_password</option>
+        <option value="user.delete">user.delete</option>
+        <option value="report.resolve">report.resolve</option>
+        <option value="report.delete_content">report.delete_content</option>
+      </select>
+      <button id="refresh-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer">Aktualisieren</button>
+    </div>
+
+    <div class="w-full overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-outline/20">
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Zeit</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Admin</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Ziel</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Details</th>
+          </tr>
+        </thead>
+        <tbody id="audit-body">
+          <tr><td colspan="5" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function escapeHtml(str: string) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
+    function formatDetails(details: any) {
+      if (!details) return "–";
+      try {
+        if (typeof details === "string") details = JSON.parse(details);
+        return escapeHtml(JSON.stringify(details, null, 2));
+      } catch {
+        return escapeHtml(String(details));
+      }
+    }
+
+    async function loadAudit() {
+      var tbody = document.getElementById("audit-body");
+      if (!tbody) return;
+
+      var actionFilter = (document.getElementById("filter-action") as HTMLSelectElement)?.value || "";
+
+      try {
+        var res = await fetch("/api/admin/audit?limit=100");
+        if (!res.ok) throw new Error();
+        var data = await res.json();
+
+        var logs = data.logs || [];
+        if (actionFilter) {
+          logs = logs.filter(function(l: any) { return l.action === actionFilter; });
+        }
+
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-body-md text-on-surface-variant py-4 px-4">Keine Einträge gefunden.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = logs
+          .map(function(l: any) {
+            var date = new Date(l.created_at).toLocaleString("de-DE");
+            return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors">' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4 whitespace-nowrap">' + date + '</td>' +
+              '<td class="text-body-md text-on-surface py-3 px-4">' + escapeHtml(l.actor_name || "–") + '</td>' +
+              '<td class="text-body-sm text-on-surface py-3 px-4"><span class="font-label-sm text-label-sm uppercase tracking-widest text-primary">' + escapeHtml(l.action) + '</span></td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escapeHtml(l.target_type || "–") + ' ' + escapeHtml(l.target_id ? l.target_id.slice(0, 8) : "") + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4"><pre class="whitespace-pre-wrap text-xs max-w-xs overflow-hidden">' + formatDetails(l.details) + '</pre></td>' +
+            '</tr>';
+          })
+          .join("");
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("filter-action")?.addEventListener("change", loadAudit);
+      document.getElementById("refresh-btn")?.addEventListener("click", loadAudit);
+      loadAudit();
+    });
+  </script>
+</Layout>
