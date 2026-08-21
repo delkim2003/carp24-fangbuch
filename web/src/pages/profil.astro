@@ -274,6 +274,7 @@ if (createdAt) {
               <h3 class="font-label-sm text-label-sm uppercase text-error mb-4 tracking-widest">GEFAHRENZONE</h3>
               <div class="bg-error/5 border border-error/30 rounded-2xl p-6 flex flex-col gap-4">
                 <p class="text-body-md text-on-surface-variant">KONTO UND ALLE DATEN UNWIDERRUFLICH LÖSCHEN</p>
+                {/* Löschfunktion fehlt noch, X1-Deletion folgt mit Admin-Tool (DSGVO Art. 17) */}
                 <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300">
                   KONTO LÖSCHEN
                 </button>
@@ -621,6 +622,25 @@ async function fetchAllMyData() {
     .select("*")
     .order("catch_ts", { ascending: false });
 
+  // DSGVO P0-1: Generische Sammlung aller User-Tabellen (graceful skip bei fehlender Tabelle)
+  const related_data: Record<string, any[]> = {};
+  const relatedTables: [string, string][] = [
+    ["trips", "user_id"],
+    ["user_badges", "user_id"],
+    ["forum_threads", "user_id"],
+    ["forum_posts", "user_id"],
+    ["chat_messages", "user_id"],
+    ["marketplace_items", "user_id"],
+    ["push_subscriptions", "user_id"],
+    ["content_reports", "reporter_id"],
+  ];
+  for (const [t, col] of relatedTables) {
+    try {
+      const { data, error } = await supabase.from(t).select("*").eq(col, user?.id);
+      if (!error && data) related_data[t] = data;
+    } catch {}
+  }
+
   return {
     exported_at: new Date().toISOString(),
     user: user ? {
@@ -631,6 +651,7 @@ async function fetchAllMyData() {
     } : null,
     profile: profile ?? null,
     catches: catches ?? [],
+    related_data,
     errors: { user: userErr?.message ?? null, profile: profileErr?.message ?? null, catches: catchesErr?.message ?? null },
   };
 }

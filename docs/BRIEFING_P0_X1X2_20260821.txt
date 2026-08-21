@@ -1,0 +1,38 @@
+BAUE SOFORT — KEINE ANALYSE. P0-Tasks X1 + X2 (DSGVO/DSA) für carp24.
+
+## DATEI 1 (NEU): /mnt/projekte/carp24-fangbuch/supabase/migrations/0017_content_reports.sql
+DSA-Meldepflicht (Audit P0-2):
+```sql
+CREATE TABLE IF NOT EXISTS public.content_reports (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  target_type text NOT NULL CHECK (target_type IN ('catch','forum_post','forum_thread','chat_message','marketplace_item')),
+  target_id text NOT NULL,
+  reporter_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  reason text NOT NULL CHECK (char_length(reason) BETWEEN 3 AND 500),
+  status text NOT NULL DEFAULT 'open' CHECK (status IN ('open','resolved','dismissed')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (target_type, target_id, reporter_id)
+);
+ALTER TABLE public.content_reports ENABLE ROW LEVEL SECURITY;
+-- Reporter kann eigenen Report lesen; JEDER angemeldete User kann melden (INSERT)
+CREATE POLICY "reports_insert" ON public.content_reports FOR INSERT TO authenticated WITH CHECK (reporter_id = auth.uid());
+CREATE POLICY "reports_select_own" ON public.content_reports FOR SELECT TO authenticated USING (reporter_id = auth.uid());
+-- Admin (service_role) sieht alle — RLS umgeht service_role automatisch
+GRANT SELECT, INSERT ON public.content_reports TO authenticated;
+```
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+**Export/Löschung erweitern (Audit P0-1):** Die bestehende `fetchAllMyData()`-Funktion sammelt aktuell nur user/profiles/catches. Erweitere sie um eine GENERISCHE Sammel-Schleife für alle User-Tabellen, die künftig existieren — mit graceful skip wenn Tabelle fehlt:
+- Erstelle eine Liste `[["trips","user_id"],["user_badges","user_id"],["forum_threads","user_id"],["forum_posts","user_id"],["chat_messages","user_id"],["marketplace_items","user_id"],["push_subscriptions","user_id"],["content_reports","reporter_id"]]`
+- Für jede: `try { const { data, error } = await supabase.from(t).select("*").eq(col, user.id); if (!error && data) result[t] = data; } catch {}`
+- Füge das Ergebnis als `zusatzdaten` (oder `related_data`) zum Export-JSON hinzu
+- LÖSCHUNG: Prüfe, ob es eine Lösch-Funktion gibt (z.B. deleteAccount im Profil). Falls ja, ergänze die gleiche Tabellen-Liste mit `.delete().eq(col, user.id)` (fehlertolerant, try/catch). Falls es KEINE Löschfunktion gibt, baue eine NICHT — dokumentiere im Kommentar: "Löschfunktion fehlt noch, X1-Deletion folgt mit Admin-Tool".
+
+## VERIFIKATION
+1. Migration 0017 in DB einspielen (docker exec psql als supabase_admin, wie 0015/0016) — ODER dokumentieren falls unsicher
+2. cd web && npm run build → exit 0
+3. grep -c 'content_reports' web/src/pages/profil.astro → ≥2 (Sammel-Liste + Ergebnis)
+4. grep -c 'related_data' web/src/pages/profil.astro → ≥1
+5. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: gebaute Dateien + Build + ob Migration eingespielt.
