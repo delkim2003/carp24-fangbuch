@@ -39,9 +39,19 @@ const { data: { session } } = await supabase.auth.getSession();
 let catchData: any = null;
 let notFound = false;
 if (session) {
-  const { data, error } = await supabase.from("catches").select("*").eq("id", id).eq("deleted_at", null).single();
+  const { data, error } = await supabase.from("catches").select("*").eq("id", id).is("deleted_at", null).single();
   catchData = data ?? null;
   if (error || !data) notFound = true;
+}
+let signedPhotoUrl: string | null = null;
+if (catchData && Array.isArray(catchData.photos) && catchData.photos[0]) {
+  const photoRef = catchData.photos[0] as string;
+  if (photoRef.startsWith("foto:")) {
+    const { data: signedData } = await supabase.storage.from("catch-photos").createSignedUrl(photoRef.slice(5), 3600);
+    signedPhotoUrl = signedData?.signedUrl ?? null;
+  } else if (photoRef.startsWith("http")) {
+    signedPhotoUrl = photoRef;
+  }
 }
 const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "Lederkarpfen", SCHUPPEN: "Schuppenkarpfen", AMUR: "Amurkarpfen", ANDERE: "Andere" };
 ---
@@ -62,7 +72,7 @@ const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "
       <>
         <a href="/faenge" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZURÜCK</a>
         <div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden">
-          {catchData.photos?.[0] && <img src={catchData.photos[0]} alt="Fang" class="w-full max-h-96 object-cover" />}
+          {signedPhotoUrl && <img src={signedPhotoUrl} alt="Fang" class="w-full max-h-96 object-cover" />}
           <div class="p-xl flex flex-col gap-lg">
             <div class="font-mono text-display-xl text-primary font-bold">{(Number(catchData.weight_kg) ?? 0).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} KG</div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-md">

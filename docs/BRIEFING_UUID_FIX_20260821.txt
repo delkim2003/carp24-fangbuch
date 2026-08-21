@@ -1,0 +1,45 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Fix in ZWEI Dateien.
+
+## PROBLEM
+`crypto.randomUUID()` existiert NUR in Secure Contexts (HTTPS). Die App läuft auf http://100.93.250.103:8094 → TypeError "crypto.randomUUID is not a function" → Foto-Upload UND Offline-Sync (client_uuid) brechen. Beweis: public.error_logs zeigt "Uncaught TypeError: crypto.randomUUID is not a function" (5×, 21.08.).
+
+## FIX
+
+### DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/lib/catch-service.ts
+Ergänze oben (nach den Imports) eine exportierte UUID-Helper-Funktion:
+
+```ts
+/**
+ * UUID v4 — funktioniert auch OHNE Secure Context (http://):
+ * crypto.randomUUID gibt es nur unter HTTPS; getRandomValues überall.
+ */
+export function genClientUuid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const buf = new Uint8Array(16);
+    crypto.getRandomValues(buf);
+    buf[6] = (buf[6] & 0x0f) | 0x40;
+    buf[8] = (buf[8] & 0x3f) | 0x80;
+    const hex = Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
+    return hex.slice(0, 8) + "-" + hex.slice(8, 12) + "-" + hex.slice(12, 16) + "-" + hex.slice(16, 20) + "-" + hex.slice(20);
+  }
+  return "f" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+```
+
+Ersetze in derselben Datei Zeile ~43 (`const client_uuid = crypto.randomUUID();`) durch `const client_uuid = genClientUuid();`. Importiere die Funktion NICHT neu (sie ist in dieser Datei definiert).
+
+### DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/fang-erfassen.astro
+1. Im <script>-Block oben (wo bestehende Imports/Requires stehen — es gibt evtl. einen import von catch-service, prüfe: wenn `import { ... } from "../lib/catch-service"` existiert, ergänze genClientUuid in der Import-Liste; wenn die Datei catch-service dort NICHT importiert wird, importiere: `import { genClientUuid } from "../lib/catch-service";` — Achtung: Das Script ist is:inline? Falls is:inline: ES-Module-Import geht nicht in is:inline — dann definiere die Helper-Funktion DIREKT im Script-Block oben (ohne import) mit demselben Code wie oben, benannt `genClientUuid`, und nutze sie).
+2. Ersetze ALLE 3 Vorkommen von `crypto.randomUUID()` in fang-erfassen.astro (Zeilen ~511, ~599, ~654) durch `genClientUuid()`.
+
+## VERIFIKATION
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c "randomUUID" web/src/pages/fang-erfassen.astro → 0 (kein direktes randomUUID mehr)
+3. grep -c "genClientUuid" web/src/pages/fang-erfassen.astro → ≥3
+4. grep -c "crypto.randomUUID" web/src/lib/catch-service.ts → 0 (ersetzt durch genClientUuid)
+5. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: geänderte Stellen + Build-Ergebnis.

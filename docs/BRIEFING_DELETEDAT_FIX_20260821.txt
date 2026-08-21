@@ -1,0 +1,26 @@
+BAUE SOFORT — KEINE ANALYSE. Ein präziser Fix in DREI Dateien.
+
+## PROBLEM
+`.eq("deleted_at", null)` sendet an PostgREST das Literal `null` als STRING → Postgres-Fehler "invalid input syntax for type timestamp with time zone: null" → Fangliste/Dashboard/Profil zeigen fälschlich "NOCH KEINE FÄNGE" bzw. leere Daten. Korrekt ist der PostgREST-Null-Filter `.is("deleted_at", null)`.
+
+## DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/pages/faenge.astro
+Zeile 41: `const { data, error } = await supabase.from("catches").select("*").eq("deleted_at", null).order("catch_ts", { ascending: false });`
+→ ändere `.eq("deleted_at", null)` zu `.is("deleted_at", null)`
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/dashboard.astro
+Zeile 38: `const { data } = await supabase.from("catches").select("*").eq("deleted_at", null).order("catch_ts", { ascending: false });`
+→ ändere `.eq("deleted_at", null)` zu `.is("deleted_at", null)`
+
+## DATEI 3: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+Zeile ~44: `.eq("deleted_at", null)` → `.is("deleted_at", null)` (im Profil-Statistik-Query; NICHT den DSGVO-Export ändern, der nutzt `.order` ohne deleted_at-Filter — nur diese eine Stelle)
+
+## ZUSÄTZLICH (nur falls einfach): water_name-Übernahme
+Prüfe in fang-erfassen.astro, wie `#gewaesser-input` beim Speichern verarbeitet wird (buildInputData): Wird der Wert in `water_name` übernommen? Wenn ja und es korrekt ist, ändere NICHTS. Wenn der Wasser-Name NICHT in die Submit-Daten fließt, ergänze ihn (water_name: gewaesserInput.value || null). Nur wenn eindeutig.
+
+## VERIFIKATION
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c '.is("deleted_at", null)' web/src/pages/faenge.astro web/src/pages/dashboard.astro web/src/pages/profil.astro → je ≥1
+3. grep -c '.eq("deleted_at", null)' web/src/pages/*.astro → 0
+4. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: geänderte Stellen + Build-Ergebnis.
