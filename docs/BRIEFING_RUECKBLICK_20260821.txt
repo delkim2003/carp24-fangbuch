@@ -1,0 +1,25 @@
+BAUE SOFORT — KEINE ANALYSE. Feature A2: Jahres-Rückblick für carp24.
+
+## ZIEL
+Neue Seite /rueckblick/ — persönliche Jahres-Statistik (keine Migration nötig, alles aus catches). M3-Design-Tokens der bestehenden Seiten (Layout.astro nutzen, Dark-Mode-fähig). Kopf: Kicker "PASSION. FISHING. COMMUNITY." + H1 "JAHRES-RÜCKBLICK".
+
+## DATEI (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/rueckblick.astro
+1. **Frontmatter/SSR:** Auth-Guard wie fang-erfassen.astro (Session erforderlich, sonst Redirect /login/). Lade ALLE eigenen Fänge (nicht gelöscht): `supabase.from("catches").select("*").eq("user_id", user.id).is("deleted_at", null).order("catch_ts", { ascending: true })` — nutze das bestehende createBrowserClient/SSR-Muster aus fang-erfassen.astro (LIES diese Datei zuerst).
+2. **Jahr-Selektor:** Client-seitig aus den Daten die Jahre extrahieren (catch_ts → Europe/Vienna-Jahr). UI: Chips (min-h-11) "2026", "2025", ... — aktives Jahr highlighted. Default: jüngstes Jahr mit Fängen.
+3. **Aggregation** (in JS, client-seitig nach Laden ODER SSR — entscheide passend): für das gewählte Jahr:
+   - KPI-Karten (Grid 4): FÄNGE (count), GESAMTGEWICHT (kg, 1 Dezimalstelle), Ø-GEWICHT (kg), TOP-ART (häufigste species)
+   - Monats-Balken: 12 Balken (Jan–Dez) mit Fänge-Pro-Monat; Container min-h-8, Balken gefüllt nach max-Wert, Balken-Breite proportional (flex)
+   - TOP-GEWÄSSER: Liste Top 5 (name + Anzahl), sortiert
+   - GRÖSSTE FÄNGE: Top 3 (kg) als Karten mit Datum, Gewässer, Art, Foto (falls photos vorhanden — signierte URL via createSignedUrl wie faenge/[id].astro — LIES diese Datei für das Foto-Muster)
+4. **Navigation:** In Header.astro Menü-Link "Rückblick" ergänzen (Desktop + Mobile) — LIES Header.astro und füge passend ein.
+5. **Leerer Zustand:** "Noch keine Fänge in diesem Jahr." + Button zu /fang-erfassen/.
+6. **WICHTIG:** Alle Daten nur eigene (user_id-Filter + .is("deleted_at", null) — NIEMALS .eq(null)). Keine Emojis — M3-Tokens + Text. min-h-12 für Inputs/Buttons, Chips min-h-11.
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'deleted_at' web/src/pages/rueckblick.astro → ≥1 (mit .is)
+3. grep -c 'Jahres-Rückblick\|JAHRES-RÜCKBLICK' web/src/pages/rueckblick.astro → ≥1
+4. grep -c 'Rückblick' web/src/components/Header.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build-Ergebnis.

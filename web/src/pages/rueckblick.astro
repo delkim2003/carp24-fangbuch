@@ -1,0 +1,335 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createServerClient } from "@supabase/ssr";
+
+export const prerender = false;
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        const header = Astro.request.headers.get("cookie");
+        if (!header) return [];
+        return header
+          .split(";")
+          .map((pair) => {
+            const idx = pair.indexOf("=");
+            if (idx === -1) return null;
+            return {
+              name: pair.slice(0, idx).trim(),
+              value: pair.slice(idx + 1).trim(),
+            };
+          })
+          .filter(Boolean) as { name: string; value: string }[];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          Astro.cookies.set(name, value, options);
+        });
+      },
+    },
+  }
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+let catches: any[] = [];
+if (session) {
+  const { data } = await supabase
+    .from("catches")
+    .select("*")
+    .eq("user_id", session.user.id)
+    .is("deleted_at", null)
+    .order("catch_ts", { ascending: true });
+  catches = data ?? [];
+
+  for (const c of catches) {
+    if (Array.isArray(c.photos) && c.photos[0]) {
+      const ref = c.photos[0] as string;
+      if (ref.startsWith("foto:")) {
+        const { data: signed } = await supabase.storage.from("catch-photos").createSignedUrl(ref.slice(5), 3600);
+        c._signedPhotoUrl = signed?.signedUrl ?? null;
+      } else if (ref.startsWith("http")) {
+        c._signedPhotoUrl = ref;
+      }
+    }
+  }
+}
+
+const catchesJson = JSON.stringify(catches);
+---
+
+<Layout title="Carp24 – Jahres-Rückblick" active="rueckblick" noindex>
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    {!session ? (
+      <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
+        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary">PASSION. FISHING. COMMUNITY.</p>
+        <h1 class="text-display-lg text-primary mb-2">JAHRES-RÜCKBLICK</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl">Du musst angemeldet sein, um deinen Rückblick zu sehen.</p>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+          Anmelden
+        </a>
+      </div>
+    ) : (
+      <>
+        <div class="mb-xl text-center md:text-left">
+          <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">PASSION. FISHING. COMMUNITY.</p>
+          <h1 class="text-display-lg text-primary mb-2">JAHRES-RÜCKBLICK</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">Deine persönliche Saison-Statistik auf einen Blick.</p>
+        </div>
+
+        <div id="year-chips" class="flex flex-wrap gap-sm mb-xl"></div>
+
+        <div id="rueckblick-content" class="flex flex-col gap-xl"></div>
+
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-3xl text-center gap-lg">
+          <p class="text-body-lg text-on-surface-variant">Noch keine Fänge in diesem Jahr.</p>
+          <a href="/fang-erfassen" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+            Fang erfassen
+          </a>
+        </div>
+      </>
+    )}
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ catchesJson }}>
+(function () {
+  var catches = [];
+  try { catches = JSON.parse(catchesJson); } catch (e) { catches = []; }
+
+  var speciesMap = { SPIEGEL: "Spiegelkarpfen", LEDER: "Lederkarpfen", SCHUPPEN: "Schuppenkarpfen", AMUR: "Amurkarpfen", ANDERE: "Andere" };
+  var monthLabels = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+  function getYear(ts) {
+    var d = new Date(ts);
+    return parseInt(d.toLocaleString("de-AT", { timeZone: "Europe/Vienna", year: "numeric" }));
+  }
+
+  function getMonth(ts) {
+    var d = new Date(ts);
+    return parseInt(d.toLocaleString("de-AT", { timeZone: "Europe/Vienna", month: "numeric" })) - 1;
+  }
+
+  function formatDate(ts) {
+    return new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  var years = [];
+  var yearSet = {};
+  catches.forEach(function (c) {
+    var y = getYear(c.catch_ts);
+    if (!yearSet[y]) { yearSet[y] = true; years.push(y); }
+  });
+  years.sort(function (a, b) { return b - a; });
+
+  var activeYear = years[0] || new Date().getFullYear();
+
+  var chipsContainer = document.getElementById("year-chips");
+  var contentContainer = document.getElementById("rueckblick-content");
+  var emptyState = document.getElementById("empty-state");
+
+  function renderChips() {
+    chipsContainer.innerHTML = "";
+    years.forEach(function (y) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = y;
+      btn.className = "font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border transition-colors min-h-11 cursor-pointer " +
+        (y === activeYear
+          ? "bg-primary-container text-on-primary-container border-primary-container"
+          : "border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container");
+      btn.addEventListener("click", function () {
+        activeYear = y;
+        renderChips();
+        renderYear();
+      });
+      chipsContainer.appendChild(btn);
+    });
+  }
+
+  function aggregate(year) {
+    var filtered = catches.filter(function (c) { return getYear(c.catch_ts) === year; });
+    if (filtered.length === 0) return null;
+
+    var count = filtered.length;
+    var totalWeight = 0;
+    var speciesCount = {};
+    var waterCount = {};
+    var monthCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    filtered.forEach(function (c) {
+      var w = Number(c.weight_kg) || 0;
+      totalWeight += w;
+      var sp = c.species || "ANDERE";
+      speciesCount[sp] = (speciesCount[sp] || 0) + 1;
+      if (c.water_name) waterCount[c.water_name] = (waterCount[c.water_name] || 0) + 1;
+      var m = getMonth(c.catch_ts);
+      monthCount[m]++;
+    });
+
+    var avgWeight = count > 0 ? totalWeight / count : 0;
+
+    var topSpecies = "—";
+    var topSpeciesCount = 0;
+    Object.keys(speciesCount).forEach(function (sp) {
+      if (speciesCount[sp] > topSpeciesCount) { topSpeciesCount = speciesCount[sp]; topSpecies = sp; }
+    });
+
+    var waters = Object.keys(waterCount).map(function (name) {
+      return { name: name, count: waterCount[name] };
+    }).sort(function (a, b) { return b.count - a.count; }).slice(0, 5);
+
+    var biggest = filtered.slice().sort(function (a, b) {
+      return (Number(b.weight_kg) || 0) - (Number(a.weight_kg) || 0);
+    }).slice(0, 3);
+
+    var maxMonth = 0;
+    monthCount.forEach(function (v) { if (v > maxMonth) maxMonth = v; });
+
+    return {
+      count: count,
+      totalWeight: totalWeight,
+      avgWeight: avgWeight,
+      topSpecies: speciesMap[topSpecies] || topSpecies,
+      monthCount: monthCount,
+      maxMonth: maxMonth,
+      waters: waters,
+      biggest: biggest,
+    };
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(str || ""));
+    return div.innerHTML;
+  }
+
+  function renderYear() {
+    var agg = aggregate(activeYear);
+    contentContainer.innerHTML = "";
+    if (!agg) {
+      emptyState.classList.remove("hidden");
+      return;
+    }
+    emptyState.classList.add("hidden");
+
+    // KPI Grid
+    var kpiGrid = document.createElement("div");
+    kpiGrid.className = "grid grid-cols-2 md:grid-cols-4 gap-gutter";
+
+    var kpis = [
+      { label: "FÄNGE", value: String(agg.count) },
+      { label: "GESAMTGEWICHT", value: agg.totalWeight.toFixed(1) + " kg" },
+      { label: "Ø-GEWICHT", value: agg.avgWeight.toFixed(1) + " kg" },
+      { label: "TOP-ART", value: agg.topSpecies },
+    ];
+
+    kpis.forEach(function (kpi) {
+      var card = document.createElement("div");
+      card.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg flex flex-col gap-sm";
+      card.innerHTML =
+        '<div class="font-label-sm text-label-sm uppercase text-secondary">' + escapeHtml(kpi.label) + '</div>' +
+        '<div class="font-mono text-display-md text-primary font-bold">' + escapeHtml(kpi.value) + '</div>';
+      kpiGrid.appendChild(card);
+    });
+    contentContainer.appendChild(kpiGrid);
+
+    // Monthly bars
+    var barSection = document.createElement("div");
+    barSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
+    barSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">FÄNGE PRO MONAT</div>';
+    var barContainer = document.createElement("div");
+    barContainer.className = "flex items-end gap-xs min-h-32";
+
+    monthLabels.forEach(function (label, i) {
+      var col = document.createElement("div");
+      col.className = "flex-1 flex flex-col items-center gap-xs";
+
+      var barWrapper = document.createElement("div");
+      barWrapper.className = "w-full flex flex-col items-center justify-end min-h-32";
+
+      var bar = document.createElement("div");
+      bar.className = "w-full rounded-t bg-primary-container transition-all duration-300";
+      var pct = agg.maxMonth > 0 ? (agg.monthCount[i] / agg.maxMonth) * 100 : 0;
+      bar.style.height = pct + "%";
+      bar.style.minHeight = agg.monthCount[i] > 0 ? "4px" : "0";
+
+      var countLabel = document.createElement("span");
+      countLabel.className = "font-label-sm text-label-sm text-secondary";
+      countLabel.textContent = agg.monthCount[i] > 0 ? String(agg.monthCount[i]) : "";
+
+      barWrapper.appendChild(countLabel);
+      barWrapper.appendChild(bar);
+      col.appendChild(barWrapper);
+
+      var lbl = document.createElement("span");
+      lbl.className = "font-label-sm text-label-sm text-secondary";
+      lbl.textContent = label;
+      col.appendChild(lbl);
+
+      barContainer.appendChild(col);
+    });
+    barSection.appendChild(barContainer);
+    contentContainer.appendChild(barSection);
+
+    // Top waters
+    if (agg.waters.length > 0) {
+      var watersSection = document.createElement("div");
+      watersSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
+      watersSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">TOP-GEWÄSSER</div>';
+      var watersList = document.createElement("div");
+      watersList.className = "flex flex-col gap-sm";
+
+      agg.waters.forEach(function (w, i) {
+        var row = document.createElement("div");
+        row.className = "flex items-center justify-between py-sm px-md bg-surface-container-lowest rounded border border-primary/10";
+        row.innerHTML =
+          '<div class="flex items-center gap-md">' +
+          '<span class="font-mono text-body-lg text-secondary w-6 text-right">' + (i + 1) + '.</span>' +
+          '<span class="text-body-lg text-on-surface">' + escapeHtml(w.name) + '</span>' +
+          '</div>' +
+          '<span class="font-mono text-body-lg text-primary font-bold">' + w.count + '</span>';
+        watersList.appendChild(row);
+      });
+      watersSection.appendChild(watersList);
+      contentContainer.appendChild(watersSection);
+    }
+
+    // Biggest catches
+    if (agg.biggest.length > 0) {
+      var bigSection = document.createElement("div");
+      bigSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
+      bigSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">GRÖSSTE FÄNGE</div>';
+      var bigGrid = document.createElement("div");
+      bigGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-gutter";
+
+      agg.biggest.forEach(function (c) {
+        var card = document.createElement("div");
+        card.className = "bg-surface-container-lowest rounded-lg border border-primary/20 overflow-hidden flex flex-col";
+
+        var photoHtml = "";
+        if (c._signedPhotoUrl) {
+          photoHtml = '<div class="h-40 bg-surface-container overflow-hidden"><img src="' + escapeHtml(c._signedPhotoUrl) + '" alt="Fang" class="w-full h-full object-cover" loading="lazy" /></div>';
+        }
+
+        card.innerHTML = photoHtml +
+          '<div class="p-md flex flex-col gap-xs">' +
+          '<div class="font-mono text-headline-md text-primary font-bold">' + (Number(c.weight_kg) || 0).toFixed(1) + ' kg</div>' +
+          '<div class="text-body-md text-on-surface-variant">' + escapeHtml(speciesMap[c.species] || c.species || "—") + '</div>' +
+          '<div class="text-body-md text-secondary">' + escapeHtml(c.water_name || "—") + '</div>' +
+          '<div class="text-body-md text-secondary">' + formatDate(c.catch_ts) + '</div>' +
+          '</div>';
+        bigGrid.appendChild(card);
+      });
+      bigSection.appendChild(bigGrid);
+      contentContainer.appendChild(bigSection);
+    }
+  }
+
+  renderChips();
+  renderYear();
+})();
+</script>
