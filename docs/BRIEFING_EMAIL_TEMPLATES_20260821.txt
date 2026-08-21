@@ -1,0 +1,96 @@
+BAUE SOFORT — KEINE ANALYSE. Erstelle 7 HTML-E-Mail-Templates.
+
+Zielordner (neu anlegen): /mnt/projekte/carp24-fangbuch/infra/volumes/templates/
+Dateien: confirmation.html, recovery.html, invitation.html, magic_link.html, email_change.html, export_email.html, deletion_email.html
+
+## DESIGN-VORGABE (Carp24-Branding, alle 7 Templates)
+- Hell-Theme: Seiten-Hintergrund `#E2DECC`, Karten-Hintergrund `#FFFFFF`, Text `#0B0C0B`
+- Primär-Button: Hintergrund `#6C7A57`, Text weiß, abgerundet (border-radius 999px), Padding 14px 32px
+- Kicker oben: `PASSION. FISHING. COMMUNITY.` in Caps, Letter-Spacing, Farbe `#6C7A57`, klein
+- Text-Logo im Header: **CARP24** (fett, groß, `#0B0C0B`) — KEINE Bilder/Logos einbetten (E-Mail-Clients + DSGVO: kein Tracking-Pixel, kein externes Bild)
+- Typo: font-family system-ui/Helvetica/Arial sans-serif; Max-Breite 600px, zentriert
+- Body-Text `#3A3A38`, Links/Footer klein `#5A5A56`
+- Footer: "CARP24 · carp24.org" klein, grau
+- Alle Styles INLINE-CSS (E-Mail-Clients). Kein <style>-Block nötig, aber erlaubt.
+- Sprache: DEUTSCH. Keine Emojis. Sauberer Weißraum, minimalistisch/editorial.
+
+## GOTRUE-VARIABLEN (wichtig, exakt)
+- confirmation.html: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}
+- recovery.html: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}
+- invitation.html: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}
+- magic_link.html: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}
+- email_change.html: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}, {{ .NewEmail }}
+- export_email.html + deletion_email.html: App-Referenz-Templates (werden später von der Edge-Function genutzt) — Platzhalter {{ .ExportUrl }} bzw. {{ .SiteURL }} im Button, Text frei gestalten (Daten-Export Art. 20: Link zur Export-Datei; Lösch-Bestätigung: Konto wurde gelöscht, Hinweis auf Widerruf)
+
+## MUSTER (confirmation.html — die anderen analog, nur Titel/Text/Button-Ziel anpassen)
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Willkommen bei Carp24</title>
+</head>
+<body style="margin:0;padding:0;background-color:#E2DECC;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#E2DECC;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#FFFFFF;border-radius:16px;overflow:hidden;">
+          <tr>
+            <td style="padding:40px 48px 8px 48px;">
+              <div style="font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:2px;color:#6C7A57;text-transform:uppercase;margin-bottom:16px;">Passion. Fishing. Community.</div>
+              <div style="font-family:Helvetica,Arial,sans-serif;font-size:28px;font-weight:700;color:#0B0C0B;">CARP24</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 48px 16px 48px;">
+              <h1 style="font-family:Helvetica,Arial,sans-serif;font-size:22px;color:#0B0C0B;margin:0 0 12px 0;">Willkommen bei Carp24</h1>
+              <p style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#3A3A38;margin:0 0 24px 0;">
+                Hallo {{ .Email }},<br /><br />
+                bestätige deine E-Mail-Adresse, um dein digitales Fangbuch zu aktivieren. Danach kannst du Fänge erfassen, Statistiken entdecken und dein Archiv aufbauen.
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+                <tr>
+                  <td style="background-color:#6C7A57;border-radius:999px;">
+                    <a href="{{ .ConfirmationURL }}" style="display:inline-block;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#FFFFFF;text-decoration:none;padding:14px 32px;">E-MAIL BESTÄTIGEN</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#5A5A56;margin:0;">
+                Falls der Button nicht funktioniert, öffne diesen Link in deinem Browser:<br />
+                <a href="{{ .ConfirmationURL }}" style="color:#6C7A57;word-break:break-all;">{{ .ConfirmationURL }}</a><br /><br />
+                Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 48px 40px 48px;border-top:1px solid #E2DECC;">
+              <div style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#5A5A56;">CARP24 · carp24.org</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+```
+
+## INHALTE (deutsch, Carp24-Ton)
+- **confirmation**: Titel "Willkommen bei Carp24" / Button "E-MAIL BESTÄTIGEN" → {{ .ConfirmationURL }}
+- **recovery**: Titel "Passwort zurücksetzen" / Button "PASSWORT ZURÜCKSETZEN" → {{ .ConfirmationURL }} / Hinweis: Link 60 Min gültig, kein Passwort per E-Mail senden
+- **invitation**: Titel "Du bist eingeladen" / Button "KONTO AKTIVIEREN" → {{ .ConfirmationURL }}
+- **magic_link**: Titel "Dein Anmelde-Link" / Button "ANMELDEN" → {{ .ConfirmationURL }}
+- **email_change**: Titel "E-Mail-Adresse ändern" / Button "NEUE E-MAIL BESTÄTIGEN" → {{ .ConfirmationURL }} / erwähne {{ .NewEmail }}
+- **export_email**: Titel "Dein Daten-Export ist bereit" / Text: Art.-20-DSGV-Export, Link zum Herunterladen, 7 Tage gültig → Button "EXPORT HERUNTERLADEN" → {{ .ExportUrl }}
+- **deletion_email**: Titel "Dein Carp24-Konto wurde gelöscht" / Text: Konto + personenbezogene Daten gelöscht (Hinweis: Fänge sind anonymisiert, Statistiken aggregiert bleiben), Support-Kontakt info@einfach-online.dev → Button "ZUR STARTSEITE" → {{ .SiteURL }}
+
+## PFLICHTEN
+- NUR die 7 Dateien in infra/volumes/templates/ erstellen. Nichts anderes anfassen (kein docker-compose, kein .env!).
+- Keine %PLATZHOLDER%, keine import.meta.env.
+- Valides HTML, alle Variablen mit {{ . }} exakt wie oben.
+- Verifiziere: ls -la infra/volumes/templates/ → 7 Dateien; grep -c "{{ ." in jeder Datei ≥1.
+- KEIN git commit nötig (ich committe selbst).
+
+## AUSGABE
+Kurz auf Deutsch: Dateien erstellt (Liste), Verifikation.

@@ -154,6 +154,8 @@ services:
       db:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
+      templates-server:
+        condition: service_started
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -203,6 +205,18 @@ services:
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
       GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
       GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
+
+      # E-Mail-Templates (Task 1.16, 21.08.): Caddy templates-server liefert HTML per URL
+      GOTRUE_MAILER_TEMPLATES_CONFIRMATION: http://templates-server/confirmation.html
+      GOTRUE_MAILER_TEMPLATES_RECOVERY: http://templates-server/recovery.html
+      GOTRUE_MAILER_TEMPLATES_INVITE: http://templates-server/invitation.html
+      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: http://templates-server/magic_link.html
+      GOTRUE_MAILER_TEMPLATES_EMAIL_CHANGE: http://templates-server/email_change.html
+      GOTRUE_MAILER_SUBJECTS_CONFIRMATION: Bestätige deine E-Mail — Carp24
+      GOTRUE_MAILER_SUBJECTS_RECOVERY: Passwort zurücksetzen — Carp24
+      GOTRUE_MAILER_SUBJECTS_INVITE: Du bist eingeladen — Carp24
+      GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: Dein Anmelde-Link — Carp24
+      GOTRUE_MAILER_SUBJECTS_EMAIL_CHANGE: E-Mail-Adresse ändern — Carp24
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
@@ -663,6 +677,17 @@ services:
         "-c",
         "/app/bin/migrate && /app/bin/supavisor eval \"$$(cat /etc/pooler/pooler.exs)\" && /app/bin/server"
       ]
+
+  templates-server:
+    container_name: supabase-templates
+    image: caddy:2-alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    command: ["caddy", "file-server", "-r", "/templates", "--listen", ":80"]
+    volumes:
+      - ./volumes/templates:/templates
+    networks:
+      - default
 
 volumes:
   db-config:
