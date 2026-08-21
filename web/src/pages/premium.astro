@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
@@ -62,34 +63,34 @@ const statusColor = isAdmin
     : "bg-surface-container-highest text-on-surface-variant";
 
 const features = [
-  { name: "KI-ANGELASSISTENT", desc: "Intelligente Fangberatung basierend auf deinen Daten.", pro: true },
-  { name: "MARKTPLATZ", desc: "Ausrüstung kaufen und verkaufen in der Community.", pro: true },
-  { name: "ERWEITERTE STATISTIK", desc: "Detaillierte Auswertungen, Trends und Gewässeranalysen.", pro: true },
+  { nameKey: "premium.ki", descKey: "premium.ki_desc", pro: true },
+  { nameKey: "premium.marktplatz", descKey: "premium.marktplatz_desc", pro: true },
+  { nameKey: "premium.stats", descKey: "premium.stats_desc", pro: true },
 ];
 ---
 
 <Layout title="Carp24 – Premium" active="preis">
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="text-center mb-xl">
-      <h1 class="text-display-lg text-on-surface mb-lg">PREMIUM</h1>
+      <h1 class="text-display-lg text-on-surface mb-lg i18n" data-de={t("premium.titel", "de")} data-en={t("premium.titel", "en")}>{t("premium.titel")}</h1>
       <div class="flex items-center justify-center gap-3">
         <span class:list={["inline-block px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest", statusColor]}>
-          {statusLabel}
+          <span class="i18n" data-de={t("premium.status_" + statusLabel.toLowerCase(), "de")} data-en={t("premium.status_" + statusLabel.toLowerCase(), "en")}>{t("premium.status_" + statusLabel.toLowerCase())}</span>
         </span>
         {session && displayName && (
           <span class="text-body-md text-on-surface-variant">{displayName}</span>
         )}
       </div>
       {isAdmin && (
-        <p class="text-body-md text-tertiary mt-sm">Alle Funktionen freigeschaltet</p>
+        <p class="text-body-md text-tertiary mt-sm i18n" data-de={t("premium.alle_funktionen", "de")} data-en={t("premium.alle_funktionen", "en")}>{t("premium.alle_funktionen")}</p>
       )}
     </div>
 
     {!session && (
       <div class="mb-xl text-center">
-        <p class="text-body-lg text-on-surface-variant mb-md">Melde dich an, um deinen Status zu sehen.</p>
-        <a href="/login" class="inline-block px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors min-h-12">
-          Anmelden
+        <p class="text-body-lg text-on-surface-variant mb-md i18n" data-de={t("premium.anmelden_status", "de")} data-en={t("premium.anmelden_status", "en")}>{t("premium.anmelden_status")}</p>
+        <a href="/login" class="inline-block px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors min-h-12 i18n" data-de={t("premium.anmelden", "de")} data-en={t("premium.anmelden", "en")}>
+          {t("premium.anmelden")}
         </a>
       </div>
     )}
@@ -114,11 +115,11 @@ const features = [
                   <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
               )}
-              <h3 class="text-headline-sm text-on-surface">{f.name}</h3>
+              <h3 class="text-headline-sm text-on-surface i18n" data-de={t(f.nameKey, "de")} data-en={t(f.nameKey, "en")}>{t(f.nameKey)}</h3>
             </div>
-            <p class="text-body-md text-on-surface-variant flex-grow">{f.desc}</p>
+            <p class="text-body-md text-on-surface-variant flex-grow i18n" data-de={t(f.descKey, "de")} data-en={t(f.descKey, "en")}>{t(f.descKey)}</p>
             {!unlocked && (
-              <p class="text-label-sm text-primary font-label-sm uppercase tracking-widest mt-md">Mit Premium freischalten</p>
+              <p class="text-label-sm text-primary font-label-sm uppercase tracking-widest mt-md i18n" data-de={t("premium.mit_premium", "de")} data-en={t("premium.mit_premium", "en")}>{t("premium.mit_premium")}</p>
             )}
           </div>
         );
@@ -127,10 +128,10 @@ const features = [
 
     {session && !isPaid && (
       <div class="text-center">
-        <button type="button" id="stripe-checkout" class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors cursor-pointer min-h-12">
-          JETZT UPGRADEN
+        <button type="button" id="stripe-checkout" class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors cursor-pointer min-h-12 i18n" data-de={t("premium.upgrade", "de")} data-en={t("premium.upgrade", "en")}>
+          {t("premium.upgrade")}
         </button>
-        <p class="text-body-sm text-on-surface-variant mt-sm">Sichere dir Zugang zu allen Premium-Funktionen.</p>
+        <p class="text-body-sm text-on-surface-variant mt-sm i18n" data-de={t("premium.sicher_dir", "de")} data-en={t("premium.sicher_dir", "en")}>{t("premium.sicher_dir")}</p>
         <p id="stripe-error" class="text-body-sm text-error mt-sm hidden"></p>
       </div>
     )}
@@ -139,17 +140,17 @@ const features = [
       <div class="text-center">
         <span class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary min-h-12 flex items-center justify-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
-          Du bist Premium
+          <span class="i18n" data-de={t("premium.du_bist_premium", "de")} data-en={t("premium.du_bist_premium", "en")}>{t("premium.du_bist_premium")}</span>
         </span>
       </div>
     )}
 
     {!session && (
       <div class="text-center">
-        <button type="button" disabled class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant bg-surface-container-highest border border-outline/20 cursor-not-allowed opacity-70 min-h-12">
-          Upgrade kommt bald
+        <button type="button" disabled class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant bg-surface-container-highest border border-outline/20 cursor-not-allowed opacity-70 min-h-12 i18n" data-de={t("premium.bald", "de")} data-en={t("premium.bald", "en")}>
+          {t("premium.bald")}
         </button>
-        <p class="text-body-sm text-on-surface-variant mt-sm">Melde dich an, um Premium freizuschalten.</p>
+        <p class="text-body-sm text-on-surface-variant mt-sm i18n" data-de={t("premium.anmelden_premium", "de")} data-en={t("premium.anmelden_premium", "en")}>{t("premium.anmelden_premium")}</p>
       </div>
     )}
   </main>

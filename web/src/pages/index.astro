@@ -4,11 +4,12 @@ import heroPhoto from "../assets/stitch/onboarding-1.jpg?url";
 import catchPhoto1 from "../assets/stitch/onboarding-2.jpg?url";
 import catchPhoto2 from "../assets/stitch/catch-list-0.jpg?url";
 import catchPhoto3 from "../assets/stitch/catch-list-1.jpg?url";
+import { t } from "../lib/i18n";
 
 const features = [
-  { tag: "ERFASSEN", title: "In Sekunden dokumentiert", text: "Erfasse jeden Fang direkt am Wasser mit minimalem Aufwand.", icon: "plus" },
-  { tag: "VERWALTEN", title: "Dein Archiv der Erinnerungen", text: "Sicher, strukturiert und jederzeit abrufbar wie ein echtes Logbuch.", icon: "archive" },
-  { tag: "ANALYSIEREN", title: "Lerne aus deinen Daten", text: "Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.", icon: "chart" },
+  { tagKey: "index.erfassen_tag", titleKey: "index.erfassen_title", textKey: "index.erfassen_text", icon: "plus" },
+  { tagKey: "index.verwalten_tag", titleKey: "index.verwalten_title", textKey: "index.verwalten_text", icon: "archive" },
+  { tagKey: "index.analysieren_tag", titleKey: "index.analysieren_title", textKey: "index.analysieren_text", icon: "chart" },
 ];
 
 const examples = [
@@ -28,15 +29,15 @@ const icons: Record<string, string> = {
   <main id="page-content" class="max-w-[1440px] mx-auto pb-xl">
     <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
       <div class="flex flex-col gap-6">
-        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">PASSION. FISHING. COMMUNITY.</span>
-        <h1 class="text-display-lg text-on-surface">Willkommen am Wasser</h1>
-        <p class="text-body-lg text-on-surface-variant max-w-lg">Dein digitales Fangbuch — schneller als ein Kescher.</p>
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</span>
+        <h1 class="text-display-lg text-on-surface i18n" data-de={t("index.hero_titel", "de")} data-en={t("index.hero_titel", "en")}>{t("index.hero_titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-lg i18n" data-de={t("index.hero_text", "de")} data-en={t("index.hero_text", "en")}>{t("index.hero_text")}</p>
         <div class="flex flex-wrap items-center gap-6 mt-4">
-          <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center">
-            LOS GEHT'S
+          <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center i18n" data-de={t("index.cta", "de")} data-en={t("index.cta", "en")}>
+            {t("index.cta")}
           </a>
-          <a href="/#funktionen" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
-            FUNKTIONEN ENTDECKEN
+          <a href="/#funktionen" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors i18n" data-de={t("index.funktionen", "de")} data-en={t("index.funktionen", "en")}>
+            {t("index.funktionen")}
           </a>
         </div>
       </div>
@@ -56,9 +57,9 @@ const icons: Record<string, string> = {
             <div class="w-12 h-12 rounded-full border border-primary/40 flex items-center justify-center text-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[f.icon]} />
             </div>
-            <span class="font-label-sm text-label-sm uppercase text-tertiary">{f.tag}</span>
-            <h2 class="text-headline-md">{f.title}</h2>
-            <p class="text-body-md text-on-surface-variant">{f.text}</p>
+            <span class="font-label-sm text-label-sm uppercase text-tertiary i18n" data-de={t(f.tagKey, "de")} data-en={t(f.tagKey, "en")}>{t(f.tagKey)}</span>
+            <h2 class="text-headline-md i18n" data-de={t(f.titleKey, "de")} data-en={t(f.titleKey, "en")}>{t(f.titleKey)}</h2>
+            <p class="text-body-md text-on-surface-variant i18n" data-de={t(f.textKey, "de")} data-en={t(f.textKey, "en")}>{t(f.textKey)}</p>
           </div>
         ))}
       </div>
@@ -66,7 +67,7 @@ const icons: Record<string, string> = {
 
     <section class="px-margin-mobile md:px-margin-desktop py-xl bg-surface-container-low/50">
       <div class="flex items-center gap-4 mb-xl">
-        <span class="font-nav-item text-nav-item uppercase text-on-surface-variant">AUS DEM FANGBUCH</span>
+        <span class="font-nav-item text-nav-item uppercase text-on-surface-variant i18n" data-de={t("index.aus_dem_fangbuch", "de")} data-en={t("index.aus_dem_fangbuch", "en")}>{t("index.aus_dem_fangbuch")}</span>
         <div class="flex-1 border-t border-dashed border-primary/30"></div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
@@ -90,11 +91,11 @@ const icons: Record<string, string> = {
     </section>
 
     <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-24 flex flex-col items-center justify-center text-center gap-6">
-      <span class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full shadow-sm border border-primary/20 min-h-11 inline-flex items-center">
-        50 FÄNGE GRATIS
+      <span class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full shadow-sm border border-primary/20 min-h-11 inline-flex items-center i18n" data-de={t("index.kostenlos", "de")} data-en={t("index.kostenlos", "en")}>
+        {t("index.kostenlos")}
       </span>
-      <p class="text-headline-md text-on-surface-variant max-w-md italic font-normal">
-        Danach Pro ab 4,99 €/Monat
+      <p class="text-headline-md text-on-surface-variant max-w-md italic font-normal i18n" data-de={t("index.pro_preis", "de")} data-en={t("index.pro_preis", "en")}>
+        {t("index.pro_preis")}
       </p>
     </section>
   </main>

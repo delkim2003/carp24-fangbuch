@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import CatchCard from "../components/CatchCard.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
@@ -38,7 +39,7 @@ const { data: { session } } = await supabase.auth.getSession();
 let catches: any[] = [];
 let loadError: string | null = null;
 if (session) {
-  const { data, error } = await supabase.from("catches").select("*").eq("deleted_at", null).order("catch_ts", { ascending: false });
+  const { data, error } = await supabase.from("catches").select("*").is("deleted_at", null).order("catch_ts", { ascending: false });
   catches = data ?? [];
   if (error) loadError = error.message;
 }
@@ -48,9 +49,9 @@ const saved = Astro.url.searchParams.get("saved") === "1";
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4">FANGBUCH</h1>
-        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um deine Fänge zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("faenge.titel", "de")} data-en={t("faenge.titel", "en")}>{t("faenge.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("faenge.anmelden_text", "de")} data-en={t("faenge.anmelden_text", "en")}>{t("faenge.anmelden_text")}</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
       </div>
     ) : (
       <>
@@ -58,22 +59,22 @@ const saved = Astro.url.searchParams.get("saved") === "1";
           <div class="bg-primary/10 border border-primary/40 rounded-xl px-lg py-md flex items-center gap-md">
             <span class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">✓</span>
             <div>
-              <div class="font-label-sm text-label-sm uppercase text-primary">FANG GESPEICHERT</div>
-              <div class="text-body-md text-on-surface">Dein Fang ist sicher im Fangbuch — mit Wetter-Snapshot.</div>
+              <div class="font-label-sm text-label-sm uppercase text-primary i18n" data-de={t("faenge.gespeichert", "de")} data-en={t("faenge.gespeichert", "en")}>{t("faenge.gespeichert")}</div>
+              <div class="text-body-md text-on-surface i18n" data-de={t("faenge.gespeichert_text", "de")} data-en={t("faenge.gespeichert_text", "en")}>{t("faenge.gespeichert_text")}</div>
             </div>
           </div>
         )}
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
           <div>
-            <h1 class="text-display-lg text-on-surface mb-2">FANGBUCH</h1>
+            <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("faenge.titel", "de")} data-en={t("faenge.titel", "en")}>{t("faenge.titel")}</h1>
             {catches.length > 0 && (
-              <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest">{catches.length} FÄNGE GESAMT</p>
+              <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest"><span class="i18n" data-de={catches.length + " " + t("faenge.faenge_gesamt", "de")} data-en={catches.length + " " + t("faenge.faenge_gesamt", "en")}>{catches.length} {t("faenge.faenge_gesamt")}</span></p>
             )}
           </div>
           <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-            NEUER FANG
+            <span class="i18n" data-de={t("faenge.neuer_fang", "de")} data-en={t("faenge.neuer_fang", "en")}>{t("faenge.neuer_fang")}</span>
           </a>
         </div>
 
@@ -84,9 +85,9 @@ const saved = Astro.url.searchParams.get("saved") === "1";
             <div class="w-32 h-32 rounded-full border-2 border-primary/40 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7B9496" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 12c5-2 12-4 14-9.5-5.5 2-9 6.5-10.5 10-1 2-2 5-4 6.5.5-3 1-5 .5-7z"/></svg>
             </div>
-            <h2 class="text-display-md text-primary">NOCH KEINE FÄNGE</h2>
-            <p class="text-body-lg text-on-surface-variant max-w-md">Dein erstes Abenteuer wartet. Halte deinen ersten Fang fest — mit Foto, Gewässer und Wetter.</p>
-            <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12">ERSTEN FANG EINTRAGEN</a>
+            <h2 class="text-display-md text-primary i18n" data-de={t("faenge.keine_faenge", "de")} data-en={t("faenge.keine_faenge", "en")}>{t("faenge.keine_faenge")}</h2>
+            <p class="text-body-lg text-on-surface-variant max-w-md i18n" data-de={t("faenge.keine_faenge_text", "de")} data-en={t("faenge.keine_faenge_text", "en")}>{t("faenge.keine_faenge_text")}</p>
+            <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("faenge.ersten_eintragen", "de")} data-en={t("faenge.ersten_eintragen", "en")}>{t("faenge.ersten_eintragen")}</a>
           </div>
         ) : (
           <div class="flex flex-col gap-md">

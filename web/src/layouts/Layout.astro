@@ -136,5 +136,18 @@ const lang = getLang();
         if (mobileThemeBtn) mobileThemeBtn.addEventListener("click", toggleTheme);
       })();
     </script>
+    <script is:inline>
+      (function () {
+        var lang = localStorage.getItem("carp24-lang") || "de";
+        document.querySelectorAll(".i18n").forEach(function (el) {
+          var txt = el.getAttribute("data-" + lang);
+          if (txt) el.textContent = txt;
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+          var val = el.getAttribute("data-i18n-placeholder-" + lang);
+          if (val) el.placeholder = val;
+        });
+      })();
+    </script>
   </body>
 </html>

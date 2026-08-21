@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
@@ -168,17 +169,17 @@ if (trend.length > 0) {
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4">DASHBOARD</h1>
-        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um deine Statistik zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("faenge.anmelden_text", "de")} data-en={t("faenge.anmelden_text", "en")}>{t("faenge.anmelden_text")}</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
       </div>
     ) : catches.length === 0 ? (
       <div class="text-center py-24 flex flex-col items-center gap-lg">
         <div class="w-32 h-32 rounded-full border-2 border-primary/40 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7B9496" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 12c5-2 12-4 14-9.5-5.5 2-9 6.5-10.5 10-1 2-2 5-4 6.5.5-3 1-5 .5-7z"/></svg>
         </div>
-        <h2 class="text-display-md text-primary">NOCH KEINE FÄNGE</h2>
-        <p class="text-body-lg text-on-surface-variant max-w-md">Dein erstes Abenteuer wartet. Halte deinen ersten Fang fest — mit Foto, Gewässer und Wetter.</p>
-        <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12">ERSTEN FANG EINTRAGEN</a>
+        <h2 class="text-display-md text-primary i18n" data-de={t("dashboard.keine_faenge", "de")} data-en={t("dashboard.keine_faenge", "en")}>{t("dashboard.keine_faenge")}</h2>
+        <p class="text-body-lg text-on-surface-variant max-w-md i18n" data-de={t("dashboard.keine_faenge_text", "de")} data-en={t("dashboard.keine_faenge_text", "en")}>{t("dashboard.keine_faenge_text")}</p>
+        <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("dashboard.ersten_eintragen", "de")} data-en={t("dashboard.ersten_eintragen", "en")}>{t("dashboard.ersten_eintragen")}</a>
       </div>
     ) : (
       <>
@@ -190,36 +191,36 @@ if (trend.length > 0) {
           <div class="flex flex-wrap gap-3">
             <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-colors duration-200 flex items-center gap-2 min-h-12">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              NEUER FANG EINTRAGEN
+              <span class="i18n" data-de={t("dashboard.neuer_fang", "de")} data-en={t("dashboard.neuer_fang", "en")}>{t("dashboard.neuer_fang")}</span>
             </a>
-            <a href="/statistik" class="border border-primary/40 text-primary rounded-full px-6 py-3 font-nav-item text-nav-item uppercase tracking-widest hover:bg-primary hover:text-white transition-colors min-h-12 flex items-center">
-              ZUM STATISTIK-STUDIO
+            <a href="/statistik" class="border border-primary/40 text-primary rounded-full px-6 py-3 font-nav-item text-nav-item uppercase tracking-widest hover:bg-primary hover:text-white transition-colors min-h-12 flex items-center i18n" data-de={t("dashboard.statistik_studio", "de")} data-en={t("dashboard.statistik_studio", "en")}>
+              {t("dashboard.statistik_studio")}
             </a>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
           <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
-            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">GESAMT FÄNGE</span>
+            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest i18n" data-de={t("dashboard.gesamt_faenge", "de")} data-en={t("dashboard.gesamt_faenge", "en")}>{t("dashboard.gesamt_faenge")}</span>
             <span class="text-display-lg text-primary">{total}</span>
           </div>
           <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
-            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">SCHWERSTER FANG</span>
+            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest i18n" data-de={t("dashboard.schwerster", "de")} data-en={t("dashboard.schwerster", "en")}>{t("dashboard.schwerster")}</span>
             <span class="text-display-lg text-primary">{heaviest ? fmtWeight(Number(heaviest.weight_kg)) : "–"}<span class="text-headline-md"> KG</span></span>
           </div>
           <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
-            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">FÄNGE DIESES JAHR</span>
+            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest i18n" data-de={t("dashboard.faenge_jahr", "de")} data-en={t("dashboard.faenge_jahr", "en")}>{t("dashboard.faenge_jahr")}</span>
             <span class="text-display-lg text-primary">{thisYear}</span>
           </div>
           <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
-            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">AKTIVE GEWÄSSER</span>
+            <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest i18n" data-de={t("dashboard.aktive_gewaesser", "de")} data-en={t("dashboard.aktive_gewaesser", "en")}>{t("dashboard.aktive_gewaesser")}</span>
             <span class="text-display-lg text-primary">{activeWaters}</span>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
           <div class="lg:col-span-2 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-            <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">FÄNGE PRO MONAT</h3>
+            <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4 i18n" data-de={t("dashboard.faenge_monat", "de")} data-en={t("dashboard.faenge_monat", "en")}>{t("dashboard.faenge_monat")}</h3>
             {monthly.length > 0 && maxCount > 0 ? (
               <svg viewBox={`0 0 ${svgW} ${svgH}`} class="w-full h-auto" style="min-height:260px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Balkendiagramm Fänge pro Monat" set:html={barSvgParts.join("")} />
             ) : (
@@ -228,7 +229,7 @@ if (trend.length > 0) {
           </div>
 
           <div class="lg:col-span-1 bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-            <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">TOP FÄNGE</h3>
+            <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4 i18n" data-de={t("dashboard.top_faenge", "de")} data-en={t("dashboard.top_faenge", "en")}>{t("dashboard.top_faenge")}</h3>
             <div class="flex flex-col">
               {top5.map((c: any, i: number) => (
                 <div class={`flex items-start gap-4 p-4 ${i < top5.length - 1 ? 'border-b border-primary/20' : ''}`}>
@@ -244,7 +245,7 @@ if (trend.length > 0) {
         </div>
 
         <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-          <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">GEWICHTS-VERLAUF</h3>
+          <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4 i18n" data-de={t("dashboard.gewichtsverlauf", "de")} data-en={t("dashboard.gewichtsverlauf", "en")}>{t("dashboard.gewichtsverlauf")}</h3>
           {trend.length > 0 ? (
             <svg viewBox={`0 0 ${trendW} ${trendH}`} class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Liniendiagramm Gewichtsverlauf" set:html={trendSvgParts.join("")} />
           ) : (

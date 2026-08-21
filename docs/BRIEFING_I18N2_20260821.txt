@@ -1,0 +1,28 @@
+BAUE SOFORT — KEINE ANALYSE. Feature E1 Teil 2: Seiten-Texte i18n für carp24.
+
+## KONTEXT
+i18n-Basis existiert (web/src/lib/i18n.ts mit dict + t()). Header/Footer/Nav sind bereits übersetzt. Jetzt die HAUPTSEITEN-Texte (H1/Kicker/Buttons/Statische Labels) auf t() umstellen. KEINE User-Inhalte übersetzen (Fang-Notizen, Forum-Posts, Chat-Nachrichten bleiben wie eingegeben).
+
+## VORGEHEN
+1. **ERWEITERE den dict in web/src/lib/i18n.ts** um Keys für:
+   - login: anmelden (Anmelden/Sign in), registrieren (Registrieren/Sign up), email, passwort, fehler, kicker ("PASSION. FISHING. COMMUNITY.")
+   - premium: titel (Premium/Premium), status_free (Kostenlos/Free), status_pro (Pro/Pro), status_admin (Administrator/Admin), upgrade (Jetzt upgraden/Upgrade now), bald (Abo bald verfügbar/Subscriptions coming soon), ki (KI-Angelassistent/AI Fishing Assistant), marktplatz (Marktplatz/Marketplace), stats (Erweiterte Statistik/Advanced Stats)
+   - board: titel (Community-Board/Community Board), melden (Melden/Report), meldung_senden (Meldung senden/Send report)
+   - chat: titel (Chat/Chat), nachricht (Nachricht schreiben…/Type a message…), senden (Senden/Send)
+   - forum: titel (Forum/Forum), neuer_thread (Neuer Thread/New Thread), antworten (Antworten/Reply)
+   - trips: titel (Trips/Trips), neuer_trip (Neuer Trip/New Trip), loeschen (Löschen/Delete)
+   - rueckblick: titel (Jahres-Rückblick/Year in Review), faenge (Fänge/Catches), gewicht (Gewicht/Weight)
+   - faenge: titel (Meine Fänge/My Catches), kein_fang (Noch keine Fänge/No catches yet)
+2. **WICHTIG: Nutze das Muster aus Header.astro** (data-de/data-en-Attribute + Client-Switch) ODER serverseitig t() — je nachdem wie die Seite aufgebaut ist (SSR-Frontmatter kann t() direkt nutzen; client-seitige Labels via data-Attribute). Bei SSR-Seiten: `import { getLang, t } from "../lib/i18n"` + im Frontmatter `const lang = getLang()` + im Template `{t("board.titel", lang)}` bzw. `data-de={...} data-en={...}` für client-gerenderte Stellen.
+3. **NICHT umbauen:** bestehende Logik (Forms, Queries, Realtime, Toggles) — NUR Texte.
+
+## SEITEN (alle in web/src/pages/ + Komponenten):
+login.astro · premium.astro · board.astro · chat.astro · forum.astro · trips.astro · rueckblick.astro · faenge.astro · index.astro (Hero-Texte + Kicker) · profil.astro (Sektions-Überschriften) · dashboard.astro (Sektions-Überschriften)
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 't("login' web/src/pages/login.astro → ≥1 (mindestens eine Seite)
+3. grep -c 'data-en' web/src/pages/board.astro → ≥1 ODER t("board
+4. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: umgestellte Seiten + Build. Wenn eine Seite zu komplex ist (z.B. profil.astro mit viel Logik), lasse sie aus und dokumentiere es.

@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 export const prerender = false;
 
@@ -65,19 +66,19 @@ const catchesJson = JSON.stringify(catches);
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
-        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary">PASSION. FISHING. COMMUNITY.</p>
-        <h1 class="text-display-lg text-primary mb-2">JAHRES-RÜCKBLICK</h1>
-        <p class="text-body-lg text-on-surface-variant max-w-xl">Du musst angemeldet sein, um deinen Rückblick zu sehen.</p>
-        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
-          Anmelden
+        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
+        <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("rueckblick.titel", "de")} data-en={t("rueckblick.titel", "en")}>{t("rueckblick.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl i18n" data-de={t("rueckblick.anmelden_text", "de")} data-en={t("rueckblick.anmelden_text", "en")}>{t("rueckblick.anmelden_text")}</p>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("rueckblick.anmelden", "de")} data-en={t("rueckblick.anmelden", "en")}>
+          {t("rueckblick.anmelden")}
         </a>
       </div>
     ) : (
       <>
         <div class="mb-xl text-center md:text-left">
-          <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2">PASSION. FISHING. COMMUNITY.</p>
-          <h1 class="text-display-lg text-primary mb-2">JAHRES-RÜCKBLICK</h1>
-          <p class="text-body-lg text-on-surface-variant max-w-2xl">Deine persönliche Saison-Statistik auf einen Blick.</p>
+          <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2 i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
+          <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("rueckblick.titel", "de")} data-en={t("rueckblick.titel", "en")}>{t("rueckblick.titel")}</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de={t("rueckblick.beschreibung", "de")} data-en={t("rueckblick.beschreibung", "en")}>{t("rueckblick.beschreibung")}</p>
         </div>
 
         <div id="year-chips" class="flex flex-wrap gap-sm mb-xl"></div>
@@ -85,9 +86,9 @@ const catchesJson = JSON.stringify(catches);
         <div id="rueckblick-content" class="flex flex-col gap-xl"></div>
 
         <div id="empty-state" class="hidden flex flex-col items-center justify-center py-3xl text-center gap-lg">
-          <p class="text-body-lg text-on-surface-variant">Noch keine Fänge in diesem Jahr.</p>
-          <a href="/fang-erfassen" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
-            Fang erfassen
+          <p class="text-body-lg text-on-surface-variant i18n" data-de={t("rueckblick.keine_faenge_jahr", "de")} data-en={t("rueckblick.keine_faenge_jahr", "en")}>{t("rueckblick.keine_faenge_jahr")}</p>
+          <a href="/fang-erfassen" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("rueckblick.fang_erfassen", "de")} data-en={t("rueckblick.fang_erfassen", "en")}>
+            {t("rueckblick.fang_erfassen")}
           </a>
         </div>
       </>

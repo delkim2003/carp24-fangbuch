@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
@@ -88,9 +89,9 @@ if (createdAt) {
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
       <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4">PROFIL</h1>
-        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um dein Profil zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("profil.titel", "de")} data-en={t("profil.titel", "en")}>{t("profil.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("profil.anmelden_text", "de")} data-en={t("profil.anmelden_text", "en")}>{t("profil.anmelden_text")}</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("profil.anmelden", "de")} data-en={t("profil.anmelden", "en")}>{t("profil.anmelden")}</a>
       </div>
     ) : (
       <>
@@ -106,26 +107,26 @@ if (createdAt) {
           <div class="lg:col-span-8 flex flex-col gap-xl">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
-                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">FÄNGE</span>
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.faenge", "de")} data-en={t("profil.faenge", "en")}>{t("profil.faenge")}</span>
                 <span class="text-headline-lg text-on-surface">{catchCount}</span>
               </div>
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
-                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">SCHWERSTER FANG</span>
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.schwerster", "de")} data-en={t("profil.schwerster", "en")}>{t("profil.schwerster")}</span>
                 <span class="text-headline-lg text-on-surface">{heaviestKg ?? "–"}{heaviestKg ? " KG" : ""}</span>
               </div>
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
-                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block">GEWÄSSER</span>
+                <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.gewaesser", "de")} data-en={t("profil.gewaesser", "en")}>{t("profil.gewaesser")}</span>
                 <span class="text-headline-lg text-on-surface">{waterCount}</span>
               </div>
             </div>
 
             <div class="mt-8">
-              <h2 class="text-headline-md text-on-surface mb-6">Einstellungen</h2>
+              <h2 class="text-headline-md text-on-surface mb-6 i18n" data-de={t("profil.einstellungen", "de")} data-en={t("profil.einstellungen", "en")}>{t("profil.einstellungen")}</h2>
               <div class="flex flex-col">
                 <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
                   <div>
-                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Einheiten</h3>
-                    <p class="text-body-md text-on-surface-variant">GEWICHTSEINHEIT (KG / LBS)</p>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.einheiten", "de")} data-en={t("profil.einheiten", "en")}>{t("profil.einheiten")}</h3>
+                    <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.gewichtseinheit", "de")} data-en={t("profil.gewichtseinheit", "en")}>{t("profil.gewichtseinheit")}</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" class="sr-only peer" checked />
@@ -136,8 +137,8 @@ if (createdAt) {
 
                 <div class="py-6 border-b border-primary/20 flex justify-between items-center gap-4">
                   <div>
-                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Sprache</h3>
-                    <p class="text-body-md text-on-surface-variant">APP SPRACHE</p>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.sprache", "de")} data-en={t("profil.sprache", "en")}>{t("profil.sprache")}</h3>
+                    <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.app_sprache", "de")} data-en={t("profil.app_sprache", "en")}>{t("profil.app_sprache")}</p>
                   </div>
                   <div class="relative">
                     <select class="appearance-none bg-transparent border-none font-label-sm text-label-sm text-on-surface uppercase pr-6 focus:ring-0 cursor-pointer">
@@ -149,9 +150,9 @@ if (createdAt) {
                 </div>
 
                 <div class="py-6 flex flex-col gap-4">
-                  <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2">Benachrichtigungen</h3>
+                  <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2 i18n" data-de={t("profil.benachrichtigungen", "de")} data-en={t("profil.benachrichtigungen", "en")}>{t("profil.benachrichtigungen")}</h3>
                   <div class="flex justify-between items-center">
-                    <p class="text-body-md text-on-surface">E-MAIL NEWSLETTER</p>
+                    <p class="text-body-md text-on-surface i18n" data-de={t("profil.newsletter", "de")} data-en={t("profil.newsletter", "en")}>{t("profil.newsletter")}</p>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" class="sr-only peer" />
                       <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
@@ -159,7 +160,7 @@ if (createdAt) {
                     </label>
                   </div>
                   <div class="flex justify-between items-center">
-                    <p class="text-body-md text-on-surface">PUSH-MITTEILUNGEN</p>
+                    <p class="text-body-md text-on-surface i18n" data-de={t("profil.push", "de")} data-en={t("profil.push", "en")}>{t("profil.push")}</p>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" class="sr-only peer" checked />
                       <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
@@ -169,21 +170,21 @@ if (createdAt) {
                 </div>
 
                 <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
-                  <h2 class="font-headline-md text-headline-md text-primary mb-md">DEINE DATEN (DSGVO)</h2>
-                  <p class="text-body-md text-on-surface-variant mb-md">
-                    Du hast jederzeit Anspruch auf eine Kopie aller deiner personenbezogenen Daten (Art. 20 DSGVO). Wähle ein Format:
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md i18n" data-de={t("profil.daten_dsgvo", "de")} data-en={t("profil.daten_dsgvo", "en")}>{t("profil.daten_dsgvo")}</h2>
+                  <p class="text-body-md text-on-surface-variant mb-md i18n" data-de={t("profil.daten_text", "de")} data-en={t("profil.daten_text", "en")}>
+                    {t("profil.daten_text")}
                   </p>
                   <div class="flex flex-wrap gap-sm">
-                    <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer">JSON EXPORTIEREN</button>
-                    <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer">CSV EXPORTIEREN</button>
+                    <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.json_export", "de")} data-en={t("profil.json_export", "en")}>{t("profil.json_export")}</button>
+                    <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.csv_export", "de")} data-en={t("profil.csv_export", "en")}>{t("profil.csv_export")}</button>
                   </div>
                   <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
                 </div>
 
                 <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
-                  <h2 class="font-headline-md text-headline-md text-primary mb-md">FÄNGE IMPORTIEREN</h2>
-                  <p class="text-body-md text-on-surface-variant mb-md">
-                    Importiere Fänge aus einer CSV-Datei. Max. 500 Zeilen.
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md i18n" data-de={t("profil.import_titel", "de")} data-en={t("profil.import_titel", "en")}>{t("profil.import_titel")}</h2>
+                  <p class="text-body-md text-on-surface-variant mb-md i18n" data-de={t("profil.import_text", "de")} data-en={t("profil.import_text", "en")}>
+                    {t("profil.import_text")}
                   </p>
                   <p class="text-body-sm text-on-surface-variant mb-md">
                     Erwartetes Format: <code class="bg-surface-container-lowest px-1 rounded text-xs">catch_ts,weight_kg,species,water_name,lat,lng,notes,koeder</code><br/>
@@ -191,7 +192,7 @@ if (createdAt) {
                   </p>
                   <div class="flex flex-wrap items-center gap-sm mb-md">
                     <input type="file" id="csv-import-file" accept=".csv,text/csv" class="text-body-md text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-label-sm file:text-label-sm file:uppercase file:bg-primary-container file:text-on-primary-container file:min-h-12 file:cursor-pointer" />
-                    <button type="button" id="csv-preview-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>VORSCHAU</button>
+                    <button type="button" id="csv-preview-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("profil.vorschau", "de")} data-en={t("profil.vorschau", "en")} disabled>{t("profil.vorschau")}</button>
                   </div>
                   <div id="csv-preview-feedback" class="hidden mb-md"></div>
                   <div id="csv-preview-table-wrap" class="hidden mb-md overflow-x-auto">
@@ -202,12 +203,12 @@ if (createdAt) {
                       <tbody id="csv-preview-tbody"></tbody>
                     </table>
                   </div>
-                  <button type="button" id="csv-import-btn" class="hidden bg-primary text-on-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:opacity-90 transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" disabled>IMPORTIEREN</button>
+                  <button type="button" id="csv-import-btn" class="hidden bg-primary text-on-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:opacity-90 transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("profil.importieren", "de")} data-en={t("profil.importieren", "en")} disabled>{t("profil.importieren")}</button>
                   <div id="csv-import-result" class="hidden mt-md" role="status" aria-live="polite"></div>
                 </div>
 
                 <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
-                  <h2 class="font-headline-md text-headline-md text-primary mb-md">BADGES</h2>
+                  <h2 class="font-headline-md text-headline-md text-primary mb-md i18n" data-de={t("profil.badges", "de")} data-en={t("profil.badges", "en")}>{t("profil.badges")}</h2>
                   {!session ? (
                     <p class="text-body-md text-on-surface-variant">Melde dich an, um deine Badges zu sehen.</p>
                   ) : badges.length === 0 ? (
@@ -235,16 +236,16 @@ if (createdAt) {
 
                 <a href="/datenschutz" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
                   <div>
-                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Datenschutz</h3>
-                    <p class="text-body-md text-on-surface-variant">UNSERE DATENSCHUTZERKLÄRUNG LESEN</p>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.datenschutz", "de")} data-en={t("profil.datenschutz", "en")}>{t("profil.datenschutz")}</h3>
+                    <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.datenschutz_text", "de")} data-en={t("profil.datenschutz_text", "en")}>{t("profil.datenschutz_text")}</p>
                   </div>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
 
                 <a href="/impressum" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
                   <div>
-                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Impressum</h3>
-                    <p class="text-body-md text-on-surface-variant">RECHTLICHE ANGABEN</p>
+                    <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.impressum", "de")} data-en={t("profil.impressum", "en")}>{t("profil.impressum")}</h3>
+                    <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.impressum_text", "de")} data-en={t("profil.impressum_text", "en")}>{t("profil.impressum_text")}</p>
                   </div>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
@@ -252,14 +253,14 @@ if (createdAt) {
             </div>
 
             <div class="mt-8">
-              <h2 class="font-label-sm text-label-sm uppercase text-secondary tracking-widest mb-6">SICHERHEIT</h2>
+              <h2 class="font-label-sm text-label-sm uppercase text-secondary tracking-widest mb-6 i18n" data-de={t("profil.sicherheit", "de")} data-en={t("profil.sicherheit", "en")}>{t("profil.sicherheit")}</h2>
 
               <div class="flex flex-col">
                 <div class="py-6 border-b border-primary/20">
                   <div class="flex justify-between items-center gap-4 mb-4">
                     <div>
-                      <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1">Zwei-Faktor-Authentifizierung (TOTP)</h3>
-                      <p class="text-body-md text-on-surface-variant">ZUSÄTZLICHE SICHERHEIT FÜR DEIN KONTO</p>
+                      <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.totp", "de")} data-en={t("profil.totp", "en")}>{t("profil.totp")}</h3>
+                      <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.totp_text", "de")} data-en={t("profil.totp_text", "en")}>{t("profil.totp_text")}</p>
                     </div>
                     <div id="mfa-status-badge" class="font-label-sm text-label-sm uppercase px-4 py-1 rounded-full bg-surface-container-highest text-on-surface-variant">WIRD GELADEN…</div>
                   </div>
@@ -312,12 +313,12 @@ if (createdAt) {
             </div>
 
             <div class="mt-8">
-              <h3 class="font-label-sm text-label-sm uppercase text-error mb-4 tracking-widest">GEFAHRENZONE</h3>
+              <h3 class="font-label-sm text-label-sm uppercase text-error mb-4 tracking-widest i18n" data-de={t("profil.gefahrenzone", "de")} data-en={t("profil.gefahrenzone", "en")}>{t("profil.gefahrenzone")}</h3>
               <div class="bg-error/5 border border-error/30 rounded-2xl p-6 flex flex-col gap-4">
-                <p class="text-body-md text-on-surface-variant">KONTO UND ALLE DATEN UNWIDERRUFLICH LÖSCHEN</p>
+                <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.konto_loeschen", "de")} data-en={t("profil.konto_loeschen", "en")}>{t("profil.konto_loeschen")}</p>
                 {/* Löschfunktion fehlt noch, X1-Deletion folgt mit Admin-Tool (DSGVO Art. 17) */}
-                <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300">
-                  KONTO LÖSCHEN
+                <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300 i18n" data-de={t("profil.konto_loeschen_btn", "de")} data-en={t("profil.konto_loeschen_btn", "en")}>
+                  {t("profil.konto_loeschen_btn")}
                 </button>
               </div>
             </div>
@@ -325,19 +326,19 @@ if (createdAt) {
 
           <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
-              <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest">PRO STATUS</span>
+              <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest i18n" data-de={t("profil.pro_status", "de")} data-en={t("profil.pro_status", "en")}>{t("profil.pro_status")}</span>
               <p class="text-headline-md text-on-surface mb-8 leading-snug">
                 Dein Abonnement ist aktiv.<br />Nächste Abrechnung am<br />12. April 2027.
               </p>
-              <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
-                ABO VERWALTEN
-              </a>
+                <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
+                  {t("profil.abo_verwalten")}
+                </a>
             </div>
 
             <div class="pt-8 flex justify-end lg:justify-start">
               <button type="button" id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-error transition-colors duration-200 group min-h-11">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-error" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-                <span class="font-label-sm text-label-sm uppercase tracking-widest">ABMELDEN</span>
+                <span class="font-label-sm text-label-sm uppercase tracking-widest i18n" data-de={t("profil.abmelden", "de")} data-en={t("profil.abmelden", "en")}>{t("profil.abmelden")}</span>
               </button>
             </div>
           </div>
