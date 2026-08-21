@@ -1,0 +1,66 @@
+# BRIEFING: PWA-MANIFEST — Carp24 (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Mache Carp24 installierbar als Progressive Web App (PWA) im Projekt /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## HINTERGRUND
+- Service Worker existiert bereits: web/public/sw.js (für Push-Benachrichtigungen, registriert in Layout.astro und profil.astro)
+- Es fehlt: web/manifest, App-Icons und die Meta-Links im Layout
+- Design-Farben Carp24: primary #6C7A57, background #E2DECC, on-surface #0B0C0B
+
+## DATEIEN
+
+### 1. web/public/manifest.webmanifest (NEU)
+```json
+{
+  "name": "Carp24 – Digitales Fangbuch",
+  "short_name": "Carp24",
+  "description": "Dein digitales Fangbuch für Karpfenangeln – Fänge, Statistiken, Community.",
+  "lang": "de",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#E2DECC",
+  "theme_color": "#0B0C0B",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
+```
+
+### 2. Icons erzeugen (PNG 192/512 + maskable 512)
+Nutze das bestehende Branding von web/public/favicon.svg. Erzeuge die PNGs mit Python (Pillow ist verfügbar) — zeichne ein einfaches, sauberes Carp24-Icon im Editorial-Stil:
+- Hintergrund: solide #0B0C0B (dunkel)
+- Motiv: stilisierter weißer/heller Fisch-Haken oder „C24"-Monogramm in #E2DECC — MINIMALISTISCH, KEINE SVG-Emojis, keine Verläufe
+- Für maskable: Motiv zentriert mit 40% Sicherheitsabstand zum Rand (maskable-safe zone)
+- Ausgabe: web/public/icons/icon-192.png, icon-512.png, icon-maskable-512.png
+
+Falls Pillow nicht verfügbar ist: installiere es NICHT global — nutze ImageMagick (`convert`), falls vorhanden; sonst melde es.
+
+### 3. web/src/layouts/Layout.astro — Meta-Links ergänzen
+Ergänze im <head> (vor dem CSP-Meta, nach den bestehenden Meta-Tags):
+```html
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#0B0C0B" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+```
+NICHTS anderes am Layout ändern.
+
+## VERBOTEN
+- KEINE Änderungen an sw.js (Push bleibt wie er ist)
+- KEINE Änderungen an anderen Dateien
+- KEINE neuen Dependencies
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein.
+Danach verifizieren:
+1. web/public/manifest.webmanifest existiert
+2. web/public/icons/icon-192.png, icon-512.png, icon-maskable-512.png existieren (Dateigröße > 1KB)
+3. Layout.astro enthält den manifest-Link
+
+Berichte: geänderte/neue Dateien, Build-Status, Icon-Dateigrößen.

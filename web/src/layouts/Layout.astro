@@ -59,6 +59,12 @@ const lang = getLang();
     <meta name="twitter:card" content="summary" />
     <!-- Canonical -->
     <link rel="canonical" href={`https://carp24.org${Astro.url.pathname}`} />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0B0C0B" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- JSON-LD: Organization + WebSite (SEO Rich Results) -->
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
