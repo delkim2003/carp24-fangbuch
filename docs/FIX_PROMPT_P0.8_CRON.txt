@@ -1,0 +1,24 @@
+Fix Cron-Symlink-Bug in /mnt/projekte/carp24-fangbuch/infra/backup.sh (carp24).
+
+PROBLEM: Der Cron carp24-backup-daily referenziert /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-backup.sh (Symlink auf infra/backup.sh). Beim Aufruf ueber den Symlink zeigt dirname "$0" auf das scripts/-Verzeichnis statt auf infra/ → SCRIPT_DIR falsch → .env und backups werden am falschen Ort gesucht → FEHLER: .env nicht gefunden, BACKUP_DIR nicht gesetzt. Das taegliche Backup wuerde UM 02:30 FEHLSCHLAGEN.
+
+FIX: SCRIPT_DIR und REPO_ROOT mit realpath aufloesen (loest Symlinks auf):
+AKTUELL (Z.11-12):
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FIX:
+  SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+(readlink -f loest den Symlink auf die echte Datei in infra/ auf → SCRIPT_DIR wird infra/, .env und backups werden korrekt gefunden, egal ob direkt oder ueber Symlink aufgerufen.)
+
+AUFGABE:
+1. Lies infra/backup.sh
+2. Ersetze Zeile 11 exakt wie oben (nur SCRIPT_DIR, REPO_ROOT bleibt)
+3. Aendere NICHTS anderes
+4. VERIFIZIERE SELBST:
+   a) bash infra/backup.sh → laeuft durch (BACKUP_PASSPHRASE aus infra/.env)
+   b) bash /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-backup.sh → laeuft GENAU SO durch (Symlink-Aufruf, der Cron-Fall)
+   c) Pruefe: neueste .gpg-Datei in infra/backups/ (nicht in scripts/)
+5. Commit: 'FIX P0.8 AUDIT: backup.sh realpath (Cron-Symlink fand .env nicht)'
+6. Gib aus: git log --oneline -1

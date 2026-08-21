@@ -40,3 +40,9 @@ Thumbs.db
 
 # ===== Deploy-Artefakte (Quellen in supabase/functions/) =====
 infra/volumes/functions/
+docs/*.aux
+docs/*.listing
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.synctex.gz
