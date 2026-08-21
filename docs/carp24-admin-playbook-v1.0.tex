@@ -1,0 +1,412 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[a4paper, top=2.8cm, bottom=2.8cm, left=2.5cm, right=2.5cm, headheight=16pt]{geometry}
+\usepackage{fontspec}
+\usepackage[german, bidi=basic, provide=*]{babel}
+
+\babelprovide[import, onchar=ids fonts]{german}
+\babelprovide[import, onchar=ids fonts]{english}
+
+\babelfont{rm}{Noto Sans}
+\babelfont[german]{rm}{Noto Sans}
+
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage[colorlinks=true, linkcolor=eopurple, urlcolor=eocyan]{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+% EO Corporate Design Farben
+\definecolor{eopurple}{RGB}{139, 92, 246}
+\definecolor{eocyan}{RGB}{6, 182, 212}
+\definecolor{eodark}{RGB}{15, 23, 42}
+\definecolor{codebg}{RGB}{241, 245, 249}
+\definecolor{codeframe}{RGB}{203, 213, 225}
+
+% Titel-Formatierung
+\titleformat{\section}{\color{eopurple}\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\color{eocyan}\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\color{eodark}\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Code-Block Styling
+\lstdefinestyle{eo_code}{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=2,
+    showstringspaces=false
+}
+
+\newtcblisting{codeblock}{
+    listing only,
+    listing style=eo_code,
+    colback=codebg,
+    colframe=codeframe,
+    arc=4pt,
+    boxrule=0.5pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt
+}
+
+\newcommand{\code}[1]{\colorbox{codebg}{\texttt{\small\detokenize{#1}}}}
+
+% Änderungs-Marker v1.0
+\newcommand{\changed}[1]{\textcolor{eopurple}{\textbf{[v1.0]}}~#1}
+\newcommand{\changedtitle}[1]{\textcolor{eopurple}{#1}}
+
+% Kopf- und Fußzeile
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{\textcolor{eopurple}{EO} \textcolor{eocyan}{einfach-online.dev}}}
+\fancyhead[R]{\small Carp24 \& Supabase — Administrator Playbook (v1.0)}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{\scriptsize EO-ADMIN-2026-CARP24-01-REV}
+
+\hyphenation{Su-pa-base Car-p24 Post-gres Go-Tru-e Post-gREST Supa-base Ad-mi-nis-tra-ti-on}
+
+\begin{document}
+
+\begin{center}
+    \vspace*{1.0cm}
+    {\color{eopurple}\Huge\bfseries Carp24 \& Supabase}\\[0.4cm]
+    {\color{eocyan}\Large\bfseries Administrator Playbook}\\[0.3cm]
+    {\large Einfach verständlich: Was ist Supabase, was kann es, und wie verwaltest du Carp24 als Admin.}\\[0.8cm]
+    {\normalsize Version 1.0 \quad\textbar\quad 21.08.2026 \quad\textbar\quad Dokument-ID: EO-ADMIN-2026-CARP24-01-REV}\\[0.3cm]
+    {\normalsize einfach-online.dev \quad\textbar\quad Philipp Schlemmer}
+    \vspace*{1.0cm}
+\end{center}
+
+\tableofcontents
+\newpage
+
+% ============================== CHANGELOG ==============================
+\section{Changelog \& Änderungsverzeichnis}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Version} & \textbf{Datum} & \textbf{Änderung} \\
+\midrule
+v1.0 & 21.08.2026 & Initiales Dokument: Supabase-Grundlagen, Carp24-Features, Admin-Dashboard v2, Einstellungen, Betrieb \& Fehlerbehandlung \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Hinweis:} Dieses Dokument enthält \textbf{keine Passwörter oder Secret-Werte}. Alle Schlüssel liegen im Passwort-/Secret-Handling des Orchestrators (Hermes) und in den lokalen \code{.env}-Dateien des Servers.
+
+\newpage
+
+% ============================== TEIL A: SUPABASE ==============================
+\section{Teil A — Supabase: Was ist das überhaupt?}
+
+\subsection{Was ist Supabase?}
+Supabase ist eine \textbf{Open-Source-Alternative zu Firebase} (Google). Es ist eine Komplett-Plattform für das Backend einer Web-App und besteht im Kern aus:
+
+\begin{itemize}
+    \item \textbf{PostgreSQL-Datenbank} — eine der mächtigsten relationalen Datenbanken (SQL)
+    \item \textbf{Authentifizierung (Auth)} — Registrierung, Login, Passwort-Reset, Social-Login (Google/Facebook), Zwei-Faktor (MFA)
+    \item \textbf{Auto-API} — Jede Tabelle bekommt automatisch eine REST-API (PostgREST); kein Backend-Code nötig
+    \item \textbf{Storage} — Datei-Upload (z.B. Fang-Fotos), S3-kompatibel
+    \item \textbf{Realtime} — Live-Updates im Browser (WebSocket), z.B. für den Chat
+    \item \textbf{Studio} — eine Weboberfläche, in der du Tabellen, Daten und Einstellungen direkt ansehen kannst
+\end{itemize}
+
+Supabase läuft bei uns \textbf{selbst gehostet} auf dem Server als Docker-Container — nicht in der Cloud von Supabase. Das heißt: Alle Daten bleiben auf unserer Infrastruktur (DSGVO-freundlich).
+
+\subsection{Die Bausteine (Container) auf unserem Server}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Container} & \textbf{Aufgabe} & \textbf{Hinweis} \\
+\midrule
+supabase-db & PostgreSQL 17 & Die eigentliche Datenbank (Port 5432 intern) \\
+supabase-auth & GoTrue v2.189 & Login/Registrierung/Passwort/MFA/JWT \\
+supabase-rest & PostgREST v14 & Auto-REST-API (Port 3000 intern) \\
+supabase-storage & Storage v1.60.4 & Datei-Upload (Fang-Fotos) \\
+supabase-realtime & Realtime v2.102 & Live-WebSockets (Chat) \\
+supabase-kong & Kong 3.9.3 & API-Gateway: zentrale Tür (extern 100.93.250.103:8055) \\
+supabase-studio & Studio & Web-UI zur Datenbank-Verwaltung \\
+supabase-meta & postgres-meta & Verwaltungs-API hinter Studio \\
+supabase-pooler & Supavisor & Verbindungs-Pooling (Port 6543) \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Wichtig für dich:} Alle Wege nach außen laufen über \textbf{Kong} (Port 8055). Die Carp24-Web-App erreicht Supabase über den Apache-Proxy \code{:8094}, der auf Kong weiterleitet (\code{/auth}, \code{/rest}, \code{/storage}, \code{/realtime}).
+
+\subsection{Kernkonzepte, die du als Admin verstehen solltest}
+
+\begin{description}
+    \item[Tabellen] Daten liegen in Tabellen (z.B. \code{catches} für Fänge). Jede Zeile = ein Datensatz.
+    \item[RLS (Row Level Security)] Eine Sicherheits-Ebene \textbf{in der Datenbank}: Legt fest, wer welche Zeilen sehen/ändern darf (z.B. „jeder nur seine eigenen Fänge"). Ohne RLS wäre alles für jeden erreichbar, der den API-Schlüssel kennt.
+    \item[Policies] Die konkreten RLS-Regeln pro Tabelle (z.B. \code{USING (user\_id = auth.uid())}).
+    \item[Migrationen] SQL-Dateien, die Schema-Änderungen dokumentieren (Ordner \code{supabase/migrations/}). Sie sind der „Stammbaum" der Datenbank — niemals einfach so ändern, sondern neue Datei anlegen.
+    \item[Buckets] Speicher-Container für Dateien (bei Carp24: \code{catch-photos}).
+    \item[Publicationen] Listen von Tabellen, die Realtime-Updates senden dürfen (z.B. \code{chat\_messages}).
+    \item[RPC-Funktionen] Eigene SQL-Funktionen, die von der App aufgerufen werden (z.B. \code{import\_catches} für den CSV-Import).
+    \item[JWT / Session] Nach dem Login bekommt der Browser ein signiertes Token (JWT). Die API erkennt daran den Benutzer (\code{auth.uid()}).
+\end{description}
+
+\subsection{Wie kommst du an die Datenbank?}
+
+Es gibt drei Wege:
+\begin{enumerate}
+    \item \textbf{Supabase Studio} (komfortabel, Web-UI) — Tabellen, Zeilen, SQL-Editor
+    \item \textbf{psql} (Kommandozeile, direkt im Container) — für Migrationen und SQL
+    \item \textbf{REST-API} über Kong — was die App selbst nutzt
+\end{enumerate}
+
+Migrationen einspielen (Standardweg, vom Orchestrator ausgeführt):
+\begin{codeblock}
+cd /mnt/projekte/carp24-fangbuch
+PW=$(docker exec supabase-db printenv PGPASSWORD)
+docker exec -i --env PGPASSWORD="$PW" supabase-db psql -h localhost -U supabase_admin -d postgres < supabase/migrations/00XX_name.sql
+\end{codeblock}
+
+\newpage
+% ============================== TEIL B: CARP24 ==============================
+\section{Teil B — Carp24: Die Plattform}
+
+\subsection{Was ist Carp24?}
+Carp24 ist eine \textbf{Karpfenangler-Community mit digitalem Fangbuch} (eigenes Produkt von einfach-online.dev). Angler erfassen ihre Fänge (Gewicht, Fischart, Gewässer, Foto, Wetter), sammeln Badges, sehen Jahres-Rückblicke und tauschen sich in Forum, Chat, Community-Board und Marktplatz aus. Es gibt ein Free-/Pro-Modell (Stripe) und einen KI-Angelassistenten.
+
+\textbf{Technik:}
+\begin{itemize}
+    \item Frontend: \textbf{Astro 7} (SSR, Node-Adapter), Code in \code{/mnt/projekte/carp24-fangbuch/web/}
+    \item Backend: \textbf{Supabase self-hosted} (siehe Teil A)
+    \item Dev-Lauf: \textbf{http://100.93.250.103:8094} (Apache → Node :4321)
+    \item Deploy: systemd-Dienst \code{carp24-web} (\code{sudo systemctl restart carp24-web})
+    \item Branch: \code{sprint-1}, Migrationen 0013–0030
+\end{itemize}
+
+\subsection{Alle Produkt-Features (Stand v1.0)}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Bereich} & \textbf{Feature} & \textbf{Kurzbeschreibung} \\
+\midrule
+Kern & Fänge erfassen & Fang-Formular mit Foto, Gewicht, Art, Gewässer, Wetter, Koordinaten \\
+Kern & Statistik & Diagramme \& Auswertungen der eigenen Fänge \\
+Kern & Offline-Modus & Fänge ohne Internet zwischenspeichern \\
+A & CSV-Import & Alte Fanglisten als CSV importieren (max. 500 Zeilen) \\
+A & Badges & 10 Auszeichnungen (Erster Fang, 100 Kilo, Regenfischer \dots) \\
+A & Jahres-Rückblick & KPI-Karten, Monats-Balken, Mond-Statistik, Teilen \\
+A & Trips & Angelausflüge anlegen und Fänge zuordnen \\
+B & OAuth-Login & Google-/Facebook-Buttons (Creds konfigurierbar) \\
+C & Community-Board & Öffentliche Top-Fänge teilen (Public-Toggle) \\
+C & Forum & Threads + Antworten mit 4 Kategorien, Melden, Moderation \\
+C & Chat & Realtime-Chat mit Live-WebSocket, Melden, Löschen \\
+D & Pro-Gating & Free vs. Pro (Locks), Admin sieht alles \\
+D & Stripe-Abo & Checkout + Webhook setzt \code{is\_pro} (Test-Modus) \\
+E & i18n & Deutsch/Englisch-Umschalter, Rechtstexte zweisprachig \\
+E & Web-Push & Benachrichtigungen (VAPID), Antwort-Push, Tages-Erinnerung \\
+E & KI-Assistent & Chat mit OpenRouter-API, keine Speicherung (DSGVO) \\
+E & Marktplatz & Anzeigen (Foto, Preis), In-App-Kontakt-Nachrichten \\
+X & DSGVO-Export & Eigene Daten exportieren (Art. 15) \\
+X & DSGVO-Löschung & Eigene Daten löschen (Art. 17) \\
+X & Meldungen & \code{content\_reports} — User melden Inhalte (DSA) \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Das Admin-Dashboard (dein wichtigstes Werkzeug)}
+
+Erreichbar über \code{http://100.93.250.103:8094/admin/} nach Login mit einem Konto mit Rolle \code{ADMIN} oder \code{MODERATOR} (Header-Link \textbf{ADMIN}). Sechs Bereiche:
+
+\subsubsection{Übersicht}
+Zahlen auf einen Blick: Nutzer, Fänge, offene Meldungen, Threads, Chat-Nachrichten, Anzeigen, Trips, aktive Pro-User, Gebannte. Dazu ein 14-Tage-Wachstums-Diagramm (Nutzer/Fänge) und eine Integrations-Status-Karte (welche Dienste konfiguriert sind: Stripe, KI, Push, Service-Role — nur Ja/Nein, keine Schlüssel).
+
+\subsubsection{Reports (Meldungen moderieren)}
+Nutzer können Inhalte melden (Fang, Forum-Thread, Forum-Antwort, Chat-Nachricht, Marktplatz-Anzeige). Hier siehst du:
+\begin{itemize}
+    \item Offene/erledigte Meldungen (Tabs), mit Grund, Melder und Ziel-Inhalt im Kontext
+    \item Button \textbf{ERLEDIGT} — Meldung abschließen
+    \item Button \textbf{INHALT LÖSCHEN} — Ziel-Inhalt entfernen und Meldung erledigen
+    \item Button \textbf{BANNEN} — wenn ein User mehrfach auffällig ist (≥3 offene Meldungen)
+\end{itemize}
+
+\subsubsection{Nutzer verwalten}
+\begin{itemize}
+    \item Suche (Name/E-Mail) + Filter (Rolle, Status, Pro)
+    \item \textbf{Rolle} ändern: USER / MODERATOR / ADMIN
+    \item \textbf{Pro} an/aus (ohne Stripe-Zahlung manuell setzen)
+    \item \textbf{BANNEN / ENTBANNEN} (mit Grund) — blockiert auch den Login (GoTrue-Ban)
+    \item \textbf{PASSWORT ZURÜCKSETZEN} — erzeugt ein temporäres Passwort (Support-Fall)
+    \item \textbf{DETAIL} — öffnet den User-Feed: alle Fänge, Forum-Beiträge, Chat-Nachrichten, Anzeigen, Trips, Badges und Meldungen des Users auf einen Blick; Inhalte direkt löschbar
+\end{itemize}
+
+\subsubsection{Inhalte moderieren}
+Tabs für Fänge, Forum, Chat und Marktplatz. Durchsuchen und einzelne Inhalte löschen (Fänge werden „weich" gelöscht / soft-delete, Rest hart).
+
+\subsubsection{Revenue (Abo-Übersicht)}
+Aktive Pro-User, Free-User, Pro-Quote, Liste der Pro-User, Stripe-Events-Status. Hinweis, wenn Stripe noch nicht konfiguriert ist.
+
+\subsubsection{Audit (Protokoll)}
+Wer hat wann was getan: Rollen-Änderungen, Banns, Passwort-Resets, Report-Bearbeitung, Inhalts-Löschung. Wichtig für die DSGVO-Nachweispflicht (Accountability).
+
+\subsection{Die wichtigsten Datenbank-Tabellen}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Tabelle} & \textbf{Migration} & \textbf{Inhalt} \\
+\midrule
+profiles & Basis & Nutzerprofile (display\_name, role, is\_pro, banned\_at, \dots) \\
+catches & Basis & Fänge (species, weight\_kg, water\_name, photo, is\_public) \\
+trips & 0019 & Angelausflüge (catches.trip\_id verknüpft) \\
+badges / user\_badges & 0018 & 10 Badges + Verleihungen \\
+forum\_threads / forum\_posts & 0021 & Forum (category ab 0028) \\
+chat\_messages & 0022 & Realtime-Chat \\
+content\_reports & 0017 & Meldungen (status open/resolved) \\
+marketplace\_items & 0026 & Marktplatz-Anzeigen \\
+marketplace\_contacts & 0029 & In-App-Kontakt-Nachrichten \\
+push\_subscriptions & 0025 & Push-Abos der Browser \\
+stripe\_events & 0024 & Stripe-Webhook-Ereignisse (Idempotenz) \\
+admin\_audit\_log & 0030 & Admin-Aktionen (Audit) \\
+\bottomrule
+\end{tabularx}
+
+\newpage
+% ============================== TEIL C: EINSTELLUNGEN ==============================
+\section{Teil C — Wo kann man was einstellen?}
+
+\subsection{Konfigurationsdateien auf dem Server}
+
+\textbf{1. \code{/mnt/projekte/carp24-fangbuch/web/.env} — Einstellungen der Web-App:}
+
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Variable} & \textbf{Wofür?} & \textbf{Status (21.08.)} \\
+\midrule
+PUBLIC\_SUPABASE\_URL & Basis-URL zu Supabase (über Apache :8094) & gesetzt \\
+PUBLIC\_SUPABASE\_ANON\_KEY & Öffentlicher API-Schlüssel (Browser) & gesetzt \\
+SUPABASE\_SERVICE\_ROLE\_KEY & Admin-Schlüssel (nur Server!) & gesetzt \\
+STRIPE\_SECRET\_KEY & Stripe-Test-Server-Schlüssel & \textbf{wartet auf Philipp} \\
+STRIPE\_WEBHOOK\_SECRET & Stripe-Webhook-Signatur & \textbf{wartet auf Philipp} \\
+STRIPE\_PRICE\_ID & Stripe-Preis-ID für Pro-Abo & \textbf{wartet auf Philipp} \\
+OPENROUTER\_API\_KEY & KI-Assistent (OpenRouter) & \textbf{wartet auf Philipp} \\
+VAPID\_PUBLIC\_KEY / VAPID\_PRIVATE\_KEY / VAPID\_SUBJECT & Web-Push & gesetzt \\
+CRON\_KEY & Schutz für den Erinnerungs-Cron & \textbf{noch zu setzen} \\
+\bottomrule
+\end{tabularx}
+
+\textbf{2. \code{/mnt/projekte/carp24-fangbuch/infra/.env} — Supabase-Stack (nur Orchestrator ändern):}
+Enthält JWT-Secret, ANON\_KEY, SERVICE\_ROLE\_KEY, API-URLs und die GoTrue-Provider-Platzhalter für Google/Facebook-Login (\code{GOTRUE\_EXTERNAL\_GOOGLE\_ENABLED} etc.).
+
+\textbf{3. Supabase Studio} — für Tabellen, Zeilen, SQL und RLS direkt. Nicht öffentlich erreichbar; Zugriff über Docker/SSH.
+
+\subsection{Google-/Facebook-Login aktivieren (OAuth)}
+
+\begin{enumerate}
+    \item In Google Cloud Console / Facebook Developers eine OAuth-App anlegen
+    \item Redirect-URL: \code{http://100.93.250.103:8094/auth/v1/callback}
+    \item Client-ID + Secret in \code{infra/.env} eintragen (\code{GOTRUE\_EXTERNAL\_GOOGLE\_CLIENT\_ID}, \code{...\_SECRET}, FB analog)
+    \item Auth-Container neu starten: \code{docker compose restart supabase-auth}
+    \item Test: Login-Seite → „Mit Google anmelden"
+\end{enumerate}
+
+\subsection{Stripe aktivieren (Pro-Abo)}
+
+\begin{enumerate}
+    \item Stripe-Konto (Test-Modus) → API-Keys: \code{STRIPE\_SECRET\_KEY} (sk\_test\dots) in \code{web/.env}
+    \item Produkt + Preis anlegen → \code{STRIPE\_PRICE\_ID}
+    \item Webhook einrichten: URL \code{https://<domain>/api/stripe/webhook}, Event \code{checkout.session.completed} + \code{customer.subscription.deleted/updated} → \code{STRIPE\_WEBHOOK\_SECRET}
+    \item \code{SUPABASE\_SERVICE\_ROLE\_KEY} muss gesetzt sein (ist es)
+    \item Test: Premium-Seite → „JETZT UPGRADEN" → Test-Checkout → \code{is\_pro=true}
+\end{enumerate}
+
+\subsection{KI-Assistent aktivieren}
+OpenRouter-Key (\code{OPENROUTER\_API\_KEY}) in \code{web/.env} setzen. Ohne Key liefert der Assistent sauber einen 503-Hinweis (Feature ist dann deaktiviert statt kaputt).
+
+\subsection{Web-Push-Erinnerung (täglicher Cron)}
+Die API-Route \code{/api/push/daily-reminder} wird per systemd-Timer (täglich 08:00) aufgerufen und braucht den Header \code{x-cron-key}. Vorher \code{CRON\_KEY} in \code{web/.env} setzen, dann richtet der Orchestrator den Timer ein.
+
+\subsection{Pro-Status \& Rollen manuell setzen}
+Im Admin-Dashboard unter \textbf{Nutzer}: Rolle-Select (USER/MODERATOR/ADMIN) und Pro-Checkbox. Alternativ direkt in der Datenbank:
+\begin{codeblock}
+docker exec --env PGPASSWORD="$PW" supabase-db psql -h localhost -U supabase_admin -d postgres \
+  -c "UPDATE profiles SET role='ADMIN', is_pro=true WHERE id='<user-id>';"
+\end{codeblock}
+
+\newpage
+% ============================== TEIL D: BETRIEB ==============================
+\section{Teil D — Betrieb, Wartung \& Fehler}
+
+\subsection{Neue Version deployen}
+
+\begin{enumerate}
+    \item Code ändern lassen (OpenCode-Briefings, nie direkt am Server)
+    \item Build: \code{cd /mnt/projekte/carp24-fangbuch/web \&\& npm run build}
+    \item Neustart: \code{sudo systemctl restart carp24-web}
+    \item Prüfen: \code{systemctl is-active carp24-web} → \code{active}; Seite per Browser testen
+\end{enumerate}
+
+\textbf{Hinweis:} Während eines Builds kann der laufende Server kurz 500er liefern (dist wird überschrieben). Nach dem Restart ist alles wieder normal. Nicht während eines Builds testen.
+
+\subsection{Migrationen einspielen}
+Neue SQL-Datei liegt in \code{supabase/migrations/}. Einspielen siehe Teil A (psql-Kommando). Nach FK-/Schema-Änderungen ggf. \code{docker compose restart supabase-rest} (Schema-Reload).
+
+\subsection{Backups \& Wiederherstellung}
+Backup-Lauf täglich 02:00 (Docker-Dumps). Restore-Drill dokumentiert im Vault (RESTORE.md). Vor größeren Änderungen: Backup prüfen.
+
+\subsection{Logs lesen}
+\begin{codeblock}
+sudo journalctl -u carp24-web --no-pager -n 100        # Web-App-Log
+sudo journalctl -u carp24-web --since "10 min ago"     # aktuelle Fehler
+docker logs supabase-auth --tail 50                    # Auth-Log
+\end{codeblock}
+
+\subsection{Typische Fehler und ihre Lösungen}
+
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Symptom} & \textbf{Ursache / Fix} \\
+\midrule
+Fangliste zeigt „keine Fänge" & Null-Filter falsch: IMMER \code{.is("deleted\_at", null)} verwenden, nie \code{.eq(..., null)} \\
+500 „supabaseKey is required" & SERVICE\_ROLE\_KEY in web/.env fehlt oder Build lief vor dem Setzen → Key setzen + \textbf{neu bauen} \\
+Forum-Seite 500 „t2 is not a function" & i18n-Überschattung: In \code{map}-Callbacks nie den Parameter \code{t} nennen \\
+Foto-Upload schlägt fehl & Storage-Bucket \code{catch-photos} + \code{GLOBAL\_S3\_BUCKET} muss gesetzt sein \\
+Login/Realtime funktioniert nicht & Kong muss auf erreichbarer IP binden; Apache-Proxy \code{/auth} \code{/realtime} mit WebSocket-Upgrade \\
+Seite crasht client-seitig & PageErrors im Browser prüfen; anonyme Besucher müssen auf \code{/login} redirectet werden (SSR-Guard) \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Sicherheitsregeln (unbedingt)}
+
+\begin{itemize}
+    \item \textbf{Niemals Secrets ins Git-Repo} — \code{.env}-Dateien sind ausgeschlossen (gitignore). Secret-Scan blockt automatisch
+    \item \code{SUPABASE\_SERVICE\_ROLE\_KEY} nur auf dem Server (nie im Browser-Code)
+    \item RLS ist die Sicherheitsgrenze — Policies nie ohne Review ändern
+    \item Admin-Aktionen landen im \code{admin\_audit\_log} (DSGVO)
+    \item Benachrichtigungs-/E-Mail-Tests nur mit echten Adressen (keine Fake-Domains)
+\end{itemize}
+
+\subsection{Wichtige technische Merksätze}
+\begin{itemize}
+    \item DB heißt \code{postgres}; User \code{supabase\_auth\_admin} für Auth-Daten, \code{supabase\_admin} für DDL
+    \item Supabase-Stack NICHT einzeln pinnen — gesamten Stack auf einem Release-Stand halten (Doku-Regel MASTER\_SPRINT)
+    \item Realtime-Chat braucht die Tabelle in der Publication \code{supabase\_realtime}
+    \item Temp-Watchdog (systemd) räumt hängende Test-Browser automatisch auf
+\end{itemize}
+
+\newpage
+% ============================== GLOSSAR ==============================
+\section{Glossar}
+
+\begin{description}
+    \item[Admin-Dashboard] Die interne Verwaltungsoberfläche von Carp24 (\code{/admin/})
+    \item[Badge] Spielerische Auszeichnung im Profil (10 Stück)
+    \item[DSGVO] Datenschutz-Grundverordnung (EU); Art. 15/17 = Auskunft/Löschung
+    \item[DSA] Digital Services Act (EU); Meldepflichten für User-Content
+    \item[GoTrue] Supabase-Auth-Dienst (Login, JWT, MFA)
+    \item[is\_pro] Flag auf dem Profil: zahlender Pro-User
+    \item[JWT] Signiertes Login-Token (JSON Web Token)
+    \item[Migration] Versionierte SQL-Änderung an der Datenbank
+    \item[PostgREST] Werkzeug, das aus SQL-Tabellen automatisch eine REST-API macht
+    \item[RLS] Row Level Security: Zeilen-Sicherheit in der Datenbank
+    \item[RPC] Eigene SQL-Funktion, die die App aufruft
+    \item[VAPID] Schlüsselpaar für Web-Push-Benachrichtigungen
+\end{description}
+
+\end{document}
