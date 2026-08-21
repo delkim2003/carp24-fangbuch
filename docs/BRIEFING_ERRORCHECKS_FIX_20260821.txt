@@ -1,0 +1,29 @@
+BAUE SOFORT — KEINE ANALYSE. Ein Fix in ZWEI Dateien.
+
+## PROBLEM
+Zwei Supabase-Queries ohne .error-Behandlung (Audit-F3-Rest): Bei DB-Fehlern stille leere Daten statt Fehlermeldung.
+
+## DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/pages/dashboard.astro
+Zeile ~38: `const { data } = await supabase.from("catches").select("*").is("deleted_at", null).order("catch_ts", { ascending: false });`
+→ ändere zu:
+```ts
+const { data, error } = await supabase.from("catches").select("*").is("deleted_at", null).order("catch_ts", { ascending: false });
+catches = data ?? [];
+if (error) loadError = error.message;
+```
+Prüfe: Gibt es im Frontmatter eine Variable `let loadError: string | null = null;`? Falls NICHT, ergänze sie direkt über dem Query (wie in faenge.astro:39) und stelle sicher, dass sie im Template angezeigt wird — wenn das Template kein loadError-Element hat, ergänze direkt nach dem Hauptinhalt ein bedingtes rotes Fehler-Div (wie faenge.astro Zeile 80: `<div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>`).
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/pages/profil.astro
+Im DSGVO-Export (fetchAllMyData, ~Zeile 583-608): Die drei Queries (getUser, profiles, catches) haben keine .error-Checks. Ergänze:
+- `const { data: userData, error: userErr } = await supabase.auth.getUser();`
+- `const { data: profile, error: profileErr } = await supabase.from("profiles").select("*").eq("id", user?.id).single();`
+- `const { data: catches, error: catchesErr } = await supabase.from("catches").select("*").order("catch_ts", { ascending: false });`
+Und im Rückgabe-Objekt ergänze: `errors: { user: userErr?.message ?? null, profile: profileErr?.message ?? null, catches: catchesErr?.message ?? null }` — damit der Export Fehler sichtbar macht, statt still null zu liefern.
+
+## VERIFIKATION
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c 'loadError' web/src/pages/dashboard.astro → ≥2
+3. grep -c 'errors:' web/src/pages/profil.astro → ≥1
+4. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: geänderte Stellen + Build-Ergebnis.

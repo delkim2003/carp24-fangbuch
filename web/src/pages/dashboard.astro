@@ -34,9 +34,11 @@ const supabase = createServerClient(
 const { data: { session } } = await supabase.auth.getSession();
 
 let catches: any[] = [];
+let loadError: string | null = null;
 if (session) {
-  const { data } = await supabase.from("catches").select("*").eq("deleted_at", null).order("catch_ts", { ascending: false });
+  const { data, error } = await supabase.from("catches").select("*").is("deleted_at", null).order("catch_ts", { ascending: false });
   catches = data ?? [];
+  if (error) loadError = error.message;
 }
 
 const speciesDE: Record<string, string> = {
@@ -160,6 +162,9 @@ if (trend.length > 0) {
 
 <Layout title="Carp24 – Dashboard" active="statistik" noindex>
   <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
+    {loadError && (
+      <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>
+    )}
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4">DASHBOARD</h1>

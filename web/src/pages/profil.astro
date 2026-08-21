@@ -41,7 +41,7 @@ if (session) {
   const { data: catches } = await supabase
     .from("catches")
     .select("weight_kg, water_name")
-    .eq("deleted_at", null)
+    .is("deleted_at", null)
     .eq("draft", false);
 
   if (catches && catches.length > 0) {
@@ -581,16 +581,16 @@ function showExportStatus(msg: string) {
 }
 
 async function fetchAllMyData() {
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
   const user = userData?.user;
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileErr } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user?.id)
     .single();
 
-  const { data: catches } = await supabase
+  const { data: catches, error: catchesErr } = await supabase
     .from("catches")
     .select("*")
     .order("catch_ts", { ascending: false });
@@ -605,6 +605,7 @@ async function fetchAllMyData() {
     } : null,
     profile: profile ?? null,
     catches: catches ?? [],
+    errors: { user: userErr?.message ?? null, profile: profileErr?.message ?? null, catches: catchesErr?.message ?? null },
   };
 }
 
