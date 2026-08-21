@@ -83,6 +83,56 @@
   --container-7xl: 80rem;
 }
 
+/* Dark Mode (1.14) */
+[data-theme="dark"] {
+  --color-background: #0B0C0B;
+  --color-surface: #141512;
+  --color-surface-bright: #3A3B37;
+  --color-surface-dim: #0B0C0B;
+  --color-surface-container: #1C1D1A;
+  --color-surface-container-low: #141512;
+  --color-surface-container-lowest: #0B0C0B;
+  --color-surface-container-high: #262824;
+  --color-surface-container-highest: #30312E;
+  --color-surface-variant: #45463F;
+  --color-on-surface: #E2DECC;
+  --color-on-surface-variant: #C6C2B1;
+  --color-inverse-surface: #E2DECC;
+  --color-inverse-on-surface: #2A2B27;
+  --color-primary: #A4B68C;
+  --color-on-primary: #0B0C0B;
+  --color-primary-container: #3F4D2F;
+  --color-on-primary-container: #D6E4BC;
+  --color-primary-fixed: #C4D4AC;
+  --color-primary-fixed-dim: #A4B68C;
+  --color-on-primary-fixed: #0B0C0B;
+  --color-on-primary-fixed-variant: #2A2B27;
+  --color-inverse-primary: #546140;
+  --color-secondary: #B7C4A4;
+  --color-on-secondary: #1C1D1A;
+  --color-secondary-container: #3A4A2E;
+  --color-on-secondary-container: #D6E4BC;
+  --color-secondary-fixed: #e7e5b4;
+  --color-secondary-fixed-dim: #cbc99a;
+  --color-on-secondary-fixed: #1d1d01;
+  --color-on-secondary-fixed-variant: #494824;
+  --color-tertiary: #89A3A5;
+  --color-on-tertiary: #0B0C0B;
+  --color-tertiary-container: #2F4547;
+  --color-on-tertiary-container: #CDE7E9;
+  --color-tertiary-fixed: #cde7e9;
+  --color-tertiary-fixed-dim: #b1cbcd;
+  --color-on-tertiary-fixed: #061f21;
+  --color-on-tertiary-fixed-variant: #334b4d;
+  --color-error: #FFB4AB;
+  --color-on-error: #690005;
+  --color-error-container: #93000A;
+  --color-on-error-container: #FFDAD6;
+  --color-outline: #8E8F85;
+  --color-outline-variant: #45463F;
+  --color-surface-tint: #A4B68C;
+}
+
 /* Stitch-Spacing-Klassen (als components, damit sie nicht mit Tailwind-Namespaces kollidieren) */
 @layer components {
   .gap-xs { gap: 4px; }

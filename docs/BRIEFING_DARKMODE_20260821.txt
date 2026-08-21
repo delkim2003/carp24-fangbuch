@@ -1,0 +1,89 @@
+BAUE SOFORT — KEINE ANALYSE. Dark Mode (BAUPLAN 1.14) für carp24 (Astro 7, Material-3-Design-Tokens in CSS-Variablen).
+
+## ZIEL
+Theme-Umschaltung Hell/Dunkel: CSS-Variablen-Override + Nav-Toggle + localStorage + prefers-color-scheme-Fallback. Dark-Werte konsistent mit Carp24-Branding (hell: Hintergrund #E2DECC, Karte #FFFFFF, Text #0B0C0B, Primary/Button #6C7A57).
+
+## DATEI 1: /mnt/projekte/carp24-fangbuch/web/src/styles/global.css
+LIES die Datei. Die hellen M3-Tokens stehen unter `:root` (--color-background, --color-surface, --color-primary, --color-on-surface, ...). Ergänze NACH dem :root-Block:
+
+```css
+/* Dark Mode (1.14) */
+[data-theme="dark"] {
+  --color-background: #0B0C0B;
+  --color-surface: #141512;
+  --color-surface-bright: #3A3B37;
+  --color-surface-dim: #0B0C0B;
+  --color-surface-container: #1C1D1A;
+  --color-surface-container-low: #141512;
+  --color-surface-container-lowest: #0B0C0B;
+  --color-surface-container-high: #262824;
+  --color-surface-container-highest: #30312E;
+  --color-surface-variant: #45463F;
+  --color-on-surface: #E2DECC;
+  --color-on-surface-variant: #C6C2B1;
+  --color-inverse-surface: #E2DECC;
+  --color-inverse-on-surface: #2A2B27;
+  --color-primary: #A4B68C;            /* aufgehelltes Carp24-Grün für Kontrast auf dunklem Grund */
+  --color-on-primary: #0B0C0B;
+  --color-primary-container: #3F4D2F;
+  --color-on-primary-container: #D6E4BC;
+  --color-primary-fixed: #C4D4AC;
+  --color-primary-fixed-dim: #A4B68C;
+  --color-on-primary-fixed: #0B0C0B;
+  --color-on-primary-fixed-variant: #2A2B27;
+  --color-secondary: #B7C4A4;
+  --color-on-secondary: #1C1D1A;
+  --color-secondary-container: #3A4A2E;
+  --color-on-secondary-container: #D6E4BC;
+  --color-error: #FFB4AB;
+  --color-on-error: #690005;
+  --color-error-container: #93000A;
+  --color-on-error-container: #FFDAD6;
+  --color-outline: #8E8F85;
+  --color-outline-variant: #45463F;
+  --color-scrim: #000000;
+  --color-surface-tint: #A4B68C;
+}
+```
+WICHTIG: Falls im :root-Block zusätzliche Token existieren (--color-* oder --md-*), übertrage sie analog in die dark-Liste (aus den hellen Werten abgeleitet). KEINE hellen Token löschen. Passe die Werte an die vorhandene Token-Struktur an (nur Token-Namen verwenden, die es im :root auch gibt).
+
+## DATEI 2: /mnt/projekte/carp24-fangbuch/web/src/layouts/Layout.astro
+1. Im <head> VOR dem Stylesheet-Link ein Inline-Script (verhindert Flash):
+```html
+<script is:inline>
+  (function () {
+    var t = localStorage.getItem("carp24-theme");
+    if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  })();
+</script>
+```
+2. In der Navigation (dort wo die anderen Nav-Buttons sind) einen Theme-Toggle-Button ergänzen — Icon-frei, Text-Variante im bestehenden Stil (font-nav-item uppercase, min-h-11 wie Chips):
+```html
+<button id="theme-toggle" type="button" class="...bestehende Chip-Optik..." aria-label="Design wechseln">THEMA</button>
+```
+3. Am Ende (vor </body> oder im bestehenden Script-Bereich) das Toggle-Script (is:inline):
+```html
+<script is:inline>
+  var toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var html = document.documentElement;
+      var dark = html.getAttribute("data-theme") === "dark";
+      html.setAttribute("data-theme", dark ? "" : "dark");
+      localStorage.setItem("carp24-theme", dark ? "light" : "dark");
+    });
+  }
+</script>
+```
+Achtung: Beim Toggle auf light das data-theme-Attribut ENTFERNEN (html.removeAttribute), nicht auf "" setzen, damit der prefers-color-scheme-Fallback stimmt. Nutze removeAttribute.
+
+## VERIFIKATION
+1. cd /mnt/projekte/carp24-fangbuch/web && npm run build → exit 0
+2. grep -c 'data-theme="dark"' src/styles/global.css → ≥1
+3. grep -c 'theme-toggle' src/layouts/Layout.astro → ≥2 (Button + Script)
+4. grep -c 'carp24-theme' src/layouts/Layout.astro → ≥2 (set + get)
+5. KEIN git commit (ich committe selbst)
+
+AUSGABE kurz auf Deutsch: geänderte Dateien + Build-Ergebnis.
