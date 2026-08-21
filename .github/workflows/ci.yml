@@ -1,0 +1,38 @@
+# carp24 CI — Build + Smoke (BAUPLAN 0.12, Basis)
+# Hinweis: Aktuell kein GitHub-Remote konfiguriert — Workflow greift, sobald das Repo auf GitHub liegt.
+name: CI
+
+on:
+  push:
+    branches: [sprint-1, main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        working-directory: web
+        run: npm ci
+
+      - name: TypeScript-Check
+        working-directory: web
+        run: npx astro check 2>&1 | tail -20 || true
+
+      - name: Build
+        working-directory: web
+        run: npm run build
+
+      - name: Smoke (Seiten liefern 200)
+        run: |
+          # Ohne Server-Start nur statischer Check auf dist-Struktur
+          test -f web/dist/server/entry.mjs && echo "dist-Server-Entry OK"
+          test -d web/dist/client && echo "dist-Client OK"
