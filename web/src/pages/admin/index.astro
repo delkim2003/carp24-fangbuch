@@ -75,6 +75,21 @@ if (!isAdmin) return Astro.redirect("/");
     </div>
 
     <div class="w-full mb-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">Wartungsmodus</h2>
+      <div id="maintenance-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <div class="flex items-center gap-md mb-md">
+          <span id="maintenance-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
+          <span id="maintenance-hint" class="text-body-sm text-on-surface-variant"></span>
+        </div>
+        <div class="mb-md">
+          <label for="maintenance-message" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Nachricht an Besucher (optional)</label>
+          <textarea id="maintenance-message" rows="2" class="w-full bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md resize-none" placeholder="Nachricht an Besucher (optional)"></textarea>
+        </div>
+        <button id="maintenance-toggle" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors">–</button>
+      </div>
+    </div>
+
+    <div class="w-full mb-xl">
       <h2 class="text-headline-md text-on-surface mb-lg">Wachstum (14 Tage)</h2>
       <div id="growth-chart" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <div class="flex gap-sm mb-md">
@@ -102,6 +117,34 @@ if (!isAdmin) return Astro.redirect("/");
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+      // Wartungsmodus
+      try {
+        var mRes = await fetch("/api/admin/settings");
+        if (mRes.ok) {
+          var mData = await mRes.json();
+          updateMaintenanceUI(mData.enabled, mData.message || "");
+        }
+      } catch {}
+
+      var mToggle = document.getElementById("maintenance-toggle");
+      var mMessage = document.getElementById("maintenance-message") as HTMLTextAreaElement;
+      if (mToggle) {
+        mToggle.addEventListener("click", async function() {
+          var currentlyEnabled = mToggle.getAttribute("data-enabled") === "true";
+          var msg = mMessage ? mMessage.value : "";
+          try {
+            var res = await fetch("/api/admin/settings", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ enabled: !currentlyEnabled, message: msg }),
+            });
+            if (res.ok) {
+              updateMaintenanceUI(!currentlyEnabled, msg);
+            }
+          } catch {}
+        });
+      }
+
       try {
         const res = await fetch("/api/admin/stats");
         if (!res.ok) return;
@@ -243,6 +286,35 @@ if (!isAdmin) return Astro.redirect("/");
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
       return div.innerHTML;
+    }
+
+    function updateMaintenanceUI(enabled: boolean, message: string) {
+      var badge = document.getElementById("maintenance-badge");
+      var hint = document.getElementById("maintenance-hint");
+      var toggle = document.getElementById("maintenance-toggle");
+      var msgInput = document.getElementById("maintenance-message") as HTMLTextAreaElement;
+      if (badge) {
+        if (enabled) {
+          badge.textContent = "WARTUNGSMODUS AKTIV";
+          badge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-error-container text-on-error-container";
+        } else {
+          badge.textContent = "WARTUNGSMODUS AUS";
+          badge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-primary-container text-on-primary-container";
+        }
+      }
+      if (hint) {
+        hint.textContent = enabled ? "Besucher sehen aktuell die Wartungsseite." : "";
+      }
+      if (toggle) {
+        toggle.textContent = enabled ? "WARTUNGSMODUS DEAKTIVIEREN" : "WARTUNGSMODUS AKTIVIEREN";
+        toggle.setAttribute("data-enabled", String(enabled));
+        toggle.className = enabled
+          ? "font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90"
+          : "font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary-container text-on-primary-container hover:opacity-90";
+      }
+      if (msgInput) {
+        msgInput.value = message || "";
+      }
     }
   </script>
 </Layout>

@@ -1,0 +1,25 @@
+# BRIEFING: MIDDLEWARE-SLASH-FIX — Carp24 (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Ein-Fehler-Fix in der Wartungsmodus-Middleware von /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## PROBLEM
+web/src/middleware.ts leitet bei aktivem Wartungsmodus auch /login/ und /impressum/ (mit TRAILING SLASH) fälschlich auf /wartung um. Ursache: `context.url.pathname` liefert z.B. "/login/" (mit Slash), aber die isAllowed-Liste enthält "/login" (ohne Slash) → Match schlägt fehl.
+
+## FIX (genau 1 Stelle in web/src/middleware.ts)
+Ersetze in der Middleware diese Zeile:
+```ts
+  const path = context.url.pathname;
+```
+durch:
+```ts
+  const path = context.url.pathname.replace(/\/+$/, "") || "/";
+```
+NICHTS anderes ändern. Die Datei VOLLSTÄNDIG mit dem bisherigen Inhalt + dieser einen Änderung neu schreiben (No-Fragment-Regel).
+
+## VERBOTEN
+- KEINE anderen Änderungen (keine neuen Dateien, keine Änderungen an Layout/settings/wartung)
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: Build-Status.

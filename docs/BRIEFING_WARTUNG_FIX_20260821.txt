@@ -1,0 +1,89 @@
+# BRIEFING: WARTUNGSMODUS-FIX — Guard in Astro-Middleware (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Behebe den Wartungsmodus-Fehler im Projekt /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## PROBLEM
+Der Wartungs-Guard wurde ins Frontmatter von web/src/layouts/Layout.astro eingebaut (`return Astro.redirect("/wartung")`). `Astro.redirect()` funktioniert NICHT in Layout-/Komponenten-Frontmatter (nur in Pages/Middleware) → bei aktivem Wartungsmodus hängen alle Requests für Nicht-Admins (Timeout).
+
+## FIX: Guard in src/middleware.ts verschieben + Layout bereinigen
+
+### 1. web/src/middleware.ts (NEU — falls noch nicht existiert)
+```ts
+import { defineMiddleware } from "astro:middleware";
+import { createServerClient } from "@supabase/ssr";
+import { getMaintenance } from "./lib/settings";
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const supabase = createServerClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return context.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            context.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  let role = "USER";
+  if (session) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+    role = profile?.role ?? "USER";
+  }
+
+  const maintenance = await getMaintenance(supabase);
+  const path = context.url.pathname;
+  const isAdmin = role === "ADMIN" || role === "MODERATOR";
+
+  if (maintenance.enabled && !isAdmin) {
+    if (path.startsWith("/api/")) {
+      return new Response(JSON.stringify({ error: "Wartungsarbeiten" }), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const isAllowed =
+      path === "/login" ||
+      path === "/wartung" ||
+      path === "/impressum" ||
+      path === "/datenschutz" ||
+      path === "/404" ||
+      path === "/offline";
+    if (!path.startsWith("/admin") && !isAllowed) {
+      return context.redirect("/wartung");
+    }
+  }
+
+  return next();
+});
+```
+Hinweise:
+- Prüfe, ob web/src/middleware.ts bereits existiert. Wenn ja: VOLLSTÄNDIG überschreiben mit diesem Inhalt (die Wartungs-Logik integrieren, KEINE andere Middleware-Logik entfernen die schon da war — wenn bereits Inhalt existiert, Wartungs-Block davor/danach ergänzen und bestehende Logik behalten).
+- Import-Pfad zu settings.ts: middleware.ts liegt in web/src/ → "./lib/settings".
+
+### 2. web/src/layouts/Layout.astro — Wartungs-Guard ENTFERNEN
+- Entferne aus dem Frontmatter: den createServerClient-Block, den session/role-Check und den kompletten `if (maintenance.enabled) { ... }`-Block (die im vorherigen Wartungsmodus-Build eingefügt wurden)
+- Entferne `import { getMaintenance } from "../lib/settings";` und den supabase-Import, wenn sie nur für den Guard da waren
+- Der Rest des Layouts (lang, Theme-Script, i18n, HTML) bleibt UNVERÄNDERT
+
+### 3. Prüfen: web/src/lib/settings.ts bleibt wie gebaut (getMaintenance mit 5s-Cache) — KEINE Änderung.
+
+## VERBOTEN
+- KEINE Änderungen an wartung.astro, api/admin/settings.ts, admin/index.astro, i18n.ts
+- KEINE neuen Dependencies
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: geänderte Dateien, Build-Status.

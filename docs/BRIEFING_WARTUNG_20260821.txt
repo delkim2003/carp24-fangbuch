@@ -1,0 +1,101 @@
+# BRIEFING: WARTUNGSMODUS (Maintenance Mode) — Carp24 (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Implementiere einen schaltbaren Wartungsmodus für /mnt/projekte/carp24-fangbuch (Astro 7 + Supabase, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## ANFORDERUNG
+- Admin kann den Wartungsmodus im Admin-Dashboard schalten (ein/aus + optionale Nachricht)
+- Wenn AKTIV: Alle Besucher (nicht eingeloggt ODER eingeloggt ohne Admin-Rolle) sehen eine Wartungsseite (HTTP 503)
+- ADMINS (Rolle ADMIN/MODERATOR) kommen weiterhin überall durch (auch /admin/* und APIs)
+- /login, /wartung, /impressum, /datenschutz bleiben im Wartungsmodus erreichbar (Login muss für Admins möglich sein; Rechtstexte bleiben erreichbar)
+- Persistenz in der Datenbank (überlebt Server-Neustart)
+
+## MIGRATION 0031_app_settings.sql (NEU unter supabase/migrations/)
+```sql
+-- Zentrale App-Einstellungen (Wartungsmodus etc.)
+CREATE TABLE IF NOT EXISTS public.app_settings (
+  key text PRIMARY KEY,
+  value jsonb NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY app_settings_select_all ON public.app_settings
+  FOR SELECT TO anon, authenticated USING (true);
+-- Nur service_role darf schreiben (keine UPDATE/INSERT-Policy für anon/authenticated)
+INSERT INTO public.app_settings (key, value) VALUES ('maintenance', '{"enabled": false, "message": ""}')
+  ON CONFLICT (key) DO NOTHING;
+```
+
+## DATEIEN
+
+### 1. web/src/lib/settings.ts (NEU) — Wartungs-Status lesen mit Kurz-Cache
+```ts
+// Cache: Modul-Level Map, TTL 5s (verhindert DB-Call pro Request)
+let cache: { value: { enabled: boolean; message: string }; ts: number } | null = null;
+const TTL = 5000;
+
+export async function getMaintenance(supabase: any): Promise<{ enabled: boolean; message: string }> {
+  if (cache && Date.now() - cache.ts < TTL) return cache.value;
+  const { data } = await supabase.from("app_settings").select("value").eq("key", "maintenance").single();
+  const v = data?.value ?? { enabled: false, message: "" };
+  cache = { value: v, ts: Date.now() };
+  return v;
+}
+```
+(TypeScript-Typen für supabase-Param großzügig: `any` ist ok.)
+
+### 2. web/src/layouts/Layout.astro — Wartungs-Guard im Frontmatter
+Ergänze im Frontmatter NACH dem bestehenden Code (lang etc. bleibt):
+1. SSR-Client aufbauen (gleiches createServerClient-Cookie-Muster wie premium.astro — getSession reicht, kein setAll nötig außer Kopie des Musters)
+2. `const { data: { session } } = await supabase.auth.getSession();`
+3. Rolle lesen wenn session: `supabase.from("profiles").select("role").eq("id", session.user.id).single()` → `role`
+4. `const maintenance = await getMaintenance(supabase);`
+5. Guard:
+```ts
+if (maintenance.enabled) {
+  const path = Astro.url.pathname;
+  const isAdminArea = path.startsWith("/admin");
+  const isAllowed = path === "/login" || path === "/wartung" || path === "/impressum" || path === "/datenschutz" || path === "/404" || path === "/offline";
+  const isAdmin = role === "ADMIN" || role === "MODERATOR";
+  if (!isAdminArea && !isAllowed && !isAdmin) {
+    return Astro.redirect("/wartung");
+  }
+}
+```
+(Import: `import { getMaintenance } from "../lib/settings";` — Layout liegt in web/src/layouts/, also "../lib/settings".)
+
+### 3. web/src/pages/wartung.astro (NEU) — Wartungsseite
+- Nutzt das Layout (damit Header/Footer/Theme konsistent sind — ACHTUNG: der Guard im Layout lässt /wartung zu)
+- `export const prerender = false;` (SSR wegen Status-Code)
+- Frontmatter: `Astro.response.status = 503;`
+- Inhalt (Designsprache Carp24: hell #E2DECC-Hintergrund, Karte #FFFFFF, Text #0B0C0B, Button #6C7A57, Kicker „PASSION. FISHING. COMMUNITY.", uppercase, tracking-widest, min-h-12, KEINE SVG-Icons, Editorial/minimalistisch):
+  - Kicker: t("kicker")
+  - H1: t("wartung.titel") — „Wartungsarbeiten" / „Maintenance"
+  - Text: t("wartung.text") — „Wir arbeiten gerade an Carp24. Bitte versuche es in ein paar Minuten erneut." / „We are working on Carp24 right now. Please try again in a few minutes."
+  - Wenn die maintenance-Message NICHT leer ist: diese Message prominent anzeigen (Client-Prop oder SSR — LIES die Message im Frontmatter via getMaintenance und rendere sie wenn vorhanden)
+  - Links: Impressum + Datenschutz (klein)
+- i18n-Keys in web/src/lib/i18n.ts ergänzen: wartung.titel (de/en), wartung.text (de/en)
+
+### 4. web/src/pages/api/admin/settings.ts (NEU) — Admin-API
+- GET: supabaseAdmin (service role) liest app_settings key='maintenance' → { enabled, message }
+- PATCH: Body { enabled: boolean, message?: string } → supabaseAdmin upsert: `{ key: "maintenance", value: { enabled, message: message ?? "" }, updated_at: now() }` → audit_log insert (action: "settings.maintenance", target_type: "settings", details: { enabled }) → { ok: true }
+- Guard wie alle Admin-APIs: SSR-Client + session 401 + role 403 (ADMIN/MODERATOR), dann supabaseAdmin
+
+### 5. web/src/pages/admin/index.astro — Wartungs-Karte in der Übersicht
+Ergänze eine prominente Karte (oben, nach den KPIs):
+- Status-Badge: „WARTUNGSMODUS AKTIV" (rot) / „WARTUNGSMODUS AUS" (grün)
+- Toggle-Button: „WARTUNGSMODUS AKTIVIEREN" / „WARTUNGSMODUS DEAKTIVIEREN" (min-h-11, rounded-full; aktiv = bg-error-container, aus = bg-primary-container)
+- Textarea/Input für optionale Nachricht (placeholder: „Nachricht an Besucher (optional)")
+- Client-JS: on mount fetch /api/admin/settings → Status anzeigen; Button → PATCH {enabled: !status, message} → Status aktualisieren; i18n-Muster wie Rest (data-de/data-en) ODER deutsch (Admin-Bereich ist deutsch — deutsch reicht)
+- Nach erfolgreichem Schalten: Hinweis „Wartungsmodus aktiv — Besucher sehen jetzt die Wartungsseite."
+
+## VERBOTEN
+- KEINE neuen Dependencies
+- KEINE Änderungen an anderen Seiten/APIs außer den oben genannten
+- KEINE Secrets; map-Callback-Parameter NIE `t` nennen
+- Wartungsseite ohne Tracking/Matomo (kein Analytics-Code)
+- Migration 0031 NICHT einspielen (macht der Orchestrator)
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: geänderte/neue Dateien, Build-Status.

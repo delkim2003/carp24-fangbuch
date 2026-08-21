@@ -1,0 +1,93 @@
+# BRIEFING: MIDDLEWARE-COOKIE-FIX — Carp24 (21.08.2026)
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Behebe einen Fehler in der Wartungsmodus-Middleware von /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## PROBLEM
+web/src/middleware.ts (aktuell umbenannt zu web/src/middleware.ts.disabled) crasht mit `TypeError: context.cookies.getAll is not a function` — in der Astro-7-Middleware hat `context.cookies` KEIN `getAll()`. Die Seite war dadurch komplett down (500 auf allen Routen). Die Datei wurde deaktiviert, um die Seite wiederherzustellen.
+
+## FIX: web/src/middleware.ts neu schreiben (vollständig)
+Erstelle web/src/middleware.ts NEU mit folgendem Inhalt (Cookie-Lesen über den Request-Header — das bewährte Muster aus den .astro-Seiten):
+
+```ts
+import { defineMiddleware } from "astro:middleware";
+import { createServerClient } from "@supabase/ssr";
+import { getMaintenance } from "./lib/settings";
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const supabase = createServerClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          const header = context.request.headers.get("cookie");
+          if (!header) return [];
+          return header
+            .split(";")
+            .map((pair) => {
+              const idx = pair.indexOf("=");
+              if (idx === -1) return null;
+              return {
+                name: pair.slice(0, idx).trim(),
+                value: pair.slice(idx + 1).trim(),
+              };
+            })
+            .filter(Boolean) as { name: string; value: string }[];
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            context.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  let role = "USER";
+  if (session) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+    role = profile?.role ?? "USER";
+  }
+
+  const maintenance = await getMaintenance(supabase);
+  const path = context.url.pathname;
+  const isAdmin = role === "ADMIN" || role === "MODERATOR";
+
+  if (maintenance.enabled && !isAdmin) {
+    if (path.startsWith("/api/")) {
+      return new Response(JSON.stringify({ error: "Wartungsarbeiten" }), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const isAllowed =
+      path === "/login" ||
+      path === "/wartung" ||
+      path === "/impressum" ||
+      path === "/datenschutz" ||
+      path === "/404" ||
+      path === "/offline";
+    if (!path.startsWith("/admin") && !isAllowed) {
+      return context.redirect("/wartung");
+    }
+  }
+
+  return next();
+});
+```
+
+Danach: Die deaktivierte Datei web/src/middleware.ts.disabled LÖSCHEN (nicht mehr benötigt).
+
+## VERBOTEN
+- KEINE Änderungen an anderen Dateien (Layout.astro ist bereits bereinigt, lib/settings.ts bleibt)
+- KEINE neuen Dependencies
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: Build-Status + Bestätigung, dass middleware.ts existiert und disabled-Datei gelöscht ist.

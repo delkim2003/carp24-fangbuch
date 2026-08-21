@@ -316,6 +316,10 @@ const dict: Record<string, Record<Lang, string>> = {
   "dashboard.gewichtsverlauf": { de: "GEWICHTS-VERLAUF", en: "WEIGHT TREND" },
   "dashboard.neuer_fang": { de: "NEUER FANG EINTRAGEN", en: "LOG NEW CATCH" },
   "dashboard.statistik_studio": { de: "ZUM STATISTIK-STUDIO", en: "TO STATS STUDIO" },
+
+  // wartung
+  "wartung.titel": { de: "Wartungsarbeiten", en: "Maintenance" },
+  "wartung.text": { de: "Wir arbeiten gerade an Carp24. Bitte versuche es in ein paar Minuten erneut.", en: "We are working on Carp24 right now. Please try again in a few minutes." },
 };
 
 export function getLang(): Lang {
