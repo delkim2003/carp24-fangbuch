@@ -64,7 +64,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textbf{\textcolor{eopurple}{EO} \textcolor{eocyan}{einfach-online.dev}}}
-\fancyhead[R]{\small Carp24 \& Supabase — Administrator Playbook (v1.0)}
+\fancyhead[R]{\small Carp24 \& Supabase — Administrator Playbook (v1.1)}
 \fancyfoot[C]{\thepage}
 \fancyfoot[R]{\scriptsize EO-ADMIN-2026-CARP24-01-REV}
 
@@ -92,6 +92,7 @@
 \toprule
 \textbf{Version} & \textbf{Datum} & \textbf{Änderung} \\
 \midrule
+v1.1 & 21.08.2026 & Wartungsmodus-Kapitel ergänzt (Schalten, Wirkung, Technik) \\
 v1.0 & 21.08.2026 & Initiales Dokument: Supabase-Grundlagen, Carp24-Features, Admin-Dashboard v2, Einstellungen, Betrieb \& Fehlerbehandlung \\
 \bottomrule
 \end{tabularx}
@@ -328,6 +329,16 @@ Im Admin-Dashboard unter \textbf{Nutzer}: Rolle-Select (USER/MODERATOR/ADMIN) un
 docker exec --env PGPASSWORD="$PW" supabase-db psql -h localhost -U supabase_admin -d postgres \
   -c "UPDATE profiles SET role='ADMIN', is_pro=true WHERE id='<user-id>';"
 \end{codeblock}
+
+\subsection{\changedtitle{Wartungsmodus schalten} \changed{}}
+Bei Wartungsarbeiten kannst du die gesamte Plattform auf eine Wartungsseite stellen:
+\begin{enumerate}
+    \item Admin-Dashboard → \textbf{Übersicht} → Karte \textbf{WARTUNGSMODUS}
+    \item Optional: Nachricht an Besucher eingeben (z.B. „Wir sind bald wieder da!")
+    \item Button \textbf{WARTUNGSMODUS AKTIVIEREN} — sofort aktiv
+\end{enumerate}
+\textbf{Wirkung:} Alle Besucher (nicht eingeloggt oder ohne Admin-Rolle) sehen \code{/wartung} (HTTP 503). \textbf{Admins} (Rolle ADMIN/MODERATOR) kommen überall durch — auch \code{/admin/*}. \code{/login}, \code{/impressum} und \code{/datenschutz} bleiben erreichbar (damit du dich als Admin einloggen kannst und Rechtstexte zugänglich bleiben). Zum Ausschalten: Button \textbf{WARTUNGSMODUS DEAKTIVIEREN} (gleiche Karte).
+\textbf{Technik:} Der Status liegt in der Tabelle \code{app\_settings} (Key \code{maintenance}, Migration 0031) — überlebt Server-Neustarts. Ein globaler Astro-Middleware-Guard prüft jeden Request (5-Sekunden-Cache). Schalt-Aktionen landen im Audit-Log (\code{settings.maintenance}).
 
 \newpage
 % ============================== TEIL D: BETRIEB ==============================
