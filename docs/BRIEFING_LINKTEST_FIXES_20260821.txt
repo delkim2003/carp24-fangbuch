@@ -1,0 +1,28 @@
+# BRIEFING: LINK-TEST-FIXES (statistik Astro-Global, profil/rueckblick null-Guards) — 21.08.2026
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Behebe 3 Client-JS-Fehler im Projekt /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## FIX 1 (P1): /statistik — „Astro is not defined"
+Datei: web/src/pages/statistik.astro
+Symptom: Console-Error „Astro is not defined" auf der Seite (anonym + eingeloggt) — das Client-Script referenziert das globale `Astro`-Objekt, das in Inline-Scripts NICHT verfügbar ist.
+FIX: (a) Finde die Stelle(n), wo `Astro` im `<script>`-Block (besonders is:inline) genutzt wird. (b) Ersetze die Nutzung: Wenn `Astro.url` / `Astro.request` / andere Astro-Globals im Script gebraucht werden → stattdessen die Werte per `define:vars={{ ... }}` aus dem Frontmatter übergeben ODER `import.meta.env` / `window.location` nutzen (je nachdem was der Code braucht). (c) Stelle sicher, dass das Script ohne `Astro` auskommt und KEINE PageErrors mehr wirft. Nichts am Seiten-Layout ändern.
+
+## FIX 2 (P2): /profil — „Cannot read properties of null (reading 'addEventListener')" (anonym)
+Datei: web/src/pages/profil.astro
+Symptom: Wenn ein NICHT eingeloggter Besucher /profil/ öffnet (Seite zeigt Login-Hinweis), läuft das Client-Script trotzdem und greift auf ein nicht existierendes Element zu (`document.getElementById(...)` liefert null → addEventListener crasht).
+FIX: Guard am Anfang des Script-Blocks: Prüfe, ob die Session/Container vorhanden sind. Minimal: Bevor auf Elemente zugegriffen wird, `if (!document.getElementById('<container-id>')) return;` (bzw. für jedes genutzte Element einzeln absichern ODER ein gemeinsamer Guard am Script-Anfang: wenn das Haupt-Container-Element fehlt, Script beenden). KEINE Änderungen an der HTML-Struktur.
+
+## FIX 3 (P2): /rueckblick — „Cannot set properties of null (setting 'innerHTML')" (anonym)
+Datei: web/src/pages/rueckblick.astro
+Symptom: Gleiches Muster wie Fix 2 — anonyme Besucher sehen den Login-Hinweis, aber das Script setzt `innerHTML` auf ein nicht existierendes Element (`chipsContainer`/`contentContainer`/`emptyState` sind null).
+FIX: Guard am Script-Anfang: `var contentContainer = document.getElementById("rueckblick-content"); if (!contentContainer) return;` — d.h. wenn der Inhalts-Container fehlt (anonym), komplett abbrechen. KEINE Änderungen an der HTML-Struktur.
+
+## VERBOTEN
+- KEINE neuen Dependencies, KEINE Änderungen an Layout/Struktur der Seiten
+- KEINE Änderungen an anderen Seiten/APIs
+- Nicht vergessen: Nur die 3 Dateien anfassen (statistik.astro, profil.astro, rueckblick.astro)
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: geänderte Stellen (Zeilen), Build-Status.

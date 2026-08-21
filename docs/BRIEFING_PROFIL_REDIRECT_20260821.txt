@@ -1,0 +1,22 @@
+# BRIEFING: PROFIL-REDIRECT-FIX (1 Zeile) — 21.08.2026
+
+## AUFTRAG
+BAUE SOFORT — KEINE ANALYSE. Ein Fix im Projekt /mnt/projekte/carp24-fangbuch (Astro 7, Branch sprint-1).
+Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.
+
+## FIX: /profil — anonyme Besucher auf /login/ redirecten
+Datei: web/src/pages/profil.astro
+Problem: Die Seite rendert für nicht eingeloggte Besucher das volle HTML (inkl. Session-Elemente wie #logout-btn), aber das Client-Script erwartet diese Elemente → JS-Fehler „Cannot read properties of null (reading 'addEventListener')". Andere geschützte Seiten (z.B. assistent.astro, trips.astro) redirecten anonyme korrekt via `return Astro.redirect("/login/")`.
+
+FIX (NUR diese eine Stelle):
+Nach Zeile 35 (`const { data: { session } } = await supabase.auth.getSession();`) DIREKT einfügen:
+```ts
+if (!session) return Astro.redirect("/login/");
+```
+NICHTS anderes ändern. Der bestehende `if (session) { ... }`-Block bleibt unverändert (er wird durch den frühen Return nie mit leerer Session erreicht).
+
+## VERBOTEN
+- KEINE weiteren Änderungen an profil.astro oder anderen Dateien
+
+## BUILD & CHECK
+Nach dem Bau: npm run build im web/-Ordner — MUSS grün sein. Berichte: Build-Status.

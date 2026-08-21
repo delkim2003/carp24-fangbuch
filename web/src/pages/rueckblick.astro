@@ -151,6 +151,8 @@ const catchesJson = JSON.stringify(catches);
   var emptyState = document.getElementById("empty-state");
   var shareBtn = document.getElementById("share-btn");
 
+  if (!chipsContainer || !contentContainer || !emptyState) return;
+
   // Share button
   if (shareBtn) {
     shareBtn.addEventListener("click", function () {

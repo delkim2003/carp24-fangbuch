@@ -33,6 +33,7 @@ const supabase = createServerClient(
 );
 
 const { data: { session } } = await supabase.auth.getSession();
+if (!session) return Astro.redirect("/login/");
 
 let catchCount = 0;
 let heaviestKg: string | null = null;
@@ -356,6 +357,10 @@ if (createdAt) {
 
 <script>
 import { supabase } from "../lib/supabase-client";
+
+if (!document.getElementById("logout-btn")) {
+  // Anonymous visitor — session-only elements don't exist
+} else {
 
 const mfaStatusBadge = document.getElementById("mfa-status-badge")!;
 const mfaEnrollPanel = document.getElementById("mfa-enroll-panel")!;
@@ -1202,4 +1207,6 @@ csvImportBtn.addEventListener("click", async () => {
   csvImportBtn.disabled = false;
   csvImportBtn.textContent = "IMPORTIEREN";
 });
+
+} // end guard: only run for logged-in users
 </script>
