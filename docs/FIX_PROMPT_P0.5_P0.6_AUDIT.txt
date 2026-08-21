@@ -1,0 +1,55 @@
+Fix verifizierte Audit-Funde P0.5+P0.6 (carp24, Postgres 17.6, Supabase self-hosted).
+
+============================================================
+FIX 1 (🔴 Grants kaputt nach Restore): restore.sh --no-privileges entfernen
+PROBLEM: restore.sh Z.76+123 nutzt --no-privileges → verwirft ALLE ACL/Grant-Einträge im Dump (1264 Stück). Nach Restore fehlen Grants für anon/authenticated/service_role/carp24_app → API/auth/storage funktionsunfähig.
+FIX: In infra/restore.sh BEIDE Vorkommen ändern von:
+    --no-owner --no-privileges
+auf:
+    --no-owner
+(--no-owner behalten: Owner-Zuordnung auf supabase_admin; --no-privileges ENTFERNEN, damit Grants wiederhergestellt werden.)
+
+============================================================
+FIX 2 (🔴 Rollen fehlen im Dump): pg_dumpall --globals-only in backup.sh
+PROBLEM: pg_dump -Fc sichert KEINE globalen Objekte (CREATE ROLE). supabase_admin/anon/authenticated/service_role/carp24_app fehlen → Restore auf frischer Instanz scheitert.
+FIX: In infra/backup.sh NACH dem pg_dump (vor Storage-Tar) Rollen-Dump ergänzen:
+  if docker exec supabase-db pg_dumpall -U supabase_admin --globals-only > "$BACKUP_DIR/roles_$DATE.sql" 2>> "$LOG"; then
+    echo "[$DATE] Roles-Dump OK" >> "$LOG"
+  else
+    echo "[$DATE] FEHLER: Roles-Dump" >> "$LOG"
+  fi
+Dann roles_$DATE.sql GENAU WIE die anderen verschlüsseln (gpg AES256 → roles_$DATE.sql.gpg, Original löschen), in Offsite-Kopie aufnehmen, in Rotation aufnehmen (max 7).
+
+============================================================
+FIX 3 (🟠 Rohdaten-Leak): backup.sh Cleanup-Trap + alte .dump-Dateien löschen
+PROBLEM: Kein trap in backup.sh → Abbruch zwischen pg_dump und gpg lässt unverschlüsselte .dump-Daten liegen. BESTÄTIGT: infra/backups/postgres_20260819_0903.dump + 0908.dump (unverschlüsselt, 311KB) liegen noch da.
+FIX:
+  (a) In infra/backup.sh am Anfang (nach set -eu) ergänzen:
+      trap 'rm -f "$BACKUP_DIR"/postgres_*.dump "$BACKUP_DIR"/storage_*.tar.gz "$BACKUP_DIR"/config_*.tar.gz "$BACKUP_DIR"/roles_*.sql 2>/dev/null' EXIT
+  (b) Alte Rohdaten löschen: rm -f /mnt/projekte/carp24-fangbuch/infra/backups/postgres_*.dump
+
+============================================================
+FIX 4 (🔴 Script-Drift): Cron nutzt veraltete watchdog-Kopie
+PROBLEM: Cron 1e71c5089bdc nutzt /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh (55 Zeilen, OHNE Backup-Age-Check). Repo-Version infra/monitoring/carp24-watchdog.sh (68 Zeilen, MIT Check). Watchdog erkennt kein veraltetes Backup.
+FIX: Repo-Version (68 Zeilen, MIT Backup-Age) in das Profil-Scripts-Verzeichnis kopieren:
+  cp /mnt/projekte/carp24-fangbuch/infra/monitoring/carp24-watchdog.sh /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh
+  chmod +x /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh
+Dann verifizieren: grep -c "BACKUP_AGE" /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh → muss >0 sein.
+WICHTIG: Damit künftig kein Drift mehr entsteht, im Skript-Kopf einen Kommentar ergänzen: "# SYNCHRON: wird nach jedem Update nach ~/.hermes/profiles/agentur-berater/scripts/ kopiert".
+
+============================================================
+AUFGABE:
+1. Fix 1: restore.sh beide --no-privileges entfernen (--no-owner behalten)
+2. Fix 2: backup.sh Roles-Dump ergänzen (pg_dumpall --globals-only) + Verschlüsselung + Offsite + Rotation
+3. Fix 3: backup.sh trap + alte .dump löschen
+4. Fix 4: watchdog-Kopie synchronisieren + Sync-Kommentar
+5. Verifiziere ALLES:
+   - grep -c "no-privileges" infra/restore.sh → 0
+   - grep -c "pg_dumpall" infra/backup.sh → >0
+   - grep -c "trap" infra/backup.sh → >0
+   - ls infra/backups/*.dump → keine (nur .gpg)
+   - grep -c "BACKUP_AGE" /home/philipp/.hermes/profiles/agentur-berater/scripts/carp24-watchdog.sh → >0
+6. Teste backup.sh einmal vollständig (BACKUP_PASSPHRASE kommt aus .env) → roles_*.sql.gpg muss entstehen + offsite
+7. Teste restore.sh Dry-Run mit neuestem Backup → muss BESTANDEN zeigen
+8. Commit: 'FIX P0.5+P0.6 AUDIT: Grants+Rollen im Backup, Cleanup-Trap, Watchdog-Drift'
+9. Gib aus: git log --oneline -1

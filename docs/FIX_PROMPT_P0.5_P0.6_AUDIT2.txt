@@ -1,0 +1,35 @@
+Fix verifizierte Audit-Funde in carp24 (Postgres 17.6). NUR Dateien im Repo /mnt/projekte/carp24-fangbuch — KEIN Zugriff auf /home/philipp/.hermes (wird blockiert, Fix 4 macht der Assistent selbst).
+
+============================================================
+FIX 1 (🔴 Grants kaputt nach Restore): restore.sh --no-privileges entfernen
+In infra/restore.sh BEIDE Vorkommen (Z.76 + Z.123) ändern von:
+    --no-owner --no-privileges
+auf:
+    --no-owner
+(--no-owner behalten, --no-privileges ENTFERNEN → Grants/ACLs werden wiederhergestellt)
+
+============================================================
+FIX 2 (🔴 Rollen fehlen): pg_dumpall --globals-only in backup.sh
+In infra/backup.sh NACH dem pg_dump-Block (vor Storage-Tar) ergänzen:
+  if docker exec supabase-db pg_dumpall -U supabase_admin --globals-only > "$BACKUP_DIR/roles_$DATE.sql" 2>> "$LOG"; then
+    echo "[$DATE] Roles-Dump OK" >> "$LOG"
+  else
+    echo "[$DATE] FEHLER: Roles-Dump" >> "$LOG"
+  fi
+Dann roles_$DATE.sql GENAU WIE die anderen Dateien verschlüsseln (gpg AES256 mit $BACKUP_PASSPHRASE → roles_$DATE.sql.gpg, Original löschen), in die Offsite-Kopie aufnehmen, in die Rotation aufnehmen (roles_*.sql.gpg, max 7).
+
+============================================================
+FIX 3 (🟠 Rohdaten-Leak): Cleanup-Trap
+In infra/backup.sh direkt nach "set -eu" (bzw. set -euo pipefail) ergänzen:
+  trap 'rm -f "$BACKUP_DIR"/postgres_*.dump "$BACKUP_DIR"/storage_*.tar.gz "$BACKUP_DIR"/config_*.tar.gz "$BACKUP_DIR"/roles_*.sql 2>/dev/null' EXIT
+
+============================================================
+VERIFIZIERE NACH DEN FIXES (führe selbst aus):
+1. grep -c "no-privileges" infra/restore.sh → 0
+2. grep -c "pg_dumpall" infra/backup.sh → >0
+3. grep -c "trap" infra/backup.sh → >0
+4. Führe backup.sh komplett aus (BACKUP_PASSPHRASE aus infra/.env via set -a; source) → roles_*.sql.gpg muss entstehen
+5. Prüfe: ls infra/backups/roles_* 2>/dev/null → .sql.gpg vorhanden
+6. Prüfe: ls infra/backups/*.dump → sollte keine geben (trap hat alte gelöscht; falls die 2 alten noch da sind, manuell löschen: rm -f infra/backups/postgres_*.dump)
+7. Commit: 'FIX P0.5 AUDIT: Grants+Rollen im Backup (no-privileges weg, pg_dumpall, Cleanup-Trap)'
+8. Gib aus: git log --oneline -1

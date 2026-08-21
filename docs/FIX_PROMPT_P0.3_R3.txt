@@ -1,0 +1,23 @@
+Fix verifizierten R3-Fund in supabase/migrations/0001_init.sql (Postgres 17, Supabase self-hosted).
+
+============================================================
+FIX 1 (🟠 Moderations-Bypass via DELETE+Re-create): posts_delete_owner status-Clamp
+PROBLEM: posts_delete_owner hat NUR USING (user_id = auth.uid()) OHNE status-Bedingung. Ein Moderator setzt einen Post auf HIDDEN → der Owner kann ihn per DELETE löschen (kein status-Filter) → via create_post() einen NEUEN Post mit demselben catch_id erstellen (kein UNIQUE-Constraint auf posts.catch_id) → neuer Post ist VISIBLE. Moderation wird komplett umgangen.
+AKTUELL (Z.~452-455):
+  CREATE POLICY posts_delete_owner ON public.posts
+    FOR DELETE TO authenticated
+    USING (user_id = auth.uid());
+FIX:
+  CREATE POLICY posts_delete_owner ON public.posts
+    FOR DELETE TO authenticated
+    USING (user_id = auth.uid() AND status = 'VISIBLE');
+(Owner kann nur noch VISIBLE Posts löschen — HIDDEN-Posts (moderiert) sind für ihn unsichtbar/löschbar. Konsistent mit posts_update_owner und forum-Policies.)
+
+============================================================
+AUFGABE:
+1. Lies supabase/migrations/0001_init.sql (posts_delete_owner, Z.~452-455)
+2. Ersetze die Policy exakt wie oben (USING + AND status = 'VISIBLE')
+3. Ändere NICHTS anderes
+4. Verifiziere: grep -n "CREATE POLICY posts_delete_owner" supabase/migrations/0001_init.sql -A3 → zeigt USING (user_id = auth.uid() AND status = 'VISIBLE')
+5. Commit: 'FIX P0.3 R3: posts_delete_owner status-Clamp (DELETE+Re-create Bypass)'
+6. Gib aus: git log --oneline -1

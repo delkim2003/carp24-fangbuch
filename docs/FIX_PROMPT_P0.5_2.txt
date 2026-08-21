@@ -1,0 +1,46 @@
+Fix 2 verifizierte P0.5-Funde in carp24 (Backup-System).
+
+============================================================
+FIX 1 (🟠 DoD-Bruch): .env + Config-Dateien in backup.sh mit aufnehmen
+PROBLEM: backup.sh sichert nur pg_dump + Storage. Die Backup-Passphrase (BACKUP_PASSPHRASE) liegt NUR in infra/.env — bei Totalverlust der Platte ist sie weg → Backup unentschluesselbar. Auch kong.yml + docker-compose.yml fehlen (essentiell fuer Voll-Recovery).
+FIX: In infra/backup.sh NACH dem Storage-Tar (vor Rotation) einen Config-Tar ergaenzen:
+  if [ -f "$SCRIPT_DIR/.env" ] || [ -f "$SCRIPT_DIR/docker-compose.yml" ] || [ -d "$SCRIPT_DIR/volumes/api" ]; then
+    tar -czf "$BACKUP_DIR/config_$DATE.tar.gz" \
+      -C "$SCRIPT_DIR" .env docker-compose.yml \
+      -C "$SCRIPT_DIR/volumes/api" kong.yml 2>> "$LOG" \
+      && echo "[$DATE] Config-Tar OK" >> "$LOG" \
+      || echo "[$DATE] FEHLER: Config-Tar" >> "$LOG"
+  fi
+Dann diesen Tar GENAU WIE die anderen verschluesseln:
+  gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$BACKUP_PASSPHRASE" \
+    -o "$BACKUP_DIR/config_$DATE.tar.gz.gpg" "$BACKUP_DIR/config_$DATE.tar.gz"
+  rm -f "$BACKUP_DIR/config_$DATE.tar.gz"
+In die Offsite-Kopie aufnehmen (config_$DATE.tar.gz.gpg mitkopieren).
+In die Rotation aufnehmen (config_*.tar.gz.gpg wie die anderen, max 7).
+
+============================================================
+FIX 2 (🟠 DoD-Bruch): Kein Cron fuer taeglichen Backup
+PROBLEM: BAUPLAN verlangt 'taeglich', aber es gibt keinen Cron fuer carp24-backup.sh.
+FIX: Cron als Hermes-Cronjob anlegen (täglich 02:30 Uhr, nach dem System-Backup 02:00):
+  NAME: carp24-backup-daily
+  SCHEDULE: 0 2 30 * * *  (bzw. '30 2 * * *' Cron-Syntax)
+  PROMPT: Führe /mnt/projekte/carp24-fangbuch/infra/backup.sh aus. Prüfe danach: (1) exit code 0, (2) neueste .gpg-Datei existiert in infra/backups/, (3) Offsite-Kopie in /mnt/projekte/vault/02_SYSTEM/BACKUPS/carp24/ existiert und gleiche Größe. Melde Ergebnis kompakt (1-3 Zeilen). Bei Fehler: klare Fehlermeldung.
+  DELIVER: origin (Telegram)
+  SCRIPT: /mnt/projekte/carp24-fangbuch/infra/backup.sh (als no_agent Script-Job ODER via Prompt — wähle die robustere Variante: no_agent=True mit backup.sh als Script, damit kein LLM noetig ist; stdout wird geliefert)
+HINWEIS: Falls die Cron-Erstellung nicht via Agent-Tool geht, nutze: hermes cron add --name carp24-backup-daily --schedule "30 2 * * *" --script /mnt/projekte/carp24-fangbuch/infra/backup.sh --no-agent --deliver telegram:Home
+
+============================================================
+ZUSAETZLICH (härten): restore.sh Passphrase-Hinweis
+Pruefe ob restore.sh beim Live-Restore eine Warnung ausgibt, dass .env-Werte (JWT_SECRET etc.) mit den backupierten uebereinstimmen muessen — sonst koennte ein Live-Restore die App brechen (neue Keys ≠ alte DB). Wenn der Hinweis fehlt, ergaenze einen echo-Hinweis im --live-Pfad.
+
+============================================================
+AUFGABE:
+1. Lies infra/backup.sh + infra/restore.sh
+2. Fix 1: Config-Tar + Verschluesselung + Offsite + Rotation in backup.sh ergaenzen (nur an den richtigen Stellen, bestehende Struktur beibehalten)
+3. Fix 2: Hermes-Cron anlegen (via CLI falls Tool blockt)
+4. Verifiziere:
+   - grep -n "config_" infra/backup.sh → Config-Tar + gpg + offsite + rotation
+   - hermes cron list | grep carp24 → Cron existiert
+5. Fuehre backup.sh aus (BACKUP_PASSPHRASE kommt aus .env) → config_*.tar.gz.gpg muss erzeugt werden
+6. Commit: 'FIX P0.5: .env+Config im Backup (Passphrase-Paradox), täglicher Cron carp24-backup-daily'
+7. Gib aus: git log --oneline -1
