@@ -1,0 +1,40 @@
+BAUE SOFORT — KEINE ANALYSE. Feature E3: KI-Angelassistent für carp24 (server-seitig, DSGVO).
+
+## KONTEXT
+LLM-Key (OPENROUTER_API_KEY) setzt der Orchestrator in Env. Du liest NUR aus Env. KEINE Migration nötig (transient, keine Persistenz). KEIN Prompt-Logging (kein console.log mit Prompt/Response). Rate-Limit + Timeout Pflicht. UI-Hinweis "KI-generiert" Pflicht.
+
+## API-ROUTE (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/api/ai/chat.ts
+Astro-Server-Route (POST, prerender=false, Muster /api/stripe/checkout.ts).
+- Auth: Session via Cookies → 401.
+- Body: { message: string } — max 500 Zeichen (sonst 400).
+- Rate-Limit: in-memory Map userId → letzter Request-Timestamp; <10s → 429 { error: "Bitte kurz warten." }.
+- Wenn OPENROUTER_API_KEY fehlt → 503 { error: "KI ist noch nicht konfiguriert." }.
+- Kontext: Lade die letzten 20 eigenen Fänge (Server-Client aus supabase-client.ts, `.eq("user_id", user.id).is("deleted_at", null).order("catch_ts", { ascending: false }).limit(20)`) — kompakt als Kontext-String (Datum, kg, Art, Gewässer).
+- Prompt an OpenRouter (fetch POST https://openrouter.ai/api/v1/chat/completions, Header Authorization Bearer + HTTP-Referer/Title optional):
+  System: "Du bist der CARP24 Angelassistent. Antworte kurz (max 150 Wörter), sachlich, auf Deutsch (oder in der Sprache der Frage). Nutze nur den gegebenen Fang-Kontext — erfinde nichts."
+  User: Kontext + Frage.
+- Model: "deepseek/deepseek-chat-v3-0324" (oder "openrouter/auto") — nimm "deepseek/deepseek-chat-v3-0324", fallback "openrouter/auto".
+- Timeout: AbortController 30s. Bei Fehler → 502 { error: "KI-Dienst nicht erreichbar." }.
+- Response: { answer: string } (content aus choices[0].message.content).
+- KEIN Logging von Prompt/Response. Kommentar: "DSGVO: transiente Verarbeitung, keine Speicherung, kein Logging."
+
+## SEITE (NEU): /mnt/projekte/carp24-fangbuch/web/src/pages/assistent.astro
+- SSR-Auth-Guard. Kicker + H1 "KI-ANGELASSISTENT" (i18n-fähig: data-de/data-en "KI-ANGELASSISTENT"/"AI FISHING ASSISTANT" — nutze das .i18n-Muster).
+- Chat-UI: Nachrichten-Liste (User rechts, KI links), Textarea/Input + SENDEN-Button (min-h-11), Enter sendet.
+- Initial-Systemnachricht (KI-Bubble): "Frag mich nach deinen Fängen — z.B. 'Was war mein größter Fang?'" (data-de/data-en).
+- Beim Senden: fetch POST /api/ai/chat → Antwort als KI-Bubble; bei 503 → Hinweis "KI ist noch nicht konfiguriert."; bei 429 → Hinweis "Bitte kurz warten."
+- Fester Hinweis unter dem Chat: "Antworten werden von einer KI generiert und können Fehler enthalten."
+- Client-Validierung: max 500 Zeichen.
+- KEIN Speichern des Chat-Verlaufs (transient im DOM).
+
+## HEADER (EDIT): web/src/components/Header.astro
+- Nav-Item "Assistent" (i18n de/en) → /assistent/ — vor "Premium".
+
+## VERIFIKATION
+1. cd web && npm run build → exit 0
+2. grep -c 'openrouter' web/src/pages/api/ai/chat.ts → ≥1
+3. grep -c 'chat/completions' web/src/pages/api/ai/chat.ts → ≥1
+4. grep -c 'KI-generiert\|können Fehler enthalten' web/src/pages/assistent.astro → ≥1
+5. KEIN git commit.
+
+AUSGABE kurz auf Deutsch: gebaute Stellen + Build.
