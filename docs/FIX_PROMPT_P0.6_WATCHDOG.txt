@@ -1,0 +1,29 @@
+Ergaenze Backup-Age-Check in infra/monitoring/carp24-watchdog.sh (carp24).
+
+PROBLEM: Der Watchdog prueft Container/RAM/Disk, aber NICHT ob das taegliche Backup (cron carp24-backup-daily, 02:30) wirklich laeuft. Wenn der Backup-Cron stirbt, merkt es niemand.
+
+FIX: In carp24-watchdog.sh NACH dem Disk-Check (vor dem FAILS-Zaehler) ergaenzen:
+
+# 4) Backup-Age (neuestes postgres_*.dump.gpg muss < 26h alt sein)
+LATEST_BACKUP=$(ls -t /mnt/projekte/carp24-fangbuch/infra/backups/postgres_*.dump.gpg 2>/dev/null | head -1)
+if [ -n "$LATEST_BACKUP" ]; then
+  BACKUP_AGE_H=$(( ($(date +%s) - $(stat -c %Y "$LATEST_BACKUP")) / 3600 ))
+  if [ "$BACKUP_AGE_H" -gt 26 ]; then
+    OUT="${OUT}❌ Backup zu alt: ${BACKUP_AGE_H}h (letztes: $(basename "$LATEST_BACKUP"))\n"
+    FAILS=$((FAILS+1))
+  fi
+else
+  OUT="${OUT}❌ KEIN Backup gefunden!\n"
+  FAILS=$((FAILS+1))
+fi
+
+(26h statt 24h Toleranz: Cron laeuft 02:30, Watchdog alle 30 Min → max. ~26h Abstand bis zum naechsten Lauf. Schwelle > 26 = Backup definitiv ausgefallen.)
+
+AUFGABE:
+1. Lies infra/monitoring/carp24-watchdog.sh
+2. Fuege den Backup-Age-Block exakt wie oben ein (nach dem Disk-Check, vor der FAILS-Zusammenfassung)
+3. Aendere NICHTS anderes
+4. Verifiziere: grep -n "Backup-Age\|BACKUP_AGE" infra/monitoring/carp24-watchdog.sh
+5. Test: bash infra/monitoring/carp24-watchdog.sh (muss exit 0 sein, da frisches Backup existiert)
+6. Commit: 'P0.6: Watchdog Backup-Age-Check (DoD: Backup-Ausfall wird erkannt)'
+7. Gib aus: git log --oneline -1

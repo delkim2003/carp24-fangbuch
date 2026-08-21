@@ -1,0 +1,23 @@
+Fix verifizierten DSGVO-Audit-Fund in supabase/migrations/0001_init.sql (carp24, Postgres 17.6).
+
+============================================================
+FIX 1 (🔴 Trigger bricht ab): forum_posts.body NOT NULL
+PROBLEM: forum_posts.body ist NOT NULL (CREATE TABLE ~Z.170), aber soft_delete_cascade setzt body = NULL (~Z.375). Beim Kontolöschen wirft der Trigger eine NOT NULL-Verletzung → die GESAMTE Anonymisierungskaskade bricht ab (alle anderen Tabellen bleiben unanonymisiert!).
+AKTUELL:
+  UPDATE public.forum_posts SET body = NULL WHERE user_id = NEW.id;
+FIX:
+  UPDATE public.forum_posts SET body = 'gelöschter Nutzer' WHERE user_id = NEW.id;
+(analog zu chat_messages/marketplace_messages — NOT NULL-Spalten bekommen Platzhalter, nicht NULL)
+
+============================================================
+PRÜFE ZUSAETZLICH (nur wenn nötig ändern):
+1. forum_topics: title ist NOT NULL — setzt der Trigger title = 'gelöschter Nutzer' (Platzhalter)? Wenn ja: OK. body ist nullable (kein NOT NULL) — NULL ok.
+2. Prüfe ALLE anderen UPDATEs im Trigger auf NOT NULL-Spalten-Kollisionen (wie bei catches.notes? forum_topics.body? marketplace_listings.description?). Liste jede Spalte die NULL bekommt und prüfe ob sie NOT NULL ist.
+
+============================================================
+VERIFIZIERE:
+1. grep -n "forum_posts SET body" supabase/migrations/0001_init.sql → zeigt 'gelöschter Nutzer'
+2. Führe die Migration aus: docker exec -i supabase-db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < supabase/migrations/0001_init.sql → keine Fehler
+3. Führe die pgTAP-Suite aus: docker exec -i supabase-db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < tests/pgtap/0001_rls_tests.sql → 34/34 grün (C4a-c deckt soft_delete ab)
+4. Commit: 'FIX P0.7 DSGVO-AUDIT: forum_posts.body NOT NULL (Trigger brach Kaskade)'
+5. Gib aus: git log --oneline -1
