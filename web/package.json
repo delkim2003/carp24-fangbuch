@@ -23,7 +23,8 @@
     "dompurify": "^3.4.14",
     "leaflet": "^1.9.4",
     "stripe": "^22.5.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "^8.67.0",

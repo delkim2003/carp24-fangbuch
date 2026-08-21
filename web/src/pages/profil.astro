@@ -86,7 +86,7 @@ if (createdAt) {
 ---
 
 <Layout title="Carp24 – Profil" active="profil" noindex>
-  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl" data-vapid-key={import.meta.env.VAPID_PUBLIC_KEY || ""}>
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("profil.titel", "de")} data-en={t("profil.titel", "en")}>{t("profil.titel")}</h1>
@@ -159,13 +159,19 @@ if (createdAt) {
                       <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
                     </label>
                   </div>
-                  <div class="flex justify-between items-center">
-                    <p class="text-body-md text-on-surface i18n" data-de={t("profil.push", "de")} data-en={t("profil.push", "en")}>{t("profil.push")}</p>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" class="sr-only peer" checked />
-                      <span class="w-12 h-6 bg-surface-container-highest border border-primary/40 rounded-full peer-checked:bg-primary-container transition-colors"></span>
-                      <span class="absolute left-1 top-1 w-4 h-4 bg-surface-container-lowest rounded-full transition-transform peer-checked:translate-x-6"></span>
-                    </label>
+                </div>
+
+                <div class="py-6 flex flex-col gap-4" id="push-section">
+                  <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-2">PUSH-BENACHRICHTIGUNGEN</h3>
+                  <p id="push-vapid-hint" class="hidden text-body-md text-on-surface-variant">Push ist noch nicht konfiguriert.</p>
+                  <p id="push-status" class="text-body-md text-on-surface-variant"></p>
+                  <div class="flex flex-wrap gap-3">
+                    <button type="button" id="push-subscribe-btn" class="hidden bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors">
+                      BENACHRICHTIGUNGEN AKTIVIEREN
+                    </button>
+                    <button type="button" id="push-test-btn" class="hidden border border-primary/40 text-primary font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-primary hover:text-white transition-colors">
+                      TEST-BENACHRICHTIGUNG SENDEN
+                    </button>
                   </div>
                 </div>
 
@@ -780,6 +786,97 @@ logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
   window.location.href = "/login";
 });
+
+// --- Push Notifications ---
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+const pushVapidKey = document.querySelector("main")?.getAttribute("data-vapid-key") || "";
+const pushVapidHint = document.getElementById("push-vapid-hint")!;
+const pushStatus = document.getElementById("push-status")!;
+const pushSubscribeBtn = document.getElementById("push-subscribe-btn") as HTMLButtonElement;
+const pushTestBtn = document.getElementById("push-test-btn") as HTMLButtonElement;
+
+if (!pushVapidKey) {
+  pushVapidHint.classList.remove("hidden");
+  pushSubscribeBtn.classList.add("hidden");
+  pushTestBtn.classList.add("hidden");
+} else {
+  pushSubscribeBtn.classList.remove("hidden");
+
+  if ("serviceWorker" in navigator && "PushManager" in window) {
+    navigator.serviceWorker.getRegistration("/sw.js").then((reg) => {
+      if (reg) {
+        reg.pushManager.getSubscription().then((sub) => {
+          if (sub) {
+            pushStatus.textContent = "Push aktiv \u2705";
+            pushSubscribeBtn.classList.add("hidden");
+            pushTestBtn.classList.remove("hidden");
+          }
+        });
+      }
+    });
+  }
+
+  pushSubscribeBtn.addEventListener("click", async () => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      pushStatus.textContent = "Push wird nicht unterst\u00fctzt.";
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      pushStatus.textContent = "Berechtigung verweigert.";
+      return;
+    }
+
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.ready;
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(pushVapidKey),
+    });
+
+    const json = sub.toJSON();
+    const res = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: sub.endpoint, keys: json.keys }),
+    });
+
+    if (res.ok) {
+      pushStatus.textContent = "Push aktiv \u2705";
+      pushSubscribeBtn.classList.add("hidden");
+      pushTestBtn.classList.remove("hidden");
+    } else {
+      pushStatus.textContent = "Fehler beim Aktivieren.";
+    }
+  });
+
+  pushTestBtn.addEventListener("click", async () => {
+    pushTestBtn.disabled = true;
+    pushTestBtn.textContent = "WIRD GESENDET\u2026";
+    try {
+      const res = await fetch("/api/push/send", { method: "POST" });
+      if (res.ok) {
+        pushStatus.textContent = "Test gesendet \u2705";
+      } else {
+        pushStatus.textContent = "Fehler beim Senden.";
+      }
+    } catch {
+      pushStatus.textContent = "Netzwerkfehler.";
+    }
+    pushTestBtn.disabled = false;
+    pushTestBtn.textContent = "TEST-BENACHRICHTIGUNG SENDEN";
+  });
+}
 
 loadMfaStatus();
 loadSessions();
