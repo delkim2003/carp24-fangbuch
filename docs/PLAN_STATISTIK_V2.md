@@ -110,7 +110,7 @@ REVOKE/GRANT für stats_conditions/stats_drilldown/stats_beste_kombis (wiederhol
 - D3 Kombis: nur 2er in v1.
 - D4 Wasser-Buckets: 5 (`<10/10-15/15-20/20-25/>=25`).
 - D5 Naming: OHNE Space; Bestand fixen.
-- D6 **Paywall (R3 B2 — OFFEN, Philipp entscheidet):** Empfehlung: Basis-Statistik (Bedingungen/Drilldown/Kombis) gratis, **Insights-Karten als Pro-Feature** (konsistent mit premium.stats „ERWEITERTE STATISTIK" → umbenennen „INSIGHTS & TRENDS"); Gating im Frontend (is_pro-Check) + optional Backend. Alternativ: alles gratis + Premium-Seite anpassen. **50-Fänge-Limit greift in Statistik bewusst NICHT (Upgrade-Magnet — dokumentieren).**
+- D6 **Paywall — ENTSCHIEDEN (24.08., Philipp: „Mischung Free/Pro, Sweet Spot zum Kaufen"):** FREE = Erfassen (inkl. automatischer Wetterdaten-Erfassung — Datengrundlage muss frei sein), Fangbuch, Basis-Statistik (Zeitraum, Bedingungen, Drilldown, Beste Kombinationen), 50-Fänge-Limit. **PRO = die 5 Wetter-Insights-Karten** (beste_fangzeit/wetterlage/wassertemp/lufttemp/koeder_kombi) — Free-User sehen sie als **verblasste Vorschau mit Premium-Lock + Upgrade-CTA** zur Premium-Seite. Gating im Frontend (profiles.is_pro; kein Daten-Leak, da nur eigene Fänge). Premium-Seite: „ERWEITERTE STATISTIK" → **„INSIGHTS & TRENDS"** (Beschreibung: Wetter-Muster-Erkennung). 50-Fänge-Limit greift in Basis-Statistik bewusst NICHT (Upgrade-Magnet).
 - D7 Zeitzone: Europe/Vienna (Uhrzeit + Tagesgrenzen).
 - Zeitzonen-/NULL-/Monats-/Zeitraum-Fixes gelten für ALLE Funktionen + Helper (R3 A3).
 
