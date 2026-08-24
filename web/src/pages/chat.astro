@@ -77,13 +77,13 @@ const userId = session.user.id;
         data-i18n-placeholder-de={t("chat.nachricht", "de")}
         data-i18n-placeholder-en={t("chat.nachricht", "en")}
         placeholder={t("chat.nachricht")}
-        class="flex-1 bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+        class="flex-1 bg-surface/50 rounded-full border border-primary/40 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
         autocomplete="off"
       />
       <button
         id="chat-send"
         type="button"
-        class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n"
+        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n"
         data-de={t("chat.senden", "de")}
         data-en={t("chat.senden", "en")}
       >
@@ -144,13 +144,13 @@ const userId = session.user.id;
     wrapper.setAttribute('data-msg-id', msg.id);
 
     var bubble = document.createElement('div');
-    bubble.className = 'max-w-[80%] rounded-xl px-4 py-3 text-body-md ' +
+    bubble.className = 'max-w-[80%] rounded-xl px-4 py-3 text-body-md shadow-sm ' +
       (isOwn
-        ? 'bg-primary-container text-on-primary-container'
-        : 'bg-surface-container-lowest text-on-surface');
+        ? 'bg-primary-container text-on-primary-container rounded-tr-sm'
+        : 'bg-surface-container-lowest text-on-surface rounded-tl-sm');
 
     var nameSpan = document.createElement('span');
-    nameSpan.className = 'font-label-sm text-label-sm uppercase tracking-widest text-secondary block mb-1';
+    nameSpan.className = 'font-mono text-[11px] uppercase text-primary block mb-1';
     nameSpan.textContent = displayName;
 
     var bodySpan = document.createElement('span');
