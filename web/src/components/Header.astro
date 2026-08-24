@@ -54,10 +54,10 @@ const navItems = [
       <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
         Anmelden
       </a>
-      <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
+      <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" style="display:none" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
         Abmelden
       </button>
-      <a href="/profil" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
+      <a href="/profil" style="display:none" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
       </a>
       <button id="theme-toggle" type="button" data-de="Thema" data-en="Theme" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">THEMA</button>
@@ -95,7 +95,7 @@ const navItems = [
       <button id="mobile-logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
         Abmelden
       </button>
-      <a href="/profil" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
+      <a href="/profil" data-de="Profil" data-en="Profile" style="display:none" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
         Profil
       </a>
       <a id="admin-link-mobile" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">ADMIN</a>
@@ -177,20 +177,20 @@ const navItems = [
         }
       });
       document.querySelectorAll('a[href="/profil"]').forEach(function (el) {
-        el.classList.toggle('hidden', !isLoggedIn);
+        el.style.display = isLoggedIn ? '' : 'none';
       });
 
       if (isLoggedIn) {
-        if (authLink) authLink.classList.add('hidden');
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
+        if (authLink) authLink.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = '';
         if (mobileAuthLink) mobileAuthLink.classList.add('hidden');
         if (mobileLogoutBtn) {
           mobileLogoutBtn.classList.remove('hidden');
           mobileLogoutBtn.classList.add('flex');
         }
       } else {
-        if (authLink) authLink.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.add('hidden');
+        if (authLink) authLink.style.display = '';
+        if (logoutBtn) logoutBtn.style.display = 'none';
         if (mobileAuthLink) mobileAuthLink.classList.remove('hidden');
         if (mobileLogoutBtn) {
           mobileLogoutBtn.classList.add('hidden');
