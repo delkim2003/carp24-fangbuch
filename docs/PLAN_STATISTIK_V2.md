@@ -1,8 +1,8 @@
 # PLAN STATISTIK-STUDIO v2 (Backend + Frontend)
 
-**Stand:** 24.08.2026 | **Status:** v2 — wartet auf Experten-Audit Runde 2 (Runde 1 lief gegen v1)
-**Ziel (Philipp-Vision):** Nutzer baut sich Statistiken selbst: Zeitraum (von–bis), frei kombinierbare Bedingungen, Wetterdaten als Kern. Das System erkennt automatisch, welche Zeiten bei welchem Wetter ideal sind („aussagekräftige Statistik").
-**v2-Änderung (24.08.):** **Wassertemperatur als User-Eingabe-Feld** (extrem wichtig fürs Studio) — neues Feld im Fang erfassen, Anzeige im Fang-Detail, eigene Dimension im Statistik-Studio. Abgrenzung: Lufttemperatur (`temp_c`) kommt automatisch von Open-Meteo; **Wassertemperatur (`water_temp_c`) ist eine manuelle Angabe des Users** (optional, wird am Wasser gemessen).
+**Stand:** 24.08.2026 | **Status:** v3 — Runde-1-Funde (24) eingearbeitet; wartet auf Experten-Audit Runde 2
+**Ziel (Philipp-Vision):** Nutzer baut sich Statistiken selbst: Zeitraum (von–bis), frei kombinierbare Bedingungen, Wetterdaten als Kern (Lufttemperatur automatisch + Wassertemperatur als User-Eingabe). Das System erkennt automatisch, welche Zeiten bei welchem Wetter ideal sind.
+**v3-Änderung:** Alle 24 Runde-1-Funde (3× AENDERN, 92–95%) eingearbeitet — inkl. Fixes im BESTEHENDEN Code (Zeitzone, NULL-Buckets, Monats-Sortierung, Cast-Exceptions, Bucket-Naming), da 0032 die 3 RPCs via CREATE OR REPLACE neu schreibt.
 
 ---
 
@@ -10,121 +10,141 @@
 
 | Datei | Inhalt |
 |---|---|
-| `supabase/migrations/0009_stats_bedingungs_api.sql` | 3 RPCs: `stats_conditions(p_filters jsonb)`, `stats_drilldown(p_filters jsonb)`, `stats_beste_kombis(p_filters jsonb, p_limit int)`. Alle SECURITY DEFINER, `search_path=''`, `auth.uid()`-Check, statisches SQL (Injection-Fix 20.08.) |
-| Filter (in allen 3 RPCs identisch dupliziert) | `mond`, `druck_bucket` (<1005 / 1005-1015 / >=1015), `wind_bucket` (<5 / 5-10 / 10-20 / 20+), `wetter` (ILIKE), `gewaesser` (ILIKE), `art` (species/species_custom), `koeder` (ILIKE), `monat` (1-12), `uhrzeit_bucket` (0-6/6-12/12-18/18-24), `jahr`, **`zeitraum` {von, bis} — existiert bereits** |
-| `stats_conditions`-Output | `total` {fangzahl, avg_gewicht, max_gewicht, sum_gewicht} + `buckets` {mond, druck, wind, wetter, gewaesser, uhrzeit, monat, art, koeder} — **ohne Temperatur-Dimensionen** |
-| `stats_beste_kombis` | Nur 6 feste 2er-Kombis: mond+druck, mond+wetter, mond+koeder, druck+wetter, druck+koeder, wetter+koeder. HAVING count >= 2. **Ohne Uhrzeit/Wind/Temperatur** |
-| `supabase/migrations/0001_init.sql` | `catches`: `weather jsonb` (temp_c, pressure_hpa, wind_kmh, weather_text, moon_text), `catch_ts timestamptz`, `species`, `species_custom`, `water_name`, `bait`, `weight_kg`, `length_cm`, `draft`, `deleted_at`. Indizes: `(user_id, catch_ts DESC)`, `(user_id, draft, deleted_at)`. **Kein water_temp_c-Feld** |
-| `web/src/pages/statistik.astro` | Nutzt die 3 RPCs. **Keine Zeitraum-UI, keine Temperatur-Dimensionen, keine Insights-Karten.** Chips für WIND/WETTER etc. teils eingeklappt |
-| `web/src/pages/fang-erfassen.astro` | Formular mit Gewicht/Länge/Fischart/Datum/Uhrzeit/Köder/Methode/Gewässer/GPS/Foto/Notizen/C&R/Öffentlich/Trip. **Kein Wassertemperatur-Feld** |
-| `web/src/pages/faenge/[id].astro` | Fang-Detail mit WETTER-SNAPSHOT (TEMPERATUR/LUFTDRUCK/WIND/MOND aus weather-jsonb). **Keine Wassertemperatur-Anzeige** |
-| `tests/pgtap/0001_rls_tests.sql` | pgTAP-Basis vorhanden |
+| `supabase/migrations/0009_stats_bedingungs_api.sql` | 3 RPCs: `stats_conditions(p_filters jsonb)`, `stats_drilldown(p_filters jsonb)`, `stats_beste_kombis(p_filters jsonb, p_limit int)`. SECURITY DEFINER, `search_path=''`, `auth.uid()`-Check, statisches SQL. **Bekannte Bugs (R1):** Uhrzeit-Buckets in UTC statt Europe/Vienna; NULL-Wetter → Wind `20+`/Druck `1005-1015`; `to_char(catch_ts,'TMMon')` locale-abhängig + Sortierung kaputt; `monat::int`/`jahr::int`/`zeitraum::timestamptz`-Casts werfen Exceptions bei Müll (DoS); `_to_bucket_druck` definiert aber nie aufgerufen; Bucket-Naming inkonsistent (`>= 1015` vs `20+` vs `'1015+'`-Alias); Zeitraum `T23:59:59Z` schließt sub-second aus |
+| `supabase/migrations/0010_harden_function_grants.sql` | REVOKE EXECUTE von PUBLIC/anon + GRANT an authenticated für 7 Funktionen. **Achtung:** `CREATE OR REPLACE` in 0032 resetet ACLs auf DEFAULT → Grants müssen in 0032 WIEDERHOLT werden |
+| `0001_init.sql` | `catches`: `weather jsonb` (temp_c, pressure_hpa, wind_kmh, weather_text, moon_text), `catch_ts timestamptz`, `weight_kg`, `length_cm`, `water_name`, `bait`, `species`, `species_custom`, `draft`, `deleted_at`. Indizes: `(user_id, catch_ts DESC)`, Partial `(user_id, draft, deleted_at) WHERE draft=false AND deleted_at IS NULL`. **Kein `water_temp_c`** |
+| `web/src/pages/statistik.astro` | 3 RPCs (SSR + Client). **Blockers (R1):** `buildFilters(): Record<string,string>` kann kein `zeitraum`-Objekt; `state` ohne zeitraum-Key; `set:html` für initial-conditions-data (XSS-Risiko); SSR lädt keine Insights; kein Debounce |
+| `web/src/pages/fang-erfassen.astro` | Kein Wassertemperatur-Feld |
+| `web/src/pages/faenge/[id].astro` | WETTER-SNAPSHOT ohne Wassertemperatur-Zeile |
+| `tests/pgtap/0001_rls_tests.sql` | Basis vorhanden (Muster `has_function_privilege` existiert) |
 
-## 2. Lücken (aus Philipps Vision abgeleitet)
+## 2. Lücken (aus Philipps Vision + R1)
 
-1. **Wassertemperatur als User-Eingabe** — NEU: Feld `water_temp_c` in Fang erfassen (optional), Speicherung auf catches, Anzeige im Fang-Detail.
-2. **Wassertemperatur als Studio-Dimension** — Filter-Bucket + Aggregation + Insight „beste Wassertemperatur".
-3. **Lufttemperatur als Dimension** (optional, automatisch via Open-Meteo `temp_c`).
-4. **Wetter-Insights** („welche Zeiten bei welchem Wetter ideal") — neue Auswertung: Uhrzeit × Wetterlage × Temperatur → Top-Muster mit Fangzahl, Ø Gewicht UND Kontext (Abweichung vom Gesamt-Ø im gewählten Zeitraum).
-5. **Zeitraum-UI** — Backend-Filter existiert, Frontend hat keine VON/BIS-Eingabe.
-6. **Kombi-Erweiterung** — `stats_beste_kombis` soll auch Uhrzeit/Wind/Temperatur-Kombinationen finden.
-7. **Code-Duplikation** — Filter-Logik 3× kopiert; jede Änderung (z.B. neuer Bucket) muss an 3+ Stellen.
+1. **Wassertemperatur als User-Eingabe** — Feld in Fang erfassen (`water_temp_c`), Anzeige im Fang-Detail, eigene Studio-Dimension.
+2. **Lufttemperatur als Studio-Dimension** (automatisch via Open-Meteo `temp_c`).
+3. **Wetter-Insights** (beste Fangzeit/Wetterlage/Wasser-Temp/Luft-Temp) mit Kontext (differenz_pct + Stichproben-Hinweis), ohne 'Unbekannt'-Bucket.
+4. **Zeitraum-UI** (Backend-Filter existiert, Frontend fehlt).
+5. **Kombi-Erweiterung** (Uhrzeit/Wind/Temperatur).
+6. **Bestands-Bugs fixen** (Zeitzone, NULL, Monatsnamen, Cast-DoS, Bucket-Naming) — via CREATE OR REPLACE in 0032.
+7. **Code-Duplikation** — Filter-Logik 4× dupliziert → DRY-Helper.
 
 ## 3. Geplante Änderungen
 
-### Backend (neue Migration `0032_stats_v2.sql`)
+### Backend (Migration `0032_stats_v2.sql`)
 
 **B.0 Wassertemperatur-Feld**
-`ALTER TABLE public.catches ADD COLUMN water_temp_c numeric;` (nullable, optional, keine CHECK-Beschränkung nötig — Client validiert 0-40). Kein Backfill: alte Fänge haben NULL → Bucket `Unbekannt`.
+`ALTER TABLE public.catches ADD COLUMN water_temp_c numeric;` (nullable, optional, Client-Validierung 0–40). Kein Backfill — alte Fänge NULL → `Unbekannt`.
 
-**B.1 Bucket-Helper (2 neue, IMMUTABLE, analog `_to_bucket_druck`)**
-- `public._to_bucket_lufttemp(p_val numeric) → text`: `<5`, `5-10`, `10-15`, `15-20`, `>=20`, NULL → `Unbekannt`.
-- `public._to_bucket_wassertemp(p_val numeric) → text` (Karpfen-relevante Gewässertemperaturen): `<10`, `10-15`, `15-20`, `20-25`, `>=25`, NULL → `Unbekannt`.
+**B.1 Bucket-Helper (IMMUTABLE, konsistentes Naming OHNE Space)**
+- `_to_bucket_lufttemp(numeric) → text`: `<5`, `5-10`, `10-15`, `15-20`, `>=20`; NULL → `Unbekannt`.
+- `_to_bucket_wassertemp(numeric) → text`: `<10`, `10-15`, `15-20`, `20-25`, `>=25`; NULL → `Unbekannt`.
+- Beide mit **Exception-Guard**: `EXCEPTION WHEN others THEN RETURN 'Fehlerhaft'` (nicht-numerische Strings crashen sonst — R1 B9).
+- **Grants:** Beide Helper bekommen `REVOKE EXECUTE FROM PUBLIC, anon, authenticated` (nur Owner; Defense-in-Depth — R1 C-F2).
+- **Bestandsfix:** `_to_bucket_druck` auf `>=1015` (ohne Space) korrigieren und in den RPCs WIRKLICH aufrufen (R1 A3/B6), `'1015+'`-Alias entfernen. Neu: `_to_bucket_wind` (NULL → `Unbekannt`) — ersetzt inline CASE (R1 B7).
 
-**B.2 Filter-Logik erweitern (in allen 3 RPCs + neue Insights-Funktion)**
-- Neuer Filter `lufttemp_bucket`: `_to_bucket_lufttemp((weather->>'temp_c')::numeric)` = Wert.
-- Neuer Filter `wasser_temp_bucket`: `_to_bucket_wassertemp(c.water_temp_c)` = Wert.
-- `zeitraum` bleibt wie ist (von-Tag 00:00:00Z bis bis-Tag 23:59:59Z).
+**B.2 DRY-Helper `_stats_filtered(p_filters jsonb) RETURNS SETOF catches` (R1 A4/D1)**
+- SECURITY DEFINER + `SET search_path=''` + eigener `auth.uid()`-Check + `WHERE c.user_id = v_uid AND deleted_at IS NULL AND draft = false`.
+- Zentrale Filter-Logik (ALLE Dimensionen + zeitraum), wird von den 4 RPCs genutzt. **Security-Regeln:** KEIN EXECUTE für authenticated/anon/PUBLIC (nur interne Aufrufe); eigener auth.uid()-Check; search_path=''.
+- Alle Filter mit **Input-Validierung**: `monat`/`jahr` nur bei numerischem Wert (`~ '^[0-9]+$'`), `zeitraum.von/bis` nur bei ISO-Datum (`~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`) — sonst Filter ignorieren statt Exception (R1 C-F3/F4, DoS-Fix).
 
-**B.3 `stats_conditions` um beide Temperatur-Dimensionen erweitern**
-- `bucket_rows`: neue Spalten `lufttemp` und `wassertemp` via Helper.
-- `lufttemp_agg`, `wassertemp_agg`: `jsonb_object_agg` wie die anderen Dimensionen.
-- Output `buckets` + `lufttemp` + `wassertemp`.
+**B.3 Zeitzonen- und NULL-Fixes (Bestand, R1 B1/B2) — gelten für ALLE Funktionen**
+- Uhrzeit-Buckets: `EXTRACT(HOUR FROM c.catch_ts AT TIME ZONE 'Europe/Vienna')` (R1 B1).
+- Wind/Druck/Wetter: NULL-Check VOR CASE → `Unbekannt` statt `20+`/`1005-1015` (R1 B2).
+- Monat: `EXTRACT(MONTH FROM c.catch_ts)` numerisch (1–12) statt `to_char('TMMon')`; Frontend mappt via monthNamesDE (R1 B3).
+- Zeitraum: Obergrenze `bis-Tag + INTERVAL '1 day'` statt `T23:59:59Z` (sub-second-sicher); Semantik: Filter arbeitet auf Tagesgrenzen des USERS — Frontend sendet reine `YYYY-MM-DD`, Backend interpretiert als `AT TIME ZONE 'Europe/Vienna'` (R1 A5).
 
-**B.4 Neue Funktion `stats_insights(p_filters jsonb) → jsonb`**
-Automatische Muster-Erkennung über die gefilterte Menge (statische Aggregation, KEIN ML):
-- `beste_fangzeit`: Uhrzeit-Bucket mit höchstem Ø-Gewicht (min. 2 Fänge) + Kontext {fangzahl, avg_gewicht, avg_gesamt, differenz_kg, differenz_pct}.
-- `beste_wetterlage`: Wetterlage (`weather_text`) mit höchstem Ø-Gewicht + Kontext.
-- `beste_wassertemperatur`: Wassertemperatur-Bucket mit höchstem Ø-Gewicht + Kontext (Philipp: „extrem wichtig fürs Studio").
-- `beste_lufttemperatur`: Lufttemperatur-Bucket mit höchstem Ø-Gewicht + Kontext (optional, nur wenn Daten vorhanden).
-- Kontext: `avg_gesamt` = Ø Gewicht der gesamten gefilterten Menge; `differenz_pct` = (bucket_avg - avg_gesamt) / avg_gesamt * 100 (gerundet, nur wenn avg_gesamt > 0).
-- Mindest-Fangzahl pro Insight: 2 (sonst `null` + `hinweis`-Text, z.B. „Zu wenige Fänge für belastbare Aussage").
+**B.4 `stats_conditions` um beide Temperatur-Dimensionen erweitern**
+- `bucket_rows`: `lufttemp` (aus `_to_bucket_lufttemp((weather->>'temp_c')::numeric)` mit Guard) + `wassertemp` (aus `_to_bucket_wassertemp(c.water_temp_c)`).
+- Output `buckets` + `lufttemp` + `wassertemp`. Filter `lufttemp_bucket`, `wasser_temp_bucket` UND-korrekt.
 
-**B.5 `stats_beste_kombis` erweitern**
-Zusätzliche 2er-Kombis aufnehmen: uhrzeit+wetter, uhrzeit+wassertemp, wetter+wassertemp, wetter+lufttemp, wind+wetter, wind+wassertemp, wassertemp+lufttemp (fest verdrahtet, statisch, keine SQL-Injection). Optional 3er-Kombi uhrzeit+wetter+wassertemp. Reihenfolge weiter nach avg_gewicht DESC, HAVING >= 2.
+**B.5 Neue Funktion `stats_insights(p_filters jsonb) → jsonb`**
+- `beste_fangzeit`, `beste_wetterlage`, `beste_wassertemperatur`, `beste_lufttemperatur` — jeweils Bucket mit höchstem Ø-Gewicht + Kontext {fangzahl, avg_gewicht, avg_gesamt, differenz_kg, differenz_pct, stichproben_hinweis}.
+- **'Unbekannt'-Bucket von der Auswahl AUSSCHLIESSEN** (nur wenn ALLE Fänge unbekannt → hinweis „Keine Wetterdaten") (R1 B4).
+- **Mindest-Fangzahl: >= 3** für Insights (Einzel-Dimensionen), Kombis bleiben >= 2 (R1 A7). **stichproben_hinweis** bei < 5 Fängen im besten Bucket („nur 2 Fänge — wenig Aussagekraft") (R1 B5).
+- `avg_gesamt IS NULL` (0 Fänge) → alle Insights null + hinweis „Keine Fänge im gewählten Zeitraum" (R1 B8).
+- **Grants:** `REVOKE EXECUTE FROM PUBLIC, anon` + `GRANT EXECUTE TO authenticated` (R1 A1/C-F1).
 
-**B.6 Indizes (Performance)**
-Prüfen + ergänzen: `catches(user_id, catch_ts)` existiert. Für Wasser-Temp-Filter reicht der bestehende Index (Filter auf user_id + bucket-Cast pro Zeile; bei kleinen Datenmengen kein eigener Index nötig). Nur wenn Query-Plan es zeigt: Expression-Index auf `(user_id, water_temp_c)` — nicht voreilig.
+**B.6 `stats_beste_kombis` erweitern**
+- Zusätzliche 2er-Kombis: uhrzeit+wetter, uhrzeit+wassertemp, wetter+wassertemp, wetter+lufttemp, wind+wetter, wind+wassertemp, wassertemp+lufttemp (statisch). 3er-Kombi uhrzeit+wetter+wassertemp: **zurückgestellt** (dünne Daten; später).
+- Nutzt `_stats_filtered` + neue Bucket-Helper (kein NULL-Infekt, R1 B7).
+
+**B.7 Grants-Sektion am ENDE von 0032 (R1 A1 — BLOKKER)**
+Nach allen CREATE OR REPLACE: REVOKE/GRANT für die 3 geänderten RPCs WIEDERHOLEN (analog 0010) + stats_insights + Helper (REVOKE für Helper). Sonst sind alle Funktionen nach CREATE OR REPLACE für PUBLIC+anon aufrufbar.
+
+**B.8 Indizes:** Bestehende reichen (< 10k/User); kein GIN/Expression-Index (R1 A8). Optional Composite `(user_id, draft, deleted_at, catch_ts DESC)` nur bei Scale-Bedarf.
 
 ### Frontend
 
-**F.1 Fang erfassen (`web/src/pages/fang-erfassen.astro`)**
-Neues optionales Feld **WASSERTEMPERATUR (°C)** — Platzhalter z.B. `18.5`, input type number (step 0.1, min 0, max 40), im Formular bei den Fangdaten (linke Spalte, unter LÄNGE oder als eigene Zeile vor FISCHART). Wird als `water_temp_c` gespeichert. Hinweis-Text: „Wassertemperatur am Gewässer (optional)".
+**F.1 Fang erfassen (`fang-erfassen.astro`)** — Feld **WASSERTEMPERATUR (°C)** (optional, type number, step 0.1, min 0, max 40, Platzhalter `18.5`, Hinweis „Wassertemperatur am Gewässer"), speichert `water_temp_c`.
 
-**F.2 Fang-Detail (`web/src/pages/faenge/[id].astro`)**
-Im WETTER-SNAPSHOT zusätzliche Zeile **WASSERTEMPERATUR** (`water_temp_c` + „ °C", sonst „—"). Eigener Block, deutlich getrennt von der automatischen Lufttemperatur.
+**F.2 Fang-Detail (`faenge/[id].astro`)** — WETTER-SNAPSHOT + Zeile **WASSERTEMPERATUR** (`water_temp_c` + °C, sonst „—").
 
-**F.3 Statistik (`web/src/pages/statistik.astro`)**
-- **Zeitraum-Leiste**: zwei Datumsfelder VON / BIS (Default: letzte 12 Monate) + Button ANWENDEN + ZURÜCKSETZEN setzt auch Zeitraum zurück. `buildFilters()` um `zeitraum: {von, bis}` erweitern.
-- **Wassertemperatur-Dimension**: Filterzeile WASSERTEMP mit 5 Buckets (<10 / 10-15 / 15-20 / 20-25 / >=25, Chips mit Fangzahl).
-- **Lufttemperatur-Dimension**: Filterzeile LUFTTEMP (5 Buckets) — optional, wenn Daten vorhanden.
-- **Wetter-Insights-Karten**: 4 Karten (BESTE FANGZEIT / BESTE WETTERLAGE / BESTE WASSERTEMPERATUR / BESTE LUFTTEMPERATUR) mit Wert, Subzeile, Badge (Fänge, Ø) + Kontext (z.B. „+24% über Schnitt"). Daten aus `stats_insights`.
-- Alle Dimensionen offen anzeigen (keine Einklapp-Funktion).
+**F.3 Statistik (`statistik.astro`)**
+- **Zeitraum-Leiste** VON/BIS/ANWENDEN/ZURÜCKSETZEN. **Fix (R1 C-F5/F6):** `state` um `zeitraum_von`/`zeitraum_bis` erweitern; `buildFilters()` auf `Record<string, any>` und `zeitraum: {von, bis}` setzen (nur wenn beide gesetzt).
+- **Datums-Handling (R1 C-F7):** Wert direkt aus `<input type="date">.value` (YYYY-MM-DD) ohne JS-Date-TZ-Konvertierung nehmen.
+- **WASSERTEMP-Dimension** (5 Buckets) + **LUFTTEMP-Dimension** (5 Buckets), alle Zeilen offen.
+- **4 Insight-Karten** inkl. Kontext-Badge (differenz_pct, stichproben_hinweis) aus `stats_insights`.
+- **SSR:** 4. RPC `stats_insights` in initial load (R1 C-F9).
+- **XSS-Fix (R1 C-F11):** `set:html` für initial-conditions-data → `set:text` bzw. `JSON.parse(textContent)`.
+- **Debounce 200ms** auf Filterwechsel (R1 C-F8).
+- Bucket-Labels im Frontend-Mapping an neue Naming-Konvention angleichen (kein Space: `>=1015` etc., R1 B6).
 
-### Tests
+### Tests (`tests/pgtap/0002_stats_v2_tests.sql`)
 
-**T.1 pgTAP (`tests/pgtap/0002_stats_v2_tests.sql`)**
-- `_to_bucket_wassertemp` / `_to_bucket_lufttemp`: Grenzwerte (9.9 → <10, 10 → 10-15, 24.9 → 20-25, 25 → >=25, NULL → Unbekannt; analog lufttemp).
-- `stats_conditions` mit `wasser_temp_bucket`-Filter: nur passende Fänge; `buckets->wassertemp` enthält alle Buckets mit korrekten Fangzahlen.
-- `stats_insights`: mit Seed-Daten — beste_fangzeit/beste_wetterlage/beste_wassertemperatur korrekt + Kontext (differenz_pct Vorzeichen); Mindest-Fangzahl-Regel (1 Fang → null + Hinweis); NULL-Wassertemperatur-Fänge fließen in `Unbekannt`, nicht in Insights.
-- `stats_beste_kombis` mit wassertemp/uhrzeit-Kombis: Ergebnis enthält neue Kombinationen; HAVING >= 2 respektiert.
-- Zeitraum-Filter: Fänge außerhalb von/bis werden ausgeschlossen (Grenz-Tag inklusive).
+**T.1 Backend**
+- Bucket-Helper: Grenzwerte (Luft: 4.9→<5, 5→5-10, 19.9→15-20, 20→>=20; Wasser: 9.9→<10, 10→10-15, 24.9→20-25, 25→>=25), NULL→Unbekannt, **nicht-numerisch→Fehlerhaft** (R1 B9).
+- `stats_conditions`: temp-Filter UND-korrekt; `buckets.lufttemp/wassertemp` korrekt; **weather=NULL → Wind/Druck/Temp = Unbekannt** (R1 B2).
+- **Zeitzonen-Test:** Session UTC, Fang 06:00 Europe/Vienna → Bucket 6-12 (R1 B1).
+- Monats-Bucket numerisch 1-12, chronologisch sortiert (R1 B3).
+- `stats_insights`: Seed-Daten, Kontext-Vorzeichen, **'Unbekannt' ausgeschlossen**, Mindestgrenze (1 Fang → null+Hinweis, 2 Fänge → null+Hinweis, 3+ → Daten), **0 Fänge → alle null + Hinweis**, Gleichstand (R1 B4/B5/B8/B10).
+- `stats_beste_kombis`: neue Kombis; HAVING >= 2; NULL-Infekt weg.
+- Zeitraum: Grenz-Tag inklusive (sub-second), Jahreswechsel, `von > bis` → 0, `von = bis` → 1 Tag (R1 A5/B10).
+- **Injection/DoS:** `monat='abc'`, `jahr='12.5'`, `zeitraum.von='not-a-date'`, `druck_bucket='HACKED'` → KEINE Exception, Filter ignoriert (R1 C-F3/F4/F13).
+- **Grants:** `has_function_privilege('authenticated', 'stats_insights(jsonb)', 'EXECUTE')` true; PUBLIC/anon false; Helper ohne EXECUTE (R1 C-F12).
+- **RLS-Bypass:** User B sieht bei allen 4 RPCs 0 Fänge von User A (R1 C-F14).
 
-**T.2 Frontend-Verifikation (Playwright/curl)**
-- Fang erfassen: Wassertemperatur-Feld sichtbar, speichert `water_temp_c` (E2E: Feld befüllen → Fang anlegen → DB prüfen).
-- Fang-Detail: Wassertemperatur-Zeile sichtbar (mit Wert und bei fehlendem Wert „—").
-- statistik.astro lädt mit Default-Zeitraum ohne Fehler; Chip-Klick + ANWENDEN triggern RPCs; Insights-Karten zeigen Daten oder Hinweis.
+**T.2 Frontend (Playwright/curl)**
+- Fang erfassen: Feld sichtbar, speichert `water_temp_c` (E2E).
+- Fang-Detail: Zeile sichtbar (Wert bzw. „—").
+- statistik.astro: Default-Zeitraum lädt, ANWENDEN/Chip triggern RPCs, Insights-Karten zeigen Daten oder Hinweis, keine leeren States beim ersten Render (SSR).
 
-## 4. Offene Design-Entscheidungen (für Audit)
+## 4. Entscheidungen (aus R1 beschlossen)
 
-- **D1: DRY-Refactor** — Filter-Logik in gemeinsame Helper-Funktion ziehen (z.B. `_stats_filtered(p_filters jsonb) RETURNS SETOF catches` SECURITY DEFINER) vs. pragmatische Duplizierung beibehalten. Empfehlung: DRY-Helper, sorgfältig mit search_path + Grants.
-- **D2: Insight-Mindestmenge** — ab wie vielen Fängen ist ein Insight „belastbar"? Vorschlag: >= 2 (analog kombis). Alternativ >= 3.
-- **D3: Kombi-Tiefe** — nur 2er-Kombis oder auch 3er (uhrzeit+wetter+wassertemp)? 3er erzeugt mehr Zeilen, aber dünnere Daten.
-- **D4: Bucket-Grenzen Wassertemperatur** — <10 / 10-15 / 15-20 / 20-25 / >=25 sinnvoll? (Karpfen: Aktivität steigt ab ~15°, Laich ~18-22°.) Alternative: <12 / 12-16 / 16-20 / 20-24 / >=24.
-- **D5: Wassertemperatur als Spalte vs. in weather-jsonb** — Empfehlung: eigene Spalte `water_temp_c` (wie weight_kg/length_cm, User-Eingabe; einfacher zu filtern/indizieren als jsonb-Cast). Widerspruch aus dem Audit willkommen.
+- **D1 DRY:** JA — `_stats_filtered` Helper mit 3 Security-Regeln (kein EXECUTE für Clients, eigener auth.uid(), search_path='') (R1 A4).
+- **D2 Mindest-Fangzahl:** Insights >= 3, Kombis >= 2, stichproben_hinweis < 5 (R1 A7/B5).
+- **D3 Kombi-Tiefe:** nur 2er in v1; 3er zurückgestellt (dünne Daten).
+- **D4 Buckets Wasser:** 5 Buckets `<10 / 10-15 / 15-20 / 20-25 / >=25` — konsistent mit Stitch-Screen; leere Gruppen erscheinen nicht in jsonb_object_agg, verzerren also nicht. (R1 B11 empfahl 4; abgelehnt wegen Screen-Konsistenz + kein Verzerrungsrisiko.)
+- **D5 Naming:** EIN Schema ohne Space: `<5`, `5-10`, `10-15`, `15-20`, `>=20` (Luft), `<10`…`>=25` (Wasser); Bestand (Druck `>=1015`, Wind `>=20`) mit fixen; `'1015+'`-Alias entfernen (R1 B6/A9).
+- **Zeitzone:** `Europe/Vienna` für Uhrzeit-Buckets UND Zeitraum-Tagesgrenzen (AT-App) (R1 B1/A5).
 
 ## 5. Akzeptanzkriterien
 
-- [ ] `catches.water_temp_c` existiert; Fang erfassen speichert und Fang-Detail zeigt den Wert (bzw. „—" bei fehlendem Wert).
-- [ ] `stats_conditions` liefert `buckets.wassertemp` (5 Buckets) + `buckets.lufttemp`; beide Filter wirken UND-korrekt.
-- [ ] `stats_insights` liefert Insights inkl. `beste_wassertemperatur` mit Kontext (differenz_pct) bzw. Hinweis bei zu wenigen Fängen.
-- [ ] `stats_beste_kombis` findet auch Wasser-Temp-/Uhrzeit-Kombis.
-- [ ] Zeitraum-Filter (von/bis) greift in allen 4 Funktionen identisch.
-- [ ] Alle Funktionen weiterhin SECURITY DEFINER + `auth.uid()` + keine SQL-Injection (nur statisches SQL / `format('%L')`).
-- [ ] `statistik.astro`: Zeitraum-Leiste + Wassertemperatur-Dimension + 4 Insight-Karten sichtbar; alle Dimensionen offen.
-- [ ] pgTAP-Tests grün (T.1); Frontend-Verifikation bestanden (T.2).
+- [ ] `catches.water_temp_c` existiert; Fang erfassen speichert, Fang-Detail zeigt (bzw. „—").
+- [ ] `stats_conditions` liefert `buckets.lufttemp` + `buckets.wassertemp`; Filter UND-korrekt; Uhrzeit-Buckets in Europe/Vienna; NULL-Wetter = `Unbekannt`.
+- [ ] `stats_insights` liefert 4 Insights mit Kontext (differenz_pct, stichproben_hinweis), 'Unbekannt' ausgeschlossen, Mindestgrenze 3.
+- [ ] `stats_beste_kombis` findet Wasser-Temp-/Uhrzeit-Kombis; keine NULL-Infektion.
+- [ ] Keine Cast-Exception bei bösartigen Filtern (monat/jahr/zeitraum) — Filter ignoriert statt 500.
+- [ ] Grants nach CREATE OR REPLACE wiederhergestellt (PUBLIC/anon NEIN, authenticated JA für RPCs; Helper ohne EXECUTE).
+- [ ] `statistik.astro`: Zeitraum-Leiste (buildFilters `Record<string,any>`), beide Temp-Dimensionen, 4 Insight-Karten, SSR lädt Insights, kein `set:html`-XSS, Debounce.
+- [ ] pgTAP grün (T.1 inkl. Zeitzonen-/Injection-/Grants-/RLS-Tests); Frontend-Verifikation bestanden (T.2).
 
 ## 6. Nicht-Ziele (v1)
 
 - Kein ML/Modell — reine statistische Aggregation.
-- Keine Änderung am automatischen Wetter-Snapshot (Open-Meteo bleibt unangetastet).
-- Kein CSV-Export (existiert in profil.astro; bleibt).
-- Keine Mobile-Variante in v1 (Desktop-first wie bisher).
+- Kein CSV-Export-Umbau (bleibt in profil.astro).
+- Keine Mobile-Variante (Desktop-first).
+- Keine 3er-Kombis, kein GIN-Index (dokumentiert, später).
 
 ## 7. Build-Reihenfolge (nach Audit-Freigabe)
 
-1. Migration `0032_stats_v2.sql` (B.0 → B.1 → B.2 → B.3 → B.4 → B.5 → B.6) via Projektkonvention (supabase db push / docker exec psql).
-2. pgTAP-Tests `0002_stats_v2_tests.sql` ausführen (rot → grün).
+1. Migration `0032_stats_v2.sql` (B.0 → B.1 → B.2 → B.3 → B.4 → B.5 → B.6 → B.7 → B.8) — erst auf Dev-DB, dann prod (Projektkonvention).
+2. pgTAP `0002_stats_v2_tests.sql` (rot → grün).
 3. Frontend: Fang erfassen (F.1) → Fang-Detail (F.2) → statistik.astro (F.3).
-4. E2E-Verifikation (T.2) + Live-Check auf :4321 (Dev-Server, nicht Production-SSR killen).
+4. E2E (T.2) + Live-Check :4321 (Dev-Server, Production-SSR :4321 nicht killen).
 5. Commit + RESUME-Update.
+
+## 8. Changelog
+
+- **v1 (24.08.):** Erstfassung Backend+Frontend.
+- **v2 (24.08.):** Wassertemperatur (User-Eingabe) + Lufttemperatur (auto) als getrennte Dimensionen.
+- **v3 (24.08.):** 24 R1-Funde eingearbeitet (Blocker: Grants-Reset A1, Zeitzone B1, buildFilters C-F5/F6; kritisch: NULL-Buckets, Monatsnamen, Cast-DoS, 'Unbekannt'-Insights, Stichproben-Kontext, Naming; mittel/minor: Helper-Grants, SSR-Insights, XSS set:html, Debounce, Test-Lücken).
