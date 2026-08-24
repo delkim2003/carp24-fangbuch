@@ -26,7 +26,7 @@ const navItems = [
       <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Carp24</span>
     </a>
 
-    <nav class="hidden md:flex gap-8 items-center" aria-label="Hauptnavigation">
+    <nav class="hidden md:flex gap-6 items-center flex-1 min-w-0 overflow-x-auto flex-nowrap snap-x snap-mandatory scroll-px-4 no-scrollbar" aria-label="Hauptnavigation">
       {navItems.map((item) => (
         <a
           href={item.href}
@@ -34,7 +34,7 @@ const navItems = [
           data-en={item.en}
           data-auth={item.auth ? "true" : "false"}
           class:list={[
-            "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200",
+            "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 whitespace-nowrap shrink-0 snap-start",
             active === item.key
               ? "text-primary font-bold border-b border-primary pb-1"
               : "text-on-surface-variant hover:text-primary",
@@ -43,7 +43,7 @@ const navItems = [
           {item.de}
         </a>
       ))}
-      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 text-on-surface-variant hover:text-primary">ADMIN</a>
+      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 text-on-surface-variant hover:text-primary whitespace-nowrap shrink-0 snap-start">ADMIN</a>
     </nav>
 
     <div class="flex items-center gap-4">
@@ -51,15 +51,17 @@ const navItems = [
         <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
         <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
       </div>
-      <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
-        Anmelden
-      </a>
-      <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" style="display:none" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer">
-        Abmelden
-      </button>
-      <a href="/profil" style="display:none" class="hidden md:inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors" aria-label="Profil">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-      </a>
+      <div class="hidden md:flex items-center gap-4">
+        <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
+          Anmelden
+        </a>
+        <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer hidden">
+          Abmelden
+        </button>
+        <a href="/profil" class="inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors hidden" aria-label="Profil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </a>
+      </div>
       <button id="theme-toggle" type="button" data-de="Thema" data-en="Theme" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">THEMA</button>
 
       <button id="mobile-burger" type="button" class="md:hidden inline-flex items-center justify-center w-11 h-11 text-primary" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav">
@@ -95,7 +97,7 @@ const navItems = [
       <button id="mobile-logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
         Abmelden
       </button>
-      <a href="/profil" data-de="Profil" data-en="Profile" style="display:none" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">
+      <a href="/profil" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hidden">
         Profil
       </a>
       <a id="admin-link-mobile" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">ADMIN</a>
@@ -105,6 +107,11 @@ const navItems = [
     </nav>
   </div>
 </header>
+
+<style>
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
 
 <script is:inline>
 (function () {
@@ -177,25 +184,16 @@ const navItems = [
         }
       });
       document.querySelectorAll('a[href="/profil"]').forEach(function (el) {
-        el.style.display = isLoggedIn ? '' : 'none';
+        el.classList.toggle('hidden', !isLoggedIn);
       });
 
-      if (isLoggedIn) {
-        if (authLink) authLink.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = '';
-        if (mobileAuthLink) mobileAuthLink.classList.add('hidden');
-        if (mobileLogoutBtn) {
-          mobileLogoutBtn.classList.remove('hidden');
-          mobileLogoutBtn.classList.add('flex');
-        }
-      } else {
-        if (authLink) authLink.style.display = '';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (mobileAuthLink) mobileAuthLink.classList.remove('hidden');
-        if (mobileLogoutBtn) {
-          mobileLogoutBtn.classList.add('hidden');
-          mobileLogoutBtn.classList.remove('flex');
-        }
+      if (authLink) authLink.classList.toggle('hidden', isLoggedIn);
+      if (logoutBtn) logoutBtn.classList.toggle('hidden', !isLoggedIn);
+      if (mobileAuthLink) mobileAuthLink.classList.toggle('hidden', isLoggedIn);
+      if (mobileLogoutBtn) {
+        mobileLogoutBtn.classList.toggle('hidden', !isLoggedIn);
+        if (isLoggedIn) mobileLogoutBtn.classList.add('flex');
+        else mobileLogoutBtn.classList.remove('flex');
       }
     }
 
