@@ -129,7 +129,7 @@ const myContactsJson = JSON.stringify(myContacts);
             <p class="font-mono text-sm text-secondary tracking-widest uppercase mb-2 i18n" data-de={t("kicker.marktplatz", "de")} data-en={t("kicker.marktplatz", "en")}>{t("kicker.marktplatz")}</p>
             <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("marketplace.titel", "de")} data-en={t("marketplace.titel", "en")}>{t("marketplace.titel")}</h1>
           </div>
-          <button id="toggle-new-item" type="button" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12 cursor-pointer">
+          <button id="toggle-new-item" type="button" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
             {t("marketplace.neue_anzeige")}
           </button>
@@ -294,17 +294,17 @@ const myContactsJson = JSON.stringify(myContacts);
         '</div>' +
         '</div>';
     }
-    return '<div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden shadow-sm flex flex-col">' +
+    return '<div class="bg-[#ccca9b]/15 rounded-xl border border-primary/40 overflow-hidden shadow-sm flex flex-col">' +
       (photoUrl && !photoUrl.startsWith('__SIGNED__')
         ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />'
         : '<div class="w-full h-48 bg-surface-container-lowest flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-on-surface-variant/40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>'
       ) +
       '<div class="p-lg flex flex-col gap-sm flex-grow">' +
       '<div class="flex items-center justify-between gap-2">' +
-      '<h3 class="text-headline-sm text-on-surface truncate">' + escapeHtml(item.title) + '</h3>' +
+      '<h3 class="font-headline-md text-headline-md text-on-surface truncate">' + escapeHtml(item.title) + '</h3>' +
       statusBadge +
       '</div>' +
-      '<div class="font-mono text-display-sm text-primary font-bold">' + formatPrice(item.price) + '</div>' +
+      '<div class="font-mono text-lg text-primary font-medium">' + formatPrice(item.price) + '</div>' +
       '<div class="flex items-center gap-2">' +
       '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-primary-container text-on-primary-container">' + escapeHtml(catLabel(item.category)) + '</span>' +
       '</div>' +
