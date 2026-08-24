@@ -72,7 +72,7 @@ const features = [
 <Layout title="Carp24 – Premium" active="preis">
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="text-center mb-xl">
-      <h1 class="text-display-lg text-on-surface mb-lg i18n" data-de={t("premium.titel", "de")} data-en={t("premium.titel", "en")}>{t("premium.titel")}</h1>
+      <h1 class="text-display-lg text-primary mb-lg i18n" data-de={t("premium.titel", "de")} data-en={t("premium.titel", "en")}>{t("premium.titel")}</h1>
       <div class="flex items-center justify-center gap-3">
         <span class:list={["inline-block px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest", statusColor]}>
           <span class="i18n" data-de={t("premium.status_" + statusLabel.toLowerCase(), "de")} data-en={t("premium.status_" + statusLabel.toLowerCase(), "en")}>{t("premium.status_" + statusLabel.toLowerCase())}</span>
@@ -128,7 +128,7 @@ const features = [
 
     {session && !isPaid && (
       <div class="text-center">
-        <button type="button" id="stripe-checkout" class="inline-block px-10 py-4 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors cursor-pointer min-h-12 i18n" data-de={t("premium.upgrade", "de")} data-en={t("premium.upgrade", "en")}>
+        <button type="button" id="stripe-checkout" class="inline-block px-10 py-4 rounded-full bg-primary-container hover:bg-primary text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest transition-colors cursor-pointer min-h-12 i18n" data-de={t("premium.upgrade", "de")} data-en={t("premium.upgrade", "en")}>
           {t("premium.upgrade")}
         </button>
         <p class="text-body-sm text-on-surface-variant mt-sm i18n" data-de={t("premium.sicher_dir", "de")} data-en={t("premium.sicher_dir", "en")}>{t("premium.sicher_dir")}</p>
