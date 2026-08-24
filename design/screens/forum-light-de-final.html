@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Forum - carp24</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500&amp;family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f6fbec",
+                        "secondary-fixed": "#e7e5b4",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#181d14",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "outline": "#76786e",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#6c7a57",
+                        "primary": "#546140",
+                        "primary-fixed": "#d9e8be",
+                        "on-surface-variant": "#45483f",
+                        "inverse-on-surface": "#eef3e4",
+                        "on-secondary-container": "#67663f",
+                        "on-primary-fixed": "#141f05",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#ebf0e1",
+                        "surface-tint": "#556342",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "on-tertiary-container": "#faffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#617a7c",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "secondary-container": "#e7e5b4",
+                        "inverse-primary": "#bdcca4",
+                        "surface-dim": "#d7dccd",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "inverse-surface": "#2d3228",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#061f21",
+                        "tertiary-fixed": "#cde7e9",
+                        "tertiary": "#496163",
+                        "on-primary-container": "#fdfff0",
+                        "outline-variant": "#c6c8bc",
+                        "background": "#f6fbec",
+                        "surface-container-high": "#e5eadb",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#181d14",
+                        "surface-container-low": "#f1f6e7",
+                        "secondary": "#61603a",
+                        "surface-variant": "#dfe4d6",
+                        "on-secondary-fixed-variant": "#494824",
+                        "surface": "#f6fbec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "64px",
+                        "gutter": "20px",
+                        "unit": "4px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "nav-item": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "label-sm": ["Public Sans"],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f6fbec; /* Background matching theme */
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.03"/%3E%3C/svg%3E');
+        }
+        
+        /* Thin Sage Hairlines for borders */
+        .hairline-border {
+            border-color: rgba(108, 122, 87, 0.2);
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-background text-primary dark:text-primary-fixed w-full border-b hairline-border bg-surface/80 backdrop-blur-sm flat no shadows flex justify-between items-center w-full px-margin-desktop py-md max-w-7xl mx-auto hidden md:flex sticky top-0 z-50">
+<div class="flex items-center gap-6">
+<img alt="carp24 Logo" class="w-12 h-12 rounded-full border hairline-border" src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+<span class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed italic">carp24</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary border-b-2 border-primary pb-1 opacity-80 duration-200" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Statistik</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300">Premium</button>
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant">
+<button class="hover:text-primary transition-colors">DE</button>
+<span class="text-primary/20">|</span>
+<button class="hover:text-primary transition-colors">EN</button>
+</div>
+<button aria-label="Profile" class="text-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-6">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Forum</h1>
+<p class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-widest">12 Themen</p>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest flex items-center gap-2 hover:bg-surface-tint hover:text-on-primary transition-colors self-start md:self-auto">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Neuer Thread
+            </button>
+</header>
+<!-- Category Filters -->
+<div class="flex flex-wrap gap-3 mb-12">
+<button class="bg-tertiary-container/20 text-tertiary font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full border hairline-border hover:bg-tertiary-container/30 transition-colors">Alle</button>
+<button class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full border hairline-border hover:bg-surface-container-high transition-colors">Allgemein</button>
+<button class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full border hairline-border hover:bg-surface-container-high transition-colors">Gewässer</button>
+<button class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full border hairline-border hover:bg-surface-container-high transition-colors">Ausrüstung</button>
+<button class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full border hairline-border hover:bg-surface-container-high transition-colors">Küche</button>
+</div>
+<!-- Thread List (Bento-inspired Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Thread 1 -->
+<article class="bg-surface-variant border hairline-border rounded-xl p-lg flex flex-col justify-between hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div>
+<span class="inline-block bg-tertiary-container/10 text-tertiary font-label-sm text-label-sm uppercase tracking-widest px-3 py-1 rounded-full mb-4">Allgemein</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2 group-hover:text-primary transition-colors">Beste Zeit für Nachtangeln im August?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Diskussion über Mondphasen, Temperaturen und die besten Strategien für das sommerliche Nachtangeln.</p>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t hairline-border">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center text-primary font-nav-item text-nav-item">J</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase">von Julia</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">10. Aug. 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>8 Antworten</span>
+</div>
+</div>
+</article>
+<!-- Thread 2 -->
+<article class="bg-surface-variant border hairline-border rounded-xl p-lg flex flex-col justify-between hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div>
+<span class="inline-block bg-secondary-container/30 text-secondary font-label-sm text-label-sm uppercase tracking-widest px-3 py-1 rounded-full mb-4">Gewässer</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2 group-hover:text-primary transition-colors">Baggersee Steiermark - aktuelle Bedingungen?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Wie sieht es aktuell mit Krautwuchs und Wassertemperaturen an den bekannten Baggerseen in der Steiermark aus?</p>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t hairline-border">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center text-primary font-nav-item text-nav-item">S</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase">von Stefan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">08. Aug. 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>5 Antworten</span>
+</div>
+</div>
+</article>
+<!-- Thread 3 -->
+<article class="bg-surface-variant border hairline-border rounded-xl p-lg flex flex-col justify-between hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div>
+<span class="inline-block bg-primary-container/20 text-on-primary-fixed-variant font-label-sm text-label-sm uppercase tracking-widest px-3 py-1 rounded-full mb-4">Ausrüstung</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2 group-hover:text-primary transition-colors">Tigernuss-Boilies selbst machen - Rezepte?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Suche nach erprobten Rezepten für die Herstellung von Tigernuss-Boilies. Welche Zusätze verwendet ihr am liebsten?</p>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t hairline-border">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center text-primary font-nav-item text-nav-item">A</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase">von Anna</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">05. Aug. 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>12 Antworten</span>
+</div>
+</div>
+</article>
+<!-- Thread 4 -->
+<article class="bg-surface-variant border hairline-border rounded-xl p-lg flex flex-col justify-between hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div>
+<span class="inline-block bg-error-container/40 text-on-error-container font-label-sm text-label-sm uppercase tracking-widest px-3 py-1 rounded-full mb-4">Küche</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2 group-hover:text-primary transition-colors">Karpfen-Rezepte für den Winter</h2>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Klassische und neue Ideen zur Zubereitung von Karpfen in der kalten Jahreszeit. Gerne auch regionale Spezialitäten.</p>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t hairline-border">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center text-primary font-nav-item text-nav-item">T</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase">von Thomas</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">02. Aug. 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>3 Antworten</span>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-background text-secondary dark:text-secondary-fixed w-full border-t border-primary/10 mt-xl flat no shadows flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-lg max-w-7xl mx-auto">
+<div class="font-headline-lg text-headline-lg text-primary mb-4 md:mb-0 italic">carp24</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">AGB</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Support</a>
+</div>
+<div class="mt-4 md:mt-0 font-label-sm text-label-sm text-on-surface-variant">
+            © 2024 carp24. All rights reserved.
+        </div>
+</footer>
+</body></html>

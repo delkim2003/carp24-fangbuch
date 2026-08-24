@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Startseite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-container": "#67663f",
+                "on-error-container": "#93000a",
+                "surface-variant": "#dfe4d6",
+                "inverse-surface": "#2d3228",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed-variant": "#494824",
+                "tertiary-fixed-dim": "#b1cbcd",
+                "surface-tint": "#556342",
+                "inverse-primary": "#bdcca4",
+                "error": "#ba1a1a",
+                "tertiary": "#496163",
+                "surface": "#f6fbec",
+                "secondary-fixed": "#e7e5b4",
+                "on-tertiary-fixed": "#061f21",
+                "on-primary-fixed": "#141f05",
+                "primary-fixed-dim": "#bdcca4",
+                "on-error": "#ffffff",
+                "on-background": "#181d14",
+                "background": "#f6fbec",
+                "surface-container-low": "#f1f6e7",
+                "secondary-fixed-dim": "#cbc99a",
+                "primary": "#546140",
+                "on-primary-container": "#fdfff0",
+                "primary-fixed": "#d9e8be",
+                "tertiary-container": "#617a7c",
+                "primary-container": "#6c7a57",
+                "surface-container": "#ebf0e1",
+                "surface-bright": "#f6fbec",
+                "on-surface": "#181d14",
+                "surface-dim": "#d7dccd",
+                "outline": "#76786e",
+                "secondary-container": "#e7e5b4",
+                "secondary": "#61603a",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#e5eadb",
+                "on-tertiary-container": "#faffff",
+                "tertiary-fixed": "#cde7e9",
+                "inverse-on-surface": "#eef3e4",
+                "on-secondary-fixed": "#1d1d01",
+                "error-container": "#ffdad6",
+                "outline-variant": "#c6c8bc",
+                "on-primary-fixed-variant": "#3e4b2c",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "on-surface-variant": "#45483f",
+                "on-tertiary-fixed-variant": "#334b4d",
+                "surface-container-highest": "#dfe4d6",
+                "card-bg": "#e5eadb",
+                "hairline": "rgba(118, 120, 110, 0.4)"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "xl": "40px",
+                "sm": "8px",
+                "xs": "4px",
+                "md": "16px",
+                "lg": "24px",
+                "unit": "4px",
+                "margin-desktop": "64px",
+                "margin-mobile": "16px",
+                "gutter": "20px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "\"Source Serif 4\""
+                ],
+                "headline-md": [
+                        "\"Source Serif 4\""
+                ],
+                "body-md": [
+                        "\"Source Sans 3\""
+                ],
+                "label-sm": [
+                        "JetBrains Mono"
+                ],
+                "display-lg": [
+                        "\"Source Serif 4\""
+                ],
+                "nav-item": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "\"Source Serif 4\""
+                ],
+                "body-lg": [
+                        "\"Source Sans 3\""
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.1em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "nav-item": [
+                        "13px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.08em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
+        }
+        
+        /* Minimalist scroll animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Image hover effect */
+        .img-hover-scale {
+            transition: transform 0.5s ease;
+        }
+        .card-container:hover .img-hover-scale {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface-dim w-full top-0 sticky z-50 transition-all border-b border-hairline flex justify-between items-center px-margin-desktop py-md max-w-[1440px] mx-auto">
+<div class="flex items-center gap-md cursor-pointer hover:opacity-80 transition-opacity duration-300">
+<img alt="carp24 Logo" class="h-10 w-10 object-contain" data-alt="A minimalist logo for a premium fishing app named carp24, featuring a sophisticated olive green carp silhouette on a warm sand background. The style is modern editorial, clean, and professional." src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+<span class="font-headline-md text-headline-md text-primary dark:text-primary-fixed italic">carp24</span>
+</div>
+<div class="hidden lg:flex items-center gap-lg">
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-primary dark:text-primary-fixed border-b border-primary dark:border-primary-fixed pb-1 cursor-pointer transition-all" href="#">Start</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Trips</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Marktplatz</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant dark:text-on-surface-variant hover:text-primary cursor-pointer transition-all" href="#">Premium</a>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant cursor-pointer hover:text-primary transition-colors">DE/EN</span>
+<button class="bg-primary-container text-on-primary font-nav-item text-nav-item uppercase px-lg py-sm rounded-full hover:opacity-90 transition-opacity">
+                ANMELDEN
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow max-w-[1440px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-xl items-center fade-in-up">
+<div class="flex flex-col gap-lg pr-lg">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.1em] text-primary">PASSION. FISHING. COMMUNITY.</span>
+<h1 class="font-display-lg text-display-lg text-on-background">Willkommen am Wasser</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant italic border-l border-hairline pl-md">
+                    Dein digitales Fangbuch — schneller als ein Kescher.
+                </p>
+<div class="flex items-center gap-md mt-md">
+<button class="bg-primary-container text-on-primary font-nav-item text-nav-item uppercase px-lg py-sm rounded-full hover:opacity-90 transition-opacity shadow-sm">
+                        LOS GEHT'S
+                    </button>
+<a class="font-nav-item text-nav-item uppercase text-primary border-b border-primary hover:opacity-70 transition-opacity pb-1" href="#">
+                        FUNKTIONEN ENTDECKEN
+                    </a>
+</div>
+</div>
+<div class="relative w-full h-[500px] rounded-xl overflow-hidden border border-hairline bg-card-bg">
+<img alt="Karpfen auf Wiegeunterlage" class="w-full h-full object-cover" data-alt="A highly detailed, cinematic photograph of a large carp resting safely on a premium olive-green unhooking mat by a serene lake at sunrise. The lighting is soft and atmospheric, highlighting the scales of the fish and the tactile quality of the wet mat. The mood is calm, professional, and respectful of nature, fitting a premium angling journal aesthetic." src="https://lh3.googleusercontent.com/aida/AEtjO1WTB1T87HuWL_GyQcZ7jEqZnUPTtAABty7Smb7OESUHBwY6TipzK_MmUgILIp6UYlL3uq2tUE4a3UvASB0UFZFCBRJTq9OAC4Q8d3M4fdJFLFnLq1013p0mmqO992rcyuSlDIvXwqrN3NzUYCRJd1rD7D6NfZODPadAGBS7HwNpKIf2993bfgpwZM7fdG2z7eqTE2_x_7HmmY4GeAzaKv4S7t-otEWoEw_TQD4_GRxXUR9lGWgZNWpgwtcc"/>
+</div>
+</section>
+<!-- Divider -->
+<div class="w-full border-t border-hairline my-xl"></div>
+<!-- Features Section -->
+<section class="flex flex-col gap-xl fade-in-up">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Feature 1 -->
+<div class="bg-card-bg rounded-xl border border-hairline p-lg flex flex-col gap-md hover:bg-surface-dim transition-colors">
+<div class="w-12 h-12 rounded-full border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">edit_document</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background">ERFASSEN</h3>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface-variant">In Sekunden dokumentiert</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Erfasse jeden Fang direkt am Wasser mit minimalem Aufwand.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-card-bg rounded-xl border border-hairline p-lg flex flex-col gap-md hover:bg-surface-dim transition-colors">
+<div class="w-12 h-12 rounded-full border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">library_books</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background">VERWALTEN</h3>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface-variant">Dein Archiv der Erinnerungen</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Sicher, strukturiert und jederzeit abrufbar wie ein echtes Logbuch.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-card-bg rounded-xl border border-hairline p-lg flex flex-col gap-md hover:bg-surface-dim transition-colors">
+<div class="w-12 h-12 rounded-full border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">monitoring</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background">ANALYSIEREN</h3>
+<h4 class="font-body-md text-body-md font-semibold text-on-surface-variant">Lerne aus deinen Daten</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.</p>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="w-full border-t border-hairline my-xl"></div>
+<!-- Aus dem Fangbuch Section -->
+<section class="flex flex-col gap-lg fade-in-up">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.1em] text-primary">AUS DEM FANGBUCH</span>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Catch Card 1 -->
+<div class="card-container bg-card-bg rounded-xl border border-hairline overflow-hidden flex flex-col cursor-pointer">
+<div class="h-48 overflow-hidden border-b border-hairline relative">
+<img alt="Karpfen 18,2 kg" class="w-full h-full object-cover img-hover-scale" data-alt="A professional angler holding a massive 18.2 kg carp, kneeling by a mist-covered lake at dawn. The image has a moody, cinematic tone with soft natural lighting, emphasizing the premium and respectful editorial style of a high-end fishing journal." src="https://lh3.googleusercontent.com/aida/AEtjO1VIr8cg_Wx0Q3GDjV14Vvv1KY4FjbLus1zMd5FX-reMd43b_b5R6piw2-B_bUPJ44oLBb_REzL3eLbEDP2CUh9pqVg5HdujYwJu5KR2olj-Flo5iaI0cE5lu0kYdn_FHAuS3QE95zK5RT-UW_BVxw01yKhaJq-H1eNpw4CueV7pBtDnpD7wMbbj1PssNjkCZuKFNHEqYaStsCN5O0BLnFIJavzpaRUYshyZgPF1hF3r07NafBctPN7vWHQi"/>
+<div class="absolute top-sm right-sm bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-nav-item text-on-background uppercase border border-hairline">
+                            12. Okt 2025
+                        </div>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<span class="font-headline-md text-headline-md text-on-background">18,2 KG</span>
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">KARPFEN</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant mt-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span class="font-label-sm text-label-sm" data-location="Silbersee">Silbersee</span>
+</div>
+</div>
+</div>
+<!-- Catch Card 2 -->
+<div class="card-container bg-card-bg rounded-xl border border-hairline overflow-hidden flex flex-col cursor-pointer">
+<div class="h-48 overflow-hidden border-b border-hairline relative">
+<img alt="Karpfen 12,5 kg" class="w-full h-full object-cover img-hover-scale" data-alt="A beautifully composed shot of a 12.5 kg carp resting in the shallow water near the bank of a woodland pond, ready for release. The sunlight filters through the trees, casting gentle dappled light on the fish's scales. The aesthetic is calm, earthy, and perfectly aligned with a premium digital logbook." src="https://lh3.googleusercontent.com/aida/AEtjO1WtFHdGH5Q_5UM5wqRSQ93_a9Qugdn39sHHWDM5_oupxLFUJvVGQYA9KJx1Me2ntUWhwOS6PoLvkIw5QbDuYTFXABq8seUGEQoFPhZRBqTMhbbYFwqVT_wlfZ8sx5n4Wa03UZRMC47m33kOloiM1EQs1ocM9YxAOnvfilM6T1mngiPOhOsIW1zCR1KKlMfAtDLCQ8q50iuACKjihXB3h9N3xqOCaLnZv-z4_6xdxoBwt_pS5bttq9Tyb-wR"/>
+<div class="absolute top-sm right-sm bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-nav-item text-on-background uppercase border border-hairline">
+                            08. Sep 2025
+                        </div>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<span class="font-headline-md text-headline-md text-on-background">12,5 KG</span>
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">KARPFEN</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant mt-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span class="font-label-sm text-label-sm" data-location="Waldweiher">Waldweiher</span>
+</div>
+</div>
+</div>
+<!-- Catch Card 3 -->
+<div class="card-container bg-card-bg rounded-xl border border-hairline overflow-hidden flex flex-col cursor-pointer">
+<div class="h-48 overflow-hidden border-b border-hairline relative">
+<img alt="Spiegelkarpfen 21,0 kg" class="w-full h-full object-cover img-hover-scale" data-alt="A striking close-up photograph of a heavy 21.0 kg mirror carp being carefully supported over an unhooking mat by an angler wearing olive green clothing. The background features a large, dark river backwater. The image conveys a sense of achievement and respect, matching a high-end editorial angling design." src="https://lh3.googleusercontent.com/aida/AEtjO1U8zSqdG9prDeINcv7HY9QI19nkFZ8nzlvbq0EX-QQXpsqytYw2OU09b5otUYD2rA25ZaXIK4ktYqFgxjzNqsK3nD7SXCvDXsQCktoQnm3eUaa4w_P8xgx7_rr3dC9a5IIdH8avN5WI-wcwRNOKY-02F09uk__1Lh13mP29Vw78lnueOkaa0CsAc6enfE4cqqP4NTN8CYOr4YyFMEuKFj8IoZutgwhA5fGxwPUyj8D3YtRjKeD9tAM9UXSa"/>
+<div class="absolute top-sm right-sm bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-nav-item text-on-background uppercase border border-hairline">
+                            24. Aug 2025
+                        </div>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<span class="font-headline-md text-headline-md text-on-background">21,0 KG</span>
+<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">SPIEGELKARPFEN</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant mt-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span class="font-label-sm text-label-sm" data-location="Donau Altarm">Donau Altarm</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="w-full border-t border-hairline my-xl"></div>
+<!-- CTA Section -->
+<section class="flex flex-col items-center justify-center gap-md py-xl fade-in-up text-center">
+<div class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-lg py-sm rounded-full shadow-sm mb-sm inline-block">
+                50 FÄNGE GRATIS
+            </div>
+<p class="font-body-lg text-body-lg text-on-surface-variant italic">
+                Danach Pro ab 4,99 EUR pro Monat
+            </p>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface-dim w-full mt-xl border-t border-hairline flex flex-col items-center gap-md py-xl px-margin-desktop">
+<div class="flex items-center justify-center gap-sm mb-sm opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
+<img alt="carp24 Logo Footer" class="h-8 w-8 object-contain" data-alt="A minimalist logo for a premium fishing app named carp24, featured in the footer. Small, subtle, olive green on warm sand." src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+<span class="font-headline-md text-headline-md text-primary/60 italic text-lg">carp24</span>
+</div>
+<div class="flex gap-lg justify-center">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors inline-block px-sm" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors inline-block px-sm" href="#">Datenschutz</a>
+</div>
+<p class="font-label-sm text-label-sm uppercase text-on-surface-variant mt-md">
+            © 2026 carp24.
+        </p>
+</footer>
+<script>
+        // Simple Intersection Observer for scroll animations
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body></html>

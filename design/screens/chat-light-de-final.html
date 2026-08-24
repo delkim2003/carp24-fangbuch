@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;family=Source+Sans+3:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#061f21",
+                        "primary-container": "#6c7a57",
+                        "surface-tint": "#556342",
+                        "inverse-surface": "#2d3228",
+                        "secondary-container": "#e7e5b4",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e5eadb",
+                        "on-primary-container": "#fdfff0",
+                        "on-background": "#181d14",
+                        "surface": "#f6fbec",
+                        "secondary-fixed": "#e7e5b4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#d9e8be",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-tertiary-container": "#faffff",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#dfe4d6",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "inverse-on-surface": "#eef3e4",
+                        "background": "#E8E0C8",
+                        "secondary": "#61603a",
+                        "on-secondary-fixed-variant": "#494824",
+                        "error-container": "#ffdad6",
+                        "primary": "#546140",
+                        "tertiary": "#496163",
+                        "surface-dim": "#d7dccd",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#45483f",
+                        "inverse-primary": "#bdcca4",
+                        "tertiary-fixed": "#cde7e9",
+                        "outline": "#76786e",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-bright": "#f6fbec",
+                        "surface-variant": "#dfe4d6",
+                        "surface-container": "#ebf0e1",
+                        "outline-variant": "#c6c8bc",
+                        "surface-container-low": "#f1f6e7",
+                        "tertiary-container": "#617a7c",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-surface": "#181d14",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#141f05",
+                        "on-secondary-container": "#67663f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "16px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "nav-item": ["Public Sans"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "mono-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "mono-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            color: #181d14;
+        }
+        .hairline-b { border-bottom: 1px solid rgba(108, 122, 87, 0.2); }
+        .hairline-t { border-top: 1px solid rgba(108, 122, 87, 0.2); }
+        .hairline-r { border-right: 1px solid rgba(108, 122, 87, 0.2); }
+        .hairline-all { border: 1px solid rgba(108, 122, 87, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Header: TopNavBar -->
+<header class="w-full hairline-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-desktop py-md max-w-7xl mx-auto hidden md:flex">
+<!-- Brand -->
+<div class="font-headline-lg text-headline-lg text-primary italic">carp24</div>
+<!-- Navigation Links -->
+<nav class="flex gap-lg items-center">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-300 font-nav-item text-nav-item uppercase tracking-widest" href="#">Fänge</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-300 font-nav-item text-nav-item uppercase tracking-widest" href="#">Board</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-300 font-nav-item text-nav-item uppercase tracking-widest" href="#">Forum</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-nav-item text-nav-item uppercase tracking-widest opacity-80 duration-200" href="#">Chat</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-300 font-nav-item text-nav-item uppercase tracking-widest" href="#">Statistik</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<span class="font-nav-item text-nav-item text-on-surface-variant">DE <span class="opacity-50">|</span> EN</span>
+<button class="text-primary font-nav-item text-nav-item uppercase tracking-widest hairline-all px-4 py-2 rounded-full hover:bg-primary/5 transition-colors">Premium</button>
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</div>
+<!-- Mobile Header -->
+<div class="flex justify-between items-center w-full px-margin-mobile py-md md:hidden">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary italic">carp24</div>
+<button class="text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Title Section -->
+<div class="mb-xl text-center md:text-left">
+<span class="font-label-sm text-label-sm uppercase text-primary tracking-[0.15em] mb-xs block">Community</span>
+<h1 class="font-display-lg text-display-lg text-on-background">Chat</h1>
+</div>
+<!-- Chat Area -->
+<div class="bg-[#CCCA9B]/10 rounded-xl hairline-all flex flex-col flex-grow min-h-[600px] overflow-hidden">
+<!-- Scrollable Messages -->
+<div class="flex-grow overflow-y-auto p-lg flex flex-col gap-md">
+<!-- System/Date Divider -->
+<div class="flex justify-center my-md">
+<span class="font-mono-sm text-[11px] text-on-surface-variant/60 uppercase tracking-widest">Heute</span>
+</div>
+<!-- Message: Other -->
+<div class="flex flex-col items-start max-w-[80%]">
+<div class="flex items-baseline gap-xs mb-1 ml-1">
+<span class="font-mono-sm text-[11px] uppercase text-primary">Julia</span>
+<span class="font-mono-sm text-[10px] text-on-surface-variant/50">09:41</span>
+</div>
+<div class="bg-surface rounded-xl rounded-tl-sm px-md py-3 hairline-all text-on-background font-body-md shadow-sm">
+                        Guten Morgen! Wer ist heute am Wasser?
+                    </div>
+</div>
+<!-- Message: Other -->
+<div class="flex flex-col items-start max-w-[80%] mt-sm">
+<div class="flex items-baseline gap-xs mb-1 ml-1">
+<span class="font-mono-sm text-[11px] uppercase text-primary">Stefan</span>
+<span class="font-mono-sm text-[10px] text-on-surface-variant/50">09:44</span>
+</div>
+<div class="bg-surface rounded-xl rounded-tl-sm px-md py-3 hairline-all text-on-background font-body-md shadow-sm">
+                        Ich bin am Baggersee, Wasser 19 Grad.
+                    </div>
+</div>
+<!-- Message: Own -->
+<div class="flex flex-col items-end self-end max-w-[80%] mt-lg">
+<div class="flex items-baseline gap-xs mb-1 mr-1">
+<span class="font-mono-sm text-[10px] text-on-surface-variant/50">09:52</span>
+<span class="font-mono-sm text-[11px] uppercase text-primary-container">Markus</span>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-xl rounded-tr-sm px-md py-3 font-body-md shadow-sm">
+                        Starke Session gestern, 21.5 kg Spiegel!
+                    </div>
+</div>
+<!-- Message: Other -->
+<div class="flex flex-col items-start max-w-[80%] mt-lg">
+<div class="flex items-baseline gap-xs mb-1 ml-1">
+<span class="font-mono-sm text-[11px] uppercase text-primary">Anna</span>
+<span class="font-mono-sm text-[10px] text-on-surface-variant/50">10:05</span>
+</div>
+<div class="bg-surface rounded-xl rounded-tl-sm px-md py-3 hairline-all text-on-background font-body-md shadow-sm">
+                        Glückwunsch Markus, starkes Stück!
+                    </div>
+</div>
+</div>
+<!-- Input Bar -->
+<div class="p-4 bg-background/50 backdrop-blur-md hairline-t flex items-center gap-sm">
+<button class="text-primary/70 hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<input class="flex-grow bg-surface/50 hairline-all rounded-full px-lg py-3 font-body-md text-on-background placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Nachricht..." type="text"/>
+<button class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase rounded-full px-lg py-3 hover:bg-surface-tint transition-colors flex items-center gap-xs">
+                    Senden
+                    <span class="material-symbols-outlined text-[18px]" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full hairline-t mt-xl bg-background">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-lg max-w-7xl mx-auto">
+<div class="font-mono-sm text-[11px] text-on-surface-variant mb-4 md:mb-0">
+                © 2024 carp24. All rights reserved.
+            </div>
+<div class="flex gap-lg">
+<a class="font-mono-sm text-[11px] uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">Impressum</a>
+<a class="font-mono-sm text-[11px] uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">Datenschutz</a>
+<a class="font-mono-sm text-[11px] uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">AGB</a>
+</div>
+</div>
+</footer>
+</body></html>

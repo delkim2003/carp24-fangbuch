@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KI-Assistent - Carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#b1cbcd",
+                      "surface-bright": "#f6fbec",
+                      "on-secondary-fixed": "#1d1d01",
+                      "primary-container": "#6c7a57",
+                      "secondary": "#61603a",
+                      "on-secondary": "#ffffff",
+                      "surface-container-low": "#f1f6e7",
+                      "on-tertiary-container": "#faffff",
+                      "surface-tint": "#556342",
+                      "secondary-fixed-dim": "#cbc99a",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#76786e",
+                      "outline-variant": "#c6c8bc",
+                      "on-primary-fixed": "#141f05",
+                      "tertiary-container": "#617a7c",
+                      "on-secondary-container": "#67663f",
+                      "on-primary-fixed-variant": "#3e4b2c",
+                      "surface-dim": "#d7dccd",
+                      "on-background": "#181d14",
+                      "surface-container-high": "#e5eadb",
+                      "inverse-on-surface": "#eef3e4",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#ebf0e1",
+                      "on-error": "#ffffff",
+                      "background": "#f6fbec",
+                      "on-surface": "#181d14",
+                      "secondary-fixed": "#e7e5b4",
+                      "on-tertiary-fixed": "#061f21",
+                      "on-tertiary": "#ffffff",
+                      "inverse-surface": "#2d3228",
+                      "tertiary": "#496163",
+                      "secondary-container": "#e7e5b4",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#334b4d",
+                      "inverse-primary": "#bdcca4",
+                      "primary-fixed-dim": "#bdcca4",
+                      "surface-container-highest": "#dfe4d6",
+                      "surface": "#f6fbec",
+                      "on-surface-variant": "#45483f",
+                      "surface-variant": "#dfe4d6",
+                      "primary-fixed": "#d9e8be",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#cde7e9",
+                      "primary": "#546140",
+                      "on-primary-container": "#fdfff0",
+                      "on-secondary-fixed-variant": "#494824"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "gutter": "20px",
+                      "unit": "4px",
+                      "margin-desktop": "64px",
+                      "xl": "40px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Public Sans", "sans-serif"
+                      ],
+                      "headline-lg-mobile": [
+                              "\"Source Serif 4\"", "serif"
+                      ],
+                      "nav-item": [
+                              "Public Sans", "sans-serif"
+                      ],
+                      "headline-md": [
+                              "\"Source Serif 4\"", "serif"
+                      ],
+                      "body-md": [
+                              "\"Source Sans 3\"", "sans-serif"
+                      ],
+                      "body-lg": [
+                              "\"Source Sans 3\"", "sans-serif"
+                      ],
+                      "headline-lg": [
+                              "\"Source Serif 4\"", "serif"
+                      ],
+                      "display-lg": [
+                              "\"Source Serif 4\"", "serif"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "nav-item": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Subtle grain overlay for tactile feel */
+        .texture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Custom scrollbar for chat */
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(108, 122, 87, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<div class="texture-overlay"></div>
+<!-- TopNavBar -->
+<nav class="w-full border-b border-primary/20 bg-surface/80 backdrop-blur-sm sticky top-0 z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-7xl mx-auto">
+<!-- Brand -->
+<a class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary italic shrink-0" href="#">
+                carp24
+            </a>
+<!-- Desktop Navigation -->
+<div class="hidden md:flex items-center gap-6 overflow-x-auto mx-4 no-scrollbar flex-nowrap">
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Statistik</a>
+<div class="w-px h-4 bg-primary/20 shrink-0"></div> <!-- Divider -->
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Trips</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-primary border-b-2 border-primary pb-1 opacity-80 duration-200" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Marktplatz</a>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4 shrink-0">
+<button class="hidden md:block font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors">DE</button>
+<button class="px-4 py-1.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase hover:opacity-90 transition-opacity">Premium</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop py-xl max-w-5xl mx-auto">
+<!-- Header Section -->
+<header class="text-center mb-10 w-full max-w-3xl">
+<span class="block font-label-sm text-label-sm text-primary uppercase tracking-[0.2em] mb-4">CARP24</span>
+<h1 class="font-display-lg text-display-lg text-on-surface">KI-Angelassistent</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-4 mx-auto max-w-xl">
+                Dein digitales Logbuch, intelligent durchsuchbar. Entdecke Muster in deinen Fängen.
+            </p>
+</header>
+<!-- Chat Interface Container -->
+<div class="w-full max-w-4xl bg-surface-container/60 backdrop-blur-sm rounded-[16px] border border-primary/20 flex flex-col h-[600px] overflow-hidden relative shadow-sm">
+<!-- Messages Area -->
+<div class="flex-grow p-6 overflow-y-auto chat-scroll flex flex-col gap-6">
+<!-- Assistant Message 1 -->
+<div class="flex items-start gap-4 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px] text-primary">smart_toy</span>
+</div>
+<div class="bg-surface-variant rounded-2xl rounded-tl-sm px-5 py-4 border border-primary/10 text-on-surface font-body-md text-body-md leading-relaxed shadow-sm">
+                        Frag mich nach deinen Fängen - z.B. Was war mein größter Fang?
+                    </div>
+</div>
+<!-- User Message 1 -->
+<div class="flex items-start gap-4 max-w-[85%] self-end flex-row-reverse">
+<div class="bg-primary-container rounded-2xl rounded-tr-sm px-5 py-4 text-on-primary-container font-body-md text-body-md leading-relaxed shadow-sm">
+                        Was war mein größter Fang?
+                    </div>
+</div>
+<!-- Assistant Message 2 -->
+<div class="flex items-start gap-4 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px] text-primary">smart_toy</span>
+</div>
+<div class="bg-surface-variant rounded-2xl rounded-tl-sm px-5 py-4 border border-primary/10 text-on-surface font-body-md text-body-md leading-relaxed shadow-sm">
+                        Dein größter Fang war <strong>28.4 kg</strong> - ein Spiegelkarpfen aus dem Baggersee am 12. August 2026. <br/><br/>
+<span class="text-on-surface-variant text-sm flex items-center gap-2 mt-2 pt-2 border-t border-primary/10">
+<span class="material-symbols-outlined text-[16px]">thermostat</span> Wassertemperatur 19.5°C 
+                            <span class="mx-2 opacity-50">|</span>
+<span class="material-symbols-outlined text-[16px]">air</span> Luftdruck 1015 hPa
+                        </span>
+<em class="block mt-2 text-primary opacity-80">Beste Bedingungen!</em>
+</div>
+</div>
+<!-- User Message 2 -->
+<div class="flex items-start gap-4 max-w-[85%] self-end flex-row-reverse">
+<div class="bg-primary-container rounded-2xl rounded-tr-sm px-5 py-4 text-on-primary-container font-body-md text-body-md leading-relaxed shadow-sm">
+                        Welchen Köder sollte ich im Herbst verwenden?
+                    </div>
+</div>
+<!-- Assistant Message 3 -->
+<div class="flex items-start gap-4 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px] text-primary">smart_toy</span>
+</div>
+<div class="bg-surface-variant rounded-2xl rounded-tl-sm px-5 py-4 border border-primary/10 text-on-surface font-body-md text-body-md leading-relaxed shadow-sm">
+                        Basierend auf deinen Fängen: <strong>Tigernuss-Boilies</strong> waren im September am erfolgreichsten. Kombiniere sie mit einem kleinen Pop-up für mehr Aufmerksamkeit.
+                    </div>
+</div>
+<!-- Typing Indicator (Static for visual context) -->
+<div class="flex items-center gap-4 max-w-[85%] opacity-0 pointer-events-none">
+<div class="w-8 h-8"></div>
+<div class="bg-surface-variant rounded-2xl px-4 py-3 flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary/40 animate-pulse"></div>
+<div class="w-2 h-2 rounded-full bg-primary/40 animate-pulse delay-75"></div>
+<div class="w-2 h-2 rounded-full bg-primary/40 animate-pulse delay-150"></div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 border-t border-primary/10 bg-surface/50 backdrop-blur-md">
+<div class="relative flex items-end gap-3">
+<textarea class="w-full bg-surface rounded-[16px] border border-primary/20 px-4 py-3 text-on-surface font-body-md placeholder-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[52px] max-h-[150px]" oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 150) + 'px'" placeholder="Deine Frage..." rows="1"></textarea>
+<button class="bg-primary-container hover:bg-primary-container/90 text-on-primary-container px-6 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-wider transition-all shrink-0 h-[52px] flex items-center gap-2">
+<span>Senden</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant/60 mt-3 normal-case tracking-normal">
+                    Antworten werden von einer KI generiert und können Fehler enthalten.
+                </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-primary/10 mt-xl bg-surface">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto gap-4">
+<div class="font-headline-md text-headline-md text-primary italic">carp24</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">
+                © 2024 carp24. All rights reserved.
+            </div>
+<div class="flex gap-6">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+</body></html>

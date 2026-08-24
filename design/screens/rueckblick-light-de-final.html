@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jahres-Rückblick - carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f1f6e7",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2d3228",
+                        "outline": "#76786e",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c6c8bc",
+                        "on-surface-variant": "#45483f",
+                        "primary-fixed": "#d9e8be",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container-highest": "#dfe4d6",
+                        "primary": "#546140",
+                        "tertiary-fixed": "#cde7e9",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d7dccd",
+                        "surface-tint": "#556342",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "surface-container": "#ebf0e1",
+                        "background": "#f6fbec",
+                        "surface-container-high": "#e5eadb",
+                        "on-surface": "#181d14",
+                        "tertiary-container": "#617a7c",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#faffff",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-tertiary-fixed": "#061f21",
+                        "tertiary": "#496163",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#6c7a57",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-primary-fixed": "#141f05",
+                        "surface-variant": "#dfe4d6",
+                        "surface-bright": "#f6fbec",
+                        "surface": "#f6fbec",
+                        "on-secondary-container": "#67663f",
+                        "on-background": "#181d14",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "secondary-fixed": "#e7e5b4",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-secondary-fixed": "#1d1d01",
+                        "inverse-on-surface": "#eef3e4",
+                        "secondary": "#61603a",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#fdfff0",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#e7e5b4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "nav-item": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .card-border {
+            border: 1px solid rgba(108, 122, 87, 0.2);
+        }
+        .hairline-b {
+            border-bottom: 1px solid rgba(108, 122, 87, 0.15);
+        }
+        .grain-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        .bar-chart-bar {
+            background-color: #6C7A57;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased relative min-h-screen flex flex-col">
+<div class="grain-overlay z-50"></div>
+<!-- TopNavBar (Shared Component) -->
+<header class="w-full top-0 border-b border-outline/20 bg-background dark:bg-inverse-surface z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1440px] mx-auto">
+<!-- Brand -->
+<div class="font-headline-md text-headline-md font-bold tracking-tighter text-primary dark:text-inverse-primary">
+                carp24
+            </div>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex gap-lg items-center">
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Fänge</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Board</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Forum</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Chat</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Statistik</a>
+<a class="text-primary dark:text-inverse-primary border-b border-primary dark:border-inverse-primary pb-1 font-bold tracking-[0.08em] opacity-80 transition-opacity" href="#">Rückblick</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Trips</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Assistent</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Marktplatz</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em] hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200" href="#">Premium</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-md">
+<span class="text-on-surface-variant dark:text-outline-variant font-nav-item text-nav-item tracking-[0.08em]">DE/EN</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-xl space-y-xl">
+<!-- Title Area & Filters -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg">
+<div>
+<span class="font-label-sm text-label-sm text-primary uppercase mb-sm block">SAISON-RESUMEE</span>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">JAHRES-RUECKBLICK</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Deine Saison auf einen Blick - alle Fänge, Gewichte und Momente eines Jahres.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-lg py-sm rounded-full bg-primary text-on-primary font-label-sm text-label-sm transition-opacity hover:opacity-90">2026</button>
+<button class="px-lg py-sm rounded-full card-border text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors">2025</button>
+<button class="px-lg py-sm rounded-full card-border text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors">2024</button>
+<button class="ml-sm p-sm rounded-full card-border text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+</button>
+</div>
+</section>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 md:grid-cols-5 gap-gutter">
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-md">FÄNGE</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">37</span>
+</div>
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-md">GESAMTGEWICHT</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">412.8 <span class="text-body-md text-on-surface-variant">kg</span></span>
+</div>
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-md">DURCHSCHNITT</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">11.2 <span class="text-body-md text-on-surface-variant">kg</span></span>
+</div>
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-md">TOP-ART</span>
+<span class="font-headline-md text-headline-md text-on-surface leading-tight">Spiegel-<br/>karpfen</span>
+</div>
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-md">MOND</span>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-[32px]">clear_night</span>
+<span class="font-headline-md text-headline-md text-on-surface">Vollmond</span>
+</div>
+</div>
+</section>
+<!-- Data Section 1 -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Moon Distribution -->
+<div class="bg-surface-variant card-border rounded-[16px] p-lg">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xl">MONDVERTEILUNG</h3>
+<div class="flex justify-around items-end h-[200px] mb-md pb-md border-b border-outline/20">
+<!-- Bars -->
+<div class="flex flex-col items-center gap-sm w-full">
+<div class="w-full flex justify-center items-end h-[150px]">
+<div class="w-12 bar-chart-bar h-[20%]"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center leading-tight">Neu-<br/>mond</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full">
+<div class="w-full flex justify-center items-end h-[150px]">
+<div class="w-12 bar-chart-bar h-[45%] opacity-80"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center leading-tight">Erstes<br/>Viertel</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full">
+<div class="w-full flex justify-center items-end h-[150px]">
+<div class="w-12 bar-chart-bar h-[85%]"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center leading-tight">Voll-<br/>mond</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full">
+<div class="w-full flex justify-center items-end h-[150px]">
+<div class="w-12 bar-chart-bar h-[30%] opacity-80"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center leading-tight">Letztes<br/>Viertel</span>
+</div>
+</div>
+</div>
+<!-- Top Waters -->
+<div class="bg-surface-variant card-border rounded-[16px] p-lg flex flex-col">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-lg">TOP-GEWÄSSER</h3>
+<ul class="flex-grow flex flex-col">
+<li class="flex justify-between items-center py-md hairline-b">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-primary w-4">1.</span>
+<span class="font-body-lg text-body-lg text-on-surface">Baggersee</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">14</span>
+</li>
+<li class="flex justify-between items-center py-md hairline-b">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-4">2.</span>
+<span class="font-body-lg text-body-lg text-on-surface">Donau</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">9</span>
+</li>
+<li class="flex justify-between items-center py-md hairline-b">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-4">3.</span>
+<span class="font-body-lg text-body-lg text-on-surface">Mühlenteich</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">6</span>
+</li>
+<li class="flex justify-between items-center py-md hairline-b">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-4">4.</span>
+<span class="font-body-lg text-body-lg text-on-surface">Stausee</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">5</span>
+</li>
+<li class="flex justify-between items-center py-md">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-4">5.</span>
+<span class="font-body-lg text-body-lg text-on-surface">Altwasser</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">3</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Data Section 2: Catches per Month -->
+<section class="bg-surface-variant card-border rounded-[16px] p-lg">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xl">FÄNGE PRO MONAT</h3>
+<div class="flex items-end h-[240px] gap-xs sm:gap-sm md:gap-md pb-md border-b border-outline/20">
+<!-- Months (Jan-Dec) dummy data -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[5%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Jan</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[10%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Feb</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[25%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Mär</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[45%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Apr</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[80%] opacity-80 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Mai</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[65%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Jun</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[75%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Jul</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[90%] opacity-80 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Aug</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[100%] group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Sep</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[55%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Okt</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[20%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Nov</span>
+</div>
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[40px] bar-chart-bar h-[5%] opacity-60 group-hover:opacity-100"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-sm">Dez</span>
+</div>
+</div>
+</section>
+<!-- Gallery / Highlights -->
+<section>
+<div class="mb-lg">
+<span class="font-label-sm text-label-sm text-primary uppercase block">HIGHLIGHTS DER SAISON</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">GRÖSSTE FÄNGE</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Highlight Card 1 -->
+<div class="bg-surface-variant card-border rounded-[16px] overflow-hidden group">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1VIr8cg_Wx0Q3GDjV14Vvv1KY4FjbLus1zMd5FX-reMd43b_b5R6piw2-B_bUPJ44oLBb_REzL3eLbEDP2CUh9pqVg5HdujYwJu5KR2olj-Flo5iaI0cE5lu0kYdn_FHAuS3QE95zK5RT-UW_BVxw01yKhaJq-H1eNpw4CueV7pBtDnpD7wMbbj1PssNjkCZuKFNHEqYaStsCN5O0BLnFIJavzpaRUYshyZgPF1hF3r07NafBctPN7vWHQi"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-md left-md text-on-primary">
+<span class="font-display-lg text-[32px] leading-tight block">28.4 <span class="text-body-md uppercase">kg</span></span>
+</div>
+</div>
+<div class="p-md">
+<h4 class="font-headline-md text-headline-md text-on-surface mb-xs">Spiegelkarpfen</h4>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Baggersee</span>
+<span class="font-label-sm text-label-sm uppercase">14. Sep</span>
+</div>
+</div>
+</div>
+<!-- Highlight Card 2 -->
+<div class="bg-surface-variant card-border rounded-[16px] overflow-hidden group">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1WTB1T87HuWL_GyQcZ7jEqZnUPTtAABty7Smb7OESUHBwY6TipzK_MmUgILIp6UYlL3uq2tUE4a3UvASB0UFZFCBRJTq9OAC4Q8d3M4fdJFLFnLq1013p0mmqO992rcyuSlDIvXwqrN3NzUYCRJd1rD7D6NfZODPadAGBS7HwNpKIf2993bfgpwZM7fdG2z7eqTE2_x_7HmmY4GeAzaKv4S7t-otEWoEw_TQD4_GRxXUR9lGWgZNWpgwtcc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-md left-md text-on-primary">
+<span class="font-display-lg text-[32px] leading-tight block">24.1 <span class="text-body-md uppercase">kg</span></span>
+</div>
+</div>
+<div class="p-md">
+<h4 class="font-headline-md text-headline-md text-on-surface mb-xs">Schuppenkarpfen</h4>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Donau</span>
+<span class="font-label-sm text-label-sm uppercase">02. Mai</span>
+</div>
+</div>
+</div>
+<!-- Highlight Card 3 -->
+<div class="bg-surface-variant card-border rounded-[16px] overflow-hidden group">
+<div class="aspect-square relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1U8zSqdG9prDeINcv7HY9QI19nkFZ8nzlvbq0EX-QQXpsqytYw2OU09b5otUYD2rA25ZaXIK4ktYqFgxjzNqsK3nD7SXCvDXsQCktoQnm3eUaa4w_P8xgx7_rr3dC9a5IIdH8avN5WI-wcwRNOKY-02F09uk__1Lh13mP29Vw78lnueOkaa0CsAc6enfE4cqqP4NTN8CYOr4YyFMEuKFj8IoZutgwhA5fGxwPUyj8D3YtRjKeD9tAM9UXSa"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-md left-md text-on-primary">
+<span class="font-display-lg text-[32px] leading-tight block">21.8 <span class="text-body-md uppercase">kg</span></span>
+</div>
+</div>
+<div class="p-md">
+<h4 class="font-headline-md text-headline-md text-on-surface mb-xs">Zeilkarpfen</h4>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">Stausee</span>
+<span class="font-label-sm text-label-sm uppercase">28. Aug</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full bg-surface-container-low dark:bg-inverse-surface border-t border-outline/10 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-[1440px] mx-auto gap-md">
+<!-- Brand Logo / Name -->
+<div class="font-nav-item text-nav-item uppercase tracking-widest text-primary">
+                carp24
+            </div>
+<!-- Links -->
+<nav class="flex flex-wrap justify-center gap-md font-body-md text-body-md">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer" href="#">Impressum</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer" href="#">Datenschutz</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer" href="#">AGB</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer" href="#">Kontakt</a>
+</nav>
+<!-- Copyright -->
+<div class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md">
+                © 2024 carp24. Alle Rechte vorbehalten.
+            </div>
+</div>
+</footer>
+</body></html>

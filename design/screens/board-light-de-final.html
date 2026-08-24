@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400;1,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#617a7c",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "outline": "#76786e",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-secondary-fixed-variant": "#494824",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary": "#546140",
+                        "inverse-primary": "#bdcca4",
+                        "secondary-fixed": "#e7e5b4",
+                        "secondary": "#61603a",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-primary-container": "#fdfff0",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-tint": "#556342",
+                        "on-surface": "#181d14",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "on-tertiary-container": "#faffff",
+                        "on-secondary-container": "#67663f",
+                        "on-primary-fixed": "#141f05",
+                        "on-background": "#181d14",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c6c8bc",
+                        "on-tertiary-fixed": "#061f21",
+                        "inverse-on-surface": "#eef3e4",
+                        "error": "#ba1a1a",
+                        "surface": "#f6fbec",
+                        "on-surface-variant": "#45483f",
+                        "surface-variant": "#dfe4d6",
+                        "tertiary": "#496163",
+                        "surface-bright": "#f6fbec",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface-container-low": "#f1f6e7",
+                        "primary-fixed": "#d9e8be",
+                        "primary-container": "#6c7a57",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2d3228",
+                        "secondary-container": "#e7e5b4",
+                        "surface-dim": "#d7dccd",
+                        "background": "#f6fbec",
+                        "surface-container-high": "#e5eadb",
+                        "surface-container-highest": "#dfe4d6",
+                        "surface-container": "#ebf0e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "margin-desktop": "64px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xl": "40px",
+                        "sm": "8px",
+                        "gutter": "20px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["\"Source Serif 4\""],
+                        "label-sm": ["Public Sans"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "nav-item": ["Public Sans"],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f6fbec;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen font-body-md antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface/80 backdrop-blur-sm w-full border-b border-primary/20 sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1440px] mx-auto">
+<div class="flex items-center gap-lg">
+<a class="font-headline-lg text-headline-lg text-primary italic" href="#">carp24</a>
+<div class="hidden md:flex gap-md items-center ml-xl">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary border-b-2 border-primary pb-1" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Statistik</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex gap-md items-center mr-xl">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Trips</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Marktplatz</a>
+</div>
+<div class="flex items-center gap-sm font-label-sm text-label-sm text-on-surface-variant uppercase border-r border-primary/20 pr-md mr-sm">
+<span class="text-primary cursor-pointer hover:opacity-80">DE</span>
+<span class="opacity-50">/</span>
+<span class="cursor-pointer hover:opacity-80">EN</span>
+</div>
+<button class="font-nav-item text-nav-item uppercase tracking-widest text-primary hover:opacity-80 transition-opacity hidden md:block">Premium</button>
+<button class="text-primary hover:opacity-80 transition-opacity ml-sm">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<button class="md:hidden text-primary hover:opacity-80 transition-opacity ml-sm">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Header Area -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-xl pb-lg border-b border-primary/10">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-sm">BOARD</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">24 ÖFFENTLICHE FÄNGE</p>
+</div>
+<button class="mt-md md:mt-0 bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-lg py-sm rounded-full flex items-center gap-xs hover:opacity-90 transition-opacity self-start md:self-end">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                NEUER FANG
+            </button>
+</header>
+<!-- Board Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative">
+<img alt="Card Photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VIr8cg_Wx0Q3GDjV14Vvv1KY4FjbLus1zMd5FX-reMd43b_b5R6piw2-B_bUPJ44oLBb_REzL3eLbEDP2CUh9pqVg5HdujYwJu5KR2olj-Flo5iaI0cE5lu0kYdn_FHAuS3QE95zK5RT-UW_BVxw01yKhaJq-H1eNpw4CueV7pBtDnpD7wMbbj1PssNjkCZuKFNHEqYaStsCN5O0BLnFIJavzpaRUYshyZgPF1hF3r07NafBctPN7vWHQi"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">21.5 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">14. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Spiegelkarpfen, Baggersee
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Markus</span> — Ein unglaublicher Drill in den frühen Morgenstunden. Der Fisch nahm einen einzelnen Sink-Boilie am Rand der Krautbank.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 47.21, 15.63</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative">
+<img alt="Card Photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WTB1T87HuWL_GyQcZ7jEqZnUPTtAABty7Smb7OESUHBwY6TipzK_MmUgILIp6UYlL3uq2tUE4a3UvASB0UFZFCBRJTq9OAC4Q8d3M4fdJFLFnLq1013p0mmqO992rcyuSlDIvXwqrN3NzUYCRJd1rD7D6NfZODPadAGBS7HwNpKIf2993bfgpwZM7fdG2z7eqTE2_x_7HmmY4GeAzaKv4S7t-otEWoEw_TQD4_GRxXUR9lGWgZNWpgwtcc"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">17.8 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">12. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Schuppenkarpfen, Donau
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Julia</span> — Harter Kampf in der Strömung. Der Tigernuss-Schneemann am D-Rig hat wieder zugeschlagen.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 48.30, 14.28</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative">
+<img alt="Card Photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U8zSqdG9prDeINcv7HY9QI19nkFZ8nzlvbq0EX-QQXpsqytYw2OU09b5otUYD2rA25ZaXIK4ktYqFgxjzNqsK3nD7SXCvDXsQCktoQnm3eUaa4w_P8xgx7_rr3dC9a5IIdH8avN5WI-wcwRNOKY-02F09uk__1Lh13mP29Vw78lnueOkaa0CsAc6enfE4cqqP4NTN8CYOr4YyFMEuKFj8IoZutgwhA5fGxwPUyj8D3YtRjKeD9tAM9UXSa"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">12.4 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">10. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Zeilkarpfen, Mühlenteich
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Stefan</span> — Ein wunderschöner Fisch mit perfekter Zeile. Gefangen auf Sicht mit Schwimmbrot an der Oberfläche.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 51.45, 9.87</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative bg-surface-dim">
+<img alt="Graskarpfen, Stausee" class="w-full h-full object-cover" data-alt="A beautiful, serene wide shot of a misty lake at dawn in a light-mode photography style. The water is glass-like, reflecting the soft pale morning light. A solitary carp angler is faintly visible in the distance, setting up gear. The color palette features pale sage greens, misty whites, and soft parchment tones, matching a premium, tactile editorial aesthetic. Very subtle grain." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_kR_cVYRkMn7V5Ad-nefaQC3ehEcqnfUFNfT7hU6fYozhvQAxGFvo47P6AdS1-v5Yx4unly0SCPiUm01bHcLvatarKDmnxP8cGV_y8PKKRFfh0oy4dSGUeEYEUOB0QD4UbRl5idCDIx01RH25kZWBwcxUfUUMjVdTz9Qwgml7QLO7rIZRuy0cwWlFP02O6BbWLZrxcAu7HoGUYDk41aYAdOTl0x40OjgMsw-Yzk8jRv1aMdTQX1G-bqVdECKjWIFu7JKSUOxZSHMu"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">9.1 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">08. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Graskarpfen, Stausee
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Anna</span> — Sehr kampfstarker Graser aus dem flachen Wasser. Maiskette am Method-Feeder war die Lösung.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 49.82, 11.05</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative bg-surface-dim">
+<img alt="Spiegelkarpfen, Altwasser" class="w-full h-full object-cover" data-alt="A close-up, high-end editorial shot of a massive, perfectly scaled mirror carp resting briefly on a damp, olive-green unhooking mat. The lighting is soft, overcast, and even, highlighting the golden-bronze flanks of the fish against the sage-green mat. The background is a soft, out-of-focus blur of reeds in muted parchment and olive tones. The overall aesthetic is calm, minimal, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBexb3L0cBsK37rbV9muGK03U8NCcLL6WAlAkB0DjBJN5PJ6C7C42lq06EeYTEzdgK_JFt38OpBmrOhMHJ4raiPSSBBH4Lg5hxNrNwQlcQCa4cKGXynY3QwnBnP1WLt_yi_5LcdRsblyU0claIC2pKYz18o1V8ejtav7q0SaZrCYDYyTjl9mnUvgp54_dQmxgnwNnbmeuF2fkhoWTAhB0Ar_Lt2Y_CjbQuKYgIKt-hSl4HTavbNqA5M7yk8N8rVU5UlvmEH7yBESnRA"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">28.4 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">05. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Spiegelkarpfen, Altwasser
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Daniel</span> — Mein neuer PB! Ein gewaltiger alter Fisch aus einem verwilderten Altwasserarm. Zwei Wochen vorgefüttert.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 50.11, 8.65</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl overflow-hidden flex flex-col p-lg">
+<div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-lg relative bg-surface-dim">
+<img alt="Schuppenkarpfen, Fluss" class="w-full h-full object-cover" data-alt="A stylized, flat-lay photograph of high-end carp fishing tackle arranged neatly on a distressed wooden surface. Items include a custom-built cork-handle rod, a classic olive-green tackle box, and a few meticulously tied rigs on a piece of cream parchment paper. The lighting is bright and diffuse, creating a light-mode, tactile editorial feel with very soft shadows. Color palette dominated by sage, cream, and warm wood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCELGKQmnqHPajqS_V-sEaCZbnvOktvNO0zwNQo3f0wDP-I4NffW3KWjY5WpTrdqPiOHmCXK3eb-5QpPdYsqcJCaDvqn0et9HHCKBVWulbtLSzWnL9PPQ6sWbY68gjvNEnqlil_j16YdYJ-VFVsIcMcRbveoKyPudJBGTa6v59fnv8FCunTsFvISk9EK6N-OEYBi5bl9LvapCcxxdlCpV1GBb1frhHJrM9KCstOfF_b_izHzk4qFpmnTLm4TOqcoMui35lLn1okyhQ7"/>
+</div>
+<div class="flex justify-between items-end mb-sm">
+<span class="font-mono text-headline-lg font-semibold text-primary">6.7 KG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">02. Mai 2023</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md pb-md border-b border-primary/10">
+                    Schuppenkarpfen, Fluss
+                </div>
+<div class="mb-md flex-grow">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold text-primary">von Thomas</span> — Ein kleiner, aber makelloser Wildkarpfen aus starker Strömung. Ein echter Kämpfer.
+                    </p>
+</div>
+<div class="flex justify-between items-center mt-auto pt-md border-t border-primary/10">
+<div class="flex items-center gap-xs text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+<span class="font-mono text-[10px]">ca. 52.34, 13.45</span>
+</div>
+<button class="font-label-sm text-[10px] text-primary hover:underline uppercase tracking-widest">MELDEN</button>
+</div>
+</article>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface border-t border-primary/10 mt-xl w-full">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-[1440px] mx-auto gap-md">
+<div class="font-headline-lg text-headline-lg text-primary italic">carp24</div>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">AGB</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-all" href="#">Support</a>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-70">
+                © 2024 carp24. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>
