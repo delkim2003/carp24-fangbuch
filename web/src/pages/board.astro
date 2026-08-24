@@ -77,7 +77,7 @@ const userId = session?.user?.id ?? null;
           <div>
             <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("board.titel", "de")} data-en={t("board.titel", "en")}>{t("board.titel")}</h1>
             {catches.length > 0 && (
-              <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest"><span class="i18n" data-de={catches.length + " " + t("board.oeffentliche_faenge", "de")} data-en={catches.length + " " + t("board.oeffentliche_faenge", "en")}>{catches.length} {t("board.oeffentliche_faenge")}</span></p>
+              <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest"><span class="i18n" data-de={catches.length + " " + t("board.oeffentliche_faenge", "de")} data-en={catches.length + " " + t("board.oeffentliche_faenge", "en")}>{catches.length} {t("board.oeffentliche_faenge")}</span></p>
             )}
           </div>
           <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
@@ -111,14 +111,14 @@ const userId = session?.user?.id ?? null;
               const photoPath = hasPhoto ? c.photos[0].slice(5) : null;
 
               return (
-                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg flex flex-col gap-md board-card" data-catch-id={c.id} data-user-id={c.user_id} data-is-public={c.is_public}>
+                <div class="bg-surface-variant border border-primary/20 rounded-xl p-lg flex flex-col gap-md board-card" data-catch-id={c.id} data-user-id={c.user_id} data-is-public={c.is_public}>
                   {hasPhoto && (
                     <div class="w-full h-48 rounded-lg overflow-hidden bg-surface-container-lowest" data-photo-path={photoPath}>
                       <div class="w-full h-full flex items-center justify-center text-secondary text-body-md">Foto wird geladen…</div>
                     </div>
                   )}
                   <div class="flex items-center justify-between">
-                    <div class="font-mono text-display-sm text-primary font-bold">{gewicht}</div>
+                    <div class="font-mono text-headline-lg text-primary font-semibold">{gewicht}</div>
                     <div class="font-label-sm text-label-sm uppercase text-secondary">{datum}</div>
                   </div>
                   <div class="font-label-sm text-label-sm uppercase text-secondary">{speciesDe} · {c.water_name ?? "Unbekanntes Gewässer"}</div>
