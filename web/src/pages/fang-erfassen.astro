@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createServerClient } from "@supabase/ssr";
+import { t } from "../lib/i18n";
 
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
@@ -52,17 +53,17 @@ const userTripsJson = JSON.stringify(userTrips);
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!isLoggedIn ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
-        <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
-        <p class="text-body-lg text-on-surface-variant max-w-xl">Du musst angemeldet sein, um einen Fang zu erfassen.</p>
-        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
-          Anmelden
+        <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("fang_erfassen.titel", "de")} data-en={t("fang_erfassen.titel", "en")}>{t("fang_erfassen.titel")}</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-xl i18n" data-de={t("fang_erfassen.anmelden_text", "de")} data-en={t("fang_erfassen.anmelden_text", "en")}>{t("fang_erfassen.anmelden_text")}</p>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("fang_erfassen.anmelden_btn", "de")} data-en={t("fang_erfassen.anmelden_btn", "en")}>
+          {t("fang_erfassen.anmelden_btn")}
         </a>
       </div>
     ) : (
       <>
         <div class="mb-xl text-center md:text-left">
-          <h1 class="text-display-lg text-primary mb-2">Neuen Fang eintragen</h1>
-          <p class="text-body-lg text-on-surface-variant max-w-2xl">Dokumentiere die Details deines Fangs für das Journal.</p>
+          <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("fang_erfassen.titel", "de")} data-en={t("fang_erfassen.titel", "en")}>{t("fang_erfassen.titel")}</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de={t("fang_erfassen.intro", "de")} data-en={t("fang_erfassen.intro", "en")}>{t("fang_erfassen.intro")}</p>
         </div>
 
         <form id="catch-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
@@ -70,7 +71,7 @@ const userTripsJson = JSON.stringify(userTrips);
           <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
             <div class="flex flex-col gap-lg">
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">GEWICHT (KG)<span class="text-primary" aria-hidden="true">*</span></label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="gewicht" data-de={t("fang_erfassen.gewicht", "de")} data-en={t("fang_erfassen.gewicht", "en")}>{t("fang_erfassen.gewicht")}<span class="text-primary" aria-hidden="true">*</span></label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" required
@@ -78,7 +79,7 @@ const userTripsJson = JSON.stringify(userTrips);
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">LÄNGE (CM)</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="laenge" data-de={t("fang_erfassen.laenge", "de")} data-en={t("fang_erfassen.laenge", "en")}>{t("fang_erfassen.laenge")}</label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="laenge" name="laenge" type="number" placeholder="0" inputmode="numeric"
@@ -86,16 +87,16 @@ const userTripsJson = JSON.stringify(userTrips);
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="water_temp_c">WASSERTEMPERATUR (°C)</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="water_temp_c" data-de={t("fang_erfassen.wassertemperatur_label", "de")} data-en={t("fang_erfassen.wassertemperatur_label", "en")}>{t("fang_erfassen.wassertemperatur_label")}</label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="water_temp_c" name="water_temp_c" type="number" step="0.1" min="0" max="40" placeholder="18.5" inputmode="decimal" data-testid="water-temp-input"
                 />
-                <span class="text-body-md text-on-surface-variant text-xs">Wassertemperatur am Gewässer</span>
+                <span class="text-body-md text-on-surface-variant text-xs i18n" data-de={t("fang_erfassen.wassertemperatur_hinweis", "de")} data-en={t("fang_erfassen.wassertemperatur_hinweis", "en")}>{t("fang_erfassen.wassertemperatur_hinweis")}</span>
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary">FISCHART<span class="text-primary" aria-hidden="true">*</span></label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" data-de={t("fang_erfassen.fischart", "de")} data-en={t("fang_erfassen.fischart", "en")}>{t("fang_erfassen.fischart")}<span class="text-primary" aria-hidden="true">*</span></label>
                 <div id="species-chips" class="flex flex-wrap gap-sm">
                   <button type="button" data-species="SPIEGEL" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">SPIEGEL</button>
                   <button type="button" data-species="LEDER" class="species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer">LEDER</button>
@@ -109,7 +110,7 @@ const userTripsJson = JSON.stringify(userTrips);
 
             <div class="flex flex-col gap-lg">
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">DATUM<span class="text-primary" aria-hidden="true">*</span></label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="datum" data-de={t("fang_erfassen.datum", "de")} data-en={t("fang_erfassen.datum", "en")}>{t("fang_erfassen.datum")}<span class="text-primary" aria-hidden="true">*</span></label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="datum" name="datum" type="date" required
@@ -117,7 +118,7 @@ const userTripsJson = JSON.stringify(userTrips);
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="uhrzeit">UHRZEIT</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="uhrzeit" data-de={t("fang_erfassen.uhrzeit", "de")} data-en={t("fang_erfassen.uhrzeit", "en")}>{t("fang_erfassen.uhrzeit")}</label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                   id="uhrzeit" name="uhrzeit" type="time"
@@ -125,18 +126,18 @@ const userTripsJson = JSON.stringify(userTrips);
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="koeder">KÖDER</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="koeder" data-de={t("fang_erfassen.koeder", "de")} data-en={t("fang_erfassen.koeder", "en")}>{t("fang_erfassen.koeder")}</label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
-                  id="koeder" name="koeder" type="text" placeholder="z.B. Mais, Boilies..."
+                  id="koeder" name="koeder" type="text" placeholder={t("fang_erfassen.koeder_placeholder")}
                 />
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="methode">METHODE</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="methode" data-de={t("fang_erfassen.methode", "de")} data-en={t("fang_erfassen.methode", "en")}>{t("fang_erfassen.methode")}</label>
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
-                  id="methode" name="methode" type="text" placeholder="z.B. Pose, Grundangel..."
+                  id="methode" name="methode" type="text" placeholder={t("fang_erfassen.methode_placeholder")}
                 />
               </div>
             </div>
@@ -146,55 +147,55 @@ const userTripsJson = JSON.stringify(userTrips);
 
           <div class="flex flex-col gap-lg">
             <div class="flex flex-col gap-sm">
-              <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser-input">GEWÄSSER</label>
+              <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="gewaesser-input" data-de={t("fang_erfassen.gewaesser", "de")} data-en={t("fang_erfassen.gewaesser", "en")}>{t("fang_erfassen.gewaesser")}</label>
               <div class="relative">
                 <input
                   class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
-                  id="gewaesser-input" name="gewaesser" type="text" placeholder="Name des Sees oder Flusses" autocomplete="off"
+                  id="gewaesser-input" name="gewaesser" type="text" placeholder={t("fang_erfassen.gewaesser_placeholder")} autocomplete="off"
                 />
                 <div id="gewaesser-dropdown" class="hidden absolute z-10 w-full bg-surface-container-lowest border border-primary/20 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
               </div>
               <input type="hidden" id="water_name" name="water_name" />
               <input type="hidden" id="water_id" name="water_id" />
 
-              <button type="button" id="gps-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+              <button type="button" id="gps-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs i18n" data-de={t("fang_erfassen.standort_verwenden", "de")} data-en={t("fang_erfassen.standort_verwenden", "en")}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-                STANDORT VERWENDEN
+                {t("fang_erfassen.standort_verwenden")}
               </button>
               <span id="gps-status" class="text-body-md text-secondary hidden"></span>
 
-              <button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+              <button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs i18n" data-de={t("fang_erfassen.auf_karte_waehlen", "de")} data-en={t("fang_erfassen.auf_karte_waehlen", "en")}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                AUF KARTE WÄHLEN
+                {t("fang_erfassen.auf_karte_waehlen")}
               </button>
-              <p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs">Für die Karten-Auswahl bitte im Cookie-Banner „Alle akzeptieren" wählen.</p>
+              <p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs i18n" data-de={t("fang_erfassen.karten_consent_hinweis", "de")} data-en={t("fang_erfassen.karten_consent_hinweis", "en")}>{t("fang_erfassen.karten_consent_hinweis")}</p>
 
               <div class="grid grid-cols-2 gap-gutter mt-sm">
                 <div class="flex flex-col gap-xs">
-                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lat">BREITENGRAD</label>
+                  <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="lat" data-de={t("fang_erfassen.breitengrad", "de")} data-en={t("fang_erfassen.breitengrad", "en")}>{t("fang_erfassen.breitengrad")}</label>
                   <input
                     class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                     id="lat" name="lat" type="number" step="any" placeholder="48.1351" inputmode="decimal"
                   />
                 </div>
                 <div class="flex flex-col gap-xs">
-                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lng">LÄNGENGRAD</label>
+                  <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="lng" data-de={t("fang_erfassen.laengengrad", "de")} data-en={t("fang_erfassen.laengengrad", "en")}>{t("fang_erfassen.laengengrad")}</label>
                   <input
                     class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                     id="lng" name="lng" type="number" step="any" placeholder="11.5820" inputmode="decimal"
                   />
                 </div>
               </div>
-              <p class="text-body-md text-on-surface-variant text-xs mt-xs">Privatgewässer: Name eintragen, Koordinaten optional</p>
-              <p class="text-body-md text-on-surface-variant text-xs mt-xs">Koordinaten werden für automatische Wetterdaten-Erfassung (Open-Meteo) verwendet.</p>
+              <p class="text-body-md text-on-surface-variant text-xs mt-xs i18n" data-de={t("fang_erfassen.privatgewaesser_hinweis", "de")} data-en={t("fang_erfassen.privatgewaesser_hinweis", "en")}>{t("fang_erfassen.privatgewaesser_hinweis")}</p>
+              <p class="text-body-md text-on-surface-variant text-xs mt-xs i18n" data-de={t("fang_erfassen.wetterdaten_hinweis", "de")} data-en={t("fang_erfassen.wetterdaten_hinweis", "en")}>{t("fang_erfassen.wetterdaten_hinweis")}</p>
               <div id="map-pick-container" class="hidden mt-sm rounded-lg overflow-hidden border border-primary/20" style="height: 320px; z-index: 1;"></div>
             </div>
 
             <div class="flex flex-col gap-sm">
-              <label class="font-label-sm text-label-sm uppercase text-secondary">FOTO HOCHLADEN</label>
+              <label class="font-label-sm text-label-sm uppercase text-secondary i18n" data-de={t("fang_erfassen.foto_hochladen", "de")} data-en={t("fang_erfassen.foto_hochladen", "en")}>{t("fang_erfassen.foto_hochladen")}</label>
               <div id="photo-drop" class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                <span class="font-nav-item text-nav-item text-secondary">Bild auswählen oder ablegen</span>
+                <span class="font-nav-item text-nav-item text-secondary i18n" data-de={t("fang_erfassen.bild_auswaehlen", "de")} data-en={t("fang_erfassen.bild_auswaehlen", "en")}>{t("fang_erfassen.bild_auswaehlen")}</span>
                 <span id="photo-name" class="text-body-md text-primary mt-sm hidden"></span>
               </div>
               <input type="file" id="photo-input" accept="image/*" class="hidden" />
@@ -203,42 +204,42 @@ const userTripsJson = JSON.stringify(userTrips);
 
             <div class="flex flex-col gap-sm">
               <div class="flex justify-between items-center">
-                <label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">NOTIZEN</label>
+                <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="notizen" data-de={t("fang_erfassen.notizen", "de")} data-en={t("fang_erfassen.notizen", "en")}>{t("fang_erfassen.notizen")}</label>
                 <span id="notes-counter" class="font-label-sm text-label-sm text-secondary">0 / 1000</span>
               </div>
               <textarea
                 class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-32"
-                id="notizen" name="notizen" rows="4" maxlength="1000" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..."
+                id="notizen" name="notizen" rows="4" maxlength="1000" placeholder={t("fang_erfassen.notizen_placeholder")}
               ></textarea>
             </div>
 
             <div class="flex items-center gap-3 pt-md">
               <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" />
-              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">CATCH &amp; RELEASE</label>
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer i18n" for="catch_release" data-de={t("fang_erfassen.catch_release", "de")} data-en={t("fang_erfassen.catch_release", "en")}>{t("fang_erfassen.catch_release")}</label>
             </div>
 
             <div class="flex items-center gap-3 pt-md">
               <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="is_public" name="is_public" type="checkbox" />
-              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="is_public">ÖFFENTLICH TEILEN</label>
-              <span class="text-body-md text-on-surface-variant text-xs">(Im Community-Board sichtbar)</span>
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer i18n" for="is_public" data-de={t("fang_erfassen.oeffentlich_teilen", "de")} data-en={t("fang_erfassen.oeffentlich_teilen", "en")}>{t("fang_erfassen.oeffentlich_teilen")}</label>
+              <span class="text-body-md text-on-surface-variant text-xs i18n" data-de={t("fang_erfassen.oeffentlich_teilen_hinweis", "de")} data-en={t("fang_erfassen.oeffentlich_teilen_hinweis", "en")}>{t("fang_erfassen.oeffentlich_teilen_hinweis")}</span>
             </div>
 
             <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
             <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
             <div class="flex flex-col gap-sm">
-              <label class="font-label-sm text-label-sm uppercase text-secondary" for="trip-select">TRIP (OPTIONAL)</label>
+              <label class="font-label-sm text-label-sm uppercase text-secondary i18n" for="trip-select" data-de={t("fang_erfassen.trip_optional", "de")} data-en={t("fang_erfassen.trip_optional", "en")}>{t("fang_erfassen.trip_optional")}</label>
               <select
                 class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
                 id="trip-select" name="trip_id"
               >
-                <option value="">— Kein Trip —</option>
+                <option value="" class="i18n" data-de={t("fang_erfassen.kein_trip", "de")} data-en={t("fang_erfassen.kein_trip", "en")}>{t("fang_erfassen.kein_trip")}</option>
               </select>
             </div>
 
             <div class="pt-xl flex justify-end">
-              <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
-                FANG SPEICHERN
+              <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("fang_erfassen.speichern", "de")} data-en={t("fang_erfassen.speichern", "en")}>
+                {t("fang_erfassen.speichern")}
               </button>
             </div>
           </div>
@@ -247,9 +248,9 @@ const userTripsJson = JSON.stringify(userTrips);
         <div id="drafts-container" class="hidden mt-lg">
           <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg shadow-sm">
             <div class="flex items-center justify-between mb-md">
-              <h2 class="font-headline-md text-headline-md text-primary">Offene Drafts</h2>
-              <button id="draft-sync-btn" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors text-sm cursor-pointer">
-                JETZT SYNCEN
+              <h2 class="font-headline-md text-headline-md text-primary i18n" data-de={t("fang_erfassen.offene_drafts", "de")} data-en={t("fang_erfassen.offene_drafts", "en")}>{t("fang_erfassen.offene_drafts")}</h2>
+              <button id="draft-sync-btn" class="font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-tint transition-colors text-sm cursor-pointer i18n" data-de={t("fang_erfassen.jetzt_syncen", "de")} data-en={t("fang_erfassen.jetzt_syncen", "en")}>
+                {t("fang_erfassen.jetzt_syncen")}
               </button>
             </div>
             <div id="draft-list" class="flex flex-col gap-sm"></div>

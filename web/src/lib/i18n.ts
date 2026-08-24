@@ -40,6 +40,16 @@ const dict: Record<string, Record<Lang, string>> = {
   "login.totp_code": { de: "Bestätigungscode", en: "Verification code" },
   "login.totp_bestaetigen": { de: "BESTÄTIGEN", en: "CONFIRM" },
   "login.totp_abbrechen": { de: "ABBRECHEN", en: "CANCEL" },
+  "login.passwort_vergessen": { de: "Passwort vergessen?", en: "Forgot password?" },
+
+  // passwort-vergessen
+  "pwreset.titel": { de: "Passwort zurücksetzen", en: "Reset password" },
+  "pwreset.subtitle": { de: "Wir senden dir einen Link zum Zurücksetzen an deine E-Mail-Adresse.", en: "We will send a reset link to your email address." },
+  "pwreset.email": { de: "E-Mail", en: "Email" },
+  "pwreset.senden": { de: "LINK SENDEN", en: "SEND LINK" },
+  "pwreset.erfolg": { de: "Wenn die E-Mail existiert, ist ein Reset-Link auf dem Weg.", en: "If the email exists, a reset link is on its way." },
+  "pwreset.fehler": { de: "Senden fehlgeschlagen. Bitte versuche es später erneut.", en: "Sending failed. Please try again later." },
+  "pwreset.zurueck": { de: "Zurück zum Login", en: "Back to login" },
 
   // premium
   "premium.titel": { de: "PREMIUM", en: "PREMIUM" },
@@ -368,6 +378,19 @@ const dict: Record<string, Record<Lang, string>> = {
   "fang_erfassen.oeffentlich_teilen": { de: "ÖFFENTLICH TEILEN", en: "SHARE PUBLICLY" },
   "fang_erfassen.trip_optional": { de: "TRIP (OPTIONAL)", en: "TRIP (OPTIONAL)" },
   "fang_erfassen.offene_drafts": { de: "Offene Drafts", en: "Open drafts" },
+  "fang_erfassen.anmelden_btn": { de: "Anmelden", en: "Sign in" },
+  "fang_erfassen.standort_verwenden": { de: "STANDORT VERWENDEN", en: "USE LOCATION" },
+  "fang_erfassen.auf_karte_waehlen": { de: "AUF KARTE WÄHLEN", en: "PICK ON MAP" },
+  "fang_erfassen.karten_consent_hinweis": { de: 'Für die Karten-Auswahl bitte im Cookie-Banner „Alle akzeptieren" wählen.', en: 'To use map selection, please accept all cookies in the consent banner.' },
+  "fang_erfassen.koeder_placeholder": { de: "z.B. Mais, Boilies...", en: "e.g. corn, boilies..." },
+  "fang_erfassen.methode_placeholder": { de: "z.B. Pose, Grundangel...", en: "e.g. float, bottom..." },
+  "fang_erfassen.gewaesser_placeholder": { de: "Name des Sees oder Flusses", en: "Name of the lake or river" },
+  "fang_erfassen.notizen_placeholder": { de: "Besondere Vorkommnisse, Köder, Wetterdetails...", en: "Notable events, bait, weather details..." },
+  "fang_erfassen.catch_release": { de: "CATCH & RELEASE", en: "CATCH & RELEASE" },
+  "fang_erfassen.oeffentlich_teilen_hinweis": { de: "(Im Community-Board sichtbar)", en: "(Visible in the Community Board)" },
+  "fang_erfassen.kein_trip": { de: "— Kein Trip —", en: "— No trip —" },
+  "fang_erfassen.speichern": { de: "FANG SPEICHERN", en: "SAVE CATCH" },
+  "fang_erfassen.jetzt_syncen": { de: "JETZT SYNCEN", en: "SYNC NOW" },
 
   // statistik
   "statistik.titel": { de: "STATISTIK-STUDIO", en: "STATISTICS STUDIO" },

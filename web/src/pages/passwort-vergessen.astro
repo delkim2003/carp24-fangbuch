@@ -1,0 +1,97 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { t } from "../lib/i18n";
+---
+
+<Layout title="Carp24 – Passwort zurücksetzen" noindex>
+  <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop py-xl">
+    <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full max-w-md p-lg md:p-xl mx-auto flex flex-col gap-lg">
+      <div class="text-center mb-sm">
+        <h1 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2 i18n" data-de={t("pwreset.titel", "de")} data-en={t("pwreset.titel", "en")}>{t("pwreset.titel")}</h1>
+        <p class="text-body-md text-on-surface-variant i18n" data-de={t("pwreset.subtitle", "de")} data-en={t("pwreset.subtitle", "en")}>{t("pwreset.subtitle")}</p>
+      </div>
+
+      <div id="reset-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+      <div id="reset-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md" role="status" aria-live="polite"></div>
+
+      <form id="reset-form" class="flex flex-col gap-md">
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest i18n" for="reset-email" data-de={t("pwreset.email", "de")} data-en={t("pwreset.email", "en")}>{t("pwreset.email")}</label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="reset-email" name="email" type="email" placeholder="angler@example.com" autocomplete="email" required />
+        </div>
+        <button type="submit" id="reset-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("pwreset.senden", "de")} data-en={t("pwreset.senden", "en")}>
+          {t("pwreset.senden")}
+        </button>
+      </form>
+
+      <p class="text-center mt-sm">
+        <a href="/login" class="text-primary hover:underline text-sm i18n" data-de={t("pwreset.zurueck", "de")} data-en={t("pwreset.zurueck", "en")}>{t("pwreset.zurueck")}</a>
+      </p>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+(function () {
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== "undefined" && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var form = document.getElementById("reset-form");
+  var btn = document.getElementById("reset-btn");
+  var errorBox = document.getElementById("reset-error");
+  var successBox = document.getElementById("reset-success");
+
+  var btnLabel = btn.textContent;
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.remove("hidden");
+  }
+  function showSuccess(msg) {
+    successBox.textContent = msg;
+    successBox.classList.remove("hidden");
+  }
+  function hideMessages() {
+    errorBox.classList.add("hidden");
+    successBox.classList.add("hidden");
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    hideMessages();
+    var email = document.getElementById("reset-email").value.trim();
+    if (!email) {
+      showError("Bitte E-Mail eingeben.");
+      return;
+    }
+    var sb = getSupabase();
+    if (!sb) {
+      showError("Supabase nicht initialisiert.");
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "WIRD GESENDET…";
+    sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/login" }).then(function (res) {
+      btn.disabled = false;
+      btn.textContent = btnLabel;
+      if (res.error) {
+        showError(res.error.message || "Senden fehlgeschlagen.");
+      } else {
+        showSuccess("Wenn die E-Mail existiert, ist ein Reset-Link auf dem Weg.");
+        form.reset();
+      }
+    });
+  });
+})();
+</script>

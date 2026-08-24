@@ -93,6 +93,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
   - name: auth-v1-open-authorize
     _comment: 'Auth: /auth/v1/authorize* -> http://auth:9999/authorize*'
     url: http://auth:9999/authorize
@@ -109,6 +114,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
   - name: auth-v1-open-jwks
     _comment: 'Auth: /auth/v1/.well-known/jwks.json -> http://auth:9999/.well-known/jwks.json'
     url: http://auth:9999/.well-known/jwks.json
@@ -125,6 +135,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
 
   - name: auth-v1-open-sso-acs
     url: "http://auth:9999/sso/saml/acs"
@@ -141,6 +156,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
 
   - name: auth-v1-open-sso-metadata
     url: "http://auth:9999/sso/saml/metadata"
@@ -157,6 +177,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 30
+          policy: local
+          fault_tolerant: true
 
   ## Secure Auth routes
   - name: auth-v1
