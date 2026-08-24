@@ -38,9 +38,10 @@ const customMessage = maintenance.message && maintenance.message.trim().length >
 Astro.response.status = 503;
 ---
 
-<Layout title="Carp24 – Wartungsarbeiten" noindex>
+<Layout title="Carp24 – Wartungsarbeiten" noindex bare>
   <main class="flex-grow flex flex-col items-center justify-center px-margin-mobile md:px-margin-desktop py-xl min-h-[60vh]">
     <div class="max-w-lg w-full bg-white rounded-2xl p-xl border border-outline/20 text-center">
+      <img src="/assets/logo_carp24_badge.webp" alt="Carp24 Logo" class="h-20 w-auto mx-auto mb-lg" />
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
       <h1 class="text-headline-lg text-on-surface mb-lg i18n" data-de={t("wartung.titel", "de")} data-en={t("wartung.titel", "en")}>{t("wartung.titel")}</h1>
       <p class="text-body-md text-on-surface-variant mb-lg i18n" data-de={t("wartung.text", "de")} data-en={t("wartung.text", "en")}>{t("wartung.text")}</p>

@@ -27,8 +27,9 @@ const icons: Record<string, string> = {
 
 <Layout title="Carp24 – Dein digitales Fangbuch">
   <main id="page-content" class="max-w-[1440px] mx-auto pb-xl">
-    <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
-      <div class="flex flex-col gap-6">
+    <section class="relative overflow-hidden px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
+      <img src="/assets/logo_carp24_badge.webp" alt="" aria-hidden="true" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-[60%] md:h-[70%] max-w-none opacity-[0.07] z-0 select-none" />
+      <div class="relative z-10 flex flex-col gap-6">
         <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</span>
         <h1 class="text-display-lg text-on-surface i18n" data-de={t("index.hero_titel", "de")} data-en={t("index.hero_titel", "en")}>{t("index.hero_titel")}</h1>
         <p class="text-body-lg text-on-surface-variant max-w-lg i18n" data-de={t("index.hero_text", "de")} data-en={t("index.hero_text", "en")}>{t("index.hero_text")}</p>
@@ -41,7 +42,7 @@ const icons: Record<string, string> = {
           </a>
         </div>
       </div>
-      <div class="relative">
+      <div class="relative z-10">
         <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg shadow-sm">
           <div class="w-full h-80 md:h-[500px] rounded-lg overflow-hidden border border-primary/20 relative bg-surface-container-highest">
             <img src={heroPhoto} alt="Karpfen wird gewogen" class="w-full h-full object-cover" fetchpriority="high" />

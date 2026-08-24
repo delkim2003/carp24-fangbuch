@@ -323,7 +323,7 @@ const dict: Record<string, Record<Lang, string>> = {
 
   // wartung
   "wartung.titel": { de: "Wartungsarbeiten", en: "Maintenance" },
-  "wartung.text": { de: "Wir arbeiten gerade an Carp24. Bitte versuche es in ein paar Minuten erneut.", en: "We are working on Carp24 right now. Please try again in a few minutes." },
+  "wartung.text": { de: "Wir arbeiten gerade an Verbesserungen. Bitte schau später wieder vorbei.", en: "We are currently working on improvements. Please check back later." },
 
   // fang_erfassen
   "fang_erfassen.wassertemperatur_label": { de: "WASSERTEMPERATUR (°C)", en: "WATER TEMPERATURE (°C)" },
