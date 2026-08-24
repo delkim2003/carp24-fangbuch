@@ -1,138 +1,162 @@
-# CARP24 — PLAN: LIGHT-SCREEN-1:1-BUILD (12 Seiten) — v3 (R1+R2 eingearbeitet)
+# CARP24 — PLAN: LIGHT-SCREEN-1:1-BUILD (12 Seiten) — v4 (R1+R2+R3 eingearbeitet)
 
 > **Auftrag (Philipp, 24.08.):** „leg los aber plane das vorher und lass das abnehmen von audit experten"
-> **Ziel:** Die 12 neuen Stitch-LIGHT-Screens (abgenommen, `design/screens/*-light-de-final.html`, Commit `26df541`) sind die VERBINDLICHE Design-Referenz. Die bestehenden Astro-Seiten werden exakt daran angeglichen (1:1), ohne Feature-Änderungen und ohne neue Erfindungen.
-> **Modell (Philipp, 24.08.):** **DeepSeek V4 Flash max** (`opencode run --model "openrouter/~deepseek/deepseek-v4-flash-latest" --variant max`; `--variant` ist EIGENES Flag).
-> **Status:** v1 → R1 (3 Exp.) → v2 → R2 (3 Exp., `deleg_9798ee72`) → **Plan v3** → R3-Verifikation → FINAL.
+> **Ziel:** Die 12 Stitch-LIGHT-Screens (abgenommen, `design/screens/*-light-de-final.html`, Commit `26df541`) sind VERBINDLICHE Design-Referenz. Bestehende Astro-Seiten werden exakt angeglichen (1:1), ohne Feature-Änderungen, ohne Erfindungen.
+> **Modell (Philipp):** **DeepSeek V4 Flash max** (`opencode run --model "openrouter/~deepseek/deepseek-v4-flash-latest" --variant max`).
+> **Status:** v1 → R1 (3 Exp.) → v2 → R2 (3 Exp.) → v3 → R3 (3 Exp., Detail-Funde, 95% Konfidenz) → **v4** → finale R4-Verifikation → FINAL.
 
-## 1. Ausgangslage (verifiziert 24.08.)
+## 1. Ausgangslage (verifiziert)
 
-- Live-App (`web/`, Astro 7.2.4 + Tailwind 4.3.3 + Supabase) ist **bereits Light** mit DS-Tokens; Dark-Mode via `data-theme`.
-- **🔴 VERIFIZIERT (R1):** `font-kicker`/`text-kicker` in 6 Live-Seiten verwendet, aber **NICHT in global.css definiert** → Kicker rendern ungestylt (grep `kicker` in `web/src/styles/` = 0).
-- **🔴 VERIFIZIERT (R2): Kicker-Matrix korrigiert** — Nur **5 Screens haben einen Kicker**: rueckblick („SAISON-RESUMEE"), trips („ANGEL-REISEN"), chat („Community"), marktplatz („COMMUNITY"), assistent („CARP24", hartcodiert). Die anderen 7 Screens (dashboard, fangbuch, fang-detail, profil, premium, board, forum) haben **KEINEN** Kicker (grep-Beweis: nur Logo-„carp24"-Treffer).
-- **Konsequenz (R2, KRITISCH):** Live-`forum.astro` hat einen `font-kicker`-Kicker („PASSION. FISHING. COMMUNITY."), aber der forum-Screen hat KEINEN → **Kicker im Forum ENTFERNEN**, nicht stylen.
-- Bekannte Stitch-Eigenheiten (toleriert, NICHT übernehmen): Footer „© 2024", Datum „24.10.2026", Nav-Link „START", „LINIENDIAGRAMM PLATZHALTER".
+- Live-App Light mit DS-Tokens; Dark-Mode via `data-theme`.
+- 🔴 `font-kicker`/`text-kicker` in 6 Live-Seiten, **nicht in global.css definiert** (grep=0) → Kicker ungestylt.
+- **Kicker-Matrix (R2/R3-verifiziert):** Nur 5 Screens mit Kicker: rueckblick (SAISON-RESUMEE), trips (ANGEL-REISEN), chat (Community), marktplatz (Sonderfall: `font-mono text-sm`, KEIN Standard-Kicker), assistent (CARP24 hartcodiert). Forum: Live-Kicker ENTFERNEN.
+- Stitch-Klassen (`bg-khaki`, `hairline-all`, `font-mono-sm`, `backdrop-blur`, `#E8E0C8`-Background) sind **Stitch-Implementationsdetails** → Design-ABSICHT mit Astro-Tokens/Tailwind-Utilities umsetzen, NICHT 1:1 kopieren. Abnahme-PNGs sind der visuelle Maßstab.
+- Bekannte Stitch-Eigenheiten (nicht übernehmen): Footer „© 2024", Nav „START", „LINIENDIAGRAMM PLATZHALTER", `#E8E0C8`-Background-Override (global.css `#f6fbec`-Token ist maßgeblich).
 
-## 2. Scope-Entscheidung (R1+R2-bestätigt)
+## 2. Scope
 
-**Build = Design-Feinabgleich der bestehenden Seiten auf die Screens.** KEIN Neu-Build, KEIN Daten-/Backend-Umbau, KEINE Feature-Änderung. Ausgenommen: Kicker-Styling/-Entfernung (R1-F2, R2-Matrix) und i18n-Kicker-Keys (R1-F4).
+**Build = 1:1-Design-Angleichung** (Kicker + Detail-Deltas). KEIN Neu-Build, KEIN Backend, KEINE Feature-Änderung. **Ausnahmen/Abweichungen (dokumentiert):**
+- **D6 profil Einheiten:** Screen nutzt `<select>`, Live hat Toggle-Switch → FUNKTIONAL → **Toggle bleibt** (kein Feature-Umbau), dokumentieren.
+- **D6 profil Badge-Grid:** Live-Feature vorhanden, Screen zeigt es nicht → **Live-Badge-Grid bleibt** (Screen in diesem Detail NICHT folgen).
+- **D11 assistent Icons:** Screen nutzt Material-Symbols-Font → **Inline-SVG** (keine External-Font, DSGVO/Asset).
+- **D7 premium Hintergrund:** Screen `#E8E0C8` → **global.css-Token bleibt** (Abnahme-PNG ist Maßstab).
 
-**Nicht in Scope:** i18n über Kicker hinaus, CSV/Export, Backend, Paywall, Marktplatz-Chips, Stitch-DS-Font-Mutation.
+**Nicht in Scope:** i18n über Kicker hinaus, CSV/Export, Paywall, Marktplatz-Chips (O2), Stitch-DS-Font-Mutation.
 
-## 3. KICKER-MATRIX (verbindlich, R2-verifiziert)
+## 3. KICKER-MATRIX (verbindlich)
 
-| Seite | Screen-Kicker? | Text (Screen) | Live-Kicker? | Aktion |
-|-------|----------------|---------------|--------------|--------|
-| dashboard | ❌ | — | ❌ | keine Kicker-Aktion |
-| faenge | ❌ | — | ❌ | keine Kicker-Aktion |
-| faenge/[id] | ❌ | — | ❌ | keine Kicker-Aktion |
-| rueckblick | ✅ | SAISON-RESUMEE | ✅ (ungestylt) | auf Screen-Stil umstellen |
-| trips | ✅ | ANGEL-REISEN | ✅ (ungestylt) | auf Screen-Stil umstellen |
-| profil | ❌ | — | ❌ | keine Kicker-Aktion |
-| premium | ❌ | — | ❌ | keine Kicker-Aktion |
-| board | ❌ | — | ❌ | keine Kicker-Aktion |
-| forum | ❌ | — | ✅ (ungestylt) | **Kicker ENTFERNEN** (R2-KRITISCH) |
-| chat | ✅ | Community | ✅ (ungestylt) | auf Screen-Stil umstellen |
-| assistent | ✅ | CARP24 | ✅ (ungestylt) | auf Screen-Stil umstellen (hartcodiert, kein i18n) |
-| marktplatz | ✅ | COMMUNITY | ✅ (ungestylt) | auf Screen-Stil umstellen |
+| Seite | Screen-Kicker? | Text/Klassen | Live | Aktion |
+|-------|----------------|--------------|------|--------|
+| dashboard | ❌ | — | ❌ | keine |
+| faenge | ❌ | — | ❌ | keine |
+| faenge/[id] | ❌ | — | ❌ | keine |
+| rueckblick | ✅ | SAISON-RESUMEE, `font-label-sm text-label-sm text-primary` | ✅ ungestylt | Screen-Stil |
+| trips | ✅ | ANGEL-REISEN, `font-label-sm text-label-sm` | ✅ ungestylt | Screen-Stil |
+| profil | ❌ | — | ❌ | keine |
+| premium | ❌ | — | ❌ | keine |
+| board | ❌ | — | ❌ | keine |
+| forum | ❌ | — | ✅ ungestylt | **ENTFERNEN** |
+| chat | ✅ | Community, `font-label-sm text-label-sm text-primary tracking-[0.15em]` | ✅ ungestylt | Screen-Stil |
+| assistent | ✅ | CARP24, `font-label-sm text-label-sm text-primary tracking-[0.2em]` | ✅ ungestylt | Screen-Stil (hartcodiert) |
+| marktplatz | ✅ (Sonderfall) | COMMUNITY, `font-mono text-sm tracking-widest text-secondary uppercase` | ✅ ungestylt | Screen-Stil (font-mono!) |
 
-**Screen-Kicker-Klassenset (aus Screens, R1/R2-verifiziert):** `font-label-sm text-label-sm uppercase tracking-widest`, Farbe pro Seite aus Screen (`text-primary` bei rueckblick/chat). Umsetzung: EINE der beiden Optionen je Seite — (a) `--font-kicker`/`--text-kicker`-Tokens in `@theme` definieren ODER (b) Live-Klassen auf das Screen-Klassenset umstellen. **Empfehlung (R2): Option (b)** — direkter Screen-1:1, kein neues Token nötig; `font-kicker`-Klassen werden überall ersetzt (bzw. bei forum entfernt).
+Umsetzung: Live-`font-kicker text-kicker text-secondary tracking-widest` → Screen-Klassen pro Seite ersetzen; forum: Kicker-Zeile komplett entfernen. i18n: 4 neue Keys (`kicker.rueckblick`, `kicker.trips`, `kicker.chat`, `kicker.marktplatz`); assistent hartcodiert; generischer `kicker`-Key nur noch für Startseite.
 
-## 4. Screen→Page-Mapping + Delta-Kandidaten (R2-korrigiert)
+## 4. DETAIL-DELTAS PRO SEITE (R3-Gegenprüfer, 95% Konfidenz, Datei-Beweise)
 
-| # | Screen | Astro-Seite | Delta-Kandidaten (R2-verifiziert) |
-|---|--------|-------------|-----------------------------------|
-| D1 | dashboard-light | `dashboard.astro` | KEIN Kicker → Live bereits 1:1; nur Sichtprüfung |
-| D2 | fangbuch-light | `faenge.astro` | **Titel-Klassen**: Screen `font-headline-lg-mobile md:font-headline-lg` vs Live `text-display-lg`; **Button-Farbe**: Screen `bg-primary` vs Live `bg-primary-container`; Zähler prüfen |
-| D3 | fang-detail-light | `faenge/[id].astro` | **Detail-Labels**: Screen `font-mono text-primary/70` vs Live `font-label-sm text-secondary`; Zurück-Link-Stil |
-| D4 | rueckblick-light | `rueckblick.astro` | Kicker auf Screen-Stil (SAISON-RESUMEE) |
-| D5 | trips-light | `trips.astro` | Kicker auf Screen-Stil (ANGEL-REISEN); Formular-Labels prüfen |
-| D6 | profil-light | `profil.astro` | kein Kicker; KPIs/Badge-Grid gegen Screen prüfen |
-| D7 | premium-light | `premium.astro` | kein Kicker; Status-Badge/Lock-Icons gegen Screen prüfen |
-| D8 | board-light | `board.astro` | kein Kicker; Zähler- und Card-Styling gegen Screen (R2: Screen nutzt `font-label-sm text-label-sm text-on-surface-variant` für Zähler) |
-| D9 | forum-light | `forum.astro` | **Kicker ENTFERNEN**; Chips-Labels gegen Screen |
-| D10 | chat-light | `chat.astro` | Kicker auf Screen-Stil (Community); Bubble-Styling |
-| D11 | assistent-light | `assistent.astro` | Kicker auf Screen-Stil (CARP24); Willkommens-Bubble |
-| D12 | marktplatz-light | `marktplatz.astro` | Kicker auf Screen-Stil (COMMUNITY); KEINE Chips bauen |
+> WICHTIG = sichtbare Design-Abweichung. Umsetzung mit Astro-Tokens; Abnahme-PNG als Maßstab.
 
-**Jede Seite bekommt einen `data-testid`-Anker + visuellen Check gegen das Abnahme-PNG.**
+**D2 faenge (fangbuch-light vs faenge.astro):**
+1. WICHTIG Titel: Screen `font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg` vs Live `text-display-lg` → Screen-Klassen.
+2. WICHTIG Button NEUER FANG: Screen `bg-primary text-on-primary font-label-sm text-label-sm` vs Live `bg-primary-container text-on-primary-container font-nav-item text-nav-item` → Screen-Klassen.
+3. WICHTIG Zähler: Screen `font-label-sm text-label-sm text-on-surface-variant` vs Live `font-nav-item text-nav-item text-secondary`.
+
+**D3 fang-detail (fang-detail-light vs faenge/[id].astro):**
+1. WICHTIG Labels: Screen `font-mono text-xs uppercase text-primary/70 tracking-widest` vs Live `font-label-sm text-label-sm text-secondary`.
+2. WICHTIG Werte: Screen `font-headline-md text-headline-md text-on-surface` vs Live `text-body-lg`.
+3. WICHTIG Zurück-Link: Screen `text-primary` + Arrow-Icon (SVG) + hover vs Live `text-secondary` + ←; Farbe auf primary, Icon als Inline-SVG.
+
+**D6 profil (profil-light vs profil.astro):**
+1. WICHTIG Name: Screen `font-headline-lg text-headline-lg` vs Live `text-display-lg`.
+2. WICHTIG KPI-Zahlen: Screen `font-display-lg text-display-lg text-primary` vs Live `text-headline-lg text-on-surface` (Farbe primary).
+3. WICHTIG KPI-Cards: Screen `bg-surface-variant rounded-xl border (primary/20)` vs Live `bg-surface-container-high border-primary/40 rounded-2xl` → Screen-Token.
+4. WICHTIG Data-Management: Screen 2-spaltig (`grid md:grid-cols-2`) vs Live gestapelt → Grid-Layout.
+5. ABWEICHUNG Einheiten-Toggle: bleibt (siehe Scope).
+6. ABWEICHUNG Badge-Grid: Live-Feature bleibt (siehe Scope).
+
+**D7 premium (premium-light vs premium.astro):**
+1. WICHTIG H1: Screen `text-primary` vs Live `text-on-surface`.
+2. WICHTIG Upgrade-Button: Screen `bg-primary-container hover:bg-primary text-on-primary-container font-nav-item text-nav-item` vs Live `bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm` → vertauscht fixen (Screen-Klassen).
+3. KOSMETISCH Feature-Cards: Screen `bg-surface-container/60 backdrop-blur-sm` + hover vs Live ohne → nur falls einfach.
+4. ABWEICHUNG Hintergrund: bleibt (Scope).
+
+**D8 board (board-light vs board.astro):**
+1. WICHTIG Zähler: Screen `font-label-sm text-label-sm text-on-surface-variant` vs Live `font-nav-item text-nav-item text-secondary`.
+2. WICHTIG Card-BG: Screen `bg-surface-variant border-primary/20` vs Live `bg-surface-container-high border-primary/40`.
+3. WICHTIG Gewicht: Screen `font-mono text-headline-lg font-semibold text-primary` vs Live `font-mono text-display-sm font-bold` → headline-lg.
+
+**D10 chat (chat-light vs chat.astro):**
+1. WICHTIG Kicker: → Sektion 3 (font-label-sm text-primary tracking-[0.15em]).
+2. WICHTIG Button: Screen `font-label-sm text-label-sm` vs Live `font-nav-item text-nav-item`.
+3. WICHTIG Input: Screen `rounded-full` + border + `bg-surface/50` vs Live `rounded border-b bg-surface-container-lowest`.
+4. WICHTIG Bubble-Name: Screen `font-mono text-[11px] uppercase text-primary` vs Live `font-label-sm text-secondary`.
+5. KOSMETISCH Bubble-Shape `rounded-tl-sm`/`rounded-tr-sm` + shadow-sm → übernehmen falls einfach.
+
+**D11 assistent (assistent-light vs assistent.astro):**
+1. WICHTIG Kicker: → Sektion 3 (font-label-sm text-primary tracking-[0.2em]).
+2. WICHTIG AI-Avatar: Screen 32px div mit Robot-Icon → Inline-SVG-Avatar vor Willkommens-Bubble.
+3. WICHTIG Willkommens-Bubble: Screen `bg-surface-variant rounded-2xl rounded-tl-sm border border-primary/10 shadow-sm` vs Live `bg-surface-container-lowest rounded-xl` → Screen-Tokens.
+4. WICHTIG Button: Screen `font-label-sm text-label-sm` + Send-Icon (Inline-SVG) + `h-[52px]` vs Live `font-nav-item text-nav-item` ohne Icon.
+
+**D12 marktplatz (marktplatz-light vs marktplatz.astro):**
+1. WICHTIG Kicker: Sonderfall `font-mono text-sm tracking-widest text-secondary uppercase` (NICHT font-label-sm).
+2. WICHTIG Button NEUE ANZEIGE: Screen `bg-primary text-on-primary` vs Live `bg-primary-container text-on-primary-container`.
+3. WICHTIG Card-BG: Screen khaki `rgba(204,202,155,0.15)` + `border #4A5338/40` vs Live `bg-surface-container-high border-primary/40` → mit Astro-Tokens umsetzen.
+4. WICHTIG Card-Titel: Screen `font-headline-md text-headline-md` vs Live `text-headline-sm`.
+5. WICHTIG Card-Preis: Screen `font-mono text-lg font-medium` vs Live `font-mono text-display-sm font-bold` → text-lg (deutlich kleiner).
+6. Chips: NICHT bauen (O2).
+
+**D1 dashboard:** kein Kicker, Struktur 1:1 → nur Sichtprüfung.
+**D4 rueckblick / D5 trips:** nur Kicker (Sektion 3); Rest gegen Screen prüfen (R3: keine weiteren WICHTIG-Funde).
 
 ## 5. Build-Methode
 
-- **Modell:** `opencode run --model "openrouter/~deepseek/deepseek-v4-flash-latest" --variant max`.
-- **Task 0 (VOR Build): Prompt-Files vorbereiten** (R2-Empfehlung): pro Seite/Pro Seite ein Prompt-Template als Datei unter `/mnt/projekte/carp24-fangbuch/.build-prompts/<seite>.md` mit: ARBEITSBEREICH-Sektion (nur `web/src/`), „KEINE Analyse-Ausflüge", „🚫 WRITE-TOOL KAPUTT → Shell-Heredoc", `cat design/screens/<screen>-light-de-final.html`-Read-Anweisung, Scope-Guard (keine statistik.astro/i18n-Dateien außer Kicker-Keys), Commit-Message-Vorgabe.
-- **NICHT erfinden:** Texte/Labels/Strukturen 1:1 aus der Referenz; KEINE neuen Sektionen.
-- 1 Commit pro Seite; nach jedem Lauf `git status` + `git diff --stat HEAD~1`.
+- Modell: `opencode run --model "openrouter/~deepseek/deepseek-v4-flash-latest" --variant max`.
+- **Task 0:** `.build-prompts/<seite>.md` pro Seite: ARBEITSBEREICH (`web/src/`), keine Analyse-Ausflüge, 🚫 WRITE-TOOL → Shell-Heredoc, `cat design/screens/<screen>-light-de-final.html`-Read, Delta-Liste aus Sektion 4 (exakt), Scope-Guard (keine statistik.astro, i18n nur Kicker-Keys), „Abnahme-PNG ist visueller Maßstab — Stitch-Klassen nicht 1:1 kopieren, Astro-Tokens verwenden", Commit-Message.
+- 1 Commit pro Seite; `git status` + `git diff --stat HEAD~1` nach jedem Lauf.
 
-## 6. Reihenfolge (Batches, R2-korrigiert)
+## 6. Reihenfolge
 
-- **Batch A.0 — KICKER-FIX (Pre-Condition G0.5):** global.css @theme-Erweiterung ODER Live-Klassen-Umstellung gemäß Kicker-Matrix (Sektion 3); Forum-Kicker entfernen.
-- **Batch A (Kicker+Header):** rueckblick → trips → chat → assistent → marktplatz (Kicker-Styling) + forum (Kicker-Entfernung)
-- **Batch B (Detail-Deltas):** faenge (Titel/Button) → fang-detail (Labels) → board (Zähler/Cards) → premium/profil (Sichtprüfung gegen Screen)
-- **Batch C (Konsistenz):** dashboard (nur Sichtprüfung) + Rest-Feinschliff
-- Nach jedem Batch: `npm run build` + Preview + Sichtprüfung gegen Abnahme-PNG.
+- **Batch A.0 — KICKER-FIX (G0.5):** 5 Seiten Screen-Stil (rueckblick, trips, chat, assistent, marktplatz) + forum-Entfernung + 4 i18n-Keys.
+- **Batch A — Kicker+Community:** A.0-Seiten fertigstellen, forum.
+- **Batch B — Detail-Deltas:** faenge → fang-detail → profil → premium → board → chat → assistent → marktplatz.
+- **Batch C — Konsistenz:** dashboard Sichtprüfung + Rest.
+- Nach jedem Batch: `npm run build` + Preview + Sichtprüfung gegen Abnahme-PNG (je Seite).
 
-## 7. QA-Gates (R2-verschärft)
+## 7. QA-Gates
 
 | Gate | Aktion | Ausstieg |
 |------|--------|----------|
-| G0 | Plan-Review-Before-Build | 2+ Experten OK, 3. nur Mini-Fixes → Plan FINAL |
-| G0.5 | Kicker-Fix verifiziert | `grep -rn "font-kicker\|text-kicker" web/src/` = 0 (alle umgestellt/entfernt) ODER `--font-kicker` in global.css vorhanden; Forum ohne Kicker |
-| G1 | Nach jedem Seiten-Build | `npm run build` grün; Commit sauber; **`git diff -- web/src/pages/statistik.astro` LEER**; keine i18n-Änderungen außer Kicker-Keys |
-| G1.5 | Scope-Check je Lauf | `git diff --stat HEAD~1`: nur erwartete Datei + global.css + Kicker-Keys; sonst Zurücksetzen |
-| G2 | Nach jedem Batch | `astro preview` + Sichtprüfung gegen Abnahme-PNG; **Dark-Mode-Sichtprüfung** |
-| G3 | E2E-Smoke (12 Seiten) | 12 Routen: 200 OK + `data-testid` sichtbar (Login für geschützte) |
-| G4 | Abnahme | Philipp prüft Preview-Links → Go-Live (`systemctl restart carp24-web`) |
+| G0 | Plan-Review | 2+ OK, 3. nur Mini → FINAL |
+| G0.5 | Kicker-Fix | `grep -rn "font-kicker\|text-kicker" web/src/` = 0 ODER Token definiert; `grep -rn 't("kicker")' web/src/pages/` nur noch auf Seiten ohne eigenen Key; Forum ohne Kicker |
+| G1 | Pro Seiten-Build | `npm run build` grün; Commit sauber; `git diff -- web/src/pages/statistik.astro` LEER; i18n nur Kicker-Keys |
+| G1.5 | Scope-Check | `git diff --stat HEAD~1`: nur erwartete Datei + global.css + Kicker-Keys |
+| G2 | Pro Batch | Preview + Sichtprüfung vs Abnahme-PNG + Dark-Mode |
+| G3 | E2E-Smoke 12 Seiten | 200 OK + data-testid sichtbar (Login für geschützte) |
+| G4 | Abnahme | Philipp prüft → Go-Live (`systemctl restart carp24-web`) |
 
-## 8. Test-Matrix (12 Seiten, R1-F5)
+## 8. Test-Matrix (mit Kicker-Erwartung, R3)
 
-| Seite | data-testid-Anker | Zustände |
-|-------|-------------------|----------|
-| /dashboard | `dashboard-kpis` | eingeloggt (Daten/Empty) |
-| /faenge | `fangbuch-liste` | eingeloggt (Daten/Empty) |
-| /faenge/[id] | `fang-detail-wetter` | eingeloggt (Fund/404) |
-| /rueckblick | `rueckblick-kpis` | eingeloggt (Jahr/Empty) |
-| /trips | `trips-liste` | eingeloggt (Daten/Empty) |
-| /profil | `profil-kpis` | eingeloggt |
-| /premium | `premium-features` | eingeloggt/ausgeloggt |
-| /board | `board-grid` | eingeloggt (Daten/Empty) |
-| /forum | `forum-threads` | eingeloggt (Daten/Empty) |
-| /chat | `chat-messages` | eingeloggt |
-| /assistent | `ai-chat` | eingeloggt |
-| /marktplatz | `mp-active-list` | eingeloggt Pro (Lock-Empty Free) |
-
-Zusätzlich: Login-Flow, statistik-Regression (G1-Hard-Rule), Dark-Mode je Seite, Desktop 1280px-Sichtprüfung.
+| Seite | data-testid | Kicker-Erwartung | Zustände |
+|-------|-------------|------------------|----------|
+| /dashboard | `dashboard-kpis` | KEIN Kicker | eingeloggt (Daten/Empty) |
+| /faenge | `fangbuch-liste` | KEIN Kicker | eingeloggt (Daten/Empty) |
+| /faenge/[id] | `fang-detail-wetter` | KEIN Kicker | eingeloggt (Fund/404) |
+| /rueckblick | `rueckblick-kpis` | SAISON-RESUMEE | eingeloggt (Jahr/Empty) |
+| /trips | `trips-liste` | ANGEL-REISEN | eingeloggt (Daten/Empty) |
+| /profil | `profil-kpis` | KEIN Kicker | eingeloggt |
+| /premium | `premium-features` | KEIN Kicker | eingeloggt/ausgeloggt |
+| /board | `board-grid` | KEIN Kicker | eingeloggt (Daten/Empty) |
+| /forum | `forum-threads` | KEIN Kicker (entfernt) | eingeloggt (Daten/Empty) |
+| /chat | `chat-messages` | Community | eingeloggt |
+| /assistent | `ai-chat` | CARP24 | eingeloggt |
+| /marktplatz | `mp-active-list` | COMMUNITY (mono) | eingeloggt Pro (Lock-Empty Free) |
 
 ## 9. Entscheidungen (entschieden)
 
-- **O1:** KEIN „START"-Link (Live hat keine /start-Route; Screen-Detail wird nicht gefolgt).
-- **O2:** Marktplatz-Kategorie-Chips NICHT bauen (keine Filter-Funktion); Feature-Lücke in `docs/` dokumentieren.
-- **O3:** i18n-Kicker-Keys pro Seite NUR für Seiten mit Screen-Kicker: `kicker.rueckblick`=„SAISON-RESUMEE", `kicker.trips`=„ANGEL-REISEN", `kicker.chat`=„Community", `kicker.marktplatz`=„COMMUNITY". assistent „CARP24" bleibt hartcodiert. Forum-Kicker wird ENTFERNT (kein Key). Generischer `kicker`-Key bleibt für Startseite.
+- O1: kein START-Link; O2: Chips nicht bauen (Feature-Lücke dokumentieren); O3: 4 Kicker-Keys + assistent hartcodiert + forum entfernt.
+- **Neu (R3):** D6-Einheiten-Toggle bleibt, D6-Badge-Grid bleibt, D7-Hintergrund bleibt, D11-Icons als Inline-SVG, Stitch-Klassen → Astro-Tokens.
 
 ## 10. Risiken & Regeln
 
-1. Keine Erfindungen; tolerierte Stitch-Eigenheiten nicht übernehmen.
-2. Keine Feature-Änderung (Backend/Paywall/CSV/Chips bleiben).
-3. Kein Overengineering (Dashboard = nur Sichtprüfung).
-4. OpenCode-Pitfalls: Write-Tool-Verbot, Shell-Heredoc, ARBEITSBEREICH, `--variant max` als eigenes Flag, Referenz projekt-intern per `cat`.
-5. Kicker-Fix (G0.5) = Pre-Condition, NICHT optional.
-6. Dark-Mode nicht brechen (global.css-Tokens).
-7. Deployment erst nach G4; Preview-Server nach Tests killen.
+1. Keine Erfindungen; Stitch-Klassen nicht 1:1 (Astro-Tokens).
+2. Keine Feature-Änderung (Ausnahmen Scope).
+3. Kein Overengineering (KOSMETISCH-Deltas nur falls einfach).
+4. OpenCode-Pitfalls (Write-Tool, Heredoc, ARBEITSBEREICH, `--variant max`, cat-Read).
+5. Kicker-Fix = Pre-Condition G0.5.
+6. Dark-Mode nicht brechen.
+7. Deployment erst nach G4; Preview-Server killen.
 
-## 11. Fix-Bilanz (R1+R2 → v3)
+## 11. Fix-Bilanz (R1→R3, alle verankert)
 
-| Fund | Runde | Schwere | Status in v3 |
-|------|-------|---------|--------------|
-| F1 Dashboard-Kicker-Delta falsch | R1 | 🟡 | ✅ Sektion 4 D1 |
-| F2 Kicker-CSS-Klassen fehlen | R1 | 🔴 | ✅ G0.5 + Sektion 3 |
-| F3 O1 unzureichend | R1 | 🟠 | ✅ O1 entschieden |
-| F4 O3 Kicker-Keys | R1 | 🟠 | ✅ O3 entschieden (4 Keys) |
-| F5 Test-Matrix dünn | R1 | 🟠 | ✅ Sektion 8 |
-| F6 statistik-Guard | R1 | 🟡 | ✅ G1 (Pfad korrigiert R2) |
-| F7 O2 bereits entschieden | R1 | 🟢 | ✅ O2 entschieden |
-| R2-1 G1-Pfad falsch | R2 | 🟡 | ✅ `git diff -- web/src/pages/statistik.astro` |
-| R2-2 G0.5 nur eine Option | R2 | 🟡 | ✅ Sektion 3 beide Optionen + Empfehlung (b) |
-| R2-3 Board/Forum-Mapping falsch | R2 | 🔴 | ✅ Sektion 3 Kicker-Matrix + D8/D9 |
-| R2-4 Kicker-i18n 6→4 Keys | R2 | 🟠 | ✅ O3 |
-| R2-5 Detail-Deltas D2/D3/D8 | R2 | 🟠 | ✅ Sektion 4 (Titel-Klassen, Button-Farbe, Labels) |
-| R2-6 Prompt-Files als Task 0 | R2 | 🟡 | ✅ Sektion 5 Task 0 |
+R1: F1-F7 ✅ | R2: 6 Funde ✅ (Kicker-Matrix, G1-Pfad, G0.5, i18n 4 Keys, Deltas, Prompt-Files) | R3: (a) G0.5 + `t("kicker")`-Check ✅ Sektion 7, (b) Test-Matrix Kicker-Erwartung ✅ Sektion 8, (c) **Detail-Deltas komplettiert** ✅ Sektion 4 (D2×3, D3×3, D6×4+2 Abweichungen, D7×2+1 kosm, D8×3, D10×4+2 kosm, D11×4, D12×5) — aus Gegenprüfer-Report (95%).
