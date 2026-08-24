@@ -43,7 +43,6 @@ const navItems = [
           {item.de}
         </a>
       ))}
-      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 text-on-surface-variant hover:text-primary whitespace-nowrap shrink-0 snap-start">ADMIN</a>
     </nav>
 
     <div class="flex items-center gap-4">
@@ -51,6 +50,7 @@ const navItems = [
         <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
         <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
       </div>
+      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200">ADMIN</a>
       <div class="hidden md:flex items-center gap-4">
         <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
           Anmelden
