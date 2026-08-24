@@ -100,24 +100,24 @@ if (createdAt) {
           <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative bg-primary-container flex items-center justify-center">
             <span class="text-display-lg text-on-primary-container font-bold">{displayName.charAt(0).toUpperCase()}</span>
           </div>
-          <h1 class="text-display-lg text-on-surface mb-2">{displayName}</h1>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">{displayName}</h1>
           <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">{memberSince}</p>
         </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           <div class="lg:col-span-8 flex flex-col gap-xl">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+              <div class="bg-surface-variant rounded-xl border border-primary/20 p-6 flex flex-col justify-center">
                 <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.faenge", "de")} data-en={t("profil.faenge", "en")}>{t("profil.faenge")}</span>
-                <span class="text-headline-lg text-on-surface">{catchCount}</span>
+                <span class="font-display-lg text-display-lg text-primary">{catchCount}</span>
               </div>
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+              <div class="bg-surface-variant rounded-xl border border-primary/20 p-6 flex flex-col justify-center">
                 <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.schwerster", "de")} data-en={t("profil.schwerster", "en")}>{t("profil.schwerster")}</span>
-                <span class="text-headline-lg text-on-surface">{heaviestKg ?? "–"}{heaviestKg ? " KG" : ""}</span>
+                <span class="font-display-lg text-display-lg text-primary">{heaviestKg ?? "–"}{heaviestKg ? " KG" : ""}</span>
               </div>
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-6 flex flex-col justify-center">
+              <div class="bg-surface-variant rounded-xl border border-primary/20 p-6 flex flex-col justify-center">
                 <span class="font-label-sm text-label-sm uppercase text-on-surface-variant mb-4 block i18n" data-de={t("profil.gewaesser", "de")} data-en={t("profil.gewaesser", "en")}>{t("profil.gewaesser")}</span>
-                <span class="text-headline-lg text-on-surface">{waterCount}</span>
+                <span class="font-display-lg text-display-lg text-primary">{waterCount}</span>
               </div>
             </div>
 
@@ -176,7 +176,8 @@ if (createdAt) {
                   </div>
                 </div>
 
-                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
                   <h2 class="font-headline-md text-headline-md text-primary mb-md i18n" data-de={t("profil.daten_dsgvo", "de")} data-en={t("profil.daten_dsgvo", "en")}>{t("profil.daten_dsgvo")}</h2>
                   <p class="text-body-md text-on-surface-variant mb-md i18n" data-de={t("profil.daten_text", "de")} data-en={t("profil.daten_text", "en")}>
                     {t("profil.daten_text")}
@@ -188,7 +189,7 @@ if (createdAt) {
                   <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
                 </div>
 
-                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
+                <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm">
                   <h2 class="font-headline-md text-headline-md text-primary mb-md i18n" data-de={t("profil.import_titel", "de")} data-en={t("profil.import_titel", "en")}>{t("profil.import_titel")}</h2>
                   <p class="text-body-md text-on-surface-variant mb-md i18n" data-de={t("profil.import_text", "de")} data-en={t("profil.import_text", "en")}>
                     {t("profil.import_text")}
@@ -212,6 +213,7 @@ if (createdAt) {
                   </div>
                   <button type="button" id="csv-import-btn" class="hidden bg-primary text-on-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:opacity-90 transition-colors min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("profil.importieren", "de")} data-en={t("profil.importieren", "en")} disabled>{t("profil.importieren")}</button>
                   <div id="csv-import-result" class="hidden mt-md" role="status" aria-live="polite"></div>
+                </div>
                 </div>
 
                 <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm mt-lg">
