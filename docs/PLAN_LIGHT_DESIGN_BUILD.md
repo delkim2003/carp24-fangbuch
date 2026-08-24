@@ -1,4 +1,4 @@
-# CARP24 — PLAN: LIGHT-SCREEN-1:1-BUILD (12 Seiten) — v4 (R1+R2+R3 eingearbeitet)
+# CARP24 — PLAN: LIGHT-SCREEN-1:1-BUILD (12 Seiten) — v5 FINAL (R1-R4 eingearbeitet, Build-FREIGEGEBEN)
 
 > **Auftrag (Philipp, 24.08.):** „leg los aber plane das vorher und lass das abnehmen von audit experten"
 > **Ziel:** Die 12 Stitch-LIGHT-Screens (abgenommen, `design/screens/*-light-de-final.html`, Commit `26df541`) sind VERBINDLICHE Design-Referenz. Bestehende Astro-Seiten werden exakt angeglichen (1:1), ohne Feature-Änderungen, ohne Erfindungen.
@@ -102,7 +102,15 @@ Umsetzung: Live-`font-kicker text-kicker text-secondary tracking-widest` → Scr
 ## 5. Build-Methode
 
 - Modell: `opencode run --model "openrouter/~deepseek/deepseek-v4-flash-latest" --variant max`.
-- **Task 0:** `.build-prompts/<seite>.md` pro Seite: ARBEITSBEREICH (`web/src/`), keine Analyse-Ausflüge, 🚫 WRITE-TOOL → Shell-Heredoc, `cat design/screens/<screen>-light-de-final.html`-Read, Delta-Liste aus Sektion 4 (exakt), Scope-Guard (keine statistik.astro, i18n nur Kicker-Keys), „Abnahme-PNG ist visueller Maßstab — Stitch-Klassen nicht 1:1 kopieren, Astro-Tokens verwenden", Commit-Message.
+- **Task 0:** `.build-prompts/<seite>.md` pro Seite mit PROMPT-TEMPLATE (R4-fixiert):
+  1. **ARBEITSBEREICH:** „Du arbeitest NUR in /mnt/projekte/carp24-fangbuch/web/. Du liest NUR: <ziel-datei>, design/screens/<screen>-light-de-final.html, web/src/styles/global.css. VERBOTEN: andere Projekte, /tmp, git-Operationen, statistik.astro, Änderungen an i18n.ts außer den 4 Kicker-Keys, Shell-Schleifen."
+  2. **WRITE-TOOL-VERBOT:** „🚫 WRITE-TOOL IST KAPUTT — NUTZE ES NICHT! Schreibe per Shell-Heredoc: cat > /pfad/datei << 'ENDOFFILE' … ENDOFFILE"
+  3. **READ:** „Lies ZUERST cat design/screens/<screen>-light-de-final.html und übernimm die relevanten Klassen/Struktur 1:1 (Design-Absicht), übersetze Stitch-Spezialklassen (bg-khaki, hairline-all, font-mono-sm) in Astro-Tokens/Arbitrary-Values."
+  4. **DELTAS:** exakte Liste aus Sektion 4 (WICHTIG alle; KOSMETISCH nur falls einfach; ABWEICHUNG nicht anfassen).
+  5. **DARK-MODE:** „Ändere keine global.css-Tokens und keine data-theme-Logik; Dark-Mode muss funktionieren."
+  6. **VERIFIKATION:** „Führe am Ende npm run build aus (im web/ Ordner) — muss grün sein. KEINE Server-Starts, KEIN /tmp."
+  7. **COMMIT:** „Ein Commit: git add <dateien>; git commit -m 'Design: <seite> LIGHT-Screen-1:1 (Delta: …)'"
+- **D12.3-Khaki-Mapping (R4-entschieden):** `bg-khaki rgba(204,202,155,0.15)` → `bg-[#ccca9b]/15` (Tailwind arbitrary value), Border `#4A5338/40` → `border-primary/40`.
 - 1 Commit pro Seite; `git status` + `git diff --stat HEAD~1` nach jedem Lauf.
 
 ## 6. Reihenfolge
@@ -118,7 +126,7 @@ Umsetzung: Live-`font-kicker text-kicker text-secondary tracking-widest` → Scr
 | Gate | Aktion | Ausstieg |
 |------|--------|----------|
 | G0 | Plan-Review | 2+ OK, 3. nur Mini → FINAL |
-| G0.5 | Kicker-Fix | `grep -rn "font-kicker\|text-kicker" web/src/` = 0 ODER Token definiert; `grep -rn 't("kicker")' web/src/pages/` nur noch auf Seiten ohne eigenen Key; Forum ohne Kicker |
+| G0.5 | Kicker-Fix | `grep -rn "font-kicker\|text-kicker" web/src/` = 0 ODER Token definiert; `grep -rn 't("kicker")' web/src/pages/` trifft NUR index.astro (generischer Key) — alle anderen Seiten nutzen `t("kicker.xxx")`; Forum ohne Kicker; marktplatz-Kicker-Zeile hat `data-de`/`data-en` |
 | G1 | Pro Seiten-Build | `npm run build` grün; Commit sauber; `git diff -- web/src/pages/statistik.astro` LEER; i18n nur Kicker-Keys |
 | G1.5 | Scope-Check | `git diff --stat HEAD~1`: nur erwartete Datei + global.css + Kicker-Keys |
 | G2 | Pro Batch | Preview + Sichtprüfung vs Abnahme-PNG + Dark-Mode |
