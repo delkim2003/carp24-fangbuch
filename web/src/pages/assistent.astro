@@ -47,8 +47,18 @@ if (!session) {
     </div>
 
     <div id="chat-messages" class="flex flex-col gap-sm max-h-[60vh] overflow-y-auto bg-surface-container-high rounded-xl border border-primary/40 p-lg">
-      <div class="flex items-start">
-        <div class="max-w-[80%] rounded-xl px-4 py-3 text-body-md bg-surface-container-lowest text-on-surface">
+      <div class="flex items-start gap-4">
+        <div class="w-8 h-8 rounded-lg bg-surface-variant border border-primary/10 text-primary flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]" aria-hidden="true">
+            <path d="M12 5v-2.2"></path>
+            <circle cx="12" cy="2.6" r="1.4"></circle>
+            <rect x="4.5" y="5" width="15" height="12.5" rx="3.5"></rect>
+            <rect x="8.5" y="9.5" width="4" height="4" rx="1.2"></rect>
+            <rect x="13.5" y="9.5" width="4" height="4" rx="1.2"></rect>
+            <path d="M10 15.8h5"></path>
+          </svg>
+        </div>
+        <div class="max-w-[80%] bg-surface-variant rounded-2xl rounded-tl-sm px-5 py-4 text-body-md text-on-surface border border-primary/10 shadow-sm">
           <span class="block break-words i18n" data-de="Frag mich nach deinen Fängen — z.B. 'Was war mein größter Fang?'" data-en="Ask me about your catches — e.g. 'What was my biggest catch?'">Frag mich nach deinen Fängen — z.B. 'Was war mein größter Fang?'</span>
         </div>
       </div>
@@ -68,10 +78,13 @@ if (!session) {
       <button
         id="ai-send"
         type="button"
-        class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-11 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n"
+        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center gap-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n"
         data-de="SENDEN"
         data-en="SEND"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+          <path d="M5.5 16.5 7.5 11 17.5 5 20 8 15 5 11 14.5Z M5.5 15.5 18.5 5.5"></path>
+        </svg>
         SENDEN
       </button>
     </div>
