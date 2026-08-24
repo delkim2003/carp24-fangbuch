@@ -66,6 +66,12 @@ services:
           - /auth/v1/verify
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
   - name: auth-v1-open-callback
     _comment: 'Auth: /auth/v1/callback* -> http://auth:9999/callback*'
     url: http://auth:9999/callback
@@ -76,6 +82,12 @@ services:
           - /auth/v1/callback
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
   - name: auth-v1-open-authorize
     _comment: 'Auth: /auth/v1/authorize* -> http://auth:9999/authorize*'
     url: http://auth:9999/authorize
@@ -86,6 +98,12 @@ services:
           - /auth/v1/authorize
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
   - name: auth-v1-open-jwks
     _comment: 'Auth: /auth/v1/.well-known/jwks.json -> http://auth:9999/.well-known/jwks.json'
     url: http://auth:9999/.well-known/jwks.json
@@ -96,6 +114,12 @@ services:
           - /auth/v1/.well-known/jwks.json
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
 
   - name: auth-v1-open-sso-acs
     url: "http://auth:9999/sso/saml/acs"
@@ -106,6 +130,12 @@ services:
         - /auth/v1/sso/saml/acs
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
 
   - name: auth-v1-open-sso-metadata
     url: "http://auth:9999/sso/saml/metadata"
@@ -116,6 +146,12 @@ services:
         - /auth/v1/sso/saml/metadata
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
 
   ## Secure Auth routes
   - name: auth-v1
@@ -128,6 +164,12 @@ services:
           - /auth/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -156,6 +198,12 @@ services:
         expression: 'http.path == "/rest/v1/"'
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -184,6 +232,12 @@ services:
           - /rest/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -213,6 +267,12 @@ services:
           - /graphql/v1
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -244,6 +304,12 @@ services:
           - /realtime/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -305,6 +371,12 @@ services:
           - /realtime/v1/api
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: key-auth
         config:
           hide_credentials: false
@@ -342,6 +414,12 @@ services:
           - /storage/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       - name: request-transformer
         config:
           add:
@@ -371,6 +449,12 @@ services:
           - /functions/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
 
   ## OAuth 2.0 Authorization Server Metadata (RFC 8414)
   - name: well-known-oauth
@@ -383,6 +467,12 @@ services:
           - /.well-known/oauth-authorization-server
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
 
   ## Analytics routes
   ## Not used - Studio and Vector talk directly to analytics via Docker networking.
@@ -481,6 +571,12 @@ services:
           - /
     plugins:
       - name: cors
+        config:
+          origins:
+            - "http://100.93.250.103:8094"
+            - "http://100.93.250.103:8055"
+          credentials: true
+          max_age: 3600
       # Brute-Force-Schutz: NUR Tailnet-Geräte erreichen Studio (CGNAT-Range 100.64.0.0/10 = Tailscale)
       # rate-limiting zählt bei 401 NICHT (basic-auth-Priorität 1100 > rate-limiting 910) — ip-restriction ist der echte Schutz
       - name: ip-restriction
@@ -495,7 +591,7 @@ services:
           message: "Nur Tailnet-Zugriff erlaubt"
       - name: rate-limiting
         config:
-          minute: 30
+          minute: 600
           policy: local
           fault_tolerant: true
           hide_client_headers: false
