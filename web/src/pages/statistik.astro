@@ -342,11 +342,11 @@ const monthNamesDE: Record<string, string> = {
 </Layout>
 
 {session && initialConditions && (
-  <script type="application/json" id="initial-conditions-data" set:text={JSON.stringify(initialConditions)} />
+  <script type="application/json" id="initial-conditions-data" set:html={JSON.stringify(initialConditions).replace(/</g, "\\u003c")} />
 )}
 
 {session && (
-  <script type="application/json" id="initial-meta" set:text={JSON.stringify({ isPro })} />
+  <script type="application/json" id="initial-meta" set:html={JSON.stringify({ isPro }).replace(/</g, "\\u003c")} />
 )}
 
 <script>
@@ -422,13 +422,26 @@ import { escHtml } from "../lib/escape";
       { key: "lufttemp_bucket", bucketKey: "lufttemp", label: "LUFTTEMPERATUR" },
     ];
 
+    // Kanonische Bucket-Werte für statische Dimensionen — Chips immer sichtbar (auch bei 0 Fängen)
+    const defaultBuckets: Record<string, string[]> = {
+      druck: ["<1005", "1005-1015", ">=1015"],
+      wind: ["<5", "5-10", "10-20", ">=20"],
+      monat: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+      uhrzeit: ["0-6", "6-12", "12-18", "18-24"],
+      wassertemp: ["<10", "10-15", "15-20", "20-25", ">=25"],
+      lufttemp: ["<5", "5-10", "10-15", "15-20", ">=20"],
+    };
+
     const container = document.getElementById("conditions-rows");
     if (!container) return;
     container.innerHTML = "";
 
     for (const dim of dims) {
       const b = buckets[dim.bucketKey] || {};
-      const entries = Object.entries(b);
+      let entries = Object.entries(b);
+      if (entries.length === 0 && defaultBuckets[dim.bucketKey]) {
+        entries = defaultBuckets[dim.bucketKey].map((v) => [v, { fangzahl: 0 }] as [string, any]);
+      }
       if (entries.length === 0) continue;
 
       const row = document.createElement("div");
@@ -881,6 +894,7 @@ import { escHtml } from "../lib/escape";
   const initBuckets = initDataEl ? (JSON.parse(initDataEl.textContent || "{}")?.buckets || {}) : {};
   renderMoonChart(initBuckets);
   renderPressureChart(initBuckets);
+  renderChips(initBuckets);
 
   document.querySelectorAll<HTMLElement>(".chip-btn[data-dim][data-val]").forEach((btn) => {
     const dim = btn.dataset.dim!;
