@@ -75,7 +75,7 @@ const watersJson = JSON.stringify(waters);
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
-        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary i18n" data-de={t("kicker.trips", "de")} data-en={t("kicker.trips", "en")}>{t("kicker.trips")}</p>
         <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("trips.titel", "de")} data-en={t("trips.titel", "en")}>{t("trips.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant max-w-xl i18n" data-de={t("trips.anmelden_text", "de")} data-en={t("trips.anmelden_text", "en")}>{t("trips.anmelden_text")}</p>
         <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("trips.anmelden", "de")} data-en={t("trips.anmelden", "en")}>
@@ -85,7 +85,7 @@ const watersJson = JSON.stringify(waters);
     ) : (
       <>
         <div class="mb-xl text-center md:text-left">
-          <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2 i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
+          <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-2 i18n" data-de={t("kicker.trips", "de")} data-en={t("kicker.trips", "en")}>{t("kicker.trips")}</p>
           <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("trips.titel", "de")} data-en={t("trips.titel", "en")}>{t("trips.titel")}</h1>
           <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de={t("trips.beschreibung", "de")} data-en={t("trips.beschreibung", "en")}>{t("trips.beschreibung")}</p>
         </div>
