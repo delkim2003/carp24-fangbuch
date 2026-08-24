@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neuen Fang eintragen | carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500&amp;family=Source+Sans+3:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..144,600;8..144,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#ebf0e1",
+                        "outline-variant": "#c6c8bc",
+                        "on-secondary-container": "#67663f",
+                        "surface-variant": "#dfe4d6",
+                        "on-tertiary-fixed": "#061f21",
+                        "inverse-on-surface": "#eef3e4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#cde7e9",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-primary": "#ffffff",
+                        "primary": "#546140",
+                        "on-tertiary-container": "#faffff",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-primary-fixed": "#141f05",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-primary-container": "#fdfff0",
+                        "outline": "#76786e",
+                        "surface-container-high": "#e5eadb",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d7dccd",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#6c7a57",
+                        "primary-fixed": "#d9e8be",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "background": "#f6fbec",
+                        "on-secondary-fixed": "#1d1d01",
+                        "surface-bright": "#f6fbec",
+                        "on-surface-variant": "#45483f",
+                        "surface-tint": "#556342",
+                        "surface-container-low": "#f1f6e7",
+                        "on-surface": "#181d14",
+                        "secondary": "#61603a",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2d3228",
+                        "inverse-primary": "#bdcca4",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "tertiary-container": "#617a7c",
+                        "on-background": "#181d14",
+                        "surface": "#f6fbec",
+                        "secondary-container": "#e7e5b4",
+                        "tertiary": "#496163",
+                        "secondary-fixed": "#e7e5b4",
+                        // Fallback custom colors per instruction mapping to theme where possible, else extending gently to match request while respecting constraints
+                        "card-khaki": "#CCCA9B", 
+                        "sage-hairline": "rgba(108, 122, 87, 0.2)",
+                        "sage-solid": "#6c7a57",
+                        "parchment": "#f6fbec",
+                        "slate-blue": "#7B9496"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "16px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "xl": "40px",
+                        "gutter": "20px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "nav-item": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8; /* Warm-Sand requested */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        
+        .premium-card {
+            background-color: #CCCA9B; /* Khaki requested */
+            border: 1px solid rgba(108, 122, 87, 0.4); /* 40% Olive */
+            border-radius: 16px;
+            box-shadow: inset 0 0 40px rgba(255,255,255,0.2);
+        }
+
+        .hairline-divider {
+            border-color: rgba(108, 122, 87, 0.15);
+        }
+
+        .custom-input {
+            background-color: #E8E0C8;
+            border: 1px solid transparent;
+            border-bottom: 1px solid rgba(108, 122, 87, 0.3);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.2s ease;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-bottom-color: #6c7a57;
+            background-color: rgba(232, 224, 200, 0.8);
+            box-shadow: 0 2px 0 -1px #6c7a57;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+    </style>
+<style>*{opacity:1!important;transform:none!important;animation:none!important;transition:none!important}</style></head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col font-body-md">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-inverse-surface border-b border-outline-variant/40 sticky top-0 z-50 transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-desktop h-20 max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">
+                carp24
+            </div>
+<div class="hidden md:flex space-x-lg items-center">
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Start</a>
+<a class="font-nav-item text-nav-item text-primary dark:text-primary-fixed-dim border-b border-primary dark:border-primary-fixed-dim pb-1 uppercase" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Board</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Forum</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Trips</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase" href="#">Marktplatz</a>
+</div>
+<div class="flex items-center space-x-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant">DE/EN</span>
+<button class="bg-primary-container text-on-primary-container font-nav-item text-nav-item px-lg py-sm rounded-full hover:opacity-80 transition-opacity uppercase">
+                    ANMELDEN
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-4xl mx-auto px-margin-mobile md:px-0 py-xl space-y-xl">
+<!-- Header Section -->
+<header class="text-center md:text-left fade-in-up stagger-1">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-sm tracking-tight">NEUEN FANG EINTRAGEN</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentiere die Details deines Fangs für das Journal.</p>
+</header>
+<!-- Main Form Grid -->
+<form class="space-y-lg">
+<!-- Details Card (Zweispaltig) -->
+<div class="premium-card p-lg fade-in-up stagger-2">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Links -->
+<div class="space-y-lg">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">GEWICHT (KG)*</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="0.0" required="" step="0.1" type="number"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">LÄNGE (CM)</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="0" type="number"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">WASSERTEMPERATUR (°C)</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface mb-1" placeholder="18.5" step="0.1" type="number"/>
+<span class="font-label-sm text-[10px] text-on-surface-variant italic">Wassertemperatur am Gewässer</span>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-md uppercase">FISCHART</label>
+<div class="flex flex-wrap gap-sm">
+<button class="px-md py-xs rounded-full border border-primary/20 text-on-surface text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">SPIEGEL</button>
+<button class="px-md py-xs rounded-full border border-primary/20 text-on-surface text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">LEDER</button>
+<button class="px-md py-xs rounded-full border border-primary/20 text-on-surface text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">SCHUPPEN</button>
+<button class="px-md py-xs rounded-full border border-primary/20 text-on-surface text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">AMUR</button>
+<button class="px-md py-xs rounded-full border border-primary/20 bg-primary/5 text-on-surface text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">ANDERE</button>
+</div>
+</div>
+</div>
+<!-- Rechts -->
+<div class="space-y-lg">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">DATUM*</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" required="" type="date"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">UHRZEIT</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" type="time"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">KÖDER</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="z.B. Boilie, Pop-Up" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">METHODE</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="z.B. Chod Rig, Inline" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Gewässer Section -->
+<div class="premium-card p-lg fade-in-up stagger-3">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Gewässer</h3>
+<div class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">Name des Sees/Flusses</label>
+<div class="relative">
+<input class="custom-input w-full p-sm pl-10 font-body-md text-on-surface" placeholder="Suchen..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">search</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-md">
+<button class="flex items-center gap-xs px-md py-sm rounded-full border border-primary-container text-primary text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined" style="font-size: 16px;">my_location</span>
+                            STANDORT VERWENDEN
+                        </button>
+<button class="flex items-center gap-xs px-md py-sm rounded-full border border-primary-container text-primary text-label-sm font-label-sm uppercase hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+                            AUF KARTE WÄHLEN
+                        </button>
+</div>
+<div class="grid grid-cols-2 gap-md pt-sm">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">BREITENGRAD</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="Optional" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">LÄNGENGRAD</label>
+<input class="custom-input w-full p-sm font-body-md text-on-surface" placeholder="Optional" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Foto & Notizen Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg fade-in-up stagger-4">
+<!-- Foto Hochladen -->
+<div class="premium-card p-lg flex flex-col">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Foto hochladen</h3>
+<div class="flex-grow border-2 border-dashed border-primary/30 rounded-lg bg-surface-container-low/50 flex flex-col items-center justify-center p-xl hover:bg-surface-container-low cursor-pointer transition-colors min-h-[200px]">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-sm">photo_camera</span>
+<p class="font-body-md text-on-surface-variant text-center">Hier klicken oder Bild hineinziehen</p>
+</div>
+</div>
+<!-- Notizen -->
+<div class="premium-card p-lg flex flex-col">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Notizen</h3>
+<div class="flex-grow flex flex-col">
+<textarea class="custom-input flex-grow w-full p-sm font-body-md text-on-surface resize-none min-h-[160px]" placeholder="Erzähle die Geschichte des Fangs..."></textarea>
+<div class="text-right mt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">0/1000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Optionen & Submit -->
+<div class="fade-in-up stagger-4 space-y-xl mt-xl">
+<div class="flex flex-col sm:flex-row gap-lg justify-between items-start sm:items-center">
+<div class="space-y-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="w-5 h-5 rounded border-primary/40 text-primary-container focus:ring-primary-container bg-surface-container-low" type="checkbox"/>
+<span class="font-label-sm text-label-sm uppercase text-on-surface">CATCH AND RELEASE</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="w-5 h-5 rounded border-primary/40 text-primary-container focus:ring-primary-container bg-surface-container-low" type="checkbox"/>
+<span class="font-label-sm text-label-sm uppercase text-on-surface">ÖFFENTLICH TEILEN</span>
+</label>
+</div>
+<div class="w-full sm:w-auto">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs uppercase">TRIP (OPTIONAL)</label>
+<select class="custom-input w-full sm:w-64 p-sm font-body-md text-on-surface">
+<option>-- Kein Trip --</option>
+<option>Frühjahrssession 2024</option>
+</select>
+</div>
+</div>
+<div class="flex justify-end pt-lg border-t hairline-divider">
+<button class="bg-primary-container text-on-primary-container font-nav-item text-nav-item px-xl py-md rounded-full hover:opacity-90 transition-opacity uppercase tracking-widest shadow-sm" type="submit">
+                        FANG SPEICHERN
+                    </button>
+</div>
+</div>
+</form>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-inverse-surface border-t border-outline-variant/20 py-xl mt-xl w-full">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop max-w-7xl mx-auto gap-lg">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim opacity-50">
+                carp24
+            </div>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Premium</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">
+                © 2026 Carp24. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

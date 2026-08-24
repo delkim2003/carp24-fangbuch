@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="dark scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Precision Angling</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;700&amp;family=Source+Sans+3:wght@400;500;700&amp;family=Jetbrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&amp;family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@400;500;600&amp;family=EB+Garamond:ital@1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-background": "#dfe4e0", tertiary: "#bfe4f6", "tertiary-container": "#a4c8d9", "secondary-container": "#3c4a44", "error-container": "#93000a", "on-secondary-fixed-variant": "#3c4a44", error: "#ffb4ab", "surface-container-low": "#181d1a", "surface-container": "#1c211e", surface: "#0f1412", secondary: "#bbcac3", "on-secondary": "#26332e", "on-primary": "#412d00", "on-secondary-container": "#aab8b1", "inverse-surface": "#dfe4e0", "on-surface-variant": "#d4c4af", "on-error": "#690005", "inverse-primary": "#7c5800", "surface-bright": "#353a38", "on-primary-fixed": "#271900", "on-error-container": "#ffdad6", "surface-container-highest": "#313633", "outline-variant": "#4f4535", "secondary-fixed-dim": "#bbcac3", "tertiary-fixed": "#c3e8fa", "on-secondary-fixed": "#111e1a", "inverse-on-surface": "#2c322f", "on-surface": "#dfe4e0", "on-tertiary": "#0d3542", "tertiary-fixed-dim": "#a8ccdd", "on-tertiary-fixed-variant": "#284b59", "on-primary-container": "#6a4a00", background: "#0f1412", "on-tertiary-container": "#315463", primary: "#ffd999", "secondary-fixed": "#d7e6de", "primary-fixed-dim": "#f8bd45", "on-tertiary-fixed": "#001f29", "on-primary-fixed-variant": "#5e4200", "surface-dim": "#0f1412", "surface-tint": "#f8bd45", "primary-fixed": "#ffdea7", outline: "#9c8f7b", "surface-container-high": "#262b29", "surface-variant": "#313633", "primary-container": "#f4b942", "surface-container-lowest": "#0a0f0d"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {unit: "4", "container-max": "1440px", "margin-desktop": "64px", "margin-mobile": "20px", gutter: "24px"}, fontFamily: {"label-caps": ["JetBrains Mono"], "body-md": ["\"Source Sans 3\""], "body-lg": ["\"Source Sans 3\""], "data-mono": ["JetBrains Mono"], "quote-italic": ["\"Source Serif 4\""], "display-lg": ["\"Source Serif 4\""], "headline-md": ["\"Source Serif 4\""], "display-lg-mobile": ["\"Source Serif 4\""]}, fontSize: {"label-caps": ["12px", {lineHeight: "1", letterSpacing: "0.08em", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "1.6", fontWeight: "400"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "data-mono": ["14px", {lineHeight: "1", fontWeight: "500"}], "quote-italic": ["22px", {lineHeight: "1.4", fontWeight: "400"}], "display-lg": ["64px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-md": ["32px", {lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "600"}], "display-lg-mobile": ["40px", {lineHeight: "1.1", letterSpacing: "-0.01em", fontWeight: "700"}]}}}};</script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bento-tile {
+            background: rgba(60, 74, 68, 0.2); /* secondary-container with low opacity */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .bento-tile:hover {
+            background: rgba(60, 74, 68, 0.3);
+            box-shadow: 0 0 20px rgba(244, 185, 66, 0.1); /* Primary Amber glow */
+        }
+        
+        .animate-scroll-down {
+            animation: bounceScroll 2s infinite;
+        }
+        
+        @keyframes bounceScroll {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Utility for data lists */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .data-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body-md antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Header Navigation -->
+<header class="sticky top-0 w-full z-50 bg-surface/10 dark:bg-surface/10 backdrop-blur-xl border-b border-white/10 shadow-sm transition-all duration-300" id="main-header">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand -->
+<a class="flex items-center gap-3 scale-95 duration-200 hover:scale-100" href="#">
+<img alt="CARP24" class="w-10 h-10 rounded-full border border-white/10 shadow-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx3rFEy9iz2GQDQfquKdXJ_l-QCAEJI226HLwbNjdoblU7cUeNh6MCMnubVpMlJ7I-3wcSlM1VPdGznAi6fUmdNOoZm-pyVfR4F0F9ioqbaM4J_A88n_nsMJ91XmL4aSBIkzJR_m8iKFKNJ7F2JYsk_739yovb_VxgH_jW0GsESTYXdn2NbIuZ98fnHOHYZQYHC5_eroj9rLrRinodxqksyUor29PCb_dvopI2RyjroSBCX-Fr_Bxjbb3rwpMdjRdVGkqvbiNKAkmD"/>
+<span class="font-display-lg-mobile text-headline-md md:text-[24px] text-primary dark:text-primary tracking-tight font-extrabold hidden sm:block">CARP24</span>
+</a>
+<!-- Navigation Links -->
+<nav class="hidden md:flex gap-8">
+<!-- No active class by default since this is likely a home/landing page -->
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Catch List</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Statistics</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors py-1" href="#">Profile</a>
+</nav>
+<!-- Trailing Action -->
+<a class="font-label-caps text-label-caps bg-primary-container text-on-primary px-6 py-2 rounded-full hover:bg-primary transition-colors shadow-[0_0_15px_rgba(244,185,66,0.2)] hover:shadow-[0_0_25px_rgba(244,185,66,0.4)] scale-95 duration-200" href="#">
+                Login
+            </a>
+</div>
+</header>
+<main>
+<!-- Hero Section with Parallax & Shader -->
+<section class="relative min-h-[921px] flex items-center justify-center overflow-hidden">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0 scale-105 transform translate-y-0" id="parallax-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ1FrLXEaT84lLF5LXhvff1a8nJUWp6r8_M-Pp_8gdSaD8Ta9jmigIfZYfE_o5ucnXo5OTdL3K5n1rJ1Y03JoJ1l8cJ4IrMymFbUatkXLwtZVHuw5ec1dSjUZZGeOhGyaHl1rIKmjE0YVWQV_JmfxflYLGjkhSGCsoYqdrnd59EKzjHzmV4Pljprv5WtxkzWYCHk-kkTUBQgC9neWy82iRyLIHolDzp79k9DGEMR0PheltIjqdmkAxB9bwDWZP5MW7hC4_TxwGvQzK'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+<!-- Atmospheric Shader Overlay -->
+<!-- STITCH_SHADER_START:ANIMATION_1 class="absolute inset-0 w-full h-full z-10 opacity-60 mix-blend-screen" -->
+<div class="absolute inset-0 w-full h-full z-10 opacity-60 mix-blend-screen" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_1" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_1');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+
+// Simplex 2D noise
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+           -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i  = mod(i, 289.0);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+  + i.x + vec3(0.0, i1.x, 1.0 ));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    float noise = snoise(uv * 2.0 + u_time * 0.05);
+    noise += 0.5 * snoise(uv * 4.0 - u_time * 0.1);
+    
+    // Create a mist/fog density gradient
+    float fog = smoothstep(0.1, 0.8, uv.y) * (0.5 + 0.5 * noise);
+    
+    // Dawn colors
+    vec3 skyColor = vec3(0.04, 0.06, 0.05); // Deep dark forest green
+    vec3 mistColor = vec3(0.6, 0.65, 0.7); // Cool misty grey
+    vec3 dawnGlow = vec3(0.95, 0.7, 0.3) * 0.2; // Very subtle amber glow
+    
+    vec3 finalColor = mix(skyColor, mistColor, fog * 0.4);
+    finalColor += dawnGlow * (1.0 - uv.y) * fog;
+    
+    gl_FragColor = vec4(finalColor, fog * 0.6);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_1 -->
+<!-- Vignette/Gradient to blend with page body -->
+<div class="absolute inset-0 z-10 bg-gradient-to-b from-surface-container-lowest/40 via-transparent to-surface-container-lowest"></div>
+<div class="relative z-20 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-gutter mt-16 md:mt-0">
+<div class="lg:col-span-8 flex flex-col justify-center">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 drop-shadow-2xl">
+                        Your carp <br class="hidden md:block"/>fishing logbook
+                    </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10 leading-relaxed drop-shadow-md">
+                        Precision angling meets digital excellence. Every catch, every detail, preserved in the stillness of the morning mist.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+<button class="bg-primary-container text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-lg hover:bg-primary transition-all duration-300 shadow-[0_4px_20px_rgba(244,185,66,0.3)] hover:shadow-[0_0_30px_rgba(244,185,66,0.5)] border-none">
+                            LOG YOUR FIRST CATCH
+                        </button>
+<button class="bg-surface/20 border border-secondary/30 text-on-background font-label-caps text-label-caps px-8 py-4 rounded-lg hover:bg-surface/40 hover:border-secondary transition-all duration-300 backdrop-blur-md">
+                            EXPLORE FEATURES
+                        </button>
+</div>
+</div>
+<div class="lg:col-span-4 flex items-end justify-end hidden lg:flex pb-12">
+<div class="glass-panel p-8 rounded-xl flex flex-col items-end transform rotate-[-2deg]">
+<span class="font-label-caps text-label-caps text-primary tracking-widest mb-2 opacity-80">PERSONAL BEST</span>
+<span class="font-data-mono text-[48px] font-bold text-on-background leading-none drop-shadow-[0_0_15px_rgba(255,217,153,0.3)]">
+                            25.4<span class="text-secondary/50 text-headline-md ml-1">kg</span>
+</span>
+<div class="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-4 mb-2"></div>
+<span class="font-body-md text-on-surface-variant text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                            Lake Cassien, France
+                        </span>
+</div>
+</div>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center opacity-60 hover:opacity-100 transition-opacity cursor-pointer animate-scroll-down">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-2">DISCOVER</span>
+<span class="material-symbols-outlined text-on-background">keyboard_arrow_down</span>
+</div>
+</section>
+<!-- Bento Grid Features -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="mb-16 text-center max-w-3xl mx-auto reveal-on-scroll">
+<h2 class="font-headline-md text-headline-md text-on-background mb-4">Precision Engineered Features</h2>
+<p class="font-body-md text-on-surface-variant">Built for the dedicated angler, combining rugged reliability with modern data science.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-gutter auto-rows-[minmax(200px,auto)]">
+<!-- Tile 1: Catch Details (Large) -->
+<div class="bento-tile rounded-xl p-8 lg:col-span-8 lg:row-span-2 flex flex-col justify-end relative overflow-hidden group reveal-on-scroll" style="transition-delay: 100ms;">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-container-highest/80 to-transparent z-0"></div>
+<div class="absolute top-6 right-6 w-12 h-12 bg-primary-container/10 rounded-full flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">add_location_alt</span>
+</div>
+<div class="relative z-10 w-full max-w-lg">
+<span class="inline-block px-3 py-1 bg-tertiary-container/10 text-tertiary border border-tertiary/20 rounded-full font-label-caps text-[10px] mb-4">CORE FEATURE</span>
+<h3 class="font-headline-md text-2xl text-on-background mb-3">Comprehensive Catch Details</h3>
+<p class="font-body-md text-on-surface-variant mb-6">Automatically capture GPS coordinates, barometric pressure, moon phase, and water temperature the moment you log a catch.</p>
+<div class="bg-surface/50 rounded-lg p-4 border border-white/5 space-y-2">
+<div class="data-row">
+<span class="font-body-md text-on-surface-variant text-sm">Pressure</span>
+<span class="font-data-mono text-data-mono text-on-background">1012 hPa</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-on-surface-variant text-sm">Moon</span>
+<span class="font-data-mono text-data-mono text-on-background">Waning Gibbous</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tile 2: Auto Statistics -->
+<div class="bento-tile rounded-xl p-6 lg:col-span-4 flex flex-col justify-between reveal-on-scroll" style="transition-delay: 200ms;">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center border border-secondary/20">
+<span class="material-symbols-outlined text-secondary">monitoring</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-md text-xl text-on-background mb-2">Auto Statistics</h3>
+<p class="font-body-md text-on-surface-variant text-sm">Visualize your success rates across different baits, rigs, and seasons.</p>
+</div>
+</div>
+<!-- Tile 3: Offline Mode -->
+<div class="bento-tile rounded-xl p-6 lg:col-span-4 flex flex-col justify-between reveal-on-scroll" style="transition-delay: 300ms;">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-tertiary/10 rounded-lg flex items-center justify-center border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary">signal_wifi_off</span>
+</div>
+<span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-data-mono text-on-surface-variant border border-white/5">SYNC PENDING</span>
+</div>
+<div>
+<h3 class="font-headline-md text-xl text-on-background mb-2">Offline Mode</h3>
+<p class="font-body-md text-on-surface-variant text-sm">Deep in the wild? Log now, sync automatically when connection returns.</p>
+</div>
+</div>
+<!-- Tile 4: Weather Snapshot -->
+<div class="bento-tile rounded-xl p-6 lg:col-span-4 flex flex-col justify-between relative overflow-hidden reveal-on-scroll" style="transition-delay: 400ms;">
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-bl-full blur-2xl"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary">cloud</span>
+</div>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-xl text-on-background mb-2">Weather Snapshot</h3>
+<p class="font-body-md text-on-surface-variant text-sm">Historical weather data attached to every log for deep pattern analysis.</p>
+</div>
+</div>
+<!-- Tile 5: Secure Auth -->
+<div class="bento-tile rounded-xl p-6 lg:col-span-4 flex flex-col justify-between reveal-on-scroll" style="transition-delay: 500ms;">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center border border-secondary/20">
+<span class="material-symbols-outlined text-secondary">lock</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-md text-xl text-on-background mb-2">Secure Auth</h3>
+<p class="font-body-md text-on-surface-variant text-sm">Your spots are your secrets. End-to-end encryption for all location data.</p>
+</div>
+</div>
+<!-- Tile 6: Pro Upgrade -->
+<div class="bento-tile rounded-xl p-6 lg:col-span-4 flex flex-col justify-center items-center text-center border-primary/30 relative overflow-hidden group reveal-on-scroll" style="transition-delay: 600ms; background: rgba(244,185,66,0.05);">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined text-primary text-4xl mb-3">star</span>
+<h3 class="font-headline-md text-xl text-on-background mb-2">CARP24 Pro</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-4">Unlock advanced topographical maps and bite predictions.</p>
+<button class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 hover:text-primary-fixed transition-colors">
+                        UPGRADE NOW
+                    </button>
+</div>
+</div>
+</section>
+<!-- Recent Catches / Live Feed -->
+<section class="py-24 bg-surface-container/50 relative border-t border-white/5">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex justify-between items-end mb-12 reveal-on-scroll">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-background">Recent Field Logs</h2>
+<p class="font-body-md text-on-surface-variant mt-2">Latest activity from the waters edge.</p>
+</div>
+<button class="hidden md:flex items-center gap-2 font-label-caps text-label-caps text-secondary hover:text-on-background transition-colors">
+                        VIEW ALL <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Catch Card 1 -->
+<div class="glass-panel rounded-xl overflow-hidden reveal-on-scroll" style="transition-delay: 100ms;">
+<div class="h-48 bg-surface-container-high relative">
+<!-- Placeholder for catch image -->
+<div class="absolute inset-0 bg-[url('placeholder')] bg-cover bg-center opacity-40" data-alt="A close up, high quality image of a large, beautiful common carp resting safely on a dark green unhooking mat next to a misty lake at dawn. The lighting is soft and cinematic, highlighting the golden scales of the fish against the dark, moody background. Professional angling equipment is subtly visible in the out-of-focus background."></div>
+<div class="absolute top-4 left-4 bg-background/80 backdrop-blur px-2 py-1 rounded font-data-mono text-[12px] text-primary border border-white/10">
+                                TODAY, 05:30 AM
+                            </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-md text-lg text-on-background">Mirror Carp</h4>
+<span class="font-body-md text-sm text-on-surface-variant">Boilie - Tiger Nut</span>
+</div>
+<div class="text-right">
+<span class="font-data-mono text-xl font-bold text-on-background counter" data-target="18.2">0.0</span>
+<span class="font-data-mono text-xs text-secondary">kg</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mb-4">
+<div class="bg-primary h-full w-[70%]"></div>
+</div>
+</div>
+</div>
+<!-- Catch Card 2 -->
+<div class="glass-panel rounded-xl overflow-hidden reveal-on-scroll" style="transition-delay: 200ms;">
+<div class="h-48 bg-surface-container-high relative">
+<div class="absolute inset-0 bg-[url('placeholder')] bg-cover bg-center opacity-40" data-alt="A scenic wide shot of a European lake edge at sunset, featuring high-end carp fishing rods set up on a rod pod with electronic bite alarms. The sky reflects deep oranges and purples on the calm water surface. The mood is tranquil yet anticipatory, perfectly capturing the premium outdoor enthusiast lifestyle."></div>
+<div class="absolute top-4 left-4 bg-background/80 backdrop-blur px-2 py-1 rounded font-data-mono text-[12px] text-secondary border border-white/10">
+                                YESTERDAY, 21:45
+                            </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-md text-lg text-on-background">Common Carp</h4>
+<span class="font-body-md text-sm text-on-surface-variant">Pop-up - Pineapple</span>
+</div>
+<div class="text-right">
+<span class="font-data-mono text-xl font-bold text-on-background counter" data-target="14.8">0.0</span>
+<span class="font-data-mono text-xs text-secondary">kg</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mb-4">
+<div class="bg-secondary h-full w-[55%]"></div>
+</div>
+</div>
+</div>
+<!-- Catch Card 3 -->
+<div class="glass-panel rounded-xl overflow-hidden reveal-on-scroll" style="transition-delay: 300ms;">
+<div class="h-48 bg-surface-container-high relative">
+<div class="absolute inset-0 bg-[url('placeholder')] bg-cover bg-center opacity-40" data-alt="A detailed, macro shot of a complex carp fishing rig featuring a sharp hook and a bright yellow pop-up boilie resting on a dark, gravelly lakebed underwater. The water is slightly murky with a dark greenish hue, illuminated by a sliver of sunlight piercing down from the surface. Highly technical and pristine."></div>
+<div class="absolute top-4 left-4 bg-background/80 backdrop-blur px-2 py-1 rounded font-data-mono text-[12px] text-secondary border border-white/10">
+                                OCT 12, 02:15 AM
+                            </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-md text-lg text-on-background">Ghost Carp</h4>
+<span class="font-body-md text-sm text-on-surface-variant">Snowman Rig</span>
+</div>
+<div class="text-right">
+<span class="font-data-mono text-xl font-bold text-on-background counter" data-target="21.5">0.0</span>
+<span class="font-data-mono text-xs text-secondary">kg</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mb-4">
+<div class="bg-tertiary h-full w-[85%]"></div>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-4 border border-white/10 rounded-lg text-center font-label-caps text-label-caps text-on-background hover:bg-white/5 transition-colors md:hidden">
+                    VIEW ALL LOGS
+                </button>
+</div>
+</section>
+<!-- Quote Band -->
+<section class="py-32 px-margin-mobile text-center relative border-y border-white/5 overflow-hidden">
+<div class="absolute inset-0 bg-surface-container-low z-0"></div>
+<!-- Subtle noise/texture -->
+<div class="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+<div class="relative z-10 max-w-4xl mx-auto reveal-on-scroll">
+<span class="material-symbols-outlined text-primary/30 text-6xl mb-6 block">format_quote</span>
+<p class="font-quote-italic text-quote-italic md:text-[36px] text-on-background leading-relaxed">
+                    "The mist on the lake is where the story begins."
+                </p>
+</div>
+</section>
+</main>
+<!-- Footer Navigation -->
+<footer class="w-full relative overflow-hidden bg-surface/5 dark:bg-surface/5 backdrop-blur-md border-t border-white/5">
+<!-- Reeds Silhouette Decoration -->
+<div class="absolute bottom-0 left-0 w-full h-32 opacity-10 pointer-events-none bg-[url('placeholder')] bg-repeat-x bg-bottom" data-alt="A high-contrast, minimalist silhouette of tall lake reeds and bulrushes against a solid dark background. The image serves as a decorative footer border element for a premium outdoor lifestyle application. No complex details, just sharp, stylized botanical outlines in black."></div>
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-8 gap-gutter relative z-10 max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<div class="font-display-lg text-headline-md text-on-surface opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+                CARP24
+            </div>
+<!-- Links -->
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Cookie Policy</a>
+</div>
+<!-- Copyright -->
+<div class="font-label-caps text-label-caps text-secondary dark:text-secondary opacity-60 text-center md:text-right">
+                © 2024 CARP24. Precision Angling.
+            </div>
+</div>
+</footer>
+<script>
+        // Parallax Effect for Hero Background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const parallaxBg = document.getElementById('parallax-bg');
+            if (parallaxBg && scrolled < window.innerHeight) {
+                parallaxBg.style.transform = `translateY(${scrolled * 0.4}px) scale(1.05)`;
+            }
+        });
+
+        // Header Blur/Background opacity on scroll
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-surface/80', 'backdrop-blur-2xl');
+                header.classList.remove('bg-surface/10', 'backdrop-blur-xl');
+            } else {
+                header.classList.add('bg-surface/10', 'backdrop-blur-xl');
+                header.classList.remove('bg-surface/80', 'backdrop-blur-2xl');
+            }
+        });
+
+        // Intersection Observer for Reveal Animations
+        const revealElements = document.querySelectorAll('.reveal-on-scroll');
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    
+                    // Trigger counter animation if inside the revealed element
+                    const counters = entry.target.querySelectorAll('.counter');
+                    counters.forEach(counter => {
+                        if (!counter.classList.contains('counted')) {
+                            animateValue(counter, 0, parseFloat(counter.getAttribute('data-target')), 1500);
+                            counter.classList.add('counted');
+                        }
+                    });
+
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Counter Animation Function
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // Ease out cubic
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const current = (start + easeProgress * (end - start)).toFixed(1);
+                obj.innerHTML = current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body></html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Anmeldung</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Source+Sans+3:wght@400&amp;family=Source+Serif+4:ital,wght@0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-primary-fixed": "#271900",
+                            "inverse-primary": "#7c5800",
+                            "error": "#ffb4ab",
+                            "inverse-surface": "#dfe4e0",
+                            "primary": "#ffd999",
+                            "outline": "#9c8f7b",
+                            "inverse-on-surface": "#2c322f",
+                            "surface-container-lowest": "#0a0f0d",
+                            "primary-fixed-dim": "#f8bd45",
+                            "tertiary-container": "#a4c8d9",
+                            "primary-fixed": "#ffdea7",
+                            "tertiary-fixed": "#c3e8fa",
+                            "on-surface": "#dfe4e0",
+                            "on-primary-container": "#6a4a00",
+                            "surface-container-high": "#262b29",
+                            "background": "#0f1412",
+                            "on-tertiary-fixed-variant": "#284b59",
+                            "on-secondary-fixed": "#111e1a",
+                            "error-container": "#93000a",
+                            "on-tertiary": "#0d3542",
+                            "surface-variant": "#313633",
+                            "on-secondary-container": "#aab8b1",
+                            "secondary": "#bbcac3",
+                            "secondary-fixed": "#d7e6de",
+                            "on-tertiary-container": "#315463",
+                            "surface-container-highest": "#313633",
+                            "outline-variant": "#4f4535",
+                            "secondary-container": "#3c4a44",
+                            "on-tertiary-fixed": "#001f29",
+                            "on-primary-fixed-variant": "#5e4200",
+                            "on-background": "#dfe4e0",
+                            "on-primary": "#412d00",
+                            "surface-bright": "#353a38",
+                            "surface": "#0f1412",
+                            "on-error": "#690005",
+                            "surface-container-low": "#181d1a",
+                            "on-secondary": "#26332e",
+                            "tertiary": "#bfe4f6",
+                            "primary-container": "#f4b942",
+                            "on-secondary-fixed-variant": "#3c4a44",
+                            "surface-container": "#1c211e",
+                            "secondary-fixed-dim": "#bbcac3",
+                            "tertiary-fixed-dim": "#a8ccdd",
+                            "surface-tint": "#f8bd45",
+                            "on-error-container": "#ffdad6",
+                            "surface-dim": "#0f1412",
+                            "on-surface-variant": "#d4c4af"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "container-max": "1440px",
+                            "margin-mobile": "20px",
+                            "gutter": "24px",
+                            "margin-desktop": "64px",
+                            "unit": "4"
+                    },
+                    "fontFamily": {
+                            "label-caps": [
+                                    "JetBrains Mono"
+                            ],
+                            "display-lg-mobile": [
+                                    "\"Source Serif 4\""
+                            ],
+                            "body-lg": [
+                                    "\"Source Sans 3\""
+                            ],
+                            "body-md": [
+                                    "\"Source Sans 3\""
+                            ],
+                            "headline-md": [
+                                    "\"Source Serif 4\""
+                            ],
+                            "data-mono": [
+                                    "JetBrains Mono"
+                            ],
+                            "quote-italic": [
+                                    "\"Source Serif 4\""
+                            ],
+                            "display-lg": [
+                                    "\"Source Serif 4\""
+                            ]
+                    },
+                    "fontSize": {
+                            "label-caps": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "1",
+                                            "letterSpacing": "0.08em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "display-lg-mobile": [
+                                    "40px",
+                                    {
+                                            "lineHeight": "1.1",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "18px",
+                                    {
+                                            "lineHeight": "1.6",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "1.6",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "data-mono": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "1",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "quote-italic": [
+                                    "22px",
+                                    {
+                                            "lineHeight": "1.4",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "64px",
+                                    {
+                                            "lineHeight": "1.1",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(49, 54, 51, 0.15); /* surface-variant at 15% */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(223, 228, 224, 0.1); /* on-surface at 10% */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        .glass-panel-inner {
+            background: rgba(15, 20, 18, 0.4); /* surface at 40% */
+            border-top: 1px solid rgba(223, 228, 224, 0.05);
+            border-left: 1px solid rgba(223, 228, 224, 0.05);
+        }
+        
+        /* Input Focus Glow */
+        input:focus {
+            box-shadow: 0 0 0 1px #f4b942, 0 0 12px rgba(244, 185, 66, 0.2) !important;
+            border-color: #f4b942 !important;
+        }
+
+        /* Slide-in Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f1412; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #313633; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f4535; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen flex flex-col overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar Suppressed for Transactional (Login) Intent -->
+<!-- Main Authentication Area -->
+<main class="flex-grow relative flex items-center justify-center p-margin-mobile md:p-margin-desktop overflow-hidden min-h-[800px]">
+<!-- Atmospheric Background Image -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-60 mix-blend-overlay" data-alt="A serene misty lake at dawn, dark silhouettes of pine trees reflecting on calm water, subtle golden light filtering through fog, premium outdoor aesthetic, deep moody contrast." src="https://lh3.googleusercontent.com/aida/AEtjO1UslBuwxEXJwksJV1Ma-MjDFsHW1CLacheACRzwRW6YRTuzOrV-6xc-ZeEeRIKtnbeGgtOvs-2qcLkgph1nJfk1HiFyTkSE4HyOU45T5076SbbrM87QWQhBUNpcHbv3HYel2t3kcE_oozQyuWq1ySVY7L1OisQw04c1KKDG4ZwFirx0saAUMKoIXWSB8Ljz5d4pc73fkebFL7QlHUM0LIDa7F8GJYy7_2yH4sgvzA_eLvQh-cASgbmHpaQ"/>
+</div>
+<!-- Shader Background -->
+<div class="absolute inset-0 z-10 opacity-40 mix-blend-screen pointer-events-none">
+<!-- STITCH_SHADER_START:ANIMATION_18 class="w-full h-full" -->
+<div class="w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_18" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_18');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+
+// Simplex 2D noise
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+           -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i  = mod(i, 289.0);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+  + i.x + vec3(0.0, i1.x, 1.0 ));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    float noise = snoise(uv * 1.5 + u_time * 0.03);
+    noise += 0.5 * snoise(uv * 3.0 - u_time * 0.07);
+    
+    // Mist/fog density gradient
+    float fog = smoothstep(0.0, 0.9, uv.y) * (0.4 + 0.6 * noise);
+    
+    // Dark Dawn colors from Aura Lake palette
+    vec3 skyColor = vec3(0.04, 0.05, 0.05); // surface-container-lowest
+    vec3 mistColor = vec3(0.4, 0.45, 0.48); // surface-bright adjusted
+    vec3 dawnGlow = vec3(0.95, 0.72, 0.26) * 0.15; // primary amber glow
+    
+    vec3 finalColor = mix(skyColor, mistColor, fog * 0.35);
+    finalColor += dawnGlow * (1.0 - uv.y) * fog;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_18 -->
+</div>
+<!-- Gradient Overlay to anchor content -->
+<div class="absolute inset-0 z-10 bg-gradient-to-t from-surface-container-lowest via-transparent to-surface-container-lowest opacity-90 pointer-events-none"></div>
+<!-- Content Container (Bento Layout style for Auth) -->
+<div class="relative z-20 w-full max-w-[1000px] grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<!-- Left Col / Branding (Visible mainly on Desktop, stacks on mobile) -->
+<div class="hidden md:flex md:col-span-5 flex-col justify-center items-start space-y-8 pr-8 animate-slide-up">
+<div class="relative inline-block group">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/40 transition-all duration-700"></div>
+<img class="w-32 h-32 rounded-full border-2 border-primary/30 shadow-2xl relative z-10 animate-pulse" data-alt="carp24 circular logo badge, gold embroidery style carp fish on dark green background, premium outdoor goods branding." src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</div>
+<div>
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim drop-shadow-lg mb-4">Das Wasser ruft.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm">Dein digitales Fangbuch für die stillen Momente und die großen Fänge. Synchronisiert, sicher und immer dabei.</p>
+</div>
+<!-- Features Chips -->
+<div class="flex flex-wrap gap-3 mt-8">
+<span class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-inner font-data-mono text-data-mono text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">sync_saved_locally</span>
+                        Offline-Sync
+                    </span>
+<span class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-inner font-data-mono text-data-mono text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                        Ende-zu-Ende-verschlüsselt
+                    </span>
+<span class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-inner font-data-mono text-data-mono text-primary-fixed-dim border border-primary/20">
+<span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+                        Premium
+                    </span>
+</div>
+</div>
+<!-- Right Col / Auth Forms (Bento Tile) -->
+<div class="md:col-span-7 flex justify-center w-full animate-slide-up delay-100">
+<div class="glass-panel w-full max-w-[480px] rounded-2xl p-6 md:p-8 flex flex-col relative overflow-hidden">
+<!-- Decorative subtle glow inside card -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+<!-- Tabs/Toggle (Login vs Register vs 2FA - Simplified for layout demonstration) -->
+<div class="flex border-b border-white/10 mb-8 font-label-caps text-label-caps">
+<button class="flex-1 pb-3 text-primary border-b-2 border-primary transition-colors text-center">ANMELDEN</button>
+<button class="flex-1 pb-3 text-on-surface-variant/70 hover:text-on-surface transition-colors text-center">REGISTRIEREN</button>
+</div>
+<!-- Login Form -->
+<div class="flex flex-col gap-6">
+<div class="text-center mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Willkommen zurück</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Melde dich in deinem Fangbuch an</p>
+</div>
+<!-- Inputs -->
+<div class="space-y-4">
+<div>
+<label class="sr-only" for="email">E-Mail</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</span>
+<input class="w-full bg-surface-container-high/50 border border-outline-variant rounded-lg pl-10 pr-4 py-3 text-on-surface font-data-mono text-data-mono focus:ring-0 focus:outline-none transition-all placeholder:text-on-surface-variant/50" id="email" name="email" placeholder="angler@example.com" type="email"/>
+</div>
+</div>
+<div>
+<label class="sr-only" for="password">Passwort</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">key</span>
+</span>
+<input class="w-full bg-surface-container-high/50 border border-outline-variant rounded-lg pl-10 pr-12 py-3 text-on-surface font-data-mono text-data-mono focus:ring-0 focus:outline-none transition-all placeholder:text-on-surface-variant/50" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute inset-y-0 right-0 flex items-center pr-3 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Meta Actions -->
+<div class="flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer group">
+<div class="relative flex items-center justify-center">
+<input class="peer appearance-none w-5 h-5 border border-outline-variant rounded bg-surface-container-high/50 checked:bg-primary checked:border-primary transition-all" type="checkbox"/>
+<span class="material-symbols-outlined absolute text-on-primary-container text-[16px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors text-sm">Angemeldet bleiben</span>
+</label>
+<a class="font-label-caps text-label-caps text-primary hover:text-primary-fixed transition-colors text-sm" href="#">Passwort vergessen?</a>
+</div>
+<!-- Primary CTA -->
+<button class="w-full bg-primary-container text-on-primary-container font-label-caps text-label-caps py-4 rounded-lg hover:bg-primary-fixed hover:shadow-[0_0_20px_rgba(244,185,66,0.3)] transition-all duration-300 transform active:scale-[0.98]" type="button">
+                            ANMELDEN
+                        </button>
+<!-- Divider -->
+<div class="flex items-center gap-4 my-2">
+<div class="flex-1 h-px bg-white/10"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant/50">ODER</span>
+<div class="flex-1 h-px bg-white/10"></div>
+</div>
+<!-- Social Auth -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-outline-variant/50 bg-surface-container-high/30 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps text-on-surface group" type="button">
+<svg class="w-5 h-5 text-on-surface-variant group-hover:text-on-surface transition-colors" fill="currentColor" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                                GOOGLE
+                            </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-outline-variant/50 bg-surface-container-high/30 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps text-on-surface group" type="button">
+<svg class="w-5 h-5 text-on-surface-variant group-hover:text-on-surface transition-colors" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill="#1877F2" fill-rule="evenodd"></path>
+</svg>
+                                FACEBOOK
+                            </button>
+</div>
+</div>
+<!-- Mobile only: Features (Stacks under form) -->
+<div class="md:hidden flex flex-col gap-3 mt-8 pt-8 border-t border-white/5">
+<span class="inline-flex items-center gap-2 text-sm font-data-mono text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">sync_saved_locally</span> Offline-Sync
+                        </span>
+<span class="inline-flex items-center gap-2 text-sm font-data-mono text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">lock</span> Ende-zu-Ende-verschlüsselt
+                        </span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component from JSON -->
+<footer class="bg-background dark:bg-surface-container-lowest full-width bottom-0 border-t border-white/5 flat no shadows flex flex-col md:flex-row justify-between items-center px-margin-desktop py-12 w-full gap-gutter relative z-20">
+<div class="font-display-lg-mobile text-on-surface-variant opacity-50 mb-4 md:mb-0">
+            carp24
+        </div>
+<div class="text-on-surface-variant font-body-md text-body-md text-center md:text-left mb-4 md:mb-0">
+            © 2024 carp24. Professional Angling Logbook.
+        </div>
+<nav class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant font-data-mono font-data-mono text-data-mono hover:text-primary-fixed-dim transition-colors" href="#">Impressum</a>
+<a class="text-on-surface-variant font-data-mono font-data-mono text-data-mono hover:text-primary-fixed-dim transition-colors" href="#">Datenschutz</a>
+<a class="text-on-surface-variant font-data-mono font-data-mono text-data-mono hover:text-primary-fixed-dim transition-colors" href="#">AGB</a>
+<a class="text-on-surface-variant font-data-mono font-data-mono text-data-mono hover:text-primary-fixed-dim transition-colors" href="#">Kontakt</a>
+</nav>
+</footer>
+</body></html>

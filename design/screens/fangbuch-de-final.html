@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Fangbuch</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;family=Source+Sans+3:ital,wght@0,200..900;1,200..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#a4c8d9",
+                        "surface-container-highest": "#313633",
+                        "inverse-surface": "#dfe4e0",
+                        "on-error": "#690005",
+                        "surface-container": "#1c211e",
+                        "outline": "#9c8f7b",
+                        "primary-container": "#f4b942",
+                        "on-secondary-fixed-variant": "#3c4a44",
+                        "surface-variant": "#313633",
+                        "secondary-container": "#3c4a44",
+                        "on-primary-container": "#6a4a00",
+                        "inverse-on-surface": "#2c322f",
+                        "surface-bright": "#353a38",
+                        "secondary-fixed": "#d7e6de",
+                        "on-primary-fixed-variant": "#5e4200",
+                        "on-primary": "#412d00",
+                        "surface-container-lowest": "#0a0f0d",
+                        "on-tertiary-fixed": "#001f29",
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#262b29",
+                        "outline-variant": "#4f4535",
+                        "surface-tint": "#f8bd45",
+                        "on-secondary-container": "#aab8b1",
+                        "inverse-primary": "#7c5800",
+                        "tertiary-fixed": "#c3e8fa",
+                        "tertiary": "#bfe4f6",
+                        "on-primary-fixed": "#271900",
+                        "surface-dim": "#0f1412",
+                        "surface-container-low": "#181d1a",
+                        "secondary": "#bbcac3",
+                        "primary-fixed-dim": "#f8bd45",
+                        "primary": "#ffd999",
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "on-surface": "#dfe4e0",
+                        "surface": "#0f1412",
+                        "on-secondary-fixed": "#111e1a",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#315463",
+                        "background": "#0f1412",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "on-surface-variant": "#d4c4af",
+                        "on-background": "#dfe4e0",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#0d3542",
+                        "primary-fixed": "#ffdea7",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "on-secondary": "#26332e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "container-max": "1440px",
+                        "margin-desktop": "64px",
+                        "unit": "4",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(28, 33, 30, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-success {
+            background: rgba(44, 60, 50, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(134, 239, 172, 0.2);
+            border-top: 1px solid rgba(134, 239, 172, 0.3);
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(244, 185, 66, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 185, 66, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 185, 66, 0); }
+        }
+
+        .slide-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .slide-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .bento-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .bento-hover:hover {
+            background: rgba(28, 33, 30, 0.6);
+            transform: translateY(-2px);
+            border-color: rgba(244, 185, 66, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), 0 0 15px rgba(244, 185, 66, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- Background Atmospheric Image -->
+<div class="fixed inset-0 z-[-1]">
+<img alt="Atmospheric Lake Background" class="w-full h-full object-cover opacity-30" data-alt="A moody, atmospheric dawn setting over a calm lake. Thick mist rolls over the dark, reflecting water. Silhouette of a dense pine forest in the background against a dim, golden-grey cloudy sky. The lighting is low-key, dramatic, and creates a sense of quiet wilderness and early morning fishing expeditions." src="https://lh3.googleusercontent.com/aida/AEtjO1UslBuwxEXJwksJV1Ma-MjDFsHW1CLacheACRzwRW6YRTuzOrV-6xc-ZeEeRIKtnbeGgtOvs-2qcLkgph1nJfk1HiFyTkSE4HyOU45T5076SbbrM87QWQhBUNpcHbv3HYel2t3kcE_oozQyuWq1ySVY7L1OisQw04c1KKDG4ZwFirx0saAUMKoIXWSB8Ljz5d4pc73fkebFL7QlHUM0LIDa7F8GJYy7_2yH4sgvzA_eLvQh-cASgbmHpaQ"/>
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest/80 via-surface-container-lowest/60 to-surface-container-lowest"></div>
+</div>
+<!-- TopNavBar (Shared Component style adapted for this screen) -->
+<nav class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-white/10 shadow-none">
+<div class="flex justify-between items-center px-margin-desktop h-20 max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full pulse-glow overflow-hidden border border-primary-container/30">
+<img alt="Carp24 Logo Badge" class="w-full h-full object-cover" data-alt="A circular logo badge for 'carp24 OUTDOOR GOODS'. The badge has a dark green textured background with a golden-yellow border. In the center is a detailed, stylized golden-yellow silhouette of a carp fish. The text 'CARP24' is curved along the top edge, and 'OUTDOOR GOODS' is curved along the bottom edge, both in golden-yellow." src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center space-x-6">
+<!-- Assuming "Logbuch" intent maps to "Fänge" here -->
+<a class="text-primary border-b-2 border-primary pb-1 font-label-caps text-label-caps" href="#">FÄNGE</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">BOARD</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">FORUM</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">CHAT</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">STATISTIK</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">RÜCKBLICK</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">TRIPS</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">ASSISTENT</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">MARKTPLATZ</a>
+<a class="text-primary-container font-label-caps text-label-caps hover:bg-white/5 transition-all duration-300 rounded px-2 py-1" href="#">PREMIUM</a>
+</div>
+<!-- Language Switcher & Profile -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps flex items-center gap-1 bg-surface-container/50 px-3 py-1.5 rounded-full border border-white/5">
+                    DE <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full z-10">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 slide-in">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2 tracking-tighter">FANGBUCH</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">42 FÄNGE GESAMT</p>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-caps text-label-caps px-6 py-3 rounded-full flex items-center gap-2 hover:brightness-110 transition-all shadow-[0_0_20px_rgba(244,185,66,0.2)] hover:shadow-[0_0_30px_rgba(244,185,66,0.4)]">
+<span class="material-symbols-outlined">add</span>
+                NEUER FANG
+            </button>
+</div>
+<!-- Success Banner -->
+<div class="glass-success rounded-xl p-4 mb-12 flex items-start gap-4 slide-in" style="animation-delay: 0.1s;">
+<div class="bg-[#86efac]/20 text-[#86efac] rounded-full p-2 mt-1">
+<span class="material-symbols-outlined">check</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-[#86efac] mb-1">FANG GESPEICHERT</h3>
+<p class="font-body-md text-body-md text-on-surface/90">Dein Fang wurde erfolgreich gespeichert.</p>
+</div>
+</div>
+<!-- Catch List (Bento Grid Style) -->
+<div class="flex flex-col gap-4">
+<!-- Catch Card 1 -->
+<div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center gap-6 bento-hover slide-in" style="animation-delay: 0.2s;">
+<div class="w-24 h-24 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-inner">
+<img alt="Spiegelkarpfen" class="w-full h-full object-cover" data-alt="A close-up, high-quality photograph of a large mirror carp held carefully by an angler's hands above a dark, misty lake surface. The fish's scales are large and distinct, catching the dim morning light. The background is blurred, emphasizing the premium, rugged outdoor aesthetic with deep greens and shadowy water." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgVKC0thzY0ZSYWXv80igNfe6nLAEvy7tTV--UcSwnFU0szKol3RYJp7apduDUwfvfvceUQZpfEy5m-t5NwJe4LxT_ZvK8JPQPb_EaUrI7aYnf-02p65QU2p_r78X1elI61CfCdfH2nz7DLqIh6bJ9U83WpaD7hsoC1PdfyJUMyAavwa9MU1eZW8Fgfa42eDiTJbwFibwJQHuhJ2F1qzOR-o4coc1aVAWVyLbsozxG9JcEmwXWOqjLG9V4-yN1DvKveeGc10_89QE5"/>
+</div>
+<div class="flex-grow flex flex-col items-center md:items-start text-center md:text-left">
+<div class="font-data-mono text-3xl text-primary-container mb-1 tracking-tight">25.4 KG</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SPIEGELKARPFEN · BAGGERSEE</div>
+</div>
+<div class="flex flex-col items-center md:items-end text-center md:text-right w-full md:w-auto shrink-0 md:border-l border-white/5 md:pl-6">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">12. AUG. 2026</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-[18px]">rainy</span>
+                        Leichter Regen
+                    </div>
+</div>
+</div>
+<!-- Catch Card 2 -->
+<div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center gap-6 bento-hover slide-in" style="animation-delay: 0.3s;">
+<div class="w-24 h-24 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-inner">
+<img alt="Schuppenkarpfen" class="w-full h-full object-cover" data-alt="A detailed shot of a common carp resting on a dark, wet unhooking mat. The golden-bronze scales of the fish are highlighted by soft, diffused dawn lighting. Water droplets glisten on its skin. The overall tone is dark, moody, and professional, fitting a premium angling logbook." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb22BcaC85jeXxm9agjOvRj5mi7m80TKHtWo6l8r-auCtEhWUcO21nOtFFcRj9J8KPhD6CnLANM3JPopoQkiFChepOuicUY_MSgqeUZ3MO03eDmGciDBScHHRMPjjIQgRqpgbo5qwaKF-OLGPTRcfN3O4Vic1QEAL-mBuZuk0wI92hiVHyQEeN5uVi_CEUJczsQiLjx38uCtQp_G1QUcGbCRZEjrQB1e3lLx2915R3STKLBmAh6OAelYSxEYAoPicGMEYbWSnbnvMx"/>
+</div>
+<div class="flex-grow flex flex-col items-center md:items-start text-center md:text-left">
+<div class="font-data-mono text-3xl text-primary-container mb-1 tracking-tight">18.2 KG</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SCHUPPENKARPFEN · FLUSS ABSCHNITT 4</div>
+</div>
+<div class="flex flex-col items-center md:items-end text-center md:text-right w-full md:w-auto shrink-0 md:border-l border-white/5 md:pl-6">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">08. AUG. 2026</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-[18px]">cloud</span>
+                        Bedeckt
+                    </div>
+</div>
+</div>
+<!-- Catch Card 3 -->
+<div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center gap-6 bento-hover slide-in" style="animation-delay: 0.4s;">
+<div class="w-24 h-24 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-inner">
+<img alt="Zeilkarpfen" class="w-full h-full object-cover" data-alt="A beautiful, fully scaled mirror carp (linear) displayed against a backdrop of dark reeds and mist. The fish's unique scale pattern is sharply in focus. The color palette is dominated by inky blacks, deep forest greens, and the subtle silver-gold of the fish, conveying a quiet, high-stakes atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5ZO9gqIiWe04Bl6NeOEhYjFWkhP_DZqrVBqJU-LBAexRimiVS7C66aCgp58BXipbup5VmkRZA2_W5d24jefmi6sro9G91dH-qWcojZKGTf22uwDjk_LUQCNBzuKK2q0J2ElShT_VQMGobUJkjYG6SDTIOnf0gp7rBcM3e6Luq85O7Nh8HO0_RYqKYBkqK8xxCisO_CWL0GDllR8qoXFu1Z6T53eSaPp6CNdGbrEY4D4yIxQikM0v1RHdjH-RbZ0_oO8WEmEoEQ__O"/>
+</div>
+<div class="flex-grow flex flex-col items-center md:items-start text-center md:text-left">
+<div class="font-data-mono text-3xl text-primary-container mb-1 tracking-tight">21.8 KG</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">ZEILKARPFEN · WALDSEE</div>
+</div>
+<div class="flex flex-col items-center md:items-end text-center md:text-right w-full md:w-auto shrink-0 md:border-l border-white/5 md:pl-6">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">24. JUL. 2026</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-[18px]">clear_night</span>
+                        Klarer Himmel
+                    </div>
+</div>
+</div>
+<!-- Catch Card 4 -->
+<div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center gap-6 bento-hover slide-in" style="animation-delay: 0.5s;">
+<div class="w-24 h-24 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-inner">
+<img alt="Graskarpfen" class="w-full h-full object-cover" data-alt="An impressive grass carp captured in low light just before dawn. The long, streamlined body and silver-green scales are visible against the dark, blurred background of a riverbank. The image exudes a raw, rugged natural element typical of premium outdoor lifestyle photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl0rF7yn2d4wnXcG59F2Ov2W-wR7S-B7VkHJOm-gshD8F0XDb7nLkGFAPTJWQRzyVdvm-dsow3F_Hl1XZfV1O3-Js8j3hbUAMvWUioWKvY78r7ZRixbELc1hiiGk_tBPOUrbFcFmrikqQZD0o3IlDN3KPz1tPye8_GxakODyc5zbrEpyx_5xCcn6ktw2-bG-ON56E4yhihtpF5MB_NC9Zs83vO9N6CoRMAaf8u5ZuxOKD3hZohkE7tOpW7a6sfpsgBWzUQ4y55pniD"/>
+</div>
+<div class="flex-grow flex flex-col items-center md:items-start text-center md:text-left">
+<div class="font-data-mono text-3xl text-primary-container mb-1 tracking-tight">16.5 KG</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">GRASKARPEN · ALTARM</div>
+</div>
+<div class="flex flex-col items-center md:items-end text-center md:text-right w-full md:w-auto shrink-0 md:border-l border-white/5 md:pl-6">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">15. JUL. 2026</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-[18px]">partly_cloudy_day</span>
+                        Wolkig
+                    </div>
+</div>
+</div>
+<!-- Catch Card 5 -->
+<div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center gap-6 bento-hover slide-in" style="animation-delay: 0.6s;">
+<div class="w-24 h-24 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-inner">
+<img alt="Schuppenkarpfen" class="w-full h-full object-cover" data-alt="A massive, ancient-looking common carp held half-submerged in dark, peaty water. The water reflects the dim light of early morning. The fish's deep bronze color contrasts with the surrounding darkness, creating a high-contrast, premium aesthetic that speaks to technical precision and respect for nature." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv91OCQMzI2qXGryJTWoyFEUNLmXPKHzO5KjtQjf2MwPX3G7rJRCBPR5_jmRvL3P55Gmv9TGZyBDee5VqtVu5gMrJCy04Tn9pEblOjruLCTa8kexgNKXevzdaQJMlXeLmLNoB7XHldc8K4ONHbjOIUDvYoLL02Tnx7akzZVSHyPR66vcispbsvcCQNmHsHsYCiJ2HsuVbpUwefJzys9xCJkEkLlABaiVJhPV72mc0rftlWbVsyuAgdKgpgnI85-xHiiGfITB1gzGqv"/>
+</div>
+<div class="flex-grow flex flex-col items-center md:items-start text-center md:text-left">
+<div class="font-data-mono text-3xl text-primary-container mb-1 tracking-tight">28.1 KG</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SCHUPPENKARPFEN · STAUSEE SÜD</div>
+</div>
+<div class="flex flex-col items-center md:items-end text-center md:text-right w-full md:w-auto shrink-0 md:border-l border-white/5 md:pl-6">
+<div class="font-label-caps text-label-caps text-on-surface mb-2">02. JUL. 2026</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-[18px]">foggy</span>
+                        Dichter Nebel
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-dim dark:bg-surface-dim w-full py-8 border-t border-white/5 mt-auto relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-4 max-w-container-max mx-auto">
+<div class="font-display-lg text-primary text-xl">carp24</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">© 2026 carp24</div>
+<div class="flex gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Impressum</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+<!-- Scroll Animation Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.slide-in').forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,139 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { t } from "../lib/i18n";
+
+const visionPoints = [
+  {
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    titleDe: "Jeden Fang festhalten",
+    titleEn: "Record every catch",
+    textDe: "Kein Fang geht verloren. Gewicht, Länge, Ort, Wetter, Köder — alles an einem Ort, immer griffbereit.",
+    textEn: "No catch is lost. Weight, length, location, weather, bait — everything in one place, always at hand.",
+  },
+  {
+    icon: '<path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/>',
+    titleDe: "Deine Daten, deine Statistik",
+    titleEn: "Your data, your statistics",
+    textDe: "Erkenne Muster. Welche Jahreszeit bringt die besten Fänge? Welcher Köder funktioniert auf welchem Gewässer? Deine Daten verraten es.",
+    textEn: "Spot patterns. Which season brings the best catches? Which bait works on which water? Your data tells the story.",
+  },
+  {
+    icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    titleDe: "Community & Austausch",
+    titleEn: "Community & exchange",
+    textDe: "Teile deine Erfahrungen mit anderen Anglern. Forum, Chat und das Board verbinden Karpfenangler weltweit.",
+    textEn: "Share your experiences with other anglers. Forum, chat and the board connect carp anglers worldwide.",
+  },
+  {
+    icon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+    titleDe: "KI-Assistent",
+    titleEn: "AI assistant",
+    textDe: "Dein persönlicher Angel-Berater. Analysiert deine Fangdaten und gibt Tipps für deinen nächsten Trip.",
+    textEn: "Your personal fishing advisor. Analyzes your catch data and gives tips for your next trip.",
+  },
+];
+
+const stats = [
+  { value: "100%", labelDe: "Kostenlos starten", labelEn: "Free to start" },
+  { value: "DE/EN", labelDe: "Mehrsprachig", labelEn: "Multilingual" },
+  { value: "24/7", labelDe: "Immer verfügbar", labelEn: "Always available" },
+  { value: "DSGVO", labelDe: "Datenschutz-konform", labelEn: "Privacy compliant" },
+];
+---
+
+<Layout title="Über Carp24 – Dein digitales Fangbuch" active="ueber">
+  <main id="page-content" class="max-w-[1440px] mx-auto pb-xl">
+
+    <!-- Hero -->
+    <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 text-center max-w-3xl mx-auto">
+      <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">ÜBER CARP24</span>
+      <h1 class="text-display-lg text-on-surface mt-4">Dein Fang. Deine Daten. Dein Vorteil.</h1>
+      <p class="text-body-lg text-on-surface-variant mt-6 max-w-xl mx-auto">
+        Carp24 ist das digitale Fangbuch für Karpfenangler, das mehr kann als nur Gewichte speichern.
+        Es ist dein persönliches Tool, um besser zu werden — Session für Session.
+      </p>
+      <div class="flex flex-wrap justify-center gap-6 mt-8">
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center">
+          Jetzt kostenlos starten
+        </a>
+        <a href="/premium" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
+          Premium entdecken
+        </a>
+      </div>
+    </section>
+
+    <!-- Vision -->
+    <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
+      <div class="text-center mb-12">
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">VISION</span>
+        <h2 class="text-headline-lg text-on-surface mt-2">Warum Carp24?</h2>
+        <p class="text-body-lg text-on-surface-variant mt-4 max-w-2xl mx-auto">
+          Die meisten Angler notieren ihre Fänge auf Zetteln oder in Apps, die nie wieder angeschaut werden.
+          Carp24 ändert das. Wir verwandeln Rohdaten in Erkenntnisse, die dich zum besseren Angler machen.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter md:gap-xl">
+        {visionPoints.map((p) => (
+          <div class="flex flex-col gap-4 p-lg bg-surface-container-low rounded-2xl border border-outline/10">
+            <div class="w-12 h-12 rounded-full border border-primary/40 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={p.icon} />
+            </div>
+            <h3 class="text-title-lg text-on-surface" data-de={p.titleDe} data-en={p.titleEn}>{p.titleDe}</h3>
+            <p class="text-body-md text-on-surface-variant" data-de={p.textDe} data-en={p.textEn}>{p.textDe}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+        {stats.map((s) => (
+          <div class="text-center p-lg">
+            <div class="text-display-md text-primary font-bold">{s.value}</div>
+            <div class="text-body-md text-on-surface-variant mt-2" data-de={s.labelDe} data-en={s.labelEn}>{s.labelDe}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- So funktioniert's -->
+    <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
+      <div class="text-center mb-12">
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">SO FUNKTIONIERT'S</span>
+        <h2 class="text-headline-lg text-on-surface mt-2">In 3 Schritten zum digitalen Fangbuch</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter md:gap-xl">
+        <div class="flex flex-col items-center text-center gap-4 p-lg">
+          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">1</div>
+          <h3 class="text-title-lg text-on-surface">Konto erstellen</h3>
+          <p class="text-body-md text-on-surface-variant">Kostenlos registrieren — nur E-Mail nötig. Kein Abo, keine versteckten Kosten.</p>
+        </div>
+        <div class="flex flex-col items-center text-center gap-4 p-lg">
+          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">2</div>
+          <h3 class="text-title-lg text-on-surface">Fänge erfassen</h3>
+          <p class="text-body-md text-on-surface-variant">Gewicht, Länge, Köder, Wetter — alles mit wenigen Tipps erfasst. Fotos inklusive.</p>
+        </div>
+        <div class="flex flex-col items-center text-center gap-4 p-lg">
+          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">3</div>
+          <h3 class="text-title-lg text-on-surface">Erkenntnisse gewinnen</h3>
+          <p class="text-body-md text-on-surface-variant">Statistiken, Rückblicke und der KI-Assistent zeigen dir, was wirklich funktioniert.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10 text-center">
+      <h2 class="text-headline-lg text-on-surface">Bereit für deinen ersten Fang?</h2>
+      <p class="text-body-lg text-on-surface-variant mt-4 max-w-xl mx-auto">
+        Starte jetzt kostenlos und mach dein Angelwissen messbar.
+      </p>
+      <a href="/login" class="inline-flex mt-8 bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 items-center">
+        Kostenlos starten
+      </a>
+    </section>
+
+  </main>
+</Layout>

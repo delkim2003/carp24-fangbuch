@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fang erfassen | carp24</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#262b29",
+                      "secondary-fixed": "#d7e6de",
+                      "secondary-container": "#3c4a44",
+                      "on-error": "#690005",
+                      "on-background": "#dfe4e0",
+                      "outline-variant": "#4f4535",
+                      "surface-variant": "#313633",
+                      "background": "#0f1412",
+                      "on-secondary-fixed": "#111e1a",
+                      "on-secondary-fixed-variant": "#3c4a44",
+                      "secondary-fixed-dim": "#bbcac3",
+                      "error-container": "#93000a",
+                      "tertiary-fixed": "#c3e8fa",
+                      "tertiary": "#bfe4f6",
+                      "on-primary-container": "#6a4a00",
+                      "secondary": "#bbcac3",
+                      "surface-container-lowest": "#0a0f0d",
+                      "on-tertiary-fixed": "#001f29",
+                      "on-primary-fixed": "#271900",
+                      "on-primary": "#412d00",
+                      "tertiary-fixed-dim": "#a8ccdd",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#d4c4af",
+                      "surface": "#0f1412",
+                      "primary-container": "#f4b942",
+                      "surface-container": "#1c211e",
+                      "on-tertiary": "#0d3542",
+                      "primary": "#ffd999",
+                      "outline": "#9c8f7b",
+                      "primary-fixed": "#ffdea7",
+                      "inverse-on-surface": "#2c322f",
+                      "inverse-surface": "#dfe4e0",
+                      "error": "#ffb4ab",
+                      "surface-tint": "#f8bd45",
+                      "inverse-primary": "#7c5800",
+                      "surface-bright": "#353a38",
+                      "on-tertiary-container": "#315463",
+                      "on-secondary": "#26332e",
+                      "on-surface": "#dfe4e0",
+                      "on-primary-fixed-variant": "#5e4200",
+                      "tertiary-container": "#a4c8d9",
+                      "primary-fixed-dim": "#f8bd45",
+                      "on-tertiary-fixed-variant": "#284b59",
+                      "surface-dim": "#0f1412",
+                      "surface-container-highest": "#313633",
+                      "surface-container-low": "#181d1a",
+                      "on-secondary-container": "#aab8b1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "40px",
+                      "margin-desktop": "64px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "sm": "8px",
+                      "margin-mobile": "16px",
+                      "gutter": "20px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "headline-lg-mobile": [
+                              "\"Source Serif 4\""
+                      ],
+                      "display-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-md": [
+                              "\"Source Sans 3\""
+                      ],
+                      "nav-item": [
+                              "Public Sans"
+                      ],
+                      "label-sm": [
+                              "Public Sans"
+                      ],
+                      "body-lg": [
+                              "\"Source Sans 3\""
+                      ],
+                      "headline-lg": [
+                              "\"Source Serif 4\""
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "nav-item": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap');
+        
+        .glass-panel {
+            background: rgba(45, 58, 53, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(244, 185, 66, 0.15);
+        }
+        
+        .input-inset {
+            background-color: var(--color-surface);
+            border: 1px solid rgba(244, 185, 66, 0.1);
+            color: var(--color-on-surface);
+        }
+        
+        .input-inset:focus {
+            outline: none;
+            border-color: var(--color-primary-container);
+            box-shadow: 0 0 0 1px var(--color-primary-container);
+        }
+        
+        .btn-primary {
+            background-color: #f4b942;
+            color: #0f1412;
+            border: 1px solid #f4b942;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ffd999;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #f4b942;
+            border: 1px solid rgba(244, 185, 66, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #f4b942;
+            background-color: rgba(244, 185, 66, 0.1);
+        }
+
+        .pill-btn {
+            background-color: rgba(74, 109, 124, 0.2);
+            color: #bfe4f6;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .pill-btn.active, .pill-btn:hover {
+            background-color: rgba(244, 185, 66, 0.15);
+            color: #f4b942;
+            border-color: rgba(244, 185, 66, 0.4);
+        }
+
+        .hairline-separator {
+            height: 1px;
+            background-color: rgba(244, 185, 66, 0.15);
+            width: 100%;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+<style>*{opacity:1!important;transform:none!important;animation:none!important;transition:none!important}</style></head>
+<body class="bg-background text-on-surface min-h-screen antialiased overflow-x-hidden relative">
+<!-- Background Shader -->
+<div class="fixed inset-0 z-[-1]">
+<!-- STITCH_SHADER_START:ANIMATION_38 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_38" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_38');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+varying vec2 v_texCoord;
+
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+           -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+  + i.x + vec3(0.0, i1.x, 1.0 ));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 m = u_mouse / u_resolution;
+    
+    float n1 = snoise(uv * 2.0 + u_time * 0.05);
+    float n2 = snoise(uv * 4.0 - u_time * 0.08);
+    float mist = mix(n1, n2, 0.5) * 0.5 + 0.5;
+    
+    // Deep forest green and lake dark blues
+    vec3 color1 = vec3(0.02, 0.05, 0.04); // Deep Forest
+    vec3 color2 = vec3(0.05, 0.08, 0.09); // Deep Water
+    vec3 accent = vec3(0.48, 0.58, 0.59); // Water blue accent
+    
+    vec3 base = mix(color1, color2, uv.y + mist * 0.3);
+    base += accent * pow(mist, 8.0) * 0.15;
+    
+    // Subtle mouse interaction
+    float dist = distance(uv, m);
+    base += accent * (1.0 - smoothstep(0.0, 0.5, dist)) * 0.05;
+
+    gl_FragColor = vec4(base, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_38 -->
+<div class="absolute inset-0 bg-background/80 mix-blend-multiply"></div>
+</div>
+<!-- Navigation (TopNavBar modified for active state & additional links) -->
+<nav class="sticky top-0 z-50 w-full border-b border-outline-variant/40 bg-surface/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-md w-full max-w-7xl mx-auto">
+<!-- Logo -->
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/40 animate-pulse glow-effect">
+<img alt="carp24 Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+</div>
+<span class="font-headline-md text-headline-md font-semibold text-primary tracking-tighter hidden md:block">carp24</span>
+</div>
+<!-- Desktop Nav Links -->
+<div class="hidden lg:flex items-center gap-6">
+<a class="font-nav-item text-nav-item text-primary border-b border-primary pb-1" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Board</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Forum</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Chat</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Trips</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant hover:text-primary transition-colors" href="#">Marktplatz</a>
+<a class="font-nav-item text-nav-item text-primary-container hover:text-primary transition-colors" href="#">Premium</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-2 font-nav-item text-nav-item text-on-surface-variant">
+<button class="text-primary hover:opacity-80 transition-opacity">DE</button>
+<span class="text-outline-variant">|</span>
+<button class="hover:text-primary transition-colors">EN</button>
+</div>
+<button class="flex items-center gap-2 hover:opacity-80 transition-opacity text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<button class="lg:hidden flex items-center gap-2 hover:opacity-80 transition-opacity text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl md:py-20">
+<!-- Header -->
+<header class="mb-12 animate-fade-in-up text-center md:text-left">
+<h1 class="font-display-lg text-display-lg text-primary-fixed mb-4">NEUEN FANG EINTRAGEN</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentiere die Details deines Fangs für das Journal.</p>
+</header>
+<!-- Form Container -->
+<div class="glass-panel rounded-2xl p-6 md:p-8 animate-fade-in-up delay-100 relative overflow-hidden">
+<!-- Top highlight -->
+<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-container/30 to-transparent"></div>
+<form action="#" class="space-y-10" method="POST">
+<!-- Section: Basic Data (2 Columns) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Left Column -->
+<div class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Gewicht (KG)*</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-1 focus:ring-primary-container transition-all" placeholder="0.0" step="0.1" type="number"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Länge (CM)</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-1 focus:ring-primary-container transition-all" placeholder="0" type="number"/>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-3">Fischart</label>
+<div class="flex flex-wrap gap-2">
+<button class="pill-btn active px-4 py-2 rounded-full font-label-sm text-label-sm" type="button">Spiegel</button>
+<button class="pill-btn px-4 py-2 rounded-full font-label-sm text-label-sm" type="button">Leder</button>
+<button class="pill-btn px-4 py-2 rounded-full font-label-sm text-label-sm" type="button">Schuppen</button>
+<button class="pill-btn px-4 py-2 rounded-full font-label-sm text-label-sm" type="button">Amur</button>
+<button class="pill-btn px-4 py-2 rounded-full font-label-sm text-label-sm" id="btn-other-species" type="button">Andere</button>
+</div>
+<div class="mt-3 hidden" id="input-other-species">
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md" placeholder="z.B. Wels..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Datum*</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md" type="date" value="2024-05-15"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Uhrzeit</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md" type="time"/>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Köder</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md" placeholder="z.B. Mais..." type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Methode</label>
+<input class="input-inset w-full rounded-lg px-4 py-3 font-body-md text-body-md" placeholder="z.B. Pose..." type="text"/>
+</div>
+</div>
+</div>
+<div class="hairline-separator"></div>
+<!-- Section: Location -->
+<div class="animate-fade-in-up delay-200">
+<h3 class="font-headline-md text-headline-md text-primary-fixed mb-6">Gewässer</h3>
+<div class="space-y-4">
+<div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-3 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="input-inset w-full rounded-lg pl-12 pr-4 py-3 font-body-md text-body-md" placeholder="Name des Sees suchen..." type="text"/>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="btn-secondary px-4 py-2 rounded-lg font-nav-item text-nav-item flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 0;">my_location</span>
+                                Standort verwenden
+                            </button>
+<button class="btn-secondary px-4 py-2 rounded-lg font-nav-item text-nav-item flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 0;">map</span>
+                                Auf Karte wählen
+                            </button>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Breitengrad</label>
+<input class="input-inset w-full rounded-lg px-4 py-2 font-body-md text-body-md text-sm text-on-surface-variant/70" placeholder="48.1351" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Längengrad</label>
+<input class="input-inset w-full rounded-lg px-4 py-2 font-body-md text-body-md text-sm text-on-surface-variant/70" placeholder="11.5820" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<div class="hairline-separator"></div>
+<!-- Section: Media & Notes -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter animate-fade-in-up delay-300">
+<!-- Photo Dropzone -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-3">Foto</label>
+<div class="border-2 border-dashed border-outline-variant/50 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors cursor-pointer bg-surface/30 min-h-[200px]">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2" style="font-variation-settings: 'FILL' 0;">photo_camera</span>
+<span class="font-nav-item text-nav-item text-primary-container">Klicken oder Bild hier ablegen</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-2">Max 5MB (JPG, PNG)</span>
+</div>
+</div>
+<!-- Notes -->
+<div class="flex flex-col">
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-3 flex justify-between">
+<span>Notizen</span>
+<span class="text-outline-variant">0 / 1000</span>
+</label>
+<textarea class="input-inset w-full rounded-xl px-4 py-3 font-body-md text-body-md flex-grow resize-none" placeholder="Besondere Beobachtungen..." rows="6"></textarea>
+</div>
+</div>
+<div class="hairline-separator"></div>
+<!-- Section: Options & Submit -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-4 animate-fade-in-up delay-300">
+<div class="space-y-4 w-full md:w-auto">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Trip Zuordnung</label>
+<select class="input-inset w-full md:w-64 rounded-lg px-4 py-3 font-body-md text-body-md appearance-none">
+<option>Kein Trip</option>
+<option>Herbstsession 2024</option>
+</select>
+</div>
+<div class="flex flex-col gap-2 pt-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center justify-center w-5 h-5 rounded border border-outline-variant group-hover:border-primary-container transition-colors bg-surface">
+<input class="peer sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px] text-surface opacity-0 peer-checked:opacity-100 peer-checked:text-primary transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-nav-item text-nav-item text-on-surface-variant group-hover:text-on-surface transition-colors">Catch &amp; Release</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center justify-center w-5 h-5 rounded border border-outline-variant group-hover:border-primary-container transition-colors bg-surface">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px] text-surface opacity-0 peer-checked:opacity-100 peer-checked:text-primary transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-nav-item text-nav-item text-on-surface-variant group-hover:text-on-surface transition-colors">Öffentlich teilen</span>
+</label>
+</div>
+</div>
+<button class="btn-primary w-full md:w-auto px-8 py-4 rounded-full font-nav-item text-nav-item font-semibold text-on-primary flex items-center justify-center gap-2" type="submit">
+                        FANG SPEICHERN
+                        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</main>
+<!-- Footer Component from JSON -->
+<footer class="mt-auto border-t border-outline-variant/20 bg-surface-container-low dark:bg-surface-container-low">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop py-xl w-full max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary dark:text-inverse-primary mb-4 md:mb-0">
+                carp24
+            </div>
+<div class="flex gap-6 mb-4 md:mb-0">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Datenschutz</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant">
+                © 2024 carp24. All rights reserved.
+            </div>
+</div>
+</footer>
+<script>
+        // Simple script to toggle the 'Other Species' input
+        document.getElementById('btn-other-species').addEventListener('click', function() {
+            const inputContainer = document.getElementById('input-other-species');
+            // Remove active class from all pills (simplified logic for demo)
+            const pills = document.querySelectorAll('.pill-btn');
+            pills.forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            inputContainer.classList.remove('hidden');
+        });
+        
+        // Add click listener to other pills to hide input
+        const pills = document.querySelectorAll('.pill-btn:not(#btn-other-species)');
+        pills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                const allPills = document.querySelectorAll('.pill-btn');
+                allPills.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('input-other-species').classList.add('hidden');
+            });
+        });
+    </script>
+</body></html>

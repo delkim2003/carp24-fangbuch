@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html class="dark scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Your carp fishing logbook</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#271900",
+                        "on-secondary": "#422c00",
+                        "on-primary-fixed": "#171d19",
+                        "surface-tint": "#c2c8c1",
+                        "on-primary-fixed-variant": "#424843",
+                        "on-tertiary-container": "#75835f",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#c2c8c1",
+                        "on-background": "#dce5db",
+                        "surface": "#0d1510",
+                        "on-secondary-container": "#fff7f0",
+                        "secondary-fixed": "#ffdeab",
+                        "error": "#ffb4ab",
+                        "on-surface": "#dce5db",
+                        "outline-variant": "#444844",
+                        "surface-container-low": "#161d18",
+                        "secondary": "#f6bd56",
+                        "surface-variant": "#2e3730",
+                        "on-surface-variant": "#c4c7c2",
+                        "surface-bright": "#333b35",
+                        "tertiary-fixed-dim": "#bdcca4",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#976900",
+                        "on-tertiary": "#283417",
+                        "on-tertiary-fixed-variant": "#3e4b2c",
+                        "on-primary-container": "#797f79",
+                        "on-error": "#690005",
+                        "tertiary": "#bdcca4",
+                        "surface-container-highest": "#2e3730",
+                        "surface-container-high": "#242c26",
+                        "secondary-fixed-dim": "#f6bd56",
+                        "primary": "#c2c8c1",
+                        "background": "#0d1510",
+                        "inverse-on-surface": "#2a322c",
+                        "surface-container-lowest": "#08100b",
+                        "outline": "#8e928d",
+                        "tertiary-container": "#0b1601",
+                        "on-tertiary-fixed": "#141f05",
+                        "primary-fixed": "#dee4dd",
+                        "inverse-surface": "#dce5db",
+                        "inverse-primary": "#59605a",
+                        "primary-container": "#0e1410",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "surface-container": "#19211c",
+                        "surface-dim": "#0d1510",
+                        "on-primary": "#2c322d",
+                        "tertiary-fixed": "#d9e8be"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        unit: "8px",
+                        "stack-lg": "48px",
+                        "container-max": "1280px",
+                        "stack-md": "24px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "16px",
+                        "stack-sm": "8px",
+                        "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["\"Source Serif 4\""],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""]
+                    },
+                    fontSize: {
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "data-mono": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(28, 36, 30, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-panel-heavy {
+            background: rgba(40, 50, 42, 0.8);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .grain-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden relative min-h-screen flex flex-col">
+<!-- Background Shader -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+<!-- STITCH_SHADER_START:ANIMATION_22 class="absolute inset-0 w-full h-full opacity-30" -->
+<div class="absolute inset-0 w-full h-full opacity-30" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_22" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_22');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float smooth_noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = noise(i);
+    float b = noise(i + vec2(1.0, 0.0));
+    float c = noise(i + vec2(0.0, 1.0));
+    float d = noise(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+        v += a * smooth_noise(p);
+        p *= 2.0;
+        a *= 0.5;
+    }
+    return v;
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 p = uv * 3.0;
+    
+    // Drifting mist layers
+    float n1 = fbm(p + vec2(u_time * 0.05, u_time * 0.02));
+    float n2 = fbm(p - vec2(u_time * 0.03, -u_time * 0.04));
+    float fog = mix(n1, n2, 0.5);
+    
+    // Obsidian Angler Palette
+    vec3 bgColor = vec3(0.055, 0.078, 0.063); // #0E1410
+    vec3 mistColor = vec3(0.482, 0.580, 0.588); // #7B9496 (Water Teal)
+    
+    vec3 color = mix(bgColor, mistColor, fog * 0.15);
+    
+    // Subtle horizon light
+    float horizon = smoothstep(0.4, 0.6, uv.y) * smoothstep(0.8, 0.6, uv.y);
+    color += vec3(0.91, 0.69, 0.29) * horizon * 0.05; // Warm amber hint
+    
+    // Vignette for depth
+    float d = length(uv - 0.5);
+    color *= 1.0 - d * 0.6;
+    
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_22 -->
+</div>
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#1c241e]/60 backdrop-blur-[20px] border-b border-white/10 shadow-none transition-all duration-300" id="topNav">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tighter hover:text-secondary transition-colors duration-300" href="#">carp24</a>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-300 font-label-caps text-label-caps" href="#">Catch List</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-300 font-label-caps text-label-caps" href="#">Statistics</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-300 font-label-caps text-label-caps" href="#">Profile</a>
+</div>
+<div class="flex items-center">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-colors duration-300 px-4 py-2 border border-white/10 rounded-DEFAULT hover:bg-white/5 active:scale-95" href="#">LOGIN</a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="relative z-10 flex-grow pt-24 pb-16 flex flex-col gap-32">
+<!-- Hero Section -->
+<section class="relative min-h-[85vh] flex items-center justify-center px-margin-mobile md:px-margin-desktop">
+<div class="absolute inset-0 -z-10 overflow-hidden">
+<img alt="" class="w-full h-full object-cover opacity-40 scale-105 transform origin-center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlXbOCAQJGNINGJkjuOsyw9cJCz9OPPCCOY9ncStTWzAN3-1D6x9Jeje0XK9ZL1bYT0IehFRg7xviU4iWAufYXfgYIe8jDvj8XUbgJjgxhmW3PDuD8iV-LMjiOU7b2f5nBTci6LQH6jwSNdct1wCQ1DheDYAtQPzxlqTRPGQpcnp4LDlmVYraTl3WDzfF64sg7okQ24Snq-Muw2vKeA5PhtanxHsMuVvEI9_iKEi7dk3UsfslpwptPRBlgg6PcHzkvziXgZJ_B-UI" style="transform: translateY(calc(var(--scroll-y, 0) * 0.4px))"/>
+<div class="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background"></div>
+</div>
+<div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center w-full">
+<div class="md:col-span-7 flex flex-col gap-6 reveal active">
+<h1 class="font-display-lg text-display-lg text-on-surface">Your carp fishing logbook</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">Track every detail of your session with precision. Built for the dedicated angler who demands robust data in demanding conditions.</p>
+<div class="flex items-center gap-4 mt-4">
+<button class="bg-secondary text-on-secondary font-label-caps text-label-caps px-8 py-4 rounded-DEFAULT uppercase tracking-widest hover:bg-secondary-fixed transition-colors shadow-[0_0_20px_rgba(246,189,86,0.3)] active:scale-95">
+                            Log your first catch
+                        </button>
+<button class="glass-panel text-on-surface font-label-caps text-label-caps px-8 py-4 rounded-DEFAULT uppercase tracking-widest hover:bg-white/10 transition-colors active:scale-95">
+                            Explore Features
+                        </button>
+</div>
+</div>
+<div class="md:col-span-5 relative h-full min-h-[400px] hidden md:flex items-center justify-center reveal active" style="transition-delay: 0.2s;">
+<div class="glass-panel-heavy p-8 rounded-lg float-anim relative w-64">
+<div class="absolute -top-4 -left-4 w-8 h-8 border-t border-l border-secondary opacity-50"></div>
+<div class="absolute -bottom-4 -right-4 w-8 h-8 border-b border-r border-secondary opacity-50"></div>
+<span class="font-label-caps text-label-caps text-tertiary uppercase mb-2 block">Latest Record</span>
+<div class="font-data-mono text-4xl text-on-surface tracking-tighter">25.4<span class="text-on-surface-variant text-xl">kg</span></div>
+<div class="flex justify-between items-center mt-4 border-t border-white/10 pt-4">
+<span class="font-body-md text-sm text-on-surface-variant"><span class="material-symbols-outlined text-[16px] align-middle mr-1">location_on</span>Lake Bled</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Features -->
+<section class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+<div class="grid grid-cols-1 md:grid-cols-12 auto-rows-[240px] gap-gutter">
+<!-- Large Feature -->
+<div class="glass-panel p-8 rounded-lg md:col-span-8 flex flex-col justify-end relative overflow-hidden group reveal">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-high/90 to-transparent z-10 pointer-events-none"></div>
+<div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500" data-alt="A detailed digital topographical map of a lake bed, glowing in subtle teal and amber lines against a deep dark background, tactical interface style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAzeBresQI79wHQsyFt3vfhZiH0QojpaMnMM38s6IMqFzOeN2EjOpeFBCXNyOjJIVxvs0o8SaEMYdePLmCfwYI_nWnbL9MDAmxJVqsj-X7Ih9LLoeyLLyHW9usCw4uf_3FletBYkq38HD1PYNQec-0uOdViS6EjpZdlFP9sE3sbiWSjC0CuvSpi6sz-meABKEMiXKTVQlY9MvNYf1fxS8vitLzlzPgqutj04iV9fSJJ59ej1wtR49XgfZZH1qR4b1-MEGw1E-2-mqA'); background-size: cover; background-position: center;"></div>
+<div class="relative z-20">
+<span class="material-symbols-outlined text-secondary mb-4 text-3xl">add_location</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Log Catches</h3>
+<p class="font-body-md text-on-surface-variant max-w-md">Record species, weight, specific rigs, and precise GPS coordinates for every catch.</p>
+</div>
+</div>
+<!-- Small Feature 1 -->
+<div class="glass-panel p-8 rounded-lg md:col-span-4 flex flex-col justify-between group reveal" style="transition-delay: 0.1s;">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-tertiary text-2xl">bar_chart</span>
+<div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
+</div>
+<div>
+<h3 class="font-headline-md text-lg text-on-surface mb-1">Auto Stats</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Intelligent charts track your success over time.</p>
+</div>
+</div>
+<!-- Small Feature 2 -->
+<div class="glass-panel p-8 rounded-lg md:col-span-4 flex flex-col justify-between group reveal" style="transition-delay: 0.2s;">
+<span class="material-symbols-outlined text-primary text-2xl">wifi_off</span>
+<div>
+<h3 class="font-headline-md text-lg text-on-surface mb-1">Works Offline</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Log data deep in the woods. Syncs when connected.</p>
+</div>
+</div>
+<!-- Medium Feature -->
+<div class="glass-panel p-8 rounded-lg md:col-span-4 flex flex-col justify-between group reveal" style="transition-delay: 0.3s;">
+<span class="material-symbols-outlined text-secondary text-2xl">partly_cloudy_day</span>
+<div>
+<h3 class="font-headline-md text-lg text-on-surface mb-1">Weather Snapshot</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Auto-captures atmospheric pressure and temp.</p>
+</div>
+</div>
+<!-- Medium Feature 2 -->
+<div class="glass-panel p-8 rounded-lg md:col-span-4 flex flex-col justify-between group reveal" style="transition-delay: 0.4s;">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface text-2xl">lock</span>
+</div>
+<div>
+<h3 class="font-headline-md text-lg text-on-surface mb-1">Secure Data</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Your secret spots stay secret with 2FA protection.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Latest Catches -->
+<section class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full mt-16">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-8 border-b border-white/10 pb-4 reveal">Recent Activity</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="glass-panel rounded-lg overflow-hidden reveal group hover:border-secondary/50 transition-colors duration-300">
+<div class="h-32 bg-surface-container-high relative">
+<div class="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity" data-alt="A dark, moody close up of a common carp scale, shimmering slightly wet in low ambient light, showing rugged texture." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBMx-1s5ZSpHLQsE9rDe7DFHMjWaXYeT_Bo1qncWXZUmbdCFOd-AUBiNGbwjGMyO-BuE44RLiPD8epqusRuuRHaI5yHRWcYFM2VIPCCCWOnSn3uvBVs-Y__kxGnCl6ORW_k3cwW0g6MQRxqgn8dG7GZf4FeoM7Ob7H8h7Gi-sTUnkiaHtAWB2kTpYxK6Xh56rx3VlWxWmCv4Qibp94LCOj1EtPgBIwVSqFrL6sdC0p-2HV9Nx8x5691InD5VEWJHQX5wn2deixXdiA'); background-size: cover; background-position: center;"></div>
+<div class="absolute top-4 left-4 bg-surface-variant/80 backdrop-blur px-2 py-1 rounded border border-white/10 font-label-caps text-[10px] text-tertiary">COMMON CARP</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-end mb-4">
+<div class="font-data-mono text-3xl text-on-surface">18.2<span class="text-sm text-on-surface-variant">kg</span></div>
+<div class="font-label-caps text-xs text-on-surface-variant">2 DAYS AGO</div>
+</div>
+<div class="flex gap-2 flex-wrap">
+<span class="inline-flex items-center gap-1 bg-surface-variant px-2 py-1 rounded text-xs font-body-md border border-white/5"><span class="material-symbols-outlined text-[14px]">water_drop</span> Rain</span>
+<span class="inline-flex items-center gap-1 bg-surface-variant px-2 py-1 rounded text-xs font-body-md border border-white/5"><span class="material-symbols-outlined text-[14px]">air</span> 1012hPa</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel rounded-lg overflow-hidden reveal group hover:border-secondary/50 transition-colors duration-300" style="transition-delay: 0.1s;">
+<div class="h-32 bg-surface-container-high relative">
+<div class="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity" data-alt="A dark atmospheric shot of calm water surface at dawn with mist rising, reflecting deep greens and blacks." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKDv3gDdEvI09JK47zhVInDHyV-5pRHYV9LXloy8AGLTgrEQl6Tu9NR1bDBubApMCpc9UZuCOyAwthlQHf8M3nQSVYwvR0MMUjVbSq9U0mW17bjPuq6pe7wWlSTkBqGUeXsAzJA8pPrOSNmaSs4gMNMkIjDwNay5CzFCEC0LXnCxG9h1DVq-XMTi1dBq1XjNvergdxlQ0kWNry8ytdIo2FGSm45TywgjlCtaWvn78RYtz_oBP8IGnDfQAKHrL_RseIH4Hi02uPMbg'); background-size: cover; background-position: center;"></div>
+<div class="absolute top-4 left-4 bg-surface-variant/80 backdrop-blur px-2 py-1 rounded border border-white/10 font-label-caps text-[10px] text-tertiary">MIRROR CARP</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-end mb-4">
+<div class="font-data-mono text-3xl text-on-surface">21.5<span class="text-sm text-on-surface-variant">kg</span></div>
+<div class="font-label-caps text-xs text-on-surface-variant">5 DAYS AGO</div>
+</div>
+<div class="flex gap-2 flex-wrap">
+<span class="inline-flex items-center gap-1 bg-surface-variant px-2 py-1 rounded text-xs font-body-md border border-white/5"><span class="material-symbols-outlined text-[14px]">clear_day</span> Clear</span>
+<span class="inline-flex items-center gap-1 bg-surface-variant px-2 py-1 rounded text-xs font-body-md border border-white/5"><span class="material-symbols-outlined text-[14px]">device_thermostat</span> 14°C</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-panel rounded-lg overflow-hidden reveal group hover:border-secondary/50 transition-colors duration-300" style="transition-delay: 0.2s;">
+<div class="h-32 bg-surface-container-high relative flex items-center justify-center border-b border-white/5">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant/50">add_circle</span>
+</div>
+<div class="p-6 flex flex-col justify-center items-center text-center h-[calc(100%-8rem)]">
+<p class="font-body-md text-on-surface-variant mb-4">Ready for your next session.</p>
+<button class="text-secondary font-label-caps text-sm hover:text-secondary-fixed transition-colors">LOG NEW CATCH</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Quote Band -->
+<section class="w-full bg-surface-container-low/80 border-y border-white/5 py-24 relative overflow-hidden mt-16 flex items-center justify-center reveal">
+<div class="absolute inset-0 opacity-20 pointer-events-none" data-alt="Thick, rolling morning mist rising off a dark forest lake, deep shadows, cinematic and moody texture." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCiBZ8osfASqRL3YKQxeeaScjKho1ZzSQtdlMqihKGZe1R-GCUTSNNjXeqpa8pSfUlaQ_3TbU3zC11q3HJ-1CL1kSEZ-pBWz9kZkCXXwpvrjzfsQ8OdLWXI02vO_vFgTGtnrPdR5nzMEN10VwtoxYy-LGUsENF7LttlG0gg2WWTWUhEfMxvC9XjA-eSDwa5SyIF0sMhjEg7nbmNbjxZbJjfvVlbFkXbAepZ9oxrXB04LWEDCLZP4gYnzs9xPNyi0ZbqVwOHmFPROT4'); background-size: cover; background-position: center; filter: grayscale(100%); mix-blend-mode: overlay;"></div>
+<div class="max-w-3xl mx-auto text-center px-margin-mobile relative z-10">
+<p class="font-headline-md italic text-2xl md:text-3xl text-on-surface/90 leading-relaxed">"There is a deep peace in the early hours that only an angler understands."</p>
+<div class="w-12 h-[1px] bg-secondary/50 mx-auto mt-8"></div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#1c241e]/60 backdrop-blur-[20px] border-t border-white/10 shadow-none z-10 relative">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-8 gap-gutter max-w-container-max mx-auto w-full">
+<div class="font-label-caps text-label-caps text-secondary mb-4 md:mb-0">
+                CARP24
+            </div>
+<div class="flex gap-6 font-data-mono text-data-mono text-on-surface-variant">
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Imprint</a>
+</div>
+<div class="font-data-mono text-data-mono text-on-surface-variant/60 mt-4 md:mt-0">
+                © 2024 carp24. Made by einfach-online.dev
+            </div>
+</div>
+</footer>
+<script>
+        // Scroll reveal logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
+
+                reveals.forEach(reveal => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', revealOnScroll);
+            // Trigger once on load
+            setTimeout(revealOnScroll, 100);
+
+            // Simple parallax variable setter
+            window.addEventListener('scroll', () => {
+                document.body.style.setProperty('--scroll-y', window.scrollY);
+            });
+        });
+    </script>
+</body></html>

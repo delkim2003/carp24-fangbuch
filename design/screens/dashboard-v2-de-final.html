@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#26332e",
+                        "tertiary-container": "#a4c8d9",
+                        "tertiary": "#bfe4f6",
+                        "surface-container-high": "#262b29",
+                        "on-tertiary": "#0d3542",
+                        "error": "#ffb4ab",
+                        "background": "#0f1412",
+                        "on-primary-fixed-variant": "#5e4200",
+                        "surface-container-lowest": "#0a0f0d",
+                        "on-tertiary-container": "#315463",
+                        "secondary-container": "#3c4a44",
+                        "outline": "#9c8f7b",
+                        "on-secondary-container": "#aab8b1",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#2c322f",
+                        "on-surface": "#dfe4e0",
+                        "on-secondary-fixed-variant": "#3c4a44",
+                        "primary-fixed-dim": "#f8bd45",
+                        "surface-container-highest": "#313633",
+                        "surface-dim": "#0f1412",
+                        "surface-container-low": "#181d1a",
+                        "primary": "#ffd999",
+                        "tertiary-fixed": "#c3e8fa",
+                        "surface-tint": "#f8bd45",
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "inverse-surface": "#dfe4e0",
+                        "on-tertiary-fixed": "#001f29",
+                        "on-primary-fixed": "#271900",
+                        "surface-bright": "#353a38",
+                        "surface": "#0f1412",
+                        "secondary": "#bbcac3",
+                        "surface-variant": "#313633",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "on-secondary-fixed": "#111e1a",
+                        "on-primary-container": "#6a4a00",
+                        "on-primary": "#412d00",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#d7e6de",
+                        "primary-fixed": "#ffdea7",
+                        "surface-container": "#1c211e",
+                        "primary-container": "#f4b942",
+                        "on-surface-variant": "#d4c4af",
+                        "inverse-primary": "#7c5800",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "outline-variant": "#4f4535",
+                        "on-background": "#dfe4e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(49, 54, 51, 0.15); /* surface-variant at 15% */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 228, 224, 0.1); /* on-surface at 10% */
+        }
+        .glass-panel-hover:hover {
+            background: rgba(49, 54, 51, 0.25);
+            box-shadow: 0 0 15px rgba(244, 185, 66, 0.1);
+        }
+        .slide-in-up {
+            animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { filter: drop-shadow(0 0 5px rgba(244, 185, 66, 0.2)); }
+            to { filter: drop-shadow(0 0 15px rgba(244, 185, 66, 0.6)); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient Background Shader -->
+<div class="fixed inset-0 z-[-1] pointer-events-none opacity-40">
+
+</div>
+<!-- Top Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/10 shadow-sm transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 max-w-container-max mx-auto">
+<!-- Logo & Main Links -->
+<div class="flex items-center gap-8">
+<a class="flex-shrink-0" href="#">
+<img class="h-12 w-12 rounded-full pulse-glow" data-alt="A detailed digital artwork of a stylized carp, shining with metallic gold tones against a dark forest green background. The carp is highly detailed, evoking a premium outdoor brand logo. The mood is rugged yet refined." src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</a>
+<div class="hidden md:flex items-center gap-6 font-label-caps text-label-caps">
+<a class="text-primary border-b-2 border-primary pb-1" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Fänge</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Board</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Forum</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Chat</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Statistik</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Rückblick</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Trips</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Assistent</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Marktplatz</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Premium</a>
+</div>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+<span class="text-primary">DE</span>
+<span class="opacity-50">/</span>
+<a class="hover:text-primary transition-colors" href="#">EN</a>
+</div>
+<button class="h-10 w-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface hover:bg-surface-variant/80 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-gutter">
+<!-- Hero Section -->
+<header class="flex flex-col md:flex-row justify-between items-end gap-6 slide-in-up">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary">PETRI HEIL, ANGLER</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Dein Überblick für die Saison 2026.</p>
+</div>
+<div class="flex gap-4 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-3 border border-tertiary/30 text-tertiary bg-tertiary/10 hover:bg-tertiary/20 rounded font-label-caps text-label-caps transition-colors flex items-center justify-center gap-2 backdrop-blur-sm">
+                    STATISTIK-STUDIO
+                </button>
+<button class="flex-1 md:flex-none px-6 py-3 bg-primary-container text-on-primary-container hover:bg-primary-container/90 rounded font-label-caps text-label-caps transition-colors flex items-center justify-center gap-2 shadow-lg">
+<span class="material-symbols-outlined text-lg">add</span>
+                    NEUER FANG
+                </button>
+</div>
+</header>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter slide-in-up delay-100">
+<!-- KPI 1 -->
+<div class="glass-panel rounded-xl p-6 glass-panel-hover transition-all duration-300">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">GESAMTE FÄNGE</p>
+<div class="font-display-lg-mobile text-display-lg-mobile text-on-surface">42</div>
+</div>
+<!-- KPI 2 -->
+<div class="glass-panel rounded-xl p-6 glass-panel-hover transition-all duration-300">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">SCHWERSTER FANG</p>
+<div class="font-display-lg-mobile text-display-lg-mobile text-on-surface">25.4 <span class="text-lg text-on-surface-variant">KG</span></div>
+</div>
+<!-- KPI 3 -->
+<div class="glass-panel rounded-xl p-6 glass-panel-hover transition-all duration-300">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">FÄNGE IN DIESEM JAHR</p>
+<div class="font-display-lg-mobile text-display-lg-mobile text-on-surface">18</div>
+</div>
+<!-- KPI 4 -->
+<div class="glass-panel rounded-xl p-6 glass-panel-hover transition-all duration-300">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">AKTIVE GEWÄSSER</p>
+<div class="font-display-lg-mobile text-display-lg-mobile text-on-surface">7</div>
+</div>
+</div>
+<!-- Charts & Lists Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter slide-in-up delay-200">
+<!-- Bar Chart (Mockup) -->
+<div class="lg:col-span-2 glass-panel rounded-xl p-6 flex flex-col">
+<h2 class="font-headline-md text-headline-md text-primary mb-6">FÄNGE PRO MONAT</h2>
+<div class="flex-grow flex items-end justify-between gap-2 h-64 mt-auto">
+<!-- Bars -->
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm h-[10%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">1</span></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm h-[20%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">2</span></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm h-[15%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">1</span></div>
+<div class="w-full bg-primary/40 hover:bg-primary/60 transition-colors rounded-t-sm h-[40%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">4</span></div>
+<div class="w-full bg-primary-container hover:bg-primary-container/80 transition-colors rounded-t-sm h-[80%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">8</span></div>
+<div class="w-full bg-primary-container hover:bg-primary-container/80 transition-colors rounded-t-sm h-[60%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">6</span></div>
+<div class="w-full bg-primary/40 hover:bg-primary/60 transition-colors rounded-t-sm h-[45%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">5</span></div>
+<div class="w-full bg-primary/40 hover:bg-primary/60 transition-colors rounded-t-sm h-[50%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">5</span></div>
+<div class="w-full bg-primary-container hover:bg-primary-container/80 transition-colors rounded-t-sm h-[90%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">9</span></div>
+<div class="w-full bg-primary/40 hover:bg-primary/60 transition-colors rounded-t-sm h-[30%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">3</span></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm h-[15%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">1</span></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm h-[5%] relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-data-mono opacity-0 group-hover:opacity-100 transition-opacity">0</span></div>
+</div>
+<div class="flex justify-between mt-4 font-data-mono text-data-mono text-on-surface-variant border-t border-outline-variant/20 pt-2">
+<span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span>
+</div>
+</div>
+<!-- Top Catches List -->
+<div class="glass-panel rounded-xl p-6 flex flex-col">
+<h2 class="font-headline-md text-headline-md text-primary mb-6">TOP-FÄNGE</h2>
+<ul class="space-y-4 flex-grow">
+<li class="flex justify-between items-center py-2 border-b border-outline-variant/10 last:border-0 hover:bg-surface-variant/20 transition-colors px-2 rounded">
+<div>
+<p class="font-body-md text-body-md text-on-surface">Spiegelkarpfen</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Waldsee · 12.08.26</p>
+</div>
+<div class="font-data-mono text-data-mono text-primary text-right">25.4 KG</div>
+</li>
+<li class="flex justify-between items-center py-2 border-b border-outline-variant/10 last:border-0 hover:bg-surface-variant/20 transition-colors px-2 rounded">
+<div>
+<p class="font-body-md text-body-md text-on-surface">Schuppenkarpfen</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Flussdelta · 05.06.26</p>
+</div>
+<div class="font-data-mono text-data-mono text-primary text-right">22.1 KG</div>
+</li>
+<li class="flex justify-between items-center py-2 border-b border-outline-variant/10 last:border-0 hover:bg-surface-variant/20 transition-colors px-2 rounded">
+<div>
+<p class="font-body-md text-body-md text-on-surface">Spiegelkarpfen</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Waldsee · 14.05.26</p>
+</div>
+<div class="font-data-mono text-data-mono text-primary text-right">19.8 KG</div>
+</li>
+<li class="flex justify-between items-center py-2 border-b border-outline-variant/10 last:border-0 hover:bg-surface-variant/20 transition-colors px-2 rounded">
+<div>
+<p class="font-body-md text-body-md text-on-surface">Graskarpfen</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Kiesgrube Ost · 22.09.26</p>
+</div>
+<div class="font-data-mono text-data-mono text-primary text-right">18.5 KG</div>
+</li>
+<li class="flex justify-between items-center py-2 border-b border-outline-variant/10 last:border-0 hover:bg-surface-variant/20 transition-colors px-2 rounded">
+<div>
+<p class="font-body-md text-body-md text-on-surface">Schuppenkarpfen</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Waldsee · 01.10.26</p>
+</div>
+<div class="font-data-mono text-data-mono text-primary text-right">17.2 KG</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Weight Trend (Image Placeholder) -->
+<div class="glass-panel rounded-xl p-6 slide-in-up delay-300">
+<div class="flex items-center gap-4 mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">set_meal</span>
+<h2 class="font-headline-md text-headline-md text-primary">GEWICHTSVERLAUF</h2>
+</div>
+<div class="w-full rounded-lg overflow-hidden relative">
+<!-- Using the requested inspiration image -->
+<img class="w-full object-cover max-h-[500px]" data-alt="A dark, moody user interface dashboard displaying a glowing amber line chart on a dark forest green background. The chart represents weight progression over time, with months on the x-axis and kilograms on the y-axis. The design is sleek, modern, and utilizes glassmorphism." src="https://lh3.googleusercontent.com/aida/AEtjO1UaPWKLls-4g8ruC3yTtC38Aqc0YbTj6iMqBC6j7ylbHdVAV8Vzsd1ncv_zI2m956A5qA98jpH_Zu0teP5RsW0qHIjqKzRHYCdkcxn9ftZnj1wd7MfF7Q5jhOqIql-qakpkOydZstC3WZcw9f95eVHr_JuZ38RUQTaTv2MpU2f7rOAGtyXhoqdeCvYfMi3wdQiraHZnQd33zPGSbX2AQVBwE-FN_7l_RwBFi8itvzCwL3qsunzQEYdLIHFb"/>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 mt-auto bg-surface-container-lowest border-t border-outline-variant/5">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-6">
+<div class="font-label-caps text-label-caps text-on-surface">
+                CARP24
+            </div>
+<div class="font-body-md text-body-md text-on-surface-variant">
+                © 2026 CARP24 Outdoor Goods. Precision Angling Systems.
+            </div>
+<div class="flex gap-6 font-body-md text-body-md text-on-surface-variant">
+<a class="hover:text-primary hover:underline decoration-primary transition-all" href="#">Impressum</a>
+<a class="hover:text-primary hover:underline decoration-primary transition-all" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+</body></html>

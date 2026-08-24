@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head><style>.reveal{opacity:1!important;transform:none!important} .slide-in{opacity:1!important;transform:none!important} [class*=reveal]{opacity:1!important;transform:none!important}</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - MARKTPLATZ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#61603a",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e7e5b4",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "outline": "#76786e",
+                        "tertiary-fixed": "#cde7e9",
+                        "on-primary-container": "#fdfff0",
+                        "on-tertiary-container": "#faffff",
+                        "tertiary-container": "#617a7c",
+                        "primary-container": "#6c7a57",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-surface": "#181d14",
+                        "background": "#f6fbec",
+                        "outline-variant": "#c6c8bc",
+                        "surface": "#f6fbec",
+                        "on-background": "#181d14",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#556342",
+                        "inverse-on-surface": "#eef3e4",
+                        "surface-dim": "#d7dccd",
+                        "on-primary-fixed": "#141f05",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#e7e5b4",
+                        "surface-bright": "#f6fbec",
+                        "on-surface-variant": "#45483f",
+                        "primary-fixed": "#d9e8be",
+                        "surface-container-low": "#f1f6e7",
+                        "surface-container-highest": "#dfe4d6",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "surface-container-high": "#e5eadb",
+                        "surface-container": "#ebf0e1",
+                        "primary": "#546140",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#dfe4d6",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-secondary-container": "#67663f",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#1d1d01",
+                        "tertiary": "#496163",
+                        "inverse-surface": "#2d3228",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px",
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "nav-item": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "mono": ["\"JetBrains Mono\""]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f6fbec; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-khaki { background-color: rgba(204, 202, 155, 0.15); }
+    </style>
+</head>
+<body class="text-on-background font-body-md min-h-screen flex flex-col relative before:fixed before:inset-0 before:z-[-1] before:opacity-[0.03] before:bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')]">
+<!-- TopNavBar -->
+<nav class="w-full top-0 bg-background dark:bg-surface-dim border-b border-primary/20 sticky z-50">
+<div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<div class="flex items-center space-x-xl">
+<a class="font-headline-lg text-headline-lg text-primary uppercase tracking-tighter" href="#">carp24</a>
+<div class="hidden md:flex space-x-lg">
+<a class="text-on-surface-variant font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">FAENGE</a>
+<a class="text-on-surface-variant font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">BOARD</a>
+<a class="text-on-surface-variant font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">FORUM</a>
+<a class="text-on-surface-variant font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">CHAT</a>
+<a class="text-on-surface-variant font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">STATISTIK</a>
+<!-- Assuming MARKTPLATZ is active based on context, added to nav for demonstration even though not in original JSON list, but to satisfy the 'active' logic instruction in the prompt context. The JSON didn't have MARKTPLATZ in topnav, but the prompt says to use topnavbar with MARKTPLATZ underlined as active. I will add it. -->
+<a class="text-primary border-b border-primary font-bold font-nav-item text-nav-item tracking-widest opacity-80 pb-1" href="#">MARKTPLATZ</a>
+</div>
+</div>
+<div class="flex items-center space-x-md">
+<button class="font-nav-item text-nav-item tracking-widest text-primary hover:opacity-80 transition-opacity hidden sm:block">PREMIUM</button>
+<button class="font-nav-item text-nav-item tracking-widest text-on-surface-variant hidden sm:block">DE/EN</button>
+<button aria-label="User profile" class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Header & Action -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-xl pb-md border-b border-primary/15">
+<div>
+<p class="font-mono text-sm tracking-widest text-secondary mb-2 uppercase">COMMUNITY</p>
+<h1 class="font-display-lg text-display-lg text-on-surface">MARKTPLATZ</h1>
+</div>
+<button class="mt-md md:mt-0 bg-primary text-on-primary rounded-full px-6 py-3 flex items-center space-x-2 font-nav-item text-nav-item tracking-wider uppercase hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>NEUE ANZEIGE</span>
+</button>
+</header>
+<!-- Categories -->
+<div class="flex overflow-x-auto pb-4 mb-lg space-x-sm scrollbar-hide">
+<button class="bg-primary/20 text-primary font-mono text-sm px-4 py-2 rounded-full border border-primary/30 whitespace-nowrap">ALLE</button>
+<button class="bg-transparent text-on-surface-variant font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-primary/50 whitespace-nowrap transition-colors">RUTE</button>
+<button class="bg-transparent text-on-surface-variant font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-primary/50 whitespace-nowrap transition-colors">BOILIES</button>
+<button class="bg-transparent text-on-surface-variant font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-primary/50 whitespace-nowrap transition-colors">ROLLE</button>
+<button class="bg-transparent text-on-surface-variant font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-primary/50 whitespace-nowrap transition-colors">ZUBEHOER</button>
+<button class="bg-transparent text-on-surface-variant font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-primary/50 whitespace-nowrap transition-colors">ANDERE</button>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Shimano Rute" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial product photograph of a set of premium 3-piece fishing rods (Shimano style) lying on a wooden deck near a lake, soft golden hour lighting, professional angling magazine style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMyjox9Wc8rcybMazCJjfkvg4fmiLtvNiy3ApODZ1t9fjIZPwGQzpiM8vvlZ2vIrFXojbrdqeHZqowmsWmjTIVKwcrX9_vitIGay3kvfSo-Omu36gmwBpP9Wh7mPLj2RL7lgIeurpoNm4v7dYZRRp8oSxdDGqbOuqsZz2ADxayHsF8TWLaIQFpVELXgaV2q1fat8_Yvly3It2I1n86SY_PvRcxR5_TkccazNMLSy7VkkvalSJvSQtu5LZkjH-LIhoHSrcQNj7nO8KY"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Shimano Rute 3-teilig</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Rute, Graz</span>
+<span>•</span>
+<span>von Markus</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">149,00 EUR</p>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Tigernuss-Boilies" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial photograph of 5kg of tigernut boilies in a rustic burlap bag, natural textures, soft outdoor lighting, premium fishing bait aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCstCdFBa1mxVr4OMImTg7QgqHBB6-eqAbHabaWqlcm2uowNlUSGwLTOCOuxAgXH4unmZ7HIk6UnXcN9A3Gasn1HFDOP-LWUwnJHkdPih5RHU4jZXke9FHgW3bGOleolGAZhlPP2FhWCd3r5CnsOmtfC74b51CbL9-MUF5cUAlzsaUtPetMBOkFyr3qUzsdxoL4KAI0nnM67vGyuu-w6tIdZucY8e2_4FaJtanVdiinWXtEiRwQ1H678jJgAppUh2phZJzteXlYYc_5"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Tigernuss-Boilies 5 kg</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Boilies, Wien</span>
+<span>•</span>
+<span>von Julia</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">39,00 EUR</p>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Daiwa Rolle" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial product photograph of a professional silver and black Daiwa 4000 fishing reel, clean composition, soft natural lighting, angling equipment showcase." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS7acoAiH6HPE7V85lHORLWXbAB2dScRZesME3fEi1x8edJ_gWwbNFS81t4Oe21iZUqfMBd_8fATpBxYuBuOa4gPE4vRdlaIg8HxN_EMEM4IhFFRNJ-gbsHU_K3CmOS8lig3B8EXb5SPr5Oj3b6iDjoEttOJdPj2tK6K8aI4COhhgJmFZ1k9_nARV0fwziX6O7SdNOf95_oWNoLojJsrFIOjTk6rKAwNl0QVCX0xeVjVkUgFCQTVteKBaPg96lkpOVOXpgEZ3f6Onk"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Daiwa Rolle 4000</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Rolle, Linz</span>
+<span>•</span>
+<span>von Stefan</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">89,00 EUR</p>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Bissanzeiger" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial photograph of a set of two modern electronic bite alarms for carp fishing, technical but premium look, placed on a natural surface, soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpLVIfFyUgOsOzvJIX2m5jHcqOSmmXbcvh2JnlHcYWVjJGFV9dO15oVvcTUxE3M_G0_wZZ2cioDLEpMwXwmet_Q0eE-_lXbDtTqyRcw9b_DPqpdSEjacgqSOo14cprBYvEFmKM-Om02QvZQ5t-jua1_QMrgIEG92wGqJ3leJkEHHO5r8ufPy-J1whkRX4bXBjd59HH4MxQmuoFUzMyAKp9sMJPlrvOP2E212o6xUucO4RNm9yxSKezr4idaElKjrVzMENMxP0PQ6Dk"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Bissanzeiger Set (2x)</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Zubehör, Salzburg</span>
+<span>•</span>
+<span>von Anna</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">59,00 EUR</p>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Karpfennetz" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial photograph of a large olive green carp landing net, folded neatly, premium outdoor gear photography, soft natural background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJYTfEgFudyJY_gcMEqU2Am3gp1EgCEN7ehLOZkdcwUD8z8S8y4MedaTezOZOOYcLLOFjwvKYN2AGuDM9_csV6ZdNUCDqxZWcrECk9kUNRd_VUps10xrly4tqQrQ8hdjj9KNRs3JtRZ1eo_oUIDkcCEuyvm_jszX0uLnnCk0JOH1A0DXYmKOPat5zp9vasWFH62sTdjeZPQy3-7ERC7bAtxH1kDsqhK-AtpgCPdRry0tMRWD9ueTuw3Y-rR2J7UDDfTfSeGHm29yPN"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Karpfennetz groß</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Zubehör, Graz</span>
+<span>•</span>
+<span>von Daniel</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">35,00 EUR</p>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="bg-khaki border border-[#4A5338]/40 rounded-xl overflow-hidden flex flex-col hover:border-primary transition-colors cursor-pointer group">
+<div class="w-full aspect-[3/2] overflow-hidden bg-surface-dim">
+<img alt="Karpfen-Set" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A high-quality editorial photograph of a complete carp fishing starter kit including a rod, reel, and small accessories bag, arranged artistically, golden hour light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGZQwaAb127D-stmVTzf9bv7blgvcuYfAtR-cb3gvi37mzRXPpT5-KsN8dU1kUGTJaHkbgZ1gOby6ixuyqzKSZX_ckFoJRGEgvKII2h0PG9gg1unDfn1mU1DdZ_JvXa6Yb3sKo3zX_uE8vvhiE62VOMJ9AGaXfhmMTbM6fqyr65qwiI8192MUK4ZDSza0_dnNSdizQMAi0T81XfaHdqXLMjZGDF7Bgf3wE6EgPDk8UXhCkcFjf0lii06uELQbDutYfGKsWkOVqpfiz"/>
+</div>
+<div class="p-lg flex-grow flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Karpfen-Set Komplett</h2>
+<div class="flex items-center space-x-2 text-on-surface-variant opacity-80 mb-md font-mono text-xs">
+<span>Andere, Wien</span>
+<span>•</span>
+<span>von Thomas</span>
+</div>
+</div>
+<p class="font-mono text-lg font-medium text-primary">249,00 EUR</p>
+</div>
+</article>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl bg-background dark:bg-surface-dim border-t border-primary/10 mt-auto">
+<div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-y-md">
+<div class="font-headline-md text-headline-md text-primary">carp24</div>
+<div class="flex flex-wrap justify-center gap-x-md gap-y-sm">
+<a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Kontakt</a>
+<a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<div class="font-label-sm text-label-sm tracking-widest text-secondary">
+                © 2024 carp24 - The Art of Angling.
+            </div>
+</div>
+</footer>
+</body></html>

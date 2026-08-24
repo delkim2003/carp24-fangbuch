@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neuen Fang Eintragen - carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Source+Sans+3:wght@400&amp;family=Source+Serif+4:ital,wght@0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#271900",
+                        "on-tertiary-container": "#315463",
+                        "on-primary-container": "#6a4a00",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "on-secondary-container": "#aab8b1",
+                        "surface-tint": "#f8bd45",
+                        "on-background": "#dfe4e0",
+                        "secondary-container": "#3c4a44",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "primary-container": "#f4b942",
+                        "on-secondary-fixed": "#111e1a",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#ffdea7",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#7c5800",
+                        "primary": "#ffd999",
+                        "on-secondary": "#26332e",
+                        "tertiary-container": "#a4c8d9",
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "outline-variant": "#4f4535",
+                        "inverse-surface": "#dfe4e0",
+                        "inverse-on-surface": "#2c322f",
+                        "primary-fixed-dim": "#f8bd45",
+                        "on-primary": "#412d00",
+                        "tertiary-fixed": "#c3e8fa",
+                        "secondary-fixed": "#d7e6de",
+                        "secondary": "#bbcac3",
+                        "surface-container-lowest": "#0a0f0d",
+                        "surface-container-low": "#181d1a",
+                        "surface-container": "#1c211e",
+                        "on-surface-variant": "#d4c4af",
+                        "outline": "#9c8f7b",
+                        "tertiary": "#bfe4f6",
+                        "on-tertiary-fixed": "#001f29",
+                        "surface-container-high": "#262b29",
+                        "background": "#0f1412",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "surface-bright": "#353a38",
+                        "on-secondary-fixed-variant": "#3c4a44",
+                        "on-surface": "#dfe4e0",
+                        "surface-variant": "#313633",
+                        "on-tertiary": "#0d3542",
+                        "on-primary-fixed-variant": "#5e4200",
+                        "surface-dim": "#0f1412",
+                        "surface-container-highest": "#313633",
+                        "surface": "#0f1412"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "container-max": "1440px",
+                        "unit": "4",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-left: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #dfe4e0;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .glass-input:focus {
+            outline: none;
+            border-color: #f4b942;
+            box-shadow: 0 0 0 1px #f4b942, inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .glass-input::placeholder {
+            color: #aab8b1;
+            opacity: 0.6;
+        }
+
+        .animate-slide-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        
+        .btn-primary {
+            background-color: #f4b942;
+            color: #0a0f0d;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ffdea7;
+            box-shadow: 0 0 15px rgba(244, 185, 66, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 202, 195, 0.3);
+            color: #dfe4e0;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #f4b942;
+        }
+
+        .pill-active {
+            background-color: rgba(244, 185, 66, 0.15);
+            border-color: #f4b942;
+            color: #f4b942;
+        }
+        
+        .custom-checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.4);
+            display: grid;
+            place-content: center;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .custom-checkbox::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #f4b942;
+            background-color: #f4b942;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        
+        .custom-checkbox:checked {
+            border-color: #f4b942;
+            background: rgba(244, 185, 66, 0.1);
+        }
+        
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+    </style>
+<style>*{opacity:1!important;transform:none!important;animation:none!important;transition:none!important}</style></head>
+<body class="bg-background text-on-surface min-h-screen relative overflow-x-hidden antialiased">
+<!-- Background Shader -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background z-10 pointer-events-none"></div>
+</div>
+<!-- Navigation -->
+<nav class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-20 docked full-width top-0 sticky border-b border-white/10 shadow-sm z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4">
+<img class="w-12 h-12 rounded-full font-headline-md text-headline-md font-bold text-primary animate-pulse shadow-[0_0_15px_rgba(244,185,66,0.3)]" data-alt="Golden carp logo badge with text CARP24 OUTDOOR GOODS" src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+<span class="font-headline-md text-headline-md font-bold text-primary hidden md:block">carp24</span>
+</div>
+<div class="hidden md:flex gap-6 items-center h-full">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Fänge</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Board</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Forum</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Chat</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Statistik</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-lg" href="#">Rückblick</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-body-md text-body-md text-primary dark:text-primary scale-95 active:scale-90 transition-transform hidden sm:block">Premium</button>
+<button class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface scale-95 active:scale-90 transition-transform">DE/EN</button>
+<button class="scale-95 active:scale-90 transition-transform hover:bg-white/5 transition-all duration-300 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="relative z-20 pt-16 pb-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Header Section -->
+<header class="mb-12 animate-slide-up">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary tracking-tight mb-2">NEUEN FANG EINTRAGEN</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentiere die Details deines Fangs für das Journal.</p>
+</header>
+<!-- Form Card -->
+<div class="glass-panel rounded-2xl p-6 md:p-10 animate-slide-up delay-100">
+<form>
+<!-- Core Details Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-10">
+<!-- Left Column -->
+<div class="space-y-8">
+<!-- Weight & Length -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Gewicht (KG)*</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-data-mono text-data-mono h-12" placeholder="0.0" step="0.1" type="number"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Länge (CM)</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-data-mono text-data-mono h-12" placeholder="0" type="number"/>
+</div>
+</div>
+<!-- Species -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-3">Fischart</label>
+<div class="flex flex-wrap gap-3" id="species-container">
+<button class="species-btn px-4 py-2 rounded-full font-label-caps text-label-caps border border-white/10 pill-active" data-value="SPIEGEL" type="button">SPIEGEL</button>
+<button class="species-btn px-4 py-2 rounded-full font-label-caps text-label-caps border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-value="LEDER" type="button">LEDER</button>
+<button class="species-btn px-4 py-2 rounded-full font-label-caps text-label-caps border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-value="SCHUPPEN" type="button">SCHUPPEN</button>
+<button class="species-btn px-4 py-2 rounded-full font-label-caps text-label-caps border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-value="AMUR" type="button">AMUR</button>
+<button class="species-btn px-4 py-2 rounded-full font-label-caps text-label-caps border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-value="ANDERE" id="btn-andere" type="button">ANDERE</button>
+</div>
+<div class="mt-4" id="other-species-container">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">ANDERE FISCHART</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-12" id="other-species-input" placeholder="z.B. Wels, Hecht, Zander..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="space-y-8">
+<!-- Date & Time -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Datum*</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-data-mono text-data-mono h-12" type="date" value="2026-10-24"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Uhrzeit</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-data-mono text-data-mono h-12" type="time"/>
+</div>
+</div>
+<!-- Bait & Method -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Köder</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-12" placeholder="Mais, Boilies..." type="text"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Methode</label>
+<input class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-12" placeholder="Pose, Grundangel..." type="text"/>
+</div>
+</div>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-10"></div>
+<!-- Water Section -->
+<div class="mb-10 animate-slide-up delay-200">
+<h3 class="font-headline-md text-lg text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">water</span>
+                        GEWÄSSER
+                    </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Name</label>
+<div class="relative">
+<input class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-12" placeholder="Gewässer suchen..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">expand_more</span>
+</div>
+<p class="mt-2 font-data-mono text-xs text-on-surface-variant/60">Privatgewässer: Name eintragen, Koordinaten optional.</p>
+</div>
+<div>
+<div class="flex gap-4 mb-4">
+<button class="btn-secondary flex-1 py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-label-caps text-label-caps" type="button">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">my_location</span>
+                                    STANDORT VERWENDEN
+                                </button>
+<button class="btn-secondary flex-1 py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-label-caps text-label-caps" type="button">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">location_on</span>
+                                    AUF KARTE WÄHLEN
+                                </button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<input class="glass-input w-full rounded-lg px-4 py-2 font-data-mono text-data-mono opacity-70" readonly="" type="text" value="48.1351"/>
+</div>
+<div>
+<input class="glass-input w-full rounded-lg px-4 py-2 font-data-mono text-data-mono opacity-70" readonly="" type="text" value="11.5820"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Photo Upload Section -->
+<div class="mb-10 animate-slide-up delay-300">
+<h3 class="font-headline-md text-lg text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">photo_camera</span>
+                        FOTO HOCHLADEN
+                    </h3>
+<div class="border-2 border-dashed border-white/20 rounded-xl bg-black/20 hover:bg-black/40 hover:border-primary/50 transition-all duration-300 p-12 flex flex-col items-center justify-center cursor-pointer group">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors mb-4" style="font-variation-settings: 'FILL' 0;">add_a_photo</span>
+<p class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Bild auswählen oder ablegen</p>
+</div>
+</div>
+<!-- Notes & Options Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10 animate-slide-up delay-400">
+<!-- Notes -->
+<div>
+<div class="flex justify-between items-baseline mb-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant">NOTIZEN</label>
+<span class="font-data-mono text-[10px] text-on-surface-variant/60">0 / 1000</span>
+</div>
+<textarea class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-32 resize-none" placeholder="Besondere Vorkommnisse, Köder, Wetterdetails..."></textarea>
+</div>
+<!-- Options & Trip -->
+<div class="space-y-8">
+<div class="space-y-4">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="custom-checkbox" type="checkbox"/>
+<span class="font-label-caps text-label-caps text-on-surface group-hover:text-primary transition-colors">CATCH AND RELEASE</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-0.5" type="checkbox"/>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface group-hover:text-primary transition-colors block">ÖFFENTLICH TEILEN</span>
+<span class="font-data-mono text-xs text-on-surface-variant/60 mt-1 block">Im Community-Board sichtbar</span>
+</div>
+</label>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">TRIP (OPTIONAL)</label>
+<div class="relative">
+<select class="glass-input w-full rounded-lg px-4 py-3 font-body-md text-body-md h-12 appearance-none bg-transparent">
+<option class="bg-surface text-on-surface">— Kein Trip —</option>
+<option class="bg-surface text-on-surface">Herbst Session 2026</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none" style="font-variation-settings: 'FILL' 0;">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Submit Button -->
+<div class="flex justify-end pt-6 border-t border-white/5 animate-slide-up delay-400">
+<button class="btn-primary font-label-caps text-label-caps px-8 py-4 rounded-lg font-bold tracking-widest shadow-lg flex items-center gap-2" type="button">
+                        FANG SPEICHERN
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+</div>
+</form>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-background dark:bg-background w-full py-12 border-t border-white/5 relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-4">
+<span class="font-label-caps text-label-caps text-on-surface-variant">© 2024 carp24 - Precision Angling</span>
+<div class="flex gap-6">
+<a class="font-data-mono text-data-mono text-on-secondary-fixed-variant hover:text-primary opacity-80 hover:opacity-100 transition-all" href="#">Impressum</a>
+<a class="font-data-mono text-data-mono text-on-secondary-fixed-variant hover:text-primary opacity-80 hover:opacity-100 transition-all" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const speciesBtns = document.querySelectorAll('.species-btn');
+        const otherContainer = document.getElementById('other-species-container');
+        const otherInput = document.getElementById('other-species-input');
+
+        speciesBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Remove active state from all
+                speciesBtns.forEach(b => {
+                    b.classList.remove('pill-active');
+                    b.classList.add('text-on-surface-variant', 'hover:border-primary/50');
+                });
+                
+                // Add active state to clicked
+                e.target.classList.add('pill-active');
+                e.target.classList.remove('text-on-surface-variant', 'hover:border-primary/50');
+
+                // Toggle visibility of the "other" input
+                if (e.target.dataset.value === 'ANDERE') {
+                    otherContainer.classList.remove('hidden');
+                    otherInput.focus();
+                } else {
+                    otherContainer.classList.add('hidden');
+                    otherInput.value = '';
+                }
+            });
+        });
+    });
+</script>
+</body></html>

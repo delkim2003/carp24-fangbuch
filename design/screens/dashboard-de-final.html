@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carp24 - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#a4c8d9",
+                        "secondary-fixed": "#d7e6de",
+                        "primary-fixed-dim": "#f8bd45",
+                        "surface-container-high": "#262b29",
+                        "inverse-surface": "#dfe4e0",
+                        "inverse-on-surface": "#2c322f",
+                        "surface": "#0f1412",
+                        "outline-variant": "#4f4535",
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "surface-variant": "#313633",
+                        "on-secondary-container": "#aab8b1",
+                        "primary-container": "#f4b942",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "on-tertiary-fixed": "#001f29",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "secondary-container": "#3c4a44",
+                        "inverse-primary": "#7c5800",
+                        "primary": "#ffd999",
+                        "on-background": "#dfe4e0",
+                        "background": "#0f1412",
+                        "on-secondary-fixed-variant": "#3c4a44",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "secondary": "#bbcac3",
+                        "error": "#ffb4ab",
+                        "surface-container": "#1c211e",
+                        "on-primary": "#412d00",
+                        "tertiary": "#bfe4f6",
+                        "surface-container-lowest": "#0a0f0d",
+                        "on-secondary-fixed": "#111e1a",
+                        "on-surface-variant": "#d4c4af",
+                        "on-primary-container": "#6a4a00",
+                        "outline": "#9c8f7b",
+                        "on-tertiary-container": "#315463",
+                        "on-tertiary": "#0d3542",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#dfe4e0",
+                        "primary-fixed": "#ffdea7",
+                        "on-secondary": "#26332e",
+                        "surface-container-low": "#181d1a",
+                        "on-primary-fixed-variant": "#5e4200",
+                        "surface-bright": "#353a38",
+                        "surface-dim": "#0f1412",
+                        "surface-tint": "#f8bd45",
+                        "surface-container-highest": "#313633",
+                        "tertiary-fixed": "#c3e8fa",
+                        "on-primary-fixed": "#271900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "unit": "4",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bento-tile {
+            @apply glass-panel rounded-xl overflow-hidden relative group transition-all duration-300;
+        }
+        .bento-tile:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(244, 185, 66, 0.3);
+            box-shadow: 0 0 20px rgba(244, 185, 66, 0.05);
+        }
+        .bento-tile::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .pulse-amber {
+            animation: pulse-glow 3s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 10px rgba(244, 185, 66, 0.2); }
+            100% { box-shadow: 0 0 25px rgba(244, 185, 66, 0.5); }
+        }
+
+        .scroll-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Custom scrollbar for bento content if needed */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(244, 185, 66, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Atmospheric Background -->
+<div class="fixed inset-0 z-[-1] pointer-events-none">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" data-alt="A serene lake at dawn surrounded by silhouetted pine forests. Heavy mist rolls across the calm, dark water, reflecting the soft, golden, muted light of the early morning sun breaking through dense, atmospheric clouds. The mood is quiet, high-stakes, and ruggedly premium, matching a dark-mode outdoor digital aesthetic with deep charcoal blacks and subtle amber and teal hints." style="background-image: url('https://lh3.googleusercontent.com/aida/AEtjO1UslBuwxEXJwksJV1Ma-MjDFsHW1CLacheACRzwRW6YRTuzOrV-6xc-ZeEeRIKtnbeGgtOvs-2qcLkgph1nJfk1HiFyTkSE4HyOU45T5076SbbrM87QWQhBUNpcHbv3HYel2t3kcE_oozQyuWq1ySVY7L1OisQw04c1KKDG4ZwFirx0saAUMKoIXWSB8Ljz5d4pc73fkebFL7QlHUM0LIDa7F8GJYy7_2yH4sgvzA_eLvQh-cASgbmHpaQ')"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest/80 via-surface/95 to-surface-container-lowest"></div>
+<!-- Optional WebGL Shader overlay if image is not enough -->
+<!-- <webgl-shader src="{{DATA:SCREEN:SCREEN_20}}" class="absolute inset-0 w-full h-full opacity-30 mix-blend-overlay"></webgl-shader> -->
+</div>
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/60 backdrop-blur-xl border-b border-white/10 transition-all duration-300 ease-in-out hidden md:flex">
+<!-- Logo -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden pulse-amber border border-primary/30">
+<img alt="Carp24 Logo" class="w-full h-full object-cover" data-alt="A premium, circular embroidered patch logo for 'CARP24 OUTDOOR GOODS'. The logo features a detailed, golden-yellow silhouette of a carp fish in the center. It is set against a dark forest green background with a subtle fabric texture. The text and an inner ring border are also embroidered in the same golden-yellow thread, conveying a rugged, high-quality, professional angling brand identity." src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</div>
+<span class="font-display-lg text-display-lg text-primary drop-shadow-[0_0_15px_rgba(244,185,66,0.4)] hidden lg:block text-2xl tracking-tighter">CARP24</span>
+</div>
+<!-- Links (Subset for TopNav context, merging from prompt to avoid clutter) -->
+<div class="flex gap-6 font-body-lg text-body-lg text-on-surface-variant">
+<a class="hover:text-on-surface transition-colors" href="#">Board</a>
+<a class="hover:text-on-surface transition-colors" href="#">Forum</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Statistik</a>
+<a class="hover:text-on-surface transition-colors" href="#">Trips</a>
+<a class="hover:text-on-surface transition-colors" href="#">Marktplatz</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button aria-label="Toggle Language" class="hover:text-primary transition-colors flex items-center font-label-caps text-label-caps">
+<span class="material-symbols-outlined mr-1 text-[18px]">language</span> DE
+            </button>
+<button aria-label="Profile" class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button aria-label="Logout" class="hover:text-error transition-colors">
+<span class="material-symbols-outlined">logout</span>
+</button>
+<button class="ml-4 px-6 py-2 bg-primary-container text-on-primary-container font-label-caps text-label-caps rounded-full hover:bg-primary-fixed-dim transition-colors shadow-[0_0_15px_rgba(244,185,66,0.2)] hover:shadow-[0_0_20px_rgba(244,185,66,0.4)]">
+                Premium
+            </button>
+</div>
+</nav>
+<!-- Mobile Nav (BottomNavBar semantic equivalent - simplified for this view) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-t border-white/5 flex justify-around py-4 pb-safe">
+<a class="flex flex-col items-center text-on-surface-variant" href="#"><span class="material-symbols-outlined">dashboard</span><span class="text-[10px] mt-1">Board</span></a>
+<a class="flex flex-col items-center text-primary" href="#"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bar_chart</span><span class="text-[10px] mt-1">Statistik</span></a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#"><span class="material-symbols-outlined">sailing</span><span class="text-[10px] mt-1">Trips</span></a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#"><span class="material-symbols-outlined">account_circle</span><span class="text-[10px] mt-1">Profil</span></a>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop pt-24 md:pt-32 pb-32 flex flex-col gap-gutter relative z-10">
+<!-- Section 2: Overview -->
+<section class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8 scroll-fade-in visible">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary uppercase tracking-tight">PETRI HEIL, ANGLER</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Dein Überblick für die Saison 2026</p>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Saison-Gesamt</span>
+<span class="font-data-mono text-[40px] md:text-[56px] text-primary leading-none" id="totalWeightCounter">184.6</span>
+<span class="font-data-mono text-data-mono text-primary/70">kg</span>
+</div>
+</section>
+<!-- Stat Cards Row -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter scroll-fade-in">
+<div class="bento-tile p-6 flex flex-col justify-between h-32">
+<span class="font-label-caps text-label-caps text-on-surface-variant">FÄNGE IM MONAT</span>
+<div class="flex items-baseline gap-2">
+<span class="font-data-mono text-[32px] text-on-surface" id="monthCatchesCounter">12</span>
+<span class="material-symbols-outlined text-tertiary text-sm ml-auto">trending_up</span>
+</div>
+</div>
+<div class="bento-tile p-6 flex flex-col justify-between h-32">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TOP-FANG</span>
+<div class="flex items-baseline gap-2">
+<span class="font-data-mono text-[32px] text-on-surface">25.4</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">kg</span>
+<span class="material-symbols-outlined text-primary text-sm ml-auto">emoji_events</span>
+</div>
+</div>
+<div class="bento-tile p-6 flex flex-col justify-between h-32">
+<span class="font-label-caps text-label-caps text-on-surface-variant">AKTIVE STUNDEN</span>
+<div class="flex items-baseline gap-2">
+<span class="font-data-mono text-[32px] text-on-surface" id="activeHoursCounter">87</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">h</span>
+<span class="material-symbols-outlined text-secondary text-sm ml-auto">schedule</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter mt-4 scroll-fade-in">
+<!-- Letzte Fänge (Large, spans 8 cols on desktop) -->
+<div class="bento-tile md:col-span-8 p-6 md:p-8 flex flex-col min-h-[400px]">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">LETZTE FÄNGE</h2>
+<button class="text-primary hover:text-primary-fixed transition-colors font-label-caps text-label-caps flex items-center gap-1">ALLE SEHEN <span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+</div>
+<div class="flex-1 flex flex-col gap-4">
+<!-- Row 1 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-md overflow-hidden border border-white/10 opacity-70 group-hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0" data-alt="A close-up shot of a large mirror carp resting safely on an olive green unhooking mat, surrounded by damp morning grass. The lighting is soft and moody, emphasizing the dark, rugged aesthetic of a premium fishing logbook interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDM7qqhCbzxs0rXh2VSrit38pd8ulbdS_hDxNrb2XoQoraOeBlGW8CFqR_6mro3b360PKhfPD2rWhnZvB0dbvY2tuM2yQ5KOzNFWR8QT3QBX2HurQqcrg6aQqWiloz5QZ7VZdWkfu2qtGV-aK-Nf_I0Ovob8AdMcrvUuaI3fWlYjbJLbg409-O99D6A_EREkGpT6jt4BgNlKzN23J54sF-8yL5mUu3qOuuMaEOgj9qt8Js9myAuAeoAs_4Fpkg9qXFyttWjmgrcJLA"/>
+</div>
+<div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Spiegelkarpfen</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">water_drop</span> Waldsee Ost
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-data-mono text-data-mono text-primary text-lg">18.2 kg</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant/60 mt-1">12. MAI 2026</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-md overflow-hidden border border-white/10 opacity-70 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">phishing</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Schuppenkarpfen</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">water_drop</span> Alter Baggersee
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-data-mono text-data-mono text-primary text-lg">14.5 kg</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant/60 mt-1">08. MAI 2026</div>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group opacity-70">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-high rounded-md overflow-hidden border border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">phishing</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Zeilkarpfen</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">water_drop</span> Flussbiegung Süd
+                                </div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-data-mono text-data-mono text-primary text-lg">9.8 kg</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant/60 mt-1">02. MAI 2026</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column Stack (Spans 4 cols) -->
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<!-- Neuer Fang -->
+<div class="bento-tile p-6 flex flex-col items-center justify-center text-center h-48 cursor-pointer group bg-primary-container/10 border-primary/20 hover:bg-primary-container/20 border-dashed">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(244,185,66,0.3)]">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+<span class="font-headline-md text-headline-md text-primary text-xl">NEUER FANG</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-2">Schnellerfasssung starten</span>
+</div>
+<!-- Badges -->
+<div class="bento-tile p-6 flex-1 flex flex-col">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4">BADGES</h3>
+<div class="grid grid-cols-2 gap-4 flex-1">
+<div class="flex flex-col items-center justify-center gap-2 p-3 bg-secondary-container/20 rounded-lg border border-secondary/10">
+<span class="material-symbols-outlined text-secondary text-[28px]" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-label-caps text-[10px] text-center text-on-surface-variant">Erster Fang</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-2 p-3 bg-primary-container/20 rounded-lg border border-primary/20 shadow-[inset_0_0_10px_rgba(244,185,66,0.1)]">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-label-caps text-[10px] text-center text-primary">100 kg Club</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-2 p-3 bg-tertiary-container/20 rounded-lg border border-tertiary/10">
+<span class="material-symbols-outlined text-tertiary text-[28px]" style="font-variation-settings: 'FILL' 1;">nights_stay</span>
+<span class="font-label-caps text-[10px] text-center text-on-surface-variant">Nachtfischer</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-2 p-3 bg-white/5 rounded-lg border border-white/5 opacity-50 grayscale">
+<span class="material-symbols-outlined text-on-surface-variant text-[28px]">lock</span>
+<span class="font-label-caps text-[10px] text-center text-on-surface-variant">10 Karpfen</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Activity & Small Cards -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter mt-4 scroll-fade-in">
+<!-- Offline Sync (Small col-span-3) -->
+<div class="bento-tile md:col-span-3 p-6 flex flex-col justify-center items-center text-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/50 text-[32px]">cloud_off</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant/70 leading-tight">OFFLINE-SYNC<br/>Letzte Synchronisierung<br/>vor 5 Minuten</span>
+</div>
+<!-- Trips (Small col-span-4) -->
+<div class="bento-tile md:col-span-4 p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-caps text-label-caps text-on-surface-variant">AKTUELLER TRIP</span>
+<span class="material-symbols-outlined text-primary text-[18px]">sailing</span>
+</div>
+<div class="flex-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-surface">Frühjahrssession Südsee</div>
+<div class="font-data-mono text-data-mono text-on-surface-variant/80 mt-1">Tag 3 von 5 • 4 Fänge</div>
+</div>
+<button class="mt-4 w-full py-2 bg-transparent border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded-md hover:bg-white/5 hover:text-on-surface transition-colors">ALLE TRIPS</button>
+</div>
+<!-- Chart (Large col-span-5) -->
+<div class="bento-tile md:col-span-5 p-0 overflow-hidden relative min-h-[250px] group flex flex-col justify-between">
+<div class="p-6 absolute top-0 left-0 right-0 z-10 flex justify-between items-start pointer-events-none">
+<span class="font-label-caps text-label-caps text-on-surface-variant drop-shadow-md">GEWICHTSVERLAUF</span>
+</div>
+<!-- The requested chart image is injected as a full cover background to match the prompt's reference to https://lh3.googleusercontent.com/aida-public/AB6AXuBvkJWts66vhdI9z8ia0qA7JZvKvAdh8avs5fxozCzdUmapO3LK8KRMkN9B1gtHgpB9fo1AhPPRvDFkBFgUY_d-T91XDZO5x8Olr52dc8_6czq_jxEDLAnerGPlNBIbvTUE0jll00i4qRMPX4xX9HuTyAEus7-QYuervexKAvfbbua2MyuDC4WFZHzvdXZcdfnh6Nh_q0AIWHwK8Z73KihTPRHcRDiemXcAXshbPzP_E7L_ZSV1zSg_jMUoC4gAuKogfZo_jale5pkt for the chart -->
+<div class="absolute inset-0 bg-cover bg-center bg-no-repeat mt-12 opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A stylized, glowing amber line chart on a dark forest green background with a subtle grid. The chart depicts a fluctuating trend line representing weight tracking over months from January to December, matching a premium, modern dashboard aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBvkJWts66vhdI9z8ia0qA7JZvKvAdh8avs5fxozCzdUmapO3LK8KRMkN9B1gtHgpB9fo1AhPPRvDFkBFgUY_d-T91XDZO5x8Olr52dc8_6czq_jxEDLAnerGPlNBIbvTUE0jll00i4qRMPX4xX9HuTyAEus7-QYuervexKAvfbbua2MyuDC4WFZHzvdXZcdfnh6Nh_q0AIWHwK8Z73KihTPRHcRDiemXcAXshbPzP_E7L_ZSV1zSg_jMUoC4gAuKogfZo_jale5pkt');"></div>
+<!-- Overlay gradient to fade bottom -->
+<div class="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-surface-container-high/90 to-transparent"></div>
+</div>
+</section>
+</main>
+<!-- Footer Component logic -->
+<footer class="w-full bg-surface-container-lowest border-t border-white/5 py-8 px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-gutter relative z-10">
+<div class="font-display-lg text-display-lg text-primary text-xl">CARP24</div>
+<div class="font-data-mono text-data-mono text-on-surface-variant/60 text-xs">© 2026 Carp24 Premium Angling. All rights reserved.</div>
+<div class="flex gap-6 font-data-mono text-data-mono">
+<a class="text-on-surface-variant/60 hover:text-on-surface transition-colors" href="#">Impressum</a>
+<a class="text-on-surface-variant/60 hover:text-on-surface transition-colors" href="#">Datenschutz</a>
+</div>
+</footer>
+<!-- Interactive Scripts -->
+<script>
+        // Simple scroll reveal
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.scroll-fade-in').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Animated Counters simulation (lightweight)
+            function animateValue(id, start, end, duration, isFloat = false) {
+                const obj = document.getElementById(id);
+                if (!obj) return;
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const current = progress * (end - start) + start;
+                    obj.innerHTML = isFloat ? current.toFixed(1) : Math.floor(current);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        obj.innerHTML = isFloat ? end.toFixed(1) : end;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            // Delay slightly for effect
+            setTimeout(() => {
+                animateValue("totalWeightCounter", 0, 184.6, 2000, true);
+                animateValue("monthCatchesCounter", 0, 12, 1500);
+                animateValue("activeHoursCounter", 0, 87, 1800);
+            }, 500);
+        });
+    </script>
+</body></html>

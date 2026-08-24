@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carp24 - Your Premium Fishing Logbook</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Sans+3:wght@400;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#dfe4d6",
+                      "outline-variant": "#c6c8bc",
+                      "secondary-fixed": "#cde7e9",
+                      "secondary-container": "#cae5e7",
+                      "on-tertiary-container": "#41411e",
+                      "background": "#f6fbec",
+                      "on-secondary-container": "#4f6769",
+                      "error": "#ba1a1a",
+                      "on-background": "#181d14",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#b1cbcd",
+                      "tertiary-fixed-dim": "#cbc99a",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#45483f",
+                      "secondary": "#4a6365",
+                      "on-tertiary-fixed-variant": "#494824",
+                      "surface-container-low": "#f1f6e7",
+                      "on-secondary-fixed": "#061f21",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#141f05",
+                      "primary-fixed-dim": "#bdcca4",
+                      "outline": "#76786e",
+                      "surface-tint": "#556342",
+                      "surface-container-highest": "#dfe4d6",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed": "#e7e5b4",
+                      "primary": "#546140",
+                      "surface": "#f6fbec",
+                      "on-primary-fixed-variant": "#3e4b2c",
+                      "tertiary-container": "#afad80",
+                      "primary-fixed": "#d9e8be",
+                      "inverse-primary": "#bdcca4",
+                      "on-secondary-fixed-variant": "#334b4d",
+                      "surface-dim": "#d7dccd",
+                      "inverse-surface": "#2d3228",
+                      "surface-container": "#ebf0e1",
+                      "primary-container": "#6c7a57",
+                      "tertiary": "#61603a",
+                      "on-surface": "#181d14",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#fdfff0",
+                      "surface-container-high": "#e5eadb",
+                      "on-tertiary-fixed": "#1d1d01",
+                      "surface-bright": "#f6fbec",
+                      "inverse-on-surface": "#eef3e4",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "stack-sm": "4px",
+                      "stack-md": "12px",
+                      "stack-lg": "24px",
+                      "unit": "8px",
+                      "section-gap": "64px",
+                      "container-padding": "32px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "\"Source Sans 3\""
+                      ],
+                      "headline-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-lg": [
+                              "\"Source Sans 3\""
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "label-caps": [
+                              "\"Source Sans 3\""
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .warm-sand-bg { background-color: #E8E0C8; }
+        .khaki-border { border-color: #CCCA9B; }
+        .olive-bg { background-color: #6C7A57; }
+        .olive-text { color: #6C7A57; }
+        .water-blue-outline { border-color: #7B9496; color: #7B9496; }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col warm-sand-bg">
+<!-- TopNavBar -->
+<header class="w-full top-0 left-0 bg-background dark:bg-background border-b border-surface-dim">
+<div class="flex justify-between items-center max-w-[1140px] mx-auto px-gutter py-stack-lg">
+<div class="flex items-center gap-4">
+<img alt="carp24" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4KBuM9HWQqK1_hX4RXE-YmZa9YNb_ORxdMB5y4-UJfvWxmedxhMoE4RfYxk9C_llBPa2ueIeDnAT75xXPARmtVP3CGWkex8NiVzUVaEvcdKbcjEnXkFcMICkhie1RXyYh1F96MV_3d01K5mPQFw9q9lg6vyyjMql0iORYroWWtBziq86pzC8RxWCywoa0SREfU2REkVl-qaU_eA9uwfIaXz0Vtettxd45DJwgjzHxeok09hJ_fQmOKo5khOlc0xW1Mfl8bZc3tqE"/>
+<span class="font-headline-md text-headline-md font-medium text-on-background dark:text-on-background">carp24</span>
+</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 font-body-md text-body-md" href="#">Catch List</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 font-body-md text-body-md" href="#">Statistics</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 font-body-md text-body-md" href="#">Profile</a>
+</nav>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded font-body-md hover:opacity-80 transition-all">
+                Login
+            </button>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="max-w-[1140px] mx-auto px-gutter py-section-gap grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div class="space-y-stack-lg">
+<h1 class="font-display-lg text-display-lg text-on-background">Your carp fishing logbook, beautifully kept.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Capture the essence of every session with high-fidelity logging and insights.</p>
+<button class="olive-bg text-on-primary-container px-8 py-4 rounded font-body-md hover:opacity-90 transition-opacity">
+                    Log your first catch
+                </button>
+</div>
+<div class="relative h-[400px] rounded overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10 mix-blend-multiply"></div>
+<img alt="Atmospheric dark water surface at dawn" class="absolute inset-0 w-full h-full object-cover z-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABK4S-hnBjvPxTAwis3BMp56c6HE02C80EFDl4XJnC-VjO0olE5iJjXjCG1kvALfuvRY74wEpIYwRz05ZjTBGrfZKBabhq9hHzFdS0fZo98QDC2FFWap_FksW-NmdgOBTqWjhXkACkfVCF67lWrCIwRtXHhdz3jUC29thyVehx18fPk4KBzhDGGyzL1lmRgL9M2xk5S-flQuZzhFn6qx-vkB58hG-hjT5-Xz8d67jfnwQOsUjtfeYCGgpK4oFt4QD90LNFMxfhIbs"/>
+</div>
+</section>
+<!-- Features Section -->
+<section class="max-w-[1140px] mx-auto px-gutter py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Feature 1 -->
+<div class="bg-background border border-outline-variant p-8 rounded flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl text-primary">add_a_photo</span>
+<p class="font-body-lg text-body-lg text-on-surface">Log catches with weight, water, weather and photos</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-background border border-outline-variant p-8 rounded flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl text-primary">monitoring</span>
+<p class="font-body-lg text-body-lg text-on-surface">Automatic statistics and weight curve</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-background border border-outline-variant p-8 rounded flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl text-primary">wifi_off</span>
+<p class="font-body-lg text-body-lg text-on-surface">Works offline, syncs later</p>
+</div>
+</div>
+</section>
+<!-- Latest Catches -->
+<section class="max-w-[1140px] mx-auto px-gutter py-section-gap">
+<h2 class="font-headline-lg text-headline-lg mb-8">Recent Logs</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Catch Card 1 -->
+<div class="bg-surface-container-lowest border border-surface-dim p-4 rounded flex flex-col gap-2">
+<div class="w-full h-48 bg-surface-variant rounded mb-2 overflow-hidden relative">
+<img class="object-cover w-full h-full" data-alt="A pristine, high-resolution close-up of a massive Mirror Carp resting gently on an olive green unhooking mat. The lighting is soft, natural overcast daylight highlighting the intricate, scattered scale pattern typical of the species. The mood is calm, respectful, and editorial, consistent with a premium angling magazine aesthetic. A slight vignette focuses attention on the fish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATDPgfZI6Ng9fJPqdku0_fbb4w2n4GyLgEXw3RvcUg-GTmww8uYAHkOTIk9hGZr-T25vHtgCfJ4uzTUsljPBRgPiWFHwpO3fSeQ_P-orvHz4ympfSiJRUiy_ncg4lxDoz_khmzlAuvFYfrZxKl7Ef2DSKQJXLQRZEGNIJIS0-QoJ3NUO62BPXW_J0aoE9AUJhFJRvMWQSEUeQFhCkcwfg-EPyy_5iZGnV7yboGmor6WlqwiQz1fl5GvXhgKp8znujKeu_BGjcty3o"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md">Mirror Carp</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Black Lake</p>
+</div>
+<span class="font-data-lg text-data-lg">18.4 kg</span>
+</div>
+</div>
+<!-- Catch Card 2 -->
+<div class="bg-surface-container-lowest border border-surface-dim p-4 rounded flex flex-col gap-2">
+<div class="w-full h-48 bg-surface-variant rounded mb-2 overflow-hidden relative">
+<img class="object-cover w-full h-full" data-alt="A beautifully composed shot of a Common Carp held carefully just above the water level, with the angler's hands partially visible. The background is a soft-focus misty dawn over a tranquil gravel pit lake. The light is a warm, golden-hour hue, conveying a sense of early morning peace and accomplishment in a premium, editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR14WTUz5H1bRBqhNFri3_81c8zVGAEZC4GHqTlnvflqERE7u-IWEp-iW8B5mybufu_AgcdQDa6LnO2UCY_DiFmPJR1QCFimSB9IDnyUza-m82EvPZ3ax0EL4XEQxD0VWAQC_PaACocxTthCqdJH5d1JSMxtC8bT2fMUOoq5h1rTEHPr7yAoiqX-WVWCvHtTeB4o3zbsi8WZ6SNzWPcJ13g4sk19XY0TOtS1nSjiyh4rRsH10sTz2mGvuJQeBn4C_RbvbKgz7FHuU"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md">Common Carp</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">River Avon</p>
+</div>
+<span class="font-data-lg text-data-lg">12.2 kg</span>
+</div>
+</div>
+<!-- Catch Card 3 -->
+<div class="bg-surface-container-lowest border border-surface-dim p-4 rounded flex flex-col gap-2">
+<div class="w-full h-48 bg-surface-variant rounded mb-2 overflow-hidden relative">
+<img class="object-cover w-full h-full" data-alt="A detailed, textural shot focusing on the flank of a fully scaled Mirror Carp, highlighting the golden-bronze tones and thick, healthy scales. The fish is resting on a wet, dark green sling. The lighting is moody and natural, evoking a deep connection to nature and a patient, observant aesthetic typical of high-end outdoor journals." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlpEvg226PYjCxwgv4C3BK__b5lYfZ8cQ5odq5KhyA_a8m1E33KAZ4oSbPmwcZCfcg6UlEiTGa7UNDwD87uxXBdeOvyVleRNpMCT9lBlJAQx8iS7pJkfxMsxVOXjMyYyJwOeOw0W0vpW3N_ljK81O2U93EKWtnttIa-RG21CHH-sqlquMaqbejnNWqgHZ6QSTEFLZi8Sv8NPUsjN1Mcy50XY-vdKOVB_CBrk40EVmy_7qOutJQjgULM6DzGhJyDEbiOOHbm2aOZDg"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md">Mirror Carp</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Willow Pit</p>
+</div>
+<span class="font-data-lg text-data-lg">21.0 kg</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Quote Band -->
+<section class="w-full bg-surface-container py-section-gap px-gutter my-12 border-y border-surface-dim">
+<div class="max-w-[800px] mx-auto text-center">
+<blockquote class="font-headline-lg text-headline-lg italic text-on-surface">
+                    "There is a deep peace in the early hours that only an angler understands."
+                </blockquote>
+<p class="mt-4 font-body-md text-body-md text-on-surface-variant">— Thomas R.</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bottom-0 bg-background dark:bg-background border-t border-outline-variant dark:border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center max-w-[1140px] mx-auto px-gutter py-section-gap">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Made by einfach-online.dev</span>
+<div class="flex gap-6 mt-4 md:mt-0">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Legal Notice</a>
+</div>
+</div>
+</footer>
+</body></html>

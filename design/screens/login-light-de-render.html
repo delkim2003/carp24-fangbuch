@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Login</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#334b4d",
+                    "surface": "#f6fbec",
+                    "surface-tint": "#556342",
+                    "on-surface-variant": "#45483f",
+                    "surface-container-low": "#f1f6e7",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#b1cbcd",
+                    "on-primary-fixed-variant": "#3e4b2c",
+                    "outline": "#76786e",
+                    "primary-fixed": "#d9e8be",
+                    "inverse-on-surface": "#eef3e4",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#d7dccd",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#fdfff0",
+                    "on-background": "#181d14",
+                    "on-primary-fixed": "#141f05",
+                    "surface-container-high": "#e5eadb",
+                    "primary-container": "#6c7a57",
+                    "inverse-primary": "#bdcca4",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#546140",
+                    "tertiary-fixed": "#cde7e9",
+                    "on-tertiary-container": "#faffff",
+                    "on-secondary-fixed": "#1d1d01",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#c6c8bc",
+                    "on-tertiary-fixed": "#061f21",
+                    "inverse-surface": "#2d3228",
+                    "on-secondary-fixed-variant": "#494824",
+                    "on-secondary-container": "#67663f",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#e7e5b4",
+                    "surface-container-highest": "#dfe4d6",
+                    "on-error": "#ffffff",
+                    "secondary": "#61603a",
+                    "secondary-fixed-dim": "#cbc99a",
+                    "tertiary": "#496163",
+                    "tertiary-container": "#617a7c",
+                    "surface-container": "#ebf0e1",
+                    "surface-bright": "#f6fbec",
+                    "secondary-container": "#e7e5b4",
+                    "on-surface": "#181d14",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#dfe4d6",
+                    "primary-fixed-dim": "#bdcca4",
+                    "background": "#f6fbec"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "20px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "xl": "40px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "\"Source Sans 3\""
+                    ],
+                    "nav-item": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-md": [
+                            "\"Source Serif 4\""
+                    ],
+                    "display-lg": [
+                            "\"Source Serif 4\""
+                    ],
+                    "body-md": [
+                            "\"Source Sans 3\""
+                    ],
+                    "label-sm": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-lg-mobile": [
+                            "\"Source Serif 4\""
+                    ],
+                    "headline-lg": [
+                            "\"Source Serif 4\""
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "nav-item": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.08em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        .slide-in-up {
+            animation: slideInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+    </style>
+<style>*{opacity:1!important;transform:none!important;animation:none!important;transition:none!important}</style></head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container relative">
+<div class="noise-overlay"></div>
+<!-- Suppressed TopNavBar for Linear/Transactional Intent (Login) -->
+<!-- Content Canvas prioritized over Nav Shell -->
+<header class="w-full px-margin-mobile md:px-margin-desktop py-lg flex justify-center items-center absolute top-0 left-0">
+<img alt="carp24 logo" class="w-16 h-16 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+</header>
+<main class="flex-grow flex items-center justify-center px-margin-mobile py-xl md:py-24 relative z-10 w-full max-w-7xl mx-auto">
+<div class="w-full max-w-[448px] bg-surface-dim rounded-xl border border-primary-container/40 p-6 md:p-8 slide-in-up shadow-sm">
+<div class="text-center mb-8">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2">Willkommen zurück</h1>
+<p class="font-headline-md text-body-md md:text-body-lg italic text-on-surface-variant">Melde dich an, um dein Journal fortzuführen.</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-6">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2 uppercase" for="email">E-Mail</label>
+<input class="w-full bg-surface border-0 border-b border-outline/40 focus:border-primary focus:ring-0 px-0 py-3 font-body-md text-on-surface transition-colors rounded-t-sm" id="email" name="email" placeholder="angler@example.com" required="" type="email"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2 uppercase" for="password">Passwort</label>
+<input class="w-full bg-surface border-0 border-b border-outline/40 focus:border-primary focus:ring-0 px-0 py-3 font-body-md text-on-surface transition-colors rounded-t-sm" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+</div>
+<div class="flex justify-between items-center pt-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded text-primary-container focus:ring-primary-container bg-surface border-outline/40" type="checkbox"/>
+<span class="font-label-sm text-label-sm text-on-surface-variant group-hover:text-primary transition-colors">Angemeldet bleiben</span>
+</label>
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors underline decoration-1 underline-offset-4" href="#">Passwort vergessen?</a>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-6 rounded-full hover:bg-primary transition-colors mt-4 flex items-center justify-center gap-2" type="submit">
+                    ANMELDEN <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</form>
+<div class="flex items-center my-8">
+<div class="flex-grow border-t border-outline/20"></div>
+<span class="px-4 font-label-sm text-label-sm text-outline uppercase tracking-wider">oder anmelden mit</span>
+<div class="flex-grow border-t border-outline/20"></div>
+</div>
+<!-- OAuth Buttons -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-primary/20 rounded-full hover:bg-primary/5 transition-colors font-label-sm text-label-sm text-on-surface-variant uppercase" type="button">
+                    Google
+                </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-primary/20 rounded-full hover:bg-primary/5 transition-colors font-label-sm text-label-sm text-on-surface-variant uppercase" type="button">
+                    Facebook
+                </button>
+</div>
+<div class="border-t border-outline/20 pt-8 mt-4 slide-in-up delay-100">
+<h2 class="font-headline-md text-headline-md text-primary mb-4 text-center">Noch kein Konto?</h2>
+<form class="space-y-6">
+<div>
+<input class="w-full bg-surface border-0 border-b border-outline/40 focus:border-primary focus:ring-0 px-0 py-3 font-body-md text-on-surface transition-colors rounded-t-sm" placeholder="E-Mail-Adresse" required="" type="email"/>
+</div>
+<div>
+<input class="w-full bg-surface border-0 border-b border-outline/40 focus:border-primary focus:ring-0 px-0 py-3 font-body-md text-on-surface transition-colors rounded-t-sm" minlength="6" placeholder="Passwort (mind. 6 Zeichen)" required="" type="password"/>
+</div>
+<button class="w-full border border-primary-container text-primary-container font-nav-item text-nav-item uppercase py-4 px-6 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors mt-2" type="submit">
+                        REGISTRIEREN
+                    </button>
+</form>
+</div>
+</div>
+</main>
+<!-- Suppressed Footer for Linear/Transactional Intent -->
+</body></html>

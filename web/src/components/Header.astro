@@ -1,20 +1,21 @@
 ---
 interface Props {
-  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz";
+  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz" | "ueber";
 }
 const { active } = Astro.props;
 
 const navItems = [
-  { key: "fangbuch", de: "Fänge", en: "Catches", href: "/faenge" },
-  { key: "board", de: "Board", en: "Board", href: "/board" },
-  { key: "forum", de: "Forum", en: "Forum", href: "/forum" },
-  { key: "chat", de: "Chat", en: "Chat", href: "/chat" },
-  { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik" },
-  { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick" },
-  { key: "trips", de: "Trips", en: "Trips", href: "/trips" },
-  { key: "assistent", de: "Assistent", en: "Assistant", href: "/assistent" },
-  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz" },
-  { key: "preis", de: "Premium", en: "Premium", href: "/premium" },
+  { key: "fangbuch", de: "Fänge", en: "Catches", href: "/faenge", auth: true },
+  { key: "board", de: "Board", en: "Board", href: "/board", auth: true },
+  { key: "forum", de: "Forum", en: "Forum", href: "/forum", auth: true },
+  { key: "chat", de: "Chat", en: "Chat", href: "/chat", auth: true },
+  { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik", auth: true },
+  { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick", auth: true },
+  { key: "trips", de: "Trips", en: "Trips", href: "/trips", auth: true },
+  { key: "assistent", de: "Assistent", en: "Assistant", href: "/assistent", auth: true },
+  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: true },
+  { key: "ueber", de: "Über", en: "About", href: "/ueber", auth: false },
+  { key: "preis", de: "Premium", en: "Premium", href: "/premium", auth: false },
 ];
 ---
 
@@ -31,6 +32,7 @@ const navItems = [
           href={item.href}
           data-de={item.de}
           data-en={item.en}
+          data-auth={item.auth ? "true" : "false"}
           class:list={[
             "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200",
             active === item.key
@@ -74,6 +76,7 @@ const navItems = [
           href={item.href}
           data-de={item.de}
           data-en={item.en}
+          data-auth={item.auth ? "true" : "false"}
           class:list={[
             "nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
             active === item.key ? "text-primary" : "text-on-surface-variant hover:text-primary",
@@ -166,6 +169,17 @@ const navItems = [
   var mobileLogoutBtn = document.getElementById('mobile-logout-btn');
 
   function updateAuthUI(isLoggedIn) {
+    // Nav-Items filtern: data-auth="true" = nur eingeloggt sichtbar
+    document.querySelectorAll('[data-auth]').forEach(function(el) {
+      var needsAuth = el.getAttribute('data-auth') === 'true';
+      if (needsAuth) {
+        el.classList.toggle('hidden', !isLoggedIn);
+      }
+    });
+    // Profil-Icon
+    var profilLinks = document.querySelectorAll('a[href="/profil"]');
+    profilLinks.forEach(function(el) { el.classList.toggle('hidden', !isLoggedIn); });
+
     if (isLoggedIn) {
       if (authLink) authLink.classList.add('hidden');
       if (logoutBtn) logoutBtn.classList.remove('hidden');

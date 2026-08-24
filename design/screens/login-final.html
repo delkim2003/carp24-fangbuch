@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Source+Sans+3:wght@400&amp;family=Source+Serif+4:ital,wght@0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "on-tertiary-fixed": "#001f29",
+                        "surface-container-low": "#181d1a",
+                        "surface-variant": "#313633",
+                        "primary": "#ffd999",
+                        "on-background": "#dfe4e0",
+                        "tertiary-container": "#a4c8d9",
+                        "on-primary-container": "#6a4a00",
+                        "surface-dim": "#0f1412",
+                        "inverse-surface": "#dfe4e0",
+                        "surface-container-highest": "#313633",
+                        "outline-variant": "#4f4535",
+                        "background": "#0f1412",
+                        "secondary-fixed": "#d7e6de",
+                        "inverse-on-surface": "#2c322f",
+                        "secondary-container": "#3c4a44",
+                        "on-secondary": "#26332e",
+                        "primary-fixed-dim": "#f8bd45",
+                        "surface": "#0f1412",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "inverse-primary": "#7c5800",
+                        "surface-tint": "#f8bd45",
+                        "primary-container": "#f4b942",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#315463",
+                        "on-error": "#690005",
+                        "on-tertiary": "#0d3542",
+                        "on-secondary-fixed": "#111e1a",
+                        "on-surface-variant": "#d4c4af",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#262b29",
+                        "tertiary": "#bfe4f6",
+                        "on-secondary-container": "#aab8b1",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#271900",
+                        "on-primary-fixed-variant": "#5e4200",
+                        "tertiary-fixed": "#c3e8fa",
+                        "primary-fixed": "#ffdea7",
+                        "outline": "#9c8f7b",
+                        "on-primary": "#412d00",
+                        "surface-container": "#1c211e",
+                        "surface-container-lowest": "#0a0f0d",
+                        "surface-bright": "#353a38",
+                        "on-surface": "#dfe4e0",
+                        "secondary": "#bbcac3",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "on-secondary-fixed-variant": "#3c4a44"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "unit": "4",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["\"Source Sans 3\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }]
+                    },
+                    "animation": {
+                        "pulse-glow": "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        "slide-up": "slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                        "fade-in-up": "fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards"
+                    },
+                    "keyframes": {
+                        "pulse-glow": {
+                            "0%, 100%": { boxShadow: "0 0 10px 0 rgba(244, 185, 66, 0.2)" },
+                            "50%": { boxShadow: "0 0 25px 5px rgba(244, 185, 66, 0.5)" }
+                        },
+                        "slide-up": {
+                            "0%": { transform: "translateY(40px)", opacity: "0" },
+                            "100%": { transform: "translateY(0)", opacity: "1" }
+                        },
+                        "fade-in-up": {
+                            "0%": { transform: "translateY(20px)", opacity: "0" },
+                            "100%": { transform: "translateY(0)", opacity: "1" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(10, 15, 13, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top-color: rgba(255, 255, 255, 0.2);
+            border-left-color: rgba(255, 255, 255, 0.2);
+        }
+        .parallax-bg {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        /* Custom Scrollbar for subtle aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0f0d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #313633;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f4535;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md antialiased min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient Background -->
+<div class="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
+<div class="absolute inset-[-10%] w-[120%] h-[120%] parallax-bg" data-alt="A tranquil lake at dawn surrounded by dense pine forests. Thick mist rolls over the calm water surface. Soft, warm amber sunlight breaks through the atmospheric fog, creating a cinematic, premium outdoor aesthetic. The lighting is diffused and moody, emphasizing deep greens, rich blacks, and golden highlights." id="parallax-bg" style="background-image: url('https://lh3.googleusercontent.com/aida/AEtjO1UslBuwxEXJwksJV1Ma-MjDFsHW1CLacheACRzwRW6YRTuzOrV-6xc-ZeEeRIKtnbeGgtOvs-2qcLkgph1nJfk1HiFyTkSE4HyOU45T5076SbbrM87QWQhBUNpcHbv3HYel2t3kcE_oozQyuWq1ySVY7L1OisQw04c1KKDG4ZwFirx0saAUMKoIXWSB8Ljz5d4pc73fkebFL7QlHUM0LIDa7F8GJYy7_2yH4sgvzA_eLvQh-cASgbmHpaQ'); background-size: cover; background-position: center;">
+<!-- Overlay to darken and ensure contrast -->
+<div class="absolute inset-0 bg-surface-container-lowest/60 mix-blend-multiply"></div>
+<!-- Gradient for bottom fade -->
+<div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+</div>
+</div>
+<!-- Top Navigation (Shared Component Shell Suppressed due to Transactional Page) -->
+<!-- Creating a custom minimal transactional header as per instruction -->
+<header class="sticky top-0 w-full z-50 bg-surface/10 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-4 flex justify-between items-center">
+<a class="flex items-center gap-3 group" href="#">
+<div class="relative rounded-full animate-pulse-glow transition-transform duration-300 group-hover:scale-105">
+<img alt="CARP24 Logo" class="w-12 h-12 rounded-full object-cover border border-primary/20" data-alt="A premium circular embroidered badge logo for CARP24. It features a detailed, stylized golden carp fish in the center against a dark forest green background. The text 'CARP24' arches above, and 'OUTDOOR GOODS' below in a technical, modern serif font. The edge has a subtle golden border." src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</div>
+</a>
+<nav class="hidden md:flex items-center gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-widest" href="#">Home</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-widest" href="#">Features</a>
+<a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 tracking-widest" href="#">Login</a>
+</nav>
+<!-- Mobile Menu Toggle (Decorative for this scope) -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center relative z-10 px-margin-mobile py-12 lg:py-24">
+<div class="w-full max-w-[480px] flex flex-col items-center">
+<!-- Login Card -->
+<div class="glass-panel w-full rounded-2xl p-8 md:p-10 shadow-2xl opacity-0 animate-slide-up" style="animation-delay: 0.1s;">
+<div class="text-center mb-8">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface mb-2">Welcome back</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Sign in to your logbook</p>
+</div>
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block" for="email">Email Address</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</span>
+<input class="w-full bg-surface-container-low/50 border border-outline-variant rounded-lg py-3 pl-11 pr-4 text-on-surface font-body-md placeholder-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" id="email" placeholder="angler@carp24.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label-caps text-label-caps text-on-surface-variant block" for="password">Password</label>
+<a class="font-label-caps text-label-caps text-primary hover:text-primary-container transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</span>
+<input class="w-full bg-surface-container-low/50 border border-outline-variant rounded-lg py-3 pl-11 pr-12 text-on-surface font-body-md placeholder-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" id="password" placeholder="••••••••" type="password"/>
+<button aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary focus:ring-offset-surface-container-lowest transition-colors" id="remember" type="checkbox"/>
+<label class="ml-2 font-body-md text-body-md text-on-surface-variant cursor-pointer" for="remember">Remember me for 30 days</label>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary-container text-on-primary-container font-label-caps text-label-caps py-4 rounded-lg tracking-widest hover:bg-primary transition-all duration-300 shadow-[0_0_15px_rgba(244,185,66,0.3)] hover:shadow-[0_0_25px_rgba(244,185,66,0.5)] flex justify-center items-center gap-2 group" type="submit">
+                        SIGN IN
+                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<div class="mt-8">
+<div class="relative flex items-center py-5">
+<div class="flex-grow border-t border-outline-variant/50"></div>
+<span class="flex-shrink-0 mx-4 font-label-caps text-label-caps text-on-surface-variant">OR</span>
+<div class="flex-grow border-t border-outline-variant/50"></div>
+</div>
+<!-- Secondary Action -->
+<button class="w-full bg-transparent border border-secondary/30 text-on-surface font-label-caps text-label-caps py-4 rounded-lg tracking-widest hover:bg-surface-container-low hover:border-secondary/60 transition-all duration-300" type="button">
+                        CREATE ACCOUNT
+                    </button>
+</div>
+<!-- Footer of card -->
+<div class="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-on-surface-variant/70">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+<span class="font-data-mono text-data-mono text-xs">Protected with two-factor authentication</span>
+</div>
+</div>
+<!-- Chips Below Card -->
+<div class="mt-8 flex flex-wrap justify-center gap-4 opacity-0 animate-fade-in-up" style="animation-delay: 0.3s;">
+<div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 bg-secondary-container/20 border-secondary/20">
+<span class="material-symbols-outlined text-[14px] text-tertiary">wifi_off</span>
+<span class="font-data-mono text-data-mono text-xs text-on-surface">Offline ready</span>
+</div>
+<div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 bg-secondary-container/20 border-secondary/20">
+<span class="material-symbols-outlined text-[14px] text-tertiary">enhanced_encryption</span>
+<span class="font-data-mono text-data-mono text-xs text-on-surface">End-to-end encrypted</span>
+</div>
+<div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 bg-primary-container/10 border-primary/20">
+<span class="material-symbols-outlined text-[14px] text-primary">verified</span>
+<span class="font-data-mono text-data-mono text-xs text-primary">Pro upgrade</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component (Minimal Type) -->
+<footer class="w-full relative overflow-hidden z-10 bg-surface/5 backdrop-blur-md border-t border-white/5 py-8 mt-auto">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-gutter">
+<div class="font-display-lg text-headline-md text-on-surface flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+<span class="font-display-lg text-headline-md tracking-tight">CARP24</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center">
+                © 2024 CARP24. Precision Angling.
+            </p>
+<nav class="flex gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-opacity opacity-80 hover:opacity-100" href="#">Cookie Policy</a>
+</nav>
+</div>
+</footer>
+<script>
+        // Simple parallax effect for background
+        document.addEventListener('DOMContentLoaded', () => {
+            const bg = document.getElementById('parallax-bg');
+            if (bg) {
+                window.addEventListener('scroll', () => {
+                    const scrollY = window.scrollY;
+                    requestAnimationFrame(() => {
+                        bg.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0)`;
+                    });
+                });
+            }
+        });
+    </script>
+</body></html>

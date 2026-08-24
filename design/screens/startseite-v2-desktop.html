@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Your carp fishing logbook</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Source+Sans+3:wght@400;700&amp;family=Source+Serif+4:opsz,wght@8..60,400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#ebf0e1",
+                        "primary-container": "#6c7a57",
+                        "outline-variant": "#c6c8bc",
+                        "tertiary-fixed": "#e7e5b4",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#1d1d01",
+                        "surface-container-highest": "#dfe4d6",
+                        "outline": "#76786e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#fdfff0",
+                        "surface-variant": "#dfe4d6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#d9e8be",
+                        "tertiary": "#61603a",
+                        "secondary-fixed": "#cde7e9",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-tertiary-container": "#41411e",
+                        "on-secondary-fixed": "#061f21",
+                        "secondary-fixed-dim": "#b1cbcd",
+                        "surface-container-low": "#f1f6e7",
+                        "surface-dim": "#d7dccd",
+                        "background": "#f6fbec",
+                        "inverse-surface": "#2d3228",
+                        "secondary-container": "#cae5e7",
+                        "on-error": "#ffffff",
+                        "surface": "#f6fbec",
+                        "on-surface": "#181d14",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#afad80",
+                        "secondary": "#4a6365",
+                        "on-secondary-fixed-variant": "#334b4d",
+                        "tertiary-fixed-dim": "#cbc99a",
+                        "surface-container-high": "#e5eadb",
+                        "on-secondary-container": "#4f6769",
+                        "on-primary": "#ffffff",
+                        "primary": "#546140",
+                        "inverse-on-surface": "#eef3e4",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f6fbec",
+                        "on-primary-fixed": "#141f05",
+                        "on-background": "#181d14",
+                        "inverse-primary": "#bdcca4",
+                        "surface-tint": "#556342",
+                        "on-tertiary-fixed-variant": "#494824",
+                        "on-surface-variant": "#45483f",
+                        "warm-sand": "#E8E0C8",
+                        "khaki": "#CCCA9B"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "stack-md": "12px",
+                        "container-padding": "32px",
+                        "stack-sm": "4px",
+                        "gutter": "24px",
+                        "section-gap": "64px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["\"Source Sans 3\""],
+                        "data-sm": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "data-lg": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "data-lg": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8; /* warm-sand override for main body */
+        }
+        .vignette {
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-background dark:bg-background w-full top-0 left-0 bg-background dark:bg-background flat no shadows">
+<div class="flex justify-between items-center max-w-[1140px] mx-auto px-gutter py-stack-lg">
+<div class="font-headline-md text-headline-md font-medium text-on-background dark:text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 32px;">phishing</span>
+                carp24
+            </div>
+<div class="hidden md:flex gap-8">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200" href="#">Catch List</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200" href="#">Statistics</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200" href="#">Profile</a>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded font-body-md text-body-md hover:bg-opacity-90 transition-opacity">
+                Login
+            </button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative max-w-[1140px] mx-auto px-gutter py-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center min-h-[80vh]">
+<div class="md:col-span-5 z-10 flex flex-col items-start gap-stack-lg">
+<h1 class="font-display-lg text-display-lg text-on-surface">Your carp fishing logbook, beautifully kept</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">A quiet place to record your captures, understand the conditions, and reflect on the water.</p>
+<button class="bg-primary-container text-on-primary-container px-8 py-4 rounded font-body-lg text-body-lg mt-stack-md hover:opacity-90 transition-opacity">
+                Log your first catch
+            </button>
+</div>
+<div class="md:col-span-7 relative h-[600px] w-full">
+<img alt="Atmospheric dark water scene" class="absolute inset-0 w-full h-full object-cover rounded-sm vignette" src="https://lh3.googleusercontent.com/aida/AEtjO1VxcQePrQvkRM4C4gdbBmiWBCtBI-qgt1YnIcTf9kzjZEHUvNTOrPwvkr-iCmUy1IsNchvOKXXyLUedZNpgPbQ4cPRL4ir7nliHVVzFJDaim5v7Iqnwk6zSTrcy0v5_sAz9bFo6ftCJ84hk32uBfrq6Rjg5-rrdBXMDcCGs2Z0TqbpH6zVkKhNQtx8NuZDAz_TTVwBRLXfVbQKPaiWv-2VI8XpwVak4v1H8b-iXrxqEjDi0xqAdcI-lnF0"/>
+<div class="absolute -bottom-10 -left-20 font-data-lg text-[120px] leading-none text-primary/10 select-none hidden md:block">
+                25.4 kg
+            </div>
+</div>
+</header>
+<!-- Features -->
+<section class="max-w-[1140px] mx-auto px-gutter py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-gutter">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">location_on</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Detailed logging</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Pinpoint exact GPS locations of your catches.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">monitoring</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Auto-stats</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Beautiful charts generated from your entries.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">sync</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Offline sync</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Log at the bank, sync when you have signal.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">partly_cloudy_day</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Weather snaps</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Automatically capture conditions at time of catch.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">lock</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Secure 2FA</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Your secret spots remain completely private.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">workspace_premium</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2">Pro upgrade</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Advanced water analysis for serious anglers.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Latest Catches -->
+<section class="bg-surface py-section-gap border-y border-outline-variant/30">
+<div class="max-w-[1140px] mx-auto px-gutter">
+<h2 class="font-headline-lg text-headline-lg mb-12 text-center">Recent Entries</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-background border border-outline-variant p-6 rounded flex flex-col gap-4">
+<div class="font-data-lg text-[40px] leading-none text-primary">18.4 kg</div>
+<div>
+<h4 class="font-headline-md text-headline-md">Mirror Carp</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Black Lake</p>
+</div>
+<div class="mt-auto inline-flex items-center gap-2 bg-khaki/30 text-on-surface-variant px-3 py-1 rounded font-data-sm text-data-sm w-fit">
+<span class="material-symbols-outlined text-[16px]">cloud</span>
+                        Cloudy, 14°C
+                    </div>
+</div>
+<!-- Card 2 -->
+<div class="bg-background border border-outline-variant p-6 rounded flex flex-col gap-4">
+<div class="font-data-lg text-[40px] leading-none text-primary">12.1 kg</div>
+<div>
+<h4 class="font-headline-md text-headline-md">Common Carp</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">River Avon</p>
+</div>
+<div class="mt-auto inline-flex items-center gap-2 bg-khaki/30 text-on-surface-variant px-3 py-1 rounded font-data-sm text-data-sm w-fit">
+<span class="material-symbols-outlined text-[16px]">rainy</span>
+                        Rain, 11°C
+                    </div>
+</div>
+<!-- Card 3 -->
+<div class="bg-background border border-outline-variant p-6 rounded flex flex-col gap-4">
+<div class="font-data-lg text-[40px] leading-none text-primary">21.0 kg</div>
+<div>
+<h4 class="font-headline-md text-headline-md">Mirror Carp</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Syndicate Pit</p>
+</div>
+<div class="mt-auto inline-flex items-center gap-2 bg-khaki/30 text-on-surface-variant px-3 py-1 rounded font-data-sm text-data-sm w-fit">
+<span class="material-symbols-outlined text-[16px]">clear_day</span>
+                        Clear, 18°C
+                    </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Quote Band -->
+<section class="bg-khaki py-24 px-gutter">
+<div class="max-w-[800px] mx-auto text-center">
+<p class="font-headline-lg text-headline-lg text-on-surface">"There is a deep peace in the early hours that only an angler understands."</p>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-background dark:bg-background w-full bottom-0 border-t border-outline-variant dark:border-outline-variant flat no shadows">
+<div class="flex flex-col md:flex-row justify-between items-center max-w-[1140px] mx-auto px-gutter py-section-gap">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 md:mb-0">
+                Made by einfach-online.dev
+            </div>
+<div class="flex gap-6">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Legal Notice</a>
+</div>
+</div>
+</footer>
+</body></html>

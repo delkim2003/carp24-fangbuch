@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head><style>.reveal{opacity:1!important;transform:none!important} .slide-in{opacity:1!important;transform:none!important} [class*=reveal]{opacity:1!important;transform:none!important}</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Premium</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:ital,wght@0,600;0,700;1,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#e7e5b4",
+                        "on-primary-container": "#fdfff0",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#45483f",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#496163",
+                        "on-tertiary-container": "#faffff",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#617a7c",
+                        "surface": "#f6fbec",
+                        "surface-container-highest": "#dfe4d6",
+                        "primary-fixed": "#d9e8be",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2d3228",
+                        "inverse-primary": "#bdcca4",
+                        "surface-bright": "#f6fbec",
+                        "outline-variant": "#c6c8bc",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#ebf0e1",
+                        "on-secondary-container": "#67663f",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-primary-fixed": "#141f05",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-tertiary-fixed": "#061f21",
+                        "surface-tint": "#556342",
+                        "tertiary-fixed": "#cde7e9",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "outline": "#76786e",
+                        "surface-container-low": "#f1f6e7",
+                        "primary-container": "#6c7a57",
+                        "secondary-fixed": "#e7e5b4",
+                        "on-background": "#181d14",
+                        "surface-container-high": "#e5eadb",
+                        "surface-dim": "#d7dccd",
+                        "secondary": "#61603a",
+                        "error": "#ba1a1a",
+                        "primary": "#546140",
+                        "inverse-on-surface": "#eef3e4",
+                        "on-secondary-fixed": "#1d1d01",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "surface-variant": "#dfe4d6",
+                        "on-surface": "#181d14",
+                        "background": "#f6fbec",
+                        "warm-sand": "#E8E0C8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "gutter": "20px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["\"Source Sans 3\""],
+                        "nav-item": ["Public Sans"],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "label-sm": ["Public Sans"],
+                        "headline-lg": ["\"Source Serif 4\""]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #E8E0C8; /* Warm Sand */
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.03"/%3E%3C/svg%3E');
+        }
+    </style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="w-full bg-warm-sand/80 backdrop-blur-sm sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1440px] mx-auto">
+<!-- Brand / Logo -->
+<div class="flex items-center gap-sm">
+<img alt="carp24 logo badge" class="w-12 h-12 rounded-full object-cover border border-primary/20" src="https://lh3.googleusercontent.com/aida/AEtjO1Xr5IVMQLe7-UlnMYEHJsz7NdZwWyFVkI0cznn_fPyEvomD0G9aW2Ma67pxvE5jpJskavCXwljVf2-fJ6khPlDcrOZ5cIYHKzFOK1GTiIJCBlPY0OM7m322rMQ3N3Be3R4opEaJqVA-DrutpUx2Zi73Dvvdi4eyh9th0T_8leKImTq9oYuXoWDMZcrnyI4LmDncRVzbH4N0XUf3r4_aMtugGI7v-frKAjpTF_ZpVB7sbyE_xftIu_1nlKWX"/>
+<span class="font-headline-md text-headline-md text-primary italic hidden lg:block">carp24</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden xl:flex items-center gap-6">
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Trips</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Marktplatz</a>
+<a class="font-nav-item text-nav-item uppercase tracking-widest text-primary border-b-[1px] border-primary pb-[2px]" href="#">Premium</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-1 font-nav-item text-nav-item text-on-surface-variant">
+<button class="hover:text-primary transition-colors">DE</button>
+<span class="text-primary/30">|</span>
+<button class="hover:text-primary transition-colors">EN</button>
+</div>
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<!-- Mobile Menu Toggle -->
+<button class="xl:hidden text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+<!-- Thin structural separation line -->
+<div class="w-full h-px bg-primary/10 max-w-[1440px] mx-auto"></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl md:py-[80px] w-full max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="text-center mb-xl md:mb-[80px] flex flex-col items-center">
+<h1 class="font-display-lg text-display-lg text-primary mb-md tracking-tight">PREMIUM</h1>
+<div class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase px-4 py-1.5 rounded-full border border-primary/10 tracking-widest inline-flex items-center gap-2">
+                Aktueller Status: <span class="font-bold">FREE</span>
+</div>
+<p class="mt-lg font-body-lg text-body-lg text-on-surface-variant max-w-2xl text-center">
+                Erweitere dein digitales Logbuch um professionelle Werkzeuge und exklusive Einblicke.
+            </p>
+</div>
+<!-- Feature Grid (Bento style inspiration) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full mb-xl md:mb-[100px]">
+<!-- Card 1 -->
+<div class="bg-surface-container/60 backdrop-blur-sm rounded-2xl border border-primary/40 p-lg flex flex-col items-start relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary mb-md border border-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-sm">KI-ASSISTENT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-xl">
+                    Dein persönlicher Assistent analysiert deine Fänge und gibt Köder- und Gewässertipps basierend auf historischen Daten.
+                </p>
+<div class="mt-auto flex items-center gap-2 text-primary/70 font-label-sm text-label-sm uppercase tracking-wider pt-md border-t border-primary/10 w-full">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Mit Premium</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container/60 backdrop-blur-sm rounded-2xl border border-primary/40 p-lg flex flex-col items-start relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary mb-md border border-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">storefront</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-sm">MARKTPLATZ</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-xl">
+                    Kaufe und verkaufe Angelausrüstung in der vertrauenswürdigen Community ohne zusätzliche Plattformgebühren.
+                </p>
+<div class="mt-auto flex items-center gap-2 text-primary/70 font-label-sm text-label-sm uppercase tracking-wider pt-md border-t border-primary/10 w-full">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Mit Premium</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container/60 backdrop-blur-sm rounded-2xl border border-primary/40 p-lg flex flex-col items-start relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary mb-md border border-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-sm">STATISTIK</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-xl">
+                    Erweiterte Statistiken, tiefe Wetter-Insights und ein aufbereiteter Jahres-Rückblick für deine Erfolge.
+                </p>
+<div class="mt-auto flex items-center gap-2 text-primary/70 font-label-sm text-label-sm uppercase tracking-wider pt-md border-t border-primary/10 w-full">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Mit Premium</span>
+</div>
+</div>
+</div>
+<!-- Upgrade Section -->
+<div class="flex flex-col items-center mt-8">
+<button class="bg-primary-container hover:bg-primary text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-10 py-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
+                Zum Premium Upgraden
+            </button>
+<p class="mt-4 font-body-md text-body-md text-primary/80">
+                Sichere dir alle Premium-Vorteile.
+            </p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto">
+<div class="w-full h-px bg-primary/10 max-w-[1440px] mx-auto"></div>
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-4 md:mb-0">
+                © 2024 carp24. All rights reserved.
+            </div>
+<nav class="flex gap-md">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">Impressum</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">Datenschutz</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">AGB</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a>
+</nav>
+</div>
+</footer>
+</body></html>

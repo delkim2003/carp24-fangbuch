@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head><style>.reveal{opacity:1!important;transform:none!important} .slide-in{opacity:1!important;transform:none!important} [class*=reveal]{opacity:1!important;transform:none!important}</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Catch Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#cbc99a",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f6e7",
+                        "secondary-container": "#e7e5b4",
+                        "secondary": "#61603a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#496163",
+                        "primary-fixed": "#d9e8be",
+                        "surface-dim": "#d7dccd",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-variant": "#dfe4d6",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-background": "#181d14",
+                        "tertiary-container": "#617a7c",
+                        "outline-variant": "#c6c8bc",
+                        "surface-container": "#ebf0e1",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#141f05",
+                        "surface-container-high": "#e5eadb",
+                        "surface-bright": "#f6fbec",
+                        "on-surface-variant": "#45483f",
+                        "surface-tint": "#556342",
+                        "primary": "#546140",
+                        "on-primary-container": "#fdfff0",
+                        "outline": "#76786e",
+                        "inverse-surface": "#2d3228",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#e7e5b4",
+                        "inverse-on-surface": "#eef3e4",
+                        "surface-container-highest": "#dfe4d6",
+                        "background": "#f6fbec",
+                        "on-tertiary-container": "#faffff",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#6c7a57",
+                        "on-surface": "#181d14",
+                        "on-secondary-fixed-variant": "#494824",
+                        "on-secondary-container": "#67663f",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface": "#f6fbec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "xl": "40px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "nav-item": ["Public Sans"],
+                        "body-md": ["\"Source Sans 3\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "label-sm": ["Public Sans"],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom grain overlay for tactile feel */
+        .bg-grain {
+            position: relative;
+        }
+        .bg-grain::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 50;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col bg-grain">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface-dim docked full-width top-0 border-b border-primary/20 z-40 sticky">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight">
+                CARP24
+            </div>
+<div class="hidden md:flex space-x-6">
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Start</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-primary border-b-2 border-primary pb-1 hover:opacity-80 transition-opacity" href="#">Fänge</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Board</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Forum</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Chat</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Statistik</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Rückblick</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Trips</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Assistent</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Marktplatz</a>
+<a class="font-nav-item text-nav-item uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary transition-colors hover:opacity-80 transition-opacity" href="#">Premium</a>
+</div>
+<div class="flex items-center space-x-4">
+<span class="font-nav-item text-nav-item uppercase text-on-surface-variant">DE/EN</span>
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Back Navigation -->
+<div class="mb-lg">
+<a class="inline-flex items-center text-primary font-nav-item text-nav-item uppercase tracking-[0.08em] hover:opacity-80 transition-opacity group" href="#">
+<span class="material-symbols-outlined mr-2 transition-transform group-hover:-translate-x-1" style="font-size: 16px;">arrow_back</span>
+                ZURÜCK
+            </a>
+</div>
+<!-- Hero Section -->
+<article class="bg-surface-variant border border-primary/20 rounded-xl p-6 md:p-8 mb-xl">
+<div class="w-full h-auto overflow-hidden rounded-lg mb-8 relative">
+<img alt="Trophy Carp Image" class="w-full h-[50vh] object-cover object-center" src="https://lh3.googleusercontent.com/aida/AEtjO1VIr8cg_Wx0Q3GDjV14Vvv1KY4FjbLus1zMd5FX-reMd43b_b5R6piw2-B_bUPJ44oLBb_REzL3eLbEDP2CUh9pqVg5HdujYwJu5KR2olj-Flo5iaI0cE5lu0kYdn_FHAuS3QE95zK5RT-UW_BVxw01yKhaJq-H1eNpw4CueV7pBtDnpD7wMbbj1PssNjkCZuKFNHEqYaStsCN5O0BLnFIJavzpaRUYshyZgPF1hF3r07NafBctPN7vWHQi"/>
+</div>
+<!-- Core Data -->
+<div class="mb-12 border-b border-primary/15 pb-8">
+<h1 class="font-mono text-5xl md:text-7xl font-bold text-primary mb-4 tracking-tighter">21.5 KG</h1>
+</div>
+<!-- Details Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-y-8 gap-x-12 mb-12 border-b border-primary/15 pb-12">
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">ART</p>
+<p class="font-headline-md text-headline-md text-on-surface">Spiegelkarpfen</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">GEWÄSSER</p>
+<p class="font-headline-md text-headline-md text-on-surface">Baggersee</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">DATUM</p>
+<p class="font-headline-md text-headline-md text-on-surface">12. August 2026</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">LÄNGE</p>
+<p class="font-headline-md text-headline-md text-on-surface">84 cm</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">KÖDER</p>
+<p class="font-headline-md text-headline-md text-on-surface">Tigernuss-Boilie</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">METHODE</p>
+<p class="font-headline-md text-headline-md text-on-surface">Grundmontage</p>
+</div>
+</div>
+<!-- Notes Section -->
+<div class="mb-12">
+<h2 class="font-mono text-sm uppercase text-primary/70 tracking-widest mb-4">NOTIZEN</h2>
+<div class="prose prose-stone prose-lg text-on-surface-variant font-body-lg">
+<p>
+                        Ein ruhiger Morgen, der Nebel lichtete sich gerade über dem Gewässer. Der Biss kam zögerlich, entwickelte sich aber zu einem kräftigen Run. Der Drill im flachen Uferbereich verlangte Geduld, doch schließlich glitt dieser markante Spiegelkarpfen sicher in den Kescher. Ein denkwürdiger Fang zum Abschluss der Session.
+                    </p>
+</div>
+</div>
+</article>
+<!-- Weather Snapshot Card -->
+<section class="bg-surface-variant border border-primary/20 rounded-xl p-6 md:p-8">
+<h2 class="font-mono text-sm uppercase text-primary/70 tracking-widest mb-6 border-b border-primary/15 pb-2 inline-block">WETTERDATEN</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">TEMPERATUR</p>
+<p class="font-body-lg text-body-lg text-on-surface">18 °C</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">LUFTDRUCK</p>
+<p class="font-body-lg text-body-lg text-on-surface">1013 hPa</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">WIND</p>
+<p class="font-body-lg text-body-lg text-on-surface">12 km/h</p>
+</div>
+<div>
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">MOND</p>
+<p class="font-body-lg text-body-lg text-on-surface">Zunehmender Mond</p>
+</div>
+</div>
+<div class="border-t border-primary/15 pt-6">
+<p class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">WASSERTEMPERATUR</p>
+<p class="font-body-lg text-body-lg text-on-surface">19.5 °C</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest full-width bottom border-t border-primary/10 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary mb-4 md:mb-0">
+                CARP24
+            </div>
+<div class="text-secondary dark:text-secondary-fixed font-body-md text-body-md text-center md:text-left mb-4 md:mb-0">
+                © 2024 CARP24 Premium Digital Fishing Logbook
+            </div>
+<div class="flex space-x-6">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-90 hover:opacity-100" href="#">Impressum</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-90 hover:opacity-100" href="#">Datenschutz</a>
+</div>
+</div>
+</footer>
+</body></html>

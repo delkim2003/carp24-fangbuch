@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="antialiased" lang="de"><head><style>.reveal{opacity:1!important;transform:none!important} .slide-in{opacity:1!important;transform:none!important} [class*=reveal]{opacity:1!important;transform:none!important}</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP JOURNAL - TRIPS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#e7e5b4",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-dim": "#d7dccd",
+                        "on-primary-container": "#fdfff0",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "surface-tint": "#556342",
+                        "on-secondary-container": "#67663f",
+                        "on-tertiary-fixed": "#061f21",
+                        "outline": "#76786e",
+                        "primary-container": "#6c7a57",
+                        "surface-container": "#ebf0e1",
+                        "inverse-on-surface": "#eef3e4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#faffff",
+                        "surface-container-low": "#f1f6e7",
+                        "primary": "#546140",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "secondary": "#61603a",
+                        "on-error": "#ffffff",
+                        "on-surface": "#181d14",
+                        "tertiary": "#496163",
+                        "on-surface-variant": "#45483f",
+                        "on-primary-fixed": "#141f05",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2d3228",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "surface-container-high": "#e5eadb",
+                        "on-secondary-fixed": "#1d1d01",
+                        "background": "#f6fbec",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#dfe4d6",
+                        "error": "#ba1a1a",
+                        "surface": "#f6fbec",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#bdcca4",
+                        "tertiary-container": "#617a7c",
+                        "primary-fixed": "#d9e8be",
+                        "outline-variant": "#c6c8bc",
+                        "on-background": "#181d14",
+                        "secondary-container": "#e7e5b4",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-secondary-fixed-variant": "#494824",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface-bright": "#f6fbec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "xl": "40px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "gutter": "20px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "label-sm": ["Public Sans"],
+                        "nav-item": ["Public Sans"],
+                        "body-md": ["\"Source Sans 3\""],
+                        "body-lg": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .noise-bg {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+        }
+        .mono-stats {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface noise-bg min-h-screen flex flex-col font-body-md selection:bg-primary/20">
+<!-- TopNavBar -->
+<nav class="bg-background border-b border-primary/20 sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto">
+<div class="text-headline-lg font-headline-lg text-primary tracking-tighter shrink-0">
+                CARP JOURNAL
+            </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant/80 font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">FÄNGE</a>
+<a class="text-on-surface-variant/80 font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">BOARD</a>
+<a class="text-on-surface-variant/80 font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">FORUM</a>
+<a class="text-on-surface-variant/80 font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">STATISTIK</a>
+<a class="text-on-surface-variant/80 font-nav-item text-nav-item tracking-widest hover:text-primary transition-colors duration-300" href="#">RÜCKBLICK</a>
+<a class="text-primary border-b-2 border-primary font-bold pb-1 font-nav-item text-nav-item tracking-widest opacity-70 transition-opacity" href="#">TRIPS</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-primary hover:text-primary/70 transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto flex flex-col gap-xl">
+<!-- Header Area -->
+<header class="flex flex-col gap-sm max-w-3xl">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">ANGEL-REISEN</span>
+<h1 class="font-display-lg text-display-lg text-on-surface">TRIPS</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Deine Angelausflüge - organisiere deine Sessions am Wasser.</p>
+</header>
+<!-- Form Card -->
+<section class="bg-surface-variant/30 border border-primary/20 rounded-[16px] p-lg md:p-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-lg">NEUER TRIP</h2>
+<form class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Name *</label>
+<input class="bg-background border border-primary/20 rounded-md px-md py-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-on-surface placeholder:text-on-surface-variant/50" placeholder="z.B. Wochenende am See" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Gewässer</label>
+<select class="bg-background border border-primary/20 rounded-md px-md py-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-on-surface appearance-none">
+<option disabled="" selected="" value="">Gewässer wählen</option>
+<option>Baggersee</option>
+<option>Donau</option>
+<option>Mühlenteich</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Start</label>
+<input class="bg-background border border-primary/20 rounded-md px-md py-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-on-surface" type="date"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Ende</label>
+<input class="bg-background border border-primary/20 rounded-md px-md py-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-on-surface" type="date"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Notizen</label>
+<textarea class="bg-background border border-primary/20 rounded-md px-md py-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-on-surface resize-none placeholder:text-on-surface-variant/50" placeholder="Beschreibe deinen Trip..." rows="3"></textarea>
+</div>
+<div class="md:col-span-2 flex justify-end mt-4">
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-label-sm text-label-sm px-xl py-md rounded-full uppercase tracking-widest transition-colors shadow-none" type="submit">
+                        TRIP ERSTELLEN
+                    </button>
+</div>
+</form>
+</section>
+<!-- Trip List -->
+<section class="flex flex-col gap-md">
+<!-- Entry 1 -->
+<div class="bg-surface-variant/20 border border-primary/20 rounded-[16px] p-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md hover:bg-surface-variant/40 transition-colors cursor-pointer group">
+<div class="flex flex-col gap-unit">
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Wochenende am See</h3>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_month">calendar_month</span>
+<span>12. Aug. 2026 - 15. Aug. 2026</span>
+<span class="opacity-50 mx-2">|</span>
+<span class="material-symbols-outlined text-sm" data-icon="water">water</span>
+<span>Baggersee</span>
+</div>
+</div>
+<div class="flex items-center gap-lg w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-primary/10 pt-md md:pt-0">
+<div class="flex items-center gap-md text-on-surface-variant">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Fänge</span>
+<span class="mono-stats text-lg">7</span>
+</div>
+<div class="h-8 w-px bg-primary/20"></div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Gewicht</span>
+<span class="mono-stats text-lg">84.2 kg</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary opacity-50 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="bg-surface-variant/20 border border-primary/20 rounded-[16px] p-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md hover:bg-surface-variant/40 transition-colors cursor-pointer group">
+<div class="flex flex-col gap-unit">
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Donau-Session</h3>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_month">calendar_month</span>
+<span>03. Aug. 2026 - 04. Aug. 2026</span>
+<span class="opacity-50 mx-2">|</span>
+<span class="material-symbols-outlined text-sm" data-icon="water">water</span>
+<span>Donau</span>
+</div>
+</div>
+<div class="flex items-center gap-lg w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-primary/10 pt-md md:pt-0">
+<div class="flex items-center gap-md text-on-surface-variant">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Fänge</span>
+<span class="mono-stats text-lg">4</span>
+</div>
+<div class="h-8 w-px bg-primary/20"></div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Gewicht</span>
+<span class="mono-stats text-lg">41.6 kg</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary opacity-50 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="bg-surface-variant/20 border border-primary/20 rounded-[16px] p-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md hover:bg-surface-variant/40 transition-colors cursor-pointer group">
+<div class="flex flex-col gap-unit">
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Nachtangeln</h3>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_month">calendar_month</span>
+<span>28. Jul. 2026</span>
+<span class="opacity-50 mx-2">|</span>
+<span class="material-symbols-outlined text-sm" data-icon="water">water</span>
+<span>Mühlenteich</span>
+</div>
+</div>
+<div class="flex items-center gap-lg w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-primary/10 pt-md md:pt-0">
+<div class="flex items-center gap-md text-on-surface-variant">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Fänge</span>
+<span class="mono-stats text-lg">5</span>
+</div>
+<div class="h-8 w-px bg-primary/20"></div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm uppercase opacity-70">Gewicht</span>
+<span class="mono-stats text-lg">52.8 kg</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary opacity-50 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-background border-t border-primary/10 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto gap-md text-on-surface-variant">
+<div class="font-body-md text-body-md">
+                © 2024 CARP JOURNAL. THE ART OF ANGLING.
+            </div>
+<div class="flex gap-md font-label-sm text-label-sm">
+<a class="hover:text-primary underline" href="#">Impressum</a>
+<a class="hover:text-primary underline" href="#">Datenschutz</a>
+<a class="hover:text-primary underline" href="#">AGB</a>
+</div>
+</div>
+</footer>
+</body></html>

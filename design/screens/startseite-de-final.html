@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AnglingLog - Startseite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Source+Sans+3:wght@400&amp;family=Source+Serif+4:ital,wght@0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#5e4200",
+                        "tertiary-fixed": "#c3e8fa",
+                        "surface-container-lowest": "#0a0f0d",
+                        "on-primary-fixed": "#271900",
+                        "on-primary-container": "#6a4a00",
+                        "background": "#0f1412",
+                        "inverse-primary": "#7c5800",
+                        "surface-container-low": "#181d1a",
+                        "on-surface": "#dfe4e0",
+                        "error": "#ffb4ab",
+                        "on-background": "#dfe4e0",
+                        "primary": "#ffd999",
+                        "secondary-fixed": "#d7e6de",
+                        "on-secondary-fixed": "#111e1a",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#3c4a44",
+                        "primary-fixed-dim": "#f8bd45",
+                        "primary-container": "#f4b942",
+                        "on-secondary": "#26332e",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#a8ccdd",
+                        "tertiary": "#bfe4f6",
+                        "outline-variant": "#4f4535",
+                        "on-tertiary-fixed-variant": "#284b59",
+                        "surface-dim": "#0f1412",
+                        "surface-container-highest": "#313633",
+                        "on-surface-variant": "#d4c4af",
+                        "on-secondary-fixed-variant": "#3c4a44",
+                        "tertiary-container": "#a4c8d9",
+                        "surface-bright": "#353a38",
+                        "on-primary": "#412d00",
+                        "surface": "#0f1412",
+                        "inverse-on-surface": "#2c322f",
+                        "outline": "#9c8f7b",
+                        "inverse-surface": "#dfe4e0",
+                        "surface-container-high": "#262b29",
+                        "secondary": "#bbcac3",
+                        "secondary-fixed-dim": "#bbcac3",
+                        "on-tertiary-fixed": "#001f29",
+                        "primary-fixed": "#ffdea7",
+                        "on-secondary-container": "#aab8b1",
+                        "surface-container": "#1c211e",
+                        "surface-tint": "#f8bd45",
+                        "on-tertiary-container": "#315463",
+                        "on-tertiary": "#0d3542",
+                        "surface-variant": "#313633"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "container-max": "1440px",
+                        "unit": "4",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["\"Source Serif 4\""],
+                        "quote-italic": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "quote-italic": ["22px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(24, 29, 26, 0.15); /* surface-container-low with opacity */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(187, 202, 195, 0.1); /* secondary with opacity */
+            box-shadow: inset 1px 1px 0 0 rgba(255, 255, 255, 0.05);
+        }
+        .bento-tile {
+            background: rgba(24, 29, 26, 0.1);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid transparent;
+            border-image: linear-gradient(135deg, rgba(187,202,195,0.2) 0%, rgba(255,255,255,0) 100%) 1;
+            transition: all 0.3s ease;
+        }
+        .bento-tile:hover {
+            background: rgba(24, 29, 26, 0.2);
+            box-shadow: 0 0 20px 0 rgba(244, 185, 66, 0.05);
+        }
+        .pulse-amber {
+            animation: pulse-amber-anim 3s infinite ease-in-out;
+        }
+        @keyframes pulse-amber-anim {
+            0% { box-shadow: 0 0 0 0 rgba(244, 185, 66, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 185, 66, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 185, 66, 0); }
+        }
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #ffd999, #f4b942);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Header (TopNavBar) -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+<div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand / Logo -->
+<div class="flex items-center gap-4">
+<img alt="" class="w-12 h-12 rounded-full pulse-amber object-cover border-2 border-primary-container/20" src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+<span class="font-display-lg text-headline-md text-primary hidden lg:block">AnglingLog</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex gap-6 items-center">
+<!-- Assuming this is the Home/Landing, none is strictly 'active' in the JSON, but 'Fänge' is first. We'll leave them inactive for the landing page feel to focus on CTAs -->
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Fänge</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Board</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Forum</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Chat</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md" href="#">Statistik</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:bg-white/5 transition-all duration-300 px-3 py-1 rounded-md text-primary" href="#">Premium</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-6">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase">DE/EN</button>
+<button class="bg-primary-container text-on-primary-container font-label-caps text-label-caps px-6 py-2 rounded uppercase hover:brightness-110 active:scale-95 transition-all">Login</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center pt-24 overflow-hidden" id="hero">
+<!-- Parallax Background -->
+<div class="absolute inset-0 z-0" style="transform: translateZ(-1px) scale(2);">
+<div class="absolute inset-0 bg-cover bg-center opacity-40" data-alt="A serene lake at dawn, enveloped in mist, dense dark pine forest silhouetted against a pale golden sunrise sky. The atmosphere is quiet, mysterious, and premium outdoor. Minimalist composition with subtle glassmorphism lighting effects." style="background-image: url('https://lh3.googleusercontent.com/aida/AEtjO1UslBuwxEXJwksJV1Ma-MjDFsHW1CLacheACRzwRW6YRTuzOrV-6xc-ZeEeRIKtnbeGgtOvs-2qcLkgph1nJfk1HiFyTkSE4HyOU45T5076SbbrM87QWQhBUNpcHbv3HYel2t3kcE_oozQyuWq1ySVY7L1OisQw04c1KKDG4ZwFirx0saAUMKoIXWSB8Ljz5d4pc73fkebFL7QlHUM0LIDa7F8GJYy7_2yH4sgvzA_eLvQh-cASgbmHpaQ')"></div>
+<!-- Gradient Overlay for readability -->
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest/80 via-surface-container-lowest/50 to-surface-container-lowest"></div>
+</div>
+<div class="relative z-10 max-w-container-max mx-auto px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center mt-20">
+<div class="col-span-1 lg:col-span-8 flex flex-col gap-6 scroll-reveal visible">
+<p class="font-label-caps text-label-caps text-primary tracking-widest uppercase">SYNCEN. PASSION. FISHING. COMMUNITY.</p>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface leading-tight">Willkommen am <br/><span class="text-gradient">Wasser</span></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Dein digitales Fangbuch - schneller als ein Kescher. Erfasse, analysiere und teile deine besten Momente in der Natur.</p>
+<div class="flex flex-wrap gap-4 mt-8">
+<button class="bg-primary-container text-on-primary-container font-label-caps text-label-caps px-8 py-4 rounded uppercase hover:brightness-110 active:scale-95 transition-all">LOS GEHT'S</button>
+<button class="bg-surface/30 border border-secondary/30 text-on-surface font-label-caps text-label-caps px-8 py-4 rounded uppercase hover:bg-surface/50 transition-all backdrop-blur-sm">FUNKTIONEN ENTDECKEN</button>
+</div>
+</div>
+<!-- Hero Metric Widget -->
+<div class="col-span-1 lg:col-span-4 mt-12 lg:mt-0 scroll-reveal visible delay-100">
+<div class="glass-panel rounded-xl p-8 flex flex-col items-end justify-center relative overflow-hidden group">
+<!-- decorative glow -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
+<span class="font-label-caps text-label-caps text-secondary uppercase mb-2 block w-full text-right">Rekord Karpfen</span>
+<div class="font-data-mono text-5xl md:text-6xl text-primary font-bold tracking-tighter">25.4 <span class="text-2xl text-on-surface-variant">kg</span></div>
+<div class="w-full mt-8 pt-4 border-t border-white/5 flex justify-between items-center opacity-60">
+<span class="font-data-mono text-data-mono flex items-center gap-1"><span class="material-symbols-outlined text-sm">water_drop</span> Lake Bled</span>
+<span class="font-data-mono text-data-mono">14. Sep 2025</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Functions Section -->
+<section class="py-32 px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bento-tile rounded-xl p-8 flex flex-col justify-end min-h-[300px] scroll-reveal relative overflow-hidden group">
+<div class="absolute top-6 left-6 w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary" data-weight="fill">add_a_photo</span>
+</div>
+<div>
+<h3 class="font-headline-md text-2xl text-on-surface mb-3 group-hover:text-primary transition-colors">In Sekunden dokumentiert</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Erfasse jeden Fang direkt am Wasser. Wetter, Mondphase und Standort werden automatisch hinzugefügt.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bento-tile rounded-xl p-8 flex flex-col justify-end min-h-[300px] scroll-reveal delay-100 relative overflow-hidden group">
+<div class="absolute top-6 left-6 w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary" data-weight="fill">inventory_2</span>
+</div>
+<div>
+<h3 class="font-headline-md text-2xl text-on-surface mb-3 group-hover:text-primary transition-colors">Dein Archiv der Erinnerungen</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Fotos, Spots, Köder - alles an einem Ort. Sicher gespeichert und jederzeit abrufbar.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bento-tile rounded-xl p-8 flex flex-col justify-end min-h-[300px] scroll-reveal delay-200 relative overflow-hidden group">
+<div class="absolute top-6 left-6 w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary" data-weight="fill">insights</span>
+</div>
+<div>
+<h3 class="font-headline-md text-2xl text-on-surface mb-3 group-hover:text-primary transition-colors">Lerne aus deinen Daten</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Statistik und Jahres-Rückblick. Erkenne Muster und optimiere deine Taktik für den nächsten Trip.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Bento Grid -->
+<section class="py-20 px-margin-desktop max-w-container-max mx-auto">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-12 text-center scroll-reveal">Pro-Features für dein Arsenal</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 auto-rows-[180px] gap-4">
+<!-- Feature 1: Offline -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-2 lg:col-span-2 row-span-1 flex items-center gap-4 p-6 scroll-reveal">
+<span class="material-symbols-outlined text-3xl text-primary/80">cloud_off</span>
+<div>
+<h4 class="font-data-mono text-base text-on-surface font-bold">Offline-Sync</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Funktioniert ohne Netz.</p>
+</div>
+</div>
+<!-- Feature 2: 2FA -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-2 lg:col-span-2 row-span-1 flex items-center gap-4 p-6 scroll-reveal delay-75">
+<span class="material-symbols-outlined text-3xl text-tertiary/80">shield_lock</span>
+<div>
+<h4 class="font-data-mono text-base text-on-surface font-bold">Zwei-Faktor-Login</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Höchste Sicherheit.</p>
+</div>
+</div>
+<!-- Feature 3: Badges (Tall) -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-6 flex flex-col justify-between scroll-reveal delay-150 relative overflow-hidden">
+<div class="absolute -bottom-10 -right-10 opacity-10">
+<span class="material-symbols-outlined text-9xl">military_tech</span>
+</div>
+<span class="material-symbols-outlined text-3xl text-primary mb-4">workspace_premium</span>
+<div>
+<h4 class="font-data-mono text-xl text-on-surface font-bold mb-2">Badges</h4>
+<p class="font-body-md text-on-surface-variant">Verdiene Auszeichnungen für besondere Fänge und Meilensteine am Wasser.</p>
+</div>
+</div>
+<!-- Feature 4: Trips (Wide) -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-4 lg:col-span-4 row-span-1 p-6 flex items-center justify-between scroll-reveal delay-75">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-3xl text-secondary/80">map</span>
+<div>
+<h4 class="font-data-mono text-lg text-on-surface font-bold">Trips</h4>
+<p class="font-body-md text-on-surface-variant">Plane und dokumentiere mehrtägige Sessions komplett.</p>
+</div>
+</div>
+<button class="bg-surface-container-high hover:bg-surface-bright text-on-surface p-2 rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Feature 5: Community -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-2 lg:col-span-3 row-span-1 flex items-center gap-4 p-6 scroll-reveal">
+<span class="material-symbols-outlined text-3xl text-tertiary-fixed-dim/80">forum</span>
+<div>
+<h4 class="font-data-mono text-base text-on-surface font-bold">Community-Board</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Tausche dich mit Gleichgesinnten aus.</p>
+</div>
+</div>
+<!-- Feature 6: AI -->
+<div class="bento-tile rounded-lg col-span-1 md:col-span-2 lg:col-span-3 row-span-1 flex items-center gap-4 p-6 scroll-reveal delay-75">
+<span class="material-symbols-outlined text-3xl text-primary-fixed-dim/80">smart_toy</span>
+<div>
+<h4 class="font-data-mono text-base text-on-surface font-bold">KI-Assistent</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Tipps basierend auf deinen Revier-Daten.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quote Section -->
+<section class="py-32 relative">
+<div class="absolute inset-0 bg-surface-container-high/30 skew-y-[-2deg] transform origin-top-left z-0"></div>
+<div class="relative z-10 max-w-4xl mx-auto px-margin-desktop text-center scroll-reveal">
+<span class="material-symbols-outlined text-4xl text-primary/40 mb-6 block">format_quote</span>
+<blockquote class="font-quote-italic text-3xl md:text-4xl leading-relaxed text-on-surface font-light">
+                    "Der Fang deines Lebens beginnt mit der Stille des Morgens."
+                </blockquote>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest w-full py-12 border-t border-white/5 relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-8 max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="font-headline-md text-headline-md text-on-surface flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">phishing</span>
+                AnglingLog
+            </div>
+<!-- Links -->
+<div class="flex gap-8">
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Impressum</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Datenschutz</a>
+</div>
+<!-- Copyright -->
+<div class="font-data-mono text-data-mono text-on-surface-variant opacity-50">
+                © 2024 AnglingLog. All rights reserved.
+            </div>
+</div>
+</footer>
+<!-- Simple Scroll Reveal Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.scroll-reveal');
+            
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
+                
+                reveals.forEach((reveal) => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('visible');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); // Trigger on load
+        });
+    </script>
+</body></html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Fang Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#284b59",
+                      "tertiary-fixed": "#c3e8fa",
+                      "on-secondary": "#26332e",
+                      "error": "#ffb4ab",
+                      "surface-variant": "#313633",
+                      "on-secondary-container": "#aab8b1",
+                      "primary-fixed": "#ffdea7",
+                      "outline": "#9c8f7b",
+                      "surface-container-low": "#181d1a",
+                      "primary": "#ffd999",
+                      "inverse-surface": "#dfe4e0",
+                      "on-primary-fixed": "#271900",
+                      "outline-variant": "#4f4535",
+                      "on-secondary-fixed": "#111e1a",
+                      "surface-dim": "#0f1412",
+                      "on-tertiary-fixed": "#001f29",
+                      "background": "#0f1412",
+                      "secondary": "#bbcac3",
+                      "on-tertiary-container": "#315463",
+                      "on-primary": "#412d00",
+                      "surface-bright": "#353a38",
+                      "surface-tint": "#f8bd45",
+                      "surface-container-highest": "#313633",
+                      "on-background": "#dfe4e0",
+                      "on-secondary-fixed-variant": "#3c4a44",
+                      "primary-container": "#f4b942",
+                      "on-error-container": "#ffdad6",
+                      "error-container": "#93000a",
+                      "surface-container": "#1c211e",
+                      "inverse-primary": "#7c5800",
+                      "tertiary-fixed-dim": "#a8ccdd",
+                      "secondary-fixed-dim": "#bbcac3",
+                      "secondary-container": "#3c4a44",
+                      "tertiary": "#bfe4f6",
+                      "on-surface": "#dfe4e0",
+                      "on-primary-container": "#6a4a00",
+                      "tertiary-container": "#a4c8d9",
+                      "secondary-fixed": "#d7e6de",
+                      "on-primary-fixed-variant": "#5e4200",
+                      "surface-container-lowest": "#0a0f0d",
+                      "surface": "#0f1412",
+                      "on-surface-variant": "#d4c4af",
+                      "inverse-on-surface": "#2c322f",
+                      "on-error": "#690005",
+                      "on-tertiary": "#0d3542",
+                      "surface-container-high": "#262b29",
+                      "primary-fixed-dim": "#f8bd45"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "margin-desktop": "64px",
+                      "unit": "4",
+                      "margin-mobile": "20px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-md": [
+                              "\"Source Sans 3\""
+                      ],
+                      "quote-italic": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-lg": [
+                              "\"Source Sans 3\""
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg-mobile": [
+                              "\"Source Serif 4\""
+                      ],
+                      "headline-md": [
+                              "\"Source Serif 4\""
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "quote-italic": [
+                              "22px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Custom Utilities and Animations */
+        body {
+            background-color: #0a0f0d; /* surface-container-lowest */
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-bento {
+            background: rgba(24, 29, 26, 0.6); /* surface-container-low */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid transparent;
+            border-image: linear-gradient(to bottom right, rgba(187, 202, 195, 0.2), transparent) 1;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-bento:hover {
+            background: rgba(24, 29, 26, 0.8);
+            box-shadow: 0 0 15px rgba(244, 185, 66, 0.1);
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { filter: drop-shadow(0 0 8px rgba(244, 185, 66, 0.3)); }
+            100% { filter: drop-shadow(0 0 20px rgba(244, 185, 66, 0.7)); }
+        }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mist overlay for atmosphere */
+        .mist-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(187,202,195,0.02) 0%, transparent 40%);
+            mix-blend-mode: screen;
+        }
+    </style>
+<style>*{opacity:1!important;transform:none!important;animation:none!important;transition:none!important}</style></head>
+<body class="text-on-surface font-body-md antialiased overflow-x-hidden min-h-screen relative">
+<!-- Atmospheric Mist Background -->
+<div class="mist-overlay"></div>
+<!-- Navigation Shell Suppressed as this is a focused Detail Screen (Transactional/Deep Link) -->
+<!-- Creating a custom minimal header for this deep view instead of full nav -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest/80 backdrop-blur-md border-b border-white/5 h-20 flex justify-between items-center px-margin-mobile md:px-margin-desktop transition-all duration-300">
+<div class="flex items-center gap-4 w-1/3">
+<a class="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">
+<span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
+<span class="font-label-caps text-label-caps tracking-widest hidden md:block">ZURÜCK</span>
+</a>
+</div>
+<div class="flex justify-center w-1/3">
+<img alt="carp24 Logo" class="h-12 w-12 rounded-full pulse-glow object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1XIP4YCkEv7-EsMrQp3T2SOvT95lWbfBOdOCTrYv42iWZMDKL22w2sBvNywdC9-oAgMsehZNc_qPnE4LsUSvtvsrm0Ad4C8YUaerc3ZhRZsOTAJKGGH-c539_WwKs94MjloQ07oKnDTSib0Tuq_tKkaA6bCD42OsRINWkfcq_eGm1Kh851ILnhog6rCij01K7jMbU2HS5KXJ4fj4Zo1p2cqazi1MswDGiSzqpyWP4PgsaJaWUcgfjTclf7a"/>
+</div>
+<div class="flex justify-end w-1/3">
+<!-- Space for secondary actions if needed, left empty for minimalism -->
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</header>
+<main class="relative z-10 pt-28 pb-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Main Card Bento Setup -->
+<article class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Hero Image Full Width on Mobile, spans most columns on desktop -->
+<section class="col-span-1 md:col-span-12 rounded-xl overflow-hidden glass-panel relative reveal active" style="min-height: 50vh;">
+<img alt="Spiegelkarpfen Fang" class="w-full h-[50vh] md:h-[60vh] object-cover absolute inset-0 z-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkF96Emj06wbUGlT7FFp4FakjElYVdkF6s0_aNFxfPuCRTX0m_JU-X-9_8lFpt2KcCwa9oKRuLCrMEyUUGl3SjUbV2oz936WnxsQ4ICTT6Sqbqx8UxslNElZtPKDdp2Px9bLLViWeN83JvI8raD-h2ATKG3oU3dU8g1aXYdViEYVoCJi2au45Y3If3xFHPx4mTd6OF_wgW50SIgbXu9FsWJH8ADDOupqkIGYILRqtNojFLpHHl7L7jVHBQUWCrbbLvF7UzezQ7KFM5"/>
+<!-- Gradient overlay for text legibility at bottom -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/40 to-transparent z-10"></div>
+<!-- Heavy Weight Display Overlay -->
+<div class="absolute bottom-0 left-0 w-full p-6 md:p-12 z-20 flex flex-col md:flex-row justify-between items-end gap-6">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-primary mb-2 drop-shadow-lg">
+                            25.4 <span class="text-2xl md:text-4xl text-primary/80">KG</span>
+</h1>
+</div>
+</div>
+</section>
+<!-- Metadata Bento Grid -->
+<section class="col-span-1 md:col-span-8 mt-gutter grid grid-cols-2 md:grid-cols-3 gap-unit reveal">
+<!-- Data Tile 1 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">ART</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4">Spiegelkarpfen</span>
+</div>
+<!-- Data Tile 2 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">GEWÄSSER</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4">Baggersee</span>
+</div>
+<!-- Data Tile 3 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">DATUM</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4">12. August 2026</span>
+</div>
+<!-- Data Tile 4 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">LÄNGE</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4 text-right">87 cm</span>
+</div>
+<!-- Data Tile 5 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">KÖDER</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4">Mais, Boilies</span>
+</div>
+<!-- Data Tile 6 -->
+<div class="glass-bento rounded-lg p-6 flex flex-col justify-end min-h-[120px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-auto">METHODE</span>
+<span class="font-data-mono text-data-mono text-on-surface mt-4">Pose, Grundangel</span>
+</div>
+</section>
+<!-- Notes Section -->
+<section class="col-span-1 md:col-span-4 mt-gutter reveal">
+<div class="glass-panel rounded-xl p-8 h-full flex flex-col">
+<h2 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed-dim">edit_document</span>
+                        NOTIZEN
+                    </h2>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed italic border-l-2 border-outline-variant pl-4">
+                        "Besonderer Drill am Morgen, Biss kurz nach Sonnenaufgang, 45 Minuten Drill, Landung im Kescher."
+                    </p>
+</div>
+</section>
+<!-- Weather Snapshot Bento -->
+<section class="col-span-1 md:col-span-12 mt-12 reveal">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">thermostat</span>
+                    WETTER-SNAPSHOT
+                </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-unit">
+<div class="glass-bento rounded-lg p-6 flex items-center gap-4 group">
+<span class="material-symbols-outlined text-3xl text-secondary-fixed-dim group-hover:text-primary transition-colors">device_thermostat</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TEMPERATUR</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">12° C</span>
+</div>
+</div>
+<div class="glass-bento rounded-lg p-6 flex items-center gap-4 group">
+<span class="material-symbols-outlined text-3xl text-secondary-fixed-dim group-hover:text-primary transition-colors">compress</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">LUFTDRUCK</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">1013 hPa</span>
+</div>
+</div>
+<div class="glass-bento rounded-lg p-6 flex items-center gap-4 group">
+<span class="material-symbols-outlined text-3xl text-secondary-fixed-dim group-hover:text-primary transition-colors">air</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">WIND</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg text-right">5 km/h</span>
+</div>
+</div>
+<div class="glass-bento rounded-lg p-6 flex items-center gap-4 group">
+<span class="material-symbols-outlined text-3xl text-secondary-fixed-dim group-hover:text-primary transition-colors">clear_night</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">MOND</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">Zunehmend</span>
+</div>
+</div>
+</div>
+</section>
+</article>
+</main>
+<!-- Footer Component from JSON Context -->
+<footer class="w-full py-12 border-t border-outline-variant/20 bg-surface-dim dark:bg-surface-dim flat no shadows flex flex-col items-center gap-6 px-margin-desktop max-w-container-max mx-auto relative z-10 reveal">
+<div class="font-headline-md text-headline-md text-on-surface opacity-80 hover:opacity-100 transition-opacity">carp24</div>
+<nav class="flex gap-6 flex-wrap justify-center">
+<a class="font-data-mono text-data-mono text-on-surface-variant/50 hover:text-primary transition-colors duration-300" href="#">Impressum</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant/50 hover:text-primary transition-colors duration-300" href="#">Datenschutz</a>
+</nav>
+<p class="font-data-mono text-data-mono text-tertiary-fixed-dim mt-4">© 2024 carp24 - Premium Angling Logbook</p>
+</footer>
+<script>
+        // Scroll reveal logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
+
+                reveals.forEach(reveal => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', revealOnScroll);
+            // Trigger once on load
+            setTimeout(revealOnScroll, 100);
+        });
+    </script>
+</body></html>
