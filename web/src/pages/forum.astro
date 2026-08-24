@@ -55,7 +55,6 @@ const userId = session?.user?.id ?? null;
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
-        <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2 i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("forum.titel", "de")} data-en={t("forum.titel", "en")}>{t("forum.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("forum.anmelden_text", "de")} data-en={t("forum.anmelden_text", "en")}>{t("forum.anmelden_text")}</p>
         <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("forum.anmelden", "de")} data-en={t("forum.anmelden", "en")}>{t("forum.anmelden")}</a>
@@ -64,7 +63,6 @@ const userId = session?.user?.id ?? null;
       <>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
           <div>
-            <p class="font-kicker text-kicker uppercase tracking-widest text-secondary mb-2 i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</p>
             <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("forum.titel", "de")} data-en={t("forum.titel", "en")}>{t("forum.titel")}</h1>
             {threads.length > 0 && (
               <p class="font-nav-item text-nav-item text-secondary uppercase tracking-widest"><span class="i18n" data-de={threads.length + " " + t("forum.themen", "de")} data-en={threads.length + " " + t("forum.themen", "en")}>{threads.length} {t("forum.themen")}</span></p>
