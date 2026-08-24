@@ -168,7 +168,7 @@ if (trend.length > 0) {
     )}
     {!session ? (
       <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4">DASHBOARD</h1>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("dashboard.titel", "de")} data-en={t("dashboard.titel", "en")}>{t("dashboard.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("faenge.anmelden_text", "de")} data-en={t("faenge.anmelden_text", "en")}>{t("faenge.anmelden_text")}</p>
         <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
       </div>
@@ -185,8 +185,8 @@ if (trend.length > 0) {
       <>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h1 class="text-display-lg text-primary mb-2">Petri Heil, Angler</h1>
-            <p class="text-body-lg text-on-surface-variant">Dein Überblick für die Saison {currentYear}.</p>
+            <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("dashboard.begruessung", "de")} data-en={t("dashboard.begruessung", "en")}>{t("dashboard.begruessung")}</h1>
+            <p class="text-body-lg text-on-surface-variant i18n" data-de={t("dashboard.ueberblick_saison", "de").replace("{year}", String(currentYear))} data-en={t("dashboard.ueberblick_saison", "en").replace("{year}", String(currentYear))}>{t("dashboard.ueberblick_saison").replace("{year}", String(currentYear))}</p>
           </div>
           <div class="flex flex-wrap gap-3">
             <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-colors duration-200 flex items-center gap-2 min-h-12">
@@ -224,7 +224,7 @@ if (trend.length > 0) {
             {monthly.length > 0 && maxCount > 0 ? (
               <svg viewBox={`0 0 ${svgW} ${svgH}`} class="w-full h-auto" style="min-height:260px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Balkendiagramm Fänge pro Monat" set:html={barSvgParts.join("")} />
             ) : (
-              <div class="flex items-center justify-center text-on-surface-variant text-body-md py-12">Keine Monatsdaten vorhanden.</div>
+              <div class="flex items-center justify-center text-on-surface-variant text-body-md py-12 i18n" data-de={t("dashboard.keine_monatsdaten", "de")} data-en={t("dashboard.keine_monatsdaten", "en")}>{t("dashboard.keine_monatsdaten")}</div>
             )}
           </div>
 
@@ -249,7 +249,7 @@ if (trend.length > 0) {
           {trend.length > 0 ? (
             <svg viewBox={`0 0 ${trendW} ${trendH}`} class="w-full h-auto" style="min-height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Liniendiagramm Gewichtsverlauf" set:html={trendSvgParts.join("")} />
           ) : (
-            <div class="flex items-center justify-center text-on-surface-variant text-body-md py-12">Keine Gewichtsdaten vorhanden.</div>
+            <div class="flex items-center justify-center text-on-surface-variant text-body-md py-12 i18n" data-de={t("dashboard.keine_gewichtsdaten", "de")} data-en={t("dashboard.keine_gewichtsdaten", "en")}>{t("dashboard.keine_gewichtsdaten")}</div>
           )}
         </div>
       </>

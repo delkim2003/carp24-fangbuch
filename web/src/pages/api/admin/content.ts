@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
+import { csrfGuard } from "./_csrf";
 
 export const prerender = false;
 
@@ -183,6 +184,8 @@ export const GET = async ({ request }: { request: Request }) => {
 };
 
 export const DELETE = async ({ request }: { request: Request }) => {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
   const g = await guard(request);
   if ("error" in g) {
     return new Response(JSON.stringify({ error: g.error }), {
