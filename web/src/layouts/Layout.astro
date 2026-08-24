@@ -128,6 +128,22 @@ const lang = getLang();
     </script>
     <script is:inline>
       (function () {
+        function updateThemeBtnLabels() {
+          var html = document.documentElement;
+          var isDark = html.getAttribute("data-theme") === "dark";
+          var lang = localStorage.getItem("carp24-lang") || "de";
+          var labels = isDark
+            ? { de: "Hell", en: "Light" }
+            : { de: "Dunkel", en: "Dark" };
+          var text = labels[lang];
+          var btns = [document.getElementById("theme-toggle"), document.getElementById("mobile-theme-toggle")];
+          btns.forEach(function (b) {
+            if (!b) return;
+            b.setAttribute("data-de", labels.de);
+            b.setAttribute("data-en", labels.en);
+            b.textContent = text;
+          });
+        }
         function toggleTheme() {
           var html = document.documentElement;
           var dark = html.getAttribute("data-theme") === "dark";
@@ -137,11 +153,13 @@ const lang = getLang();
             html.setAttribute("data-theme", "dark");
           }
           localStorage.setItem("carp24-theme", dark ? "light" : "dark");
+          updateThemeBtnLabels();
         }
         var themeBtn = document.getElementById("theme-toggle");
         var mobileThemeBtn = document.getElementById("mobile-theme-toggle");
         if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
         if (mobileThemeBtn) mobileThemeBtn.addEventListener("click", toggleTheme);
+        updateThemeBtnLabels();
       })();
     </script>
     <script is:inline>
