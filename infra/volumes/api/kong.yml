@@ -488,6 +488,9 @@ services:
           allow:
             - 100.64.0.0/10
             - fd7a:115c:a1e0::/48
+            # docker-proxy (userland) NATet externe Client-IPs auf die Bridge-Gateway-IP (172.23.0.1) —
+            # Kong kann die echte IP NICHT sehen. Echter Schutz = Port-Binding an 100.93.250.103 (Tailnet-only).
+            - 172.23.0.0/16
           status: 403
           message: "Nur Tailnet-Zugriff erlaubt"
       - name: rate-limiting
