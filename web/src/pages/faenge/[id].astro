@@ -70,31 +70,31 @@ const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "
       </div>
     ) : catchData ? (
       <>
-        <a href="/faenge" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZURÜCK</a>
+        <a href="/faenge" class="inline-flex items-center font-nav-item text-nav-item uppercase text-primary tracking-widest hover:opacity-80 transition-opacity"><svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19L5 12M12 5L5 12"/></svg> ZURÜCK</a>
         <div class="bg-surface-container-high rounded-xl border border-primary/40 overflow-hidden">
           {signedPhotoUrl && <img src={signedPhotoUrl} alt="Fang" class="w-full max-h-96 object-cover" />}
           <div class="p-xl flex flex-col gap-lg">
             <div class="font-mono text-display-xl text-primary font-bold">{(Number(catchData.weight_kg) ?? 0).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} KG</div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-md">
-              <div><div class="font-label-sm text-label-sm uppercase text-secondary">ART</div><div class="text-body-lg">{speciesMap[catchData.species] ?? catchData.species}</div></div>
-              <div><div class="font-label-sm text-label-sm uppercase text-secondary">GEWÄSSER</div><div class="text-body-lg">{catchData.water_name ?? "—"}</div></div>
-              <div><div class="font-label-sm text-label-sm uppercase text-secondary">DATUM</div><div class="text-body-lg">{new Date(catchData.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div></div>
-              {catchData.length_cm && <div><div class="font-label-sm text-label-sm uppercase text-secondary">LÄNGE</div><div class="text-body-lg">{catchData.length_cm} cm</div></div>}
-              {catchData.bait && <div><div class="font-label-sm text-label-sm uppercase text-secondary">KÖDER</div><div class="text-body-lg">{catchData.bait}</div></div>}
-              {catchData.method && <div><div class="font-label-sm text-label-sm uppercase text-secondary">METHODE</div><div class="text-body-lg">{catchData.method}</div></div>}
+              <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">ART</div><div class="font-headline-md text-headline-md text-on-surface">{speciesMap[catchData.species] ?? catchData.species}</div></div>
+              <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">GEWÄSSER</div><div class="font-headline-md text-headline-md text-on-surface">{catchData.water_name ?? "—"}</div></div>
+              <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">DATUM</div><div class="font-headline-md text-headline-md text-on-surface">{new Date(catchData.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</div></div>
+              {catchData.length_cm && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">LÄNGE</div><div class="font-headline-md text-headline-md text-on-surface">{catchData.length_cm} cm</div></div>}
+              {catchData.bait && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">KÖDER</div><div class="font-headline-md text-headline-md text-on-surface">{catchData.bait}</div></div>}
+              {catchData.method && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">METHODE</div><div class="font-headline-md text-headline-md text-on-surface">{catchData.method}</div></div>}
             </div>
-            {catchData.notes && <div><div class="font-label-sm text-label-sm uppercase text-secondary mb-1">NOTIZEN</div><div class="text-body-md text-on-surface-variant">{catchData.notes}</div></div>}
+            {catchData.notes && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">NOTIZEN</div><div class="text-body-md text-on-surface-variant">{catchData.notes}</div></div>}
             {catchData.weather && (
               <div class="bg-surface-container rounded-xl border border-primary/30 p-lg">
                 <div class="font-label-sm text-label-sm uppercase text-primary mb-md">WETTER-SNAPSHOT</div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-md">
-                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">TEMPERATUR</div><div class="font-mono text-body-lg">{catchData.weather.temp_c != null ? catchData.weather.temp_c + " °C" : "—"}</div></div>
-                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">LUFTDRUCK</div><div class="font-mono text-body-lg">{catchData.weather.pressure_hpa != null ? catchData.weather.pressure_hpa + " hPa" : "—"}</div></div>
-                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_kmh != null ? catchData.weather.wind_kmh + " km/h" : "—"}</div></div>
-                  <div><div class="font-label-sm text-label-sm uppercase text-secondary">MOND</div><div class="font-mono text-body-lg">{catchData.weather.moon_text ?? "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">TEMPERATUR</div><div class="font-mono text-body-lg">{catchData.weather.temp_c != null ? catchData.weather.temp_c + " °C" : "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">LUFTDRUCK</div><div class="font-mono text-body-lg">{catchData.weather.pressure_hpa != null ? catchData.weather.pressure_hpa + " hPa" : "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_kmh != null ? catchData.weather.wind_kmh + " km/h" : "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">MOND</div><div class="font-mono text-body-lg">{catchData.weather.moon_text ?? "—"}</div></div>
                 </div>
                 <div class="border-t border-primary/20 mt-md pt-md" data-testid="water-temp-display">
-                  <div class="font-label-sm text-label-sm uppercase text-secondary">WASSERTEMPERATUR</div>
+                  <div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WASSERTEMPERATUR</div>
                   <div class="font-mono text-body-lg">{catchData.water_temp_c != null ? catchData.water_temp_c + " °C" : "—"}</div>
                 </div>
               </div>
