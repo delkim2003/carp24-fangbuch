@@ -487,6 +487,7 @@ services:
         config:
           allow:
             - 100.64.0.0/10
+            - fd7a:115c:a1e0::/48
           status: 403
           message: "Nur Tailnet-Zugriff erlaubt"
       - name: rate-limiting
