@@ -26,6 +26,7 @@ export interface CatchInput {
   species: string;
   weight_kg: number;
   length_cm?: number;
+  water_temp_c?: number;
   bait?: string;
   method?: string;
   notes?: string;

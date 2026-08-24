@@ -46,8 +46,8 @@ const dict: Record<string, Record<Lang, string>> = {
   "premium.ki_desc": { de: "Intelligente Fangberatung basierend auf deinen Daten.", en: "Intelligent catch advice based on your data." },
   "premium.marktplatz": { de: "MARKTPLATZ", en: "MARKETPLACE" },
   "premium.marktplatz_desc": { de: "Ausrüstung kaufen und verkaufen in der Community.", en: "Buy and sell gear in the community." },
-  "premium.stats": { de: "ERWEITERTE STATISTIK", en: "ADVANCED STATS" },
-  "premium.stats_desc": { de: "Detaillierte Auswertungen, Trends und Gewässeranalysen.", en: "Detailed analyses, trends and water body evaluations." },
+  "premium.stats": { de: "INSIGHTS & TRENDS", en: "INSIGHTS & TRENDS" },
+  "premium.stats_desc": { de: "Wetter-Muster-Erkennung: Erkenne, bei welchem Wetter die groessten Karpfen beissen.", en: "Weather pattern recognition: Discover which conditions produce the biggest carp." },
   "premium.upgrade": { de: "JETZT UPGRADEN", en: "UPGRADE NOW" },
   "premium.bald": { de: "Upgrade kommt bald", en: "Subscriptions coming soon" },
   "premium.mit_premium": { de: "Mit Premium freischalten", en: "Unlock with Premium" },
@@ -272,7 +272,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "datenschutz.verantwortlicher_text": { de: "Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Österreich. Kontakt: info@einfach-online.dev", en: "Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Austria. Contact: info@einfach-online.dev" },
   "datenschutz.daten_titel": { de: "Welche Daten verarbeiten wir?", en: "What data do we process?" },
   "datenschutz.daten_kontodaten": { de: "Kontodaten: E-Mail-Adresse, Anzeigename (für Registrierung/Login)", en: "Account data: Email address, display name (for registration/login)" },
-  "datenschutz.daten_fangbuch": { de: "Fangbuch-Daten: Art, Gewicht, Länge, Gewässer, Koordinaten (nur private Gewässer), Notizen", en: "Catch log data: Species, weight, length, water body, coordinates (private waters only), notes" },
+  "datenschutz.daten_fangbuch": { de: "Fangbuch-Daten: Art, Gewicht, Länge, Gewässer, Koordinaten (nur private Gewässer), Wassertemperatur, Wetterdaten (automatisch via Open-Meteo), Notizen", en: "Catch log data: Species, weight, length, water body, coordinates (private waters only), water temperature, weather data (automatically via Open-Meteo), notes" },
   "datenschutz.daten_community": { de: "Community-Daten: Forenbeiträge, Chat-Nachrichten, Marktplatz-Inserate", en: "Community data: Forum posts, chat messages, marketplace listings" },
   "datenschutz.daten_abo": { de: "Abo-Daten (optional): Zahlungsstatus über Stripe (wir speichern keine Kreditkartendaten)", en: "Subscription data (optional): Payment status via Stripe (we do not store credit card data)" },
   "datenschutz.grundlage_titel": { de: "Wofür und auf welcher Grundlage?", en: "For what purpose and on what legal basis?" },
@@ -320,6 +320,33 @@ const dict: Record<string, Record<Lang, string>> = {
   // wartung
   "wartung.titel": { de: "Wartungsarbeiten", en: "Maintenance" },
   "wartung.text": { de: "Wir arbeiten gerade an Carp24. Bitte versuche es in ein paar Minuten erneut.", en: "We are working on Carp24 right now. Please try again in a few minutes." },
+
+  // fang_erfassen
+  "fang_erfassen.wassertemperatur_label": { de: "WASSERTEMPERATUR (°C)", en: "WATER TEMPERATURE (°C)" },
+  "fang_erfassen.wassertemperatur_hinweis": { de: "Wassertemperatur am Gewässer", en: "Water temperature at the water body" },
+  "fang_erfassen.wetterdaten_hinweis": { de: "Koordinaten werden für automatische Wetterdaten-Erfassung (Open-Meteo) verwendet.", en: "Coordinates are used for automatic weather data collection (Open-Meteo)." },
+
+  // statistik
+  "statistik.wassertemperatur": { de: "WASSERTEMPERATUR", en: "WATER TEMPERATURE" },
+  "statistik.lufttemperatur": { de: "LUFTTEMPERATUR", en: "AIR TEMPERATURE" },
+  "statistik.zeitraum_von": { de: "VON", en: "FROM" },
+  "statistik.zeitraum_bis": { de: "BIS", en: "TO" },
+  "statistik.anwenden": { de: "ANWENDEN", en: "APPLY" },
+  "statistik.zuruecksetzen": { de: "ZURÜCKSETZEN", en: "RESET" },
+  "statistik.insight_beste_fangzeit": { de: "Beste Fangzeit", en: "Best Catch Time" },
+  "statistik.insight_beste_wetterlage": { de: "Beste Wetterlage", en: "Best Weather" },
+  "statistik.insight_beste_wassertemp": { de: "Beste Wassertemperatur", en: "Best Water Temperature" },
+  "statistik.insight_beste_lufttemp": { de: "Beste Lufttemperatur", en: "Best Air Temperature" },
+  "statistik.insight_beste_koeder_kombi": { de: "Beste Köder-Kombi", en: "Best Bait Combination" },
+  "statistik.keine_faenge": { de: "Keine Fänge im gewählten Zeitraum.", en: "No catches in the selected period." },
+  "statistik.keine_wetterdaten": { de: "Keine Wetterdaten verfügbar.", en: "No weather data available." },
+  "statistik.stichproben_hinweis": { de: "Nur {count} Fänge — wenig Aussagekraft.", en: "Only {count} catches — limited significance." },
+  "statistik.differenz_pct_besser": { de: "+{pct}% über Schnitt", en: "+{pct}% above average" },
+  "statistik.differenz_pct_schlechter": { de: "{pct}% unter Schnitt", en: "{pct}% below average" },
+  "statistik.von_nach_bis_warnung": { de: "Startdatum liegt nach Enddatum — keine Ergebnisse.", en: "Start date is after end date — no results." },
+  "statistik.disclaimer": { de: "Analysen basieren auf deinen Fangdaten — Abweichungen möglich.", en: "Analyses are based on your catch data — deviations possible." },
+  "statistik.premium_lock": { de: "Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen.", en: "With Pro you see which weather produces the biggest carp." },
+  "statistik.zu_premium": { de: "ZU PREMIUM", en: "GO PREMIUM" },
 };
 
 export function getLang(): Lang {

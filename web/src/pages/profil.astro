@@ -760,7 +760,7 @@ exportCsvBtn.addEventListener("click", async () => {
   showExportStatus("Export wird erstellt…");
   try {
     const data = await fetchAllMyData();
-    const header = "Datum;Gewicht_kg;Fischart;Gewaesser;Laenge_cm;Koeder;Methode;Notizen;Lat;Lng;Wetter;Foto_URLs";
+    const header = "Datum;Gewicht_kg;Fischart;Gewaesser;Laenge_cm;Wassertemperatur_C;Koeder;Methode;Notizen;Lat;Lng;Wetter;Foto_URLs";
     const rows = (data.catches as any[]).map((c) => {
       return [
         escapeCsvField(fmtDateVienna(c.catch_ts)),
@@ -768,6 +768,7 @@ exportCsvBtn.addEventListener("click", async () => {
         escapeCsvField(c.species),
         escapeCsvField(c.water_name),
         escapeCsvField(c.length_cm),
+        escapeCsvField(c.water_temp_c),
         escapeCsvField(c.bait),
         escapeCsvField(c.method),
         escapeCsvField(c.notes),

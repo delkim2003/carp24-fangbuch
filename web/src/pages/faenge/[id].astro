@@ -93,6 +93,10 @@ const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "
                   <div><div class="font-label-sm text-label-sm uppercase text-secondary">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_kmh != null ? catchData.weather.wind_kmh + " km/h" : "—"}</div></div>
                   <div><div class="font-label-sm text-label-sm uppercase text-secondary">MOND</div><div class="font-mono text-body-lg">{catchData.weather.moon_text ?? "—"}</div></div>
                 </div>
+                <div class="border-t border-primary/20 mt-md pt-md" data-testid="water-temp-display">
+                  <div class="font-label-sm text-label-sm uppercase text-secondary">WASSERTEMPERATUR</div>
+                  <div class="font-mono text-body-lg">{catchData.water_temp_c != null ? catchData.water_temp_c + " °C" : "—"}</div>
+                </div>
               </div>
             )}
           </div>

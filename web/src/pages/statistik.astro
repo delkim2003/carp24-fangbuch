@@ -33,24 +33,43 @@ const supabase = createServerClient(
 
 const { data: { session } } = await supabase.auth.getSession();
 
+let isPro = false;
 let initialConditions: any = null;
 let initialDrilldown: any[] = [];
 let initialKombis: any[] = [];
+let initialInsights: any = null;
 let loadError: string | null = null;
 
 if (session) {
-  const [condRes, drillRes, kombiRes] = await Promise.all([
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro")
+    .eq("id", session.user.id)
+    .single();
+  isPro = profile?.is_pro ?? false;
+
+  const results = await Promise.allSettled([
     supabase.rpc("stats_conditions", { p_filters: {} }),
     supabase.rpc("stats_drilldown", { p_filters: {} }),
     supabase.rpc("stats_beste_kombis", { p_filters: {}, p_limit: 5 }),
   ]);
-  if (condRes.error) loadError = condRes.error.message;
-  else if (drillRes.error) loadError = drillRes.error.message;
-  else if (kombiRes.error) loadError = kombiRes.error.message;
+
+  const condRes = results[0].status === "fulfilled" ? results[0].value : null;
+  const drillRes = results[1].status === "fulfilled" ? results[1].value : null;
+  const kombiRes = results[2].status === "fulfilled" ? results[2].value : null;
+
+  if (condRes?.error) loadError = condRes.error.message;
+  else if (drillRes?.error) loadError = drillRes.error.message;
+  else if (kombiRes?.error) loadError = kombiRes.error.message;
   else {
-    initialConditions = condRes.data;
-    initialDrilldown = drillRes.data ?? [];
-    initialKombis = kombiRes.data ?? [];
+    initialConditions = condRes?.data ?? null;
+    initialDrilldown = drillRes?.data ?? [];
+    initialKombis = kombiRes?.data ?? [];
+  }
+
+  if (!loadError && isPro) {
+    const { data: insightsData, error: insightsErr } = await supabase.rpc("stats_insights", { p_filters: {} });
+    if (!insightsErr) initialInsights = insightsData ?? null;
   }
 }
 
@@ -72,6 +91,8 @@ const DIMENSIONS = [
   { key: "koeder", label: "KÖDER", bucketKey: "koeder" },
   { key: "monat", label: "MONAT", bucketKey: "monat" },
   { key: "uhrzeit_bucket", label: "UHRZEIT", bucketKey: "uhrzeit" },
+  { key: "wasser_temp_bucket", label: "WASSERTEMPERATUR", bucketKey: "wassertemp" },
+  { key: "lufttemp_bucket", label: "LUFTTEMPERATUR", bucketKey: "lufttemp" },
 ] as const;
 
 const monthNamesDE: Record<string, string> = {
@@ -97,7 +118,8 @@ const monthNamesDE: Record<string, string> = {
       <>
         <header class="text-center md:text-left">
           <h1 class="text-display-lg text-primary mb-2">Statistik-Studio</h1>
-          <p class="text-body-lg text-on-surface-variant max-w-2xl">Kombiniere Bedingungen frei — finde deine besten Fang-Momente.</p>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">Analysiere deine Fangdaten, erkenne Tendenzen.</p>
+          <p class="text-body-md text-on-surface-variant/60 mt-xs">Analysen basieren auf deinen Fangdaten — Abweichungen möglich.</p>
         </header>
 
         <div id="active-filters-bar" class="hidden flex-wrap items-center gap-2"></div>
@@ -107,8 +129,23 @@ const monthNamesDE: Record<string, string> = {
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
               <div class="flex justify-between items-center mb-md border-b border-primary/40 pb-sm">
                 <h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Bedingungen</h2>
-                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2">ZURÜCKSETZEN</button>
+                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2" data-testid="conditions-reset">ZURÜCKSETZEN</button>
               </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center gap-sm mb-md" id="zeitraum-row">
+                <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant">ZEITRAUM</span>
+                <div class="flex flex-wrap items-center gap-sm">
+                  <input type="date" id="zeitraum-von" data-testid="zeitraum-von" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
+                  <span class="text-body-md text-on-surface-variant">–</span>
+                  <input type="date" id="zeitraum-bis" data-testid="zeitraum-bis" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
+                  <button type="button" id="btn-zeitraum-anwenden" data-testid="zeitraum-anwenden" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-11 hover:bg-surface-tint transition-colors cursor-pointer">ANWENDEN</button>
+                  <button type="button" id="btn-zeitraum-reset" data-testid="zeitraum-reset" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2">ZURÜCKSETZEN</button>
+                </div>
+              </div>
+              <div id="zeitraum-warnung" class="hidden mb-md p-sm bg-error-container text-on-error-container rounded-lg text-body-md" data-testid="zeitraum-warnung"></div>
+
+              <div id="conditions-error" class="hidden mb-md p-sm bg-error-container text-on-error-container rounded-lg text-body-md" data-testid="conditions-error"></div>
+
               <div id="conditions-rows" class="space-y-md">
                 {DIMENSIONS.map((dim) => {
                   const buckets = initialConditions?.buckets?.[dim.bucketKey] || {};
@@ -197,6 +234,72 @@ const monthNamesDE: Record<string, string> = {
                 })}
               </div>
             </div>
+
+            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Insights</h3>
+              {isPro ? (
+                <div id="insights-cards" class="grid grid-cols-1 gap-md" data-testid="insights-cards">
+                  {initialInsights ? (
+                    <>
+                      {["beste_fangzeit", "beste_wetterlage", "beste_wassertemperatur", "beste_lufttemperatur", "beste_koeder_kombi"].map((key, idx) => {
+                        const insight = initialInsights?.[key];
+                        const titles: Record<string, string> = {
+                          beste_fangzeit: "Beste Fangzeit",
+                          beste_wetterlage: "Beste Wetterlage",
+                          beste_wassertemperatur: "Beste Wassertemperatur",
+                          beste_lufttemperatur: "Beste Lufttemperatur",
+                          beste_koeder_kombi: "Beste Köder-Kombi",
+                        };
+                        if (!insight || insight.wert === null) {
+                          return (
+                            <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10" data-testid={`insight-card-${idx}`}>
+                              <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">{titles[key]}</div>
+                              <p class="text-body-md text-on-surface-variant">{insight?.hinweis || "Keine Daten verfügbar."}</p>
+                            </div>
+                          );
+                        }
+                        const diffPct = Number(insight.differenz_pct) || 0;
+                        const isPositive = diffPct > 0;
+                        const badgeClass = isPositive ? "bg-primary/10 text-primary" : "bg-error/10 text-error";
+                        const diffText = isPositive ? `+${diffPct}% über Schnitt` : `${diffPct}% unter Schnitt`;
+                        return (
+                          <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10" data-testid={`insight-card-${idx}`}>
+                            <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">{titles[key]}</div>
+                            <div class="text-headline-sm text-on-surface mb-xs">{insight.wert}</div>
+                            <div class="flex items-center gap-2 mb-xs">
+                              <span class={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${badgeClass}`}>{diffText}</span>
+                            </div>
+                            {insight.stichproben_hinweis && (
+                              <p class="text-body-sm text-on-surface-variant/60">{insight.stichproben_hinweis}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <p class="text-body-md text-on-surface-variant">Lade Insights...</p>
+                  )}
+                </div>
+              ) : (
+                <div class="relative" data-testid="insights-premium-lock">
+                  <div class="opacity-30 pointer-events-none select-none space-y-md">
+                    <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10">
+                      <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">Beste Fangzeit</div>
+                      <div class="text-headline-sm text-on-surface mb-xs">–</div>
+                    </div>
+                    <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10">
+                      <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">Beste Wetterlage</div>
+                      <div class="text-headline-sm text-on-surface mb-xs">–</div>
+                    </div>
+                  </div>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant mb-2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <p class="text-body-md text-on-surface-variant mb-md max-w-xs">Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen.</p>
+                    <a href="/premium" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors">ZU PREMIUM</a>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
         </div>
 
@@ -239,7 +342,11 @@ const monthNamesDE: Record<string, string> = {
 </Layout>
 
 {session && initialConditions && (
-  <script type="application/json" id="initial-conditions-data" set:html={JSON.stringify(initialConditions)} />
+  <script type="application/json" id="initial-conditions-data" set:text={JSON.stringify(initialConditions)} />
+)}
+
+{session && (
+  <script type="application/json" id="initial-meta" set:text={JSON.stringify({ isPro })} />
 )}
 
 <script>
@@ -259,6 +366,10 @@ import { escHtml } from "../lib/escape";
     "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
   };
 
+  const metaEl = document.getElementById("initial-meta");
+  const meta = metaEl ? JSON.parse(metaEl.textContent || "{}") : {};
+  const isPro: boolean = meta.isPro ?? false;
+
   const state: Record<string, string | null> = {
     mond: null,
     druck_bucket: null,
@@ -269,12 +380,20 @@ import { escHtml } from "../lib/escape";
     koeder: null,
     monat: null,
     uhrzeit_bucket: null,
+    wasser_temp_bucket: null,
+    lufttemp_bucket: null,
   };
 
-  function buildFilters(): Record<string, string> {
-    const f: Record<string, string> = {};
+  let zeitraumVon = "";
+  let zeitraumBis = "";
+
+  function buildFilters(): Record<string, any> {
+    const f: Record<string, any> = {};
     for (const [k, v] of Object.entries(state)) {
       if (v !== null) f[k] = v;
+    }
+    if (zeitraumVon && zeitraumBis) {
+      f.zeitraum = { von: zeitraumVon, bis: zeitraumBis };
     }
     return f;
   }
@@ -299,6 +418,8 @@ import { escHtml } from "../lib/escape";
       { key: "koeder", bucketKey: "koeder", label: "KÖDER" },
       { key: "monat", bucketKey: "monat", label: "MONAT" },
       { key: "uhrzeit_bucket", bucketKey: "uhrzeit", label: "UHRZEIT" },
+      { key: "wasser_temp_bucket", bucketKey: "wassertemp", label: "WASSERTEMPERATUR" },
+      { key: "lufttemp_bucket", bucketKey: "lufttemp", label: "LUFTTEMPERATUR" },
     ];
 
     const container = document.getElementById("conditions-rows");
@@ -389,8 +510,8 @@ import { escHtml } from "../lib/escape";
     container.innerHTML = "";
 
     const druckBuckets = buckets.druck || {};
-    const order = [">= 1015", "1005-1015", "<1005"];
-    const labels: Record<string, string> = { ">= 1015": "≥1015", "1005-1015": "1005–15", "<1005": "<1005" };
+    const order = [">=1015", "1005-1015", "<1005"];
+    const labels: Record<string, string> = { ">=1015": "≥1015", "1005-1015": "1005–15", "<1005": "<1005" };
     const maxVal = order.reduce((m, k) => Math.max(m, Number(druckBuckets[k]?.fangzahl) || 0), 0) || 1;
 
     for (const bucket of order) {
@@ -473,6 +594,51 @@ import { escHtml } from "../lib/escape";
     }
   }
 
+  function renderInsights(insights: any) {
+    const container = document.getElementById("insights-cards");
+    if (!container || !isPro) return;
+    container.innerHTML = "";
+
+    const keys = ["beste_fangzeit", "beste_wetterlage", "beste_wassertemperatur", "beste_lufttemperatur", "beste_koeder_kombi"];
+    const titles: Record<string, string> = {
+      beste_fangzeit: "Beste Fangzeit",
+      beste_wetterlage: "Beste Wetterlage",
+      beste_wassertemperatur: "Beste Wassertemperatur",
+      beste_lufttemperatur: "Beste Lufttemperatur",
+      beste_koeder_kombi: "Beste Köder-Kombi",
+    };
+
+    for (let idx = 0; idx < keys.length; idx++) {
+      const key = keys[idx];
+      const insight = insights?.[key];
+      const card = document.createElement("div");
+      card.className = "bg-surface-container-lowest rounded-lg p-md border border-primary/10";
+      card.dataset.testid = `insight-card-${idx}`;
+
+      if (!insight || insight.wert === null) {
+        card.innerHTML = `
+          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key])}</div>
+          <p class="text-body-md text-on-surface-variant">${escHtml(insight?.hinweis || "Keine Daten verfügbar.")}</p>
+        `;
+      } else {
+        const diffPct = Number(insight.differenz_pct) || 0;
+        const isPositive = diffPct > 0;
+        const badgeClass = isPositive ? "bg-primary/10 text-primary" : "bg-error/10 text-error";
+        const diffText = isPositive ? `+${diffPct}% über Schnitt` : `${diffPct}% unter Schnitt`;
+        const stichproben = insight.stichproben_hinweis ? `<p class="text-body-sm text-on-surface-variant/60 mt-xs">${escHtml(insight.stichproben_hinweis)}</p>` : "";
+        card.innerHTML = `
+          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key])}</div>
+          <div class="text-headline-sm text-on-surface mb-xs">${escHtml(String(insight.wert))}</div>
+          <div class="flex items-center gap-2 mb-xs">
+            <span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full ${badgeClass}">${escHtml(diffText)}</span>
+          </div>
+          ${stichproben}
+        `;
+      }
+      container.appendChild(card);
+    }
+  }
+
   function renderDrilldown(catches: any[]) {
     const container = document.getElementById("drilldown-list");
     if (!container) return;
@@ -519,7 +685,9 @@ import { escHtml } from "../lib/escape";
     if (!bar) return;
 
     const active = Object.entries(state).filter(([, v]) => v !== null);
-    if (active.length === 0) {
+    const hasZeitraum = zeitraumVon && zeitraumBis;
+
+    if (active.length === 0 && !hasZeitraum) {
       bar.classList.add("hidden");
       bar.innerHTML = "";
       return;
@@ -531,7 +699,15 @@ import { escHtml } from "../lib/escape";
     const labelMap: Record<string, string> = {
       mond: "MOND", druck_bucket: "DRUCK", wind_bucket: "WIND", wetter: "WETTER",
       gewaesser: "GEWÄSSER", art: "ART", koeder: "KÖDER", monat: "MONAT", uhrzeit_bucket: "UHRZEIT",
+      wasser_temp_bucket: "WASSERTEMP", lufttemp_bucket: "LUFTTEMP",
     };
+
+    if (hasZeitraum) {
+      const pill = document.createElement("span");
+      pill.className = "inline-flex items-center gap-1 bg-primary text-white font-label-sm text-label-sm px-3 py-1 rounded-full";
+      pill.innerHTML = `ZEITRAUM=${escHtml(zeitraumVon)}–${escHtml(zeitraumBis)} <button type="button" data-remove-zeitraum="true" class="ml-1 hover:opacity-70 cursor-pointer" aria-label="Zeitraum entfernen">&times;</button>`;
+      bar.appendChild(pill);
+    }
 
     for (const [dim, val] of active) {
       const pill = document.createElement("span");
@@ -550,13 +726,37 @@ import { escHtml } from "../lib/escape";
         }
       });
     });
+
+    bar.querySelectorAll("[data-remove-zeitraum]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        zeitraumVon = "";
+        zeitraumBis = "";
+        const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
+        const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
+        if (vonInput) vonInput.value = "";
+        if (bisInput) bisInput.value = "";
+        refreshAll();
+      });
+    });
   }
 
   let refreshSeq = 0;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   async function handleChipClick(dim: string, value: string) {
     state[dim] = state[dim] === value ? null : value;
-    await refreshAll();
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => refreshAll(), 200);
+  }
+
+  function setLoading(loading: boolean) {
+    const btnAnwenden = document.getElementById("btn-zeitraum-anwenden") as HTMLButtonElement;
+    const btnReset = document.getElementById("btn-reset") as HTMLButtonElement;
+    if (btnAnwenden) {
+      btnAnwenden.disabled = loading;
+      btnAnwenden.textContent = loading ? "LÄDT..." : "ANWENDEN";
+    }
+    if (btnReset) btnReset.disabled = loading;
   }
 
   async function refreshAll() {
@@ -573,22 +773,41 @@ import { escHtml } from "../lib/escape";
       }
     });
 
+    const conditionsError = document.getElementById("conditions-error");
+    if (conditionsError) conditionsError.classList.add("hidden");
+
+    setLoading(true);
+
     try {
-      const [condRes, drillRes, kombiRes] = await Promise.all([
+      const rpcs: Promise<any>[] = [
         supabase.rpc("stats_conditions", { p_filters: filters }),
         supabase.rpc("stats_drilldown", { p_filters: filters }),
         supabase.rpc("stats_beste_kombis", { p_filters: filters, p_limit: 5 }),
-      ]);
+      ];
+      if (isPro) {
+        rpcs.push(supabase.rpc("stats_insights", { p_filters: filters }));
+      }
 
-      if (condRes.error) throw new Error(condRes.error.message);
-      if (drillRes.error) throw new Error(drillRes.error.message);
-      if (kombiRes.error) throw new Error(kombiRes.error.message);
+      const results = await Promise.allSettled(rpcs);
 
       if (mySeq !== refreshSeq) return;
 
-      const conditions = condRes.data;
-      const drilldown = drillRes.data ?? [];
-      const kombis = kombiRes.data ?? [];
+      const condRes = results[0].status === "fulfilled" ? results[0].value : null;
+      const drillRes = results[1].status === "fulfilled" ? results[1].value : null;
+      const kombiRes = results[2].status === "fulfilled" ? results[2].value : null;
+      const insightsRes = isPro && results[3] ? (results[3].status === "fulfilled" ? results[3].value : null) : null;
+
+      if (condRes?.error) {
+        if (conditionsError) {
+          conditionsError.textContent = "Fehler: " + condRes.error.message;
+          conditionsError.classList.remove("hidden");
+        }
+      }
+
+      const conditions = condRes?.data ?? { buckets: {}, total: {} };
+      const drilldown = drillRes?.data ?? [];
+      const kombis = kombiRes?.data ?? [];
+      const insights = insightsRes?.data ?? null;
 
       renderChips(conditions?.buckets || {});
       renderMoonChart(conditions?.buckets || {});
@@ -597,17 +816,64 @@ import { escHtml } from "../lib/escape";
       renderKombis(kombis);
       renderDrilldown(drilldown);
       renderActiveFilters();
+      if (isPro && insights) renderInsights(insights);
     } catch (err: any) {
       console.error("Statistik-Refresh fehlgeschlagen:", err);
-      const container = document.getElementById("drilldown-list");
-      if (container) {
-        container.innerHTML = `<p class="p-lg text-body-md text-red-700">Fehler beim Laden: ${escHtml(err.message || "Unbekannter Fehler")}</p>`;
+      const conditionsError = document.getElementById("conditions-error");
+      if (conditionsError) {
+        conditionsError.textContent = "Fehler beim Laden: " + (err.message || "Unbekannter Fehler");
+        conditionsError.classList.remove("hidden");
       }
+    } finally {
+      setLoading(false);
     }
   }
 
   document.getElementById("btn-reset")?.addEventListener("click", () => {
     for (const k of Object.keys(state)) state[k] = null;
+    zeitraumVon = "";
+    zeitraumBis = "";
+    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
+    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
+    if (vonInput) vonInput.value = "";
+    if (bisInput) bisInput.value = "";
+    const warnung = document.getElementById("zeitraum-warnung");
+    if (warnung) warnung.classList.add("hidden");
+    refreshAll();
+  });
+
+  document.getElementById("btn-zeitraum-anwenden")?.addEventListener("click", () => {
+    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
+    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
+    const warnung = document.getElementById("zeitraum-warnung");
+
+    const von = vonInput?.value || "";
+    const bis = bisInput?.value || "";
+
+    if (warnung) warnung.classList.add("hidden");
+
+    if (von && bis && von > bis) {
+      if (warnung) {
+        warnung.textContent = "Startdatum liegt nach Enddatum — keine Ergebnisse.";
+        warnung.classList.remove("hidden");
+      }
+      return;
+    }
+
+    zeitraumVon = von;
+    zeitraumBis = bis;
+    refreshAll();
+  });
+
+  document.getElementById("btn-zeitraum-reset")?.addEventListener("click", () => {
+    zeitraumVon = "";
+    zeitraumBis = "";
+    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
+    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
+    if (vonInput) vonInput.value = "";
+    if (bisInput) bisInput.value = "";
+    const warnung = document.getElementById("zeitraum-warnung");
+    if (warnung) warnung.classList.add("hidden");
     refreshAll();
   });
 
