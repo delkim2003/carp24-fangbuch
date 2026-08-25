@@ -69,8 +69,8 @@ if (!session) {
         id="ai-input"
         maxlength="500"
         rows="1"
-        data-de="Deine Frage…"
-        data-en="Your question…"
+        data-i18n-placeholder-de="Deine Frage…"
+        data-i18n-placeholder-en="Your question…"
         placeholder="Deine Frage…"
         class="flex-1 bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-11 resize-none"
         autocomplete="off"
@@ -78,14 +78,12 @@ if (!session) {
       <button
         id="ai-send"
         type="button"
-        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center gap-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed i18n"
-        data-de="SENDEN"
-        data-en="SEND"
+        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center gap-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
           <path d="M5.5 16.5 7.5 11 17.5 5 20 8 15 5 11 14.5Z M5.5 15.5 18.5 5.5"></path>
         </svg>
-        SENDEN
+        <span class="i18n" data-de="SENDEN" data-en="SEND">SENDEN</span>
       </button>
     </div>
     <div id="ai-error" class="hidden text-body-md text-error"></div>
@@ -99,6 +97,18 @@ if (!session) {
   var input = document.getElementById('ai-input');
   var sendBtn = document.getElementById('ai-send');
   var errorDiv = document.getElementById('ai-error');
+
+  function getLang() {
+    return localStorage.getItem('carp24-lang') || 'de';
+  }
+
+  var i18nErrors = {
+    max_chars: { de: 'Maximal 500 Zeichen.', en: 'Maximum 500 characters.' },
+    not_configured: { de: 'KI ist noch nicht konfiguriert.', en: 'AI is not yet configured.' },
+    rate_limit: { de: 'Bitte kurz warten.', en: 'Please wait a moment.' },
+    request_error: { de: 'Fehler bei der Anfrage.', en: 'Request error.' },
+    unreachable: { de: 'KI-Dienst nicht erreichbar.', en: 'AI service unreachable.' }
+  };
 
   function addBubble(text, isUser) {
     var wrapper = document.createElement('div');
@@ -130,7 +140,7 @@ if (!session) {
     var msg = input.value.trim();
     if (!msg) return;
     if (msg.length > 500) {
-      showError('Maximal 500 Zeichen.');
+      showError(i18nErrors.max_chars[getLang()] || i18nErrors.max_chars.de);
       return;
     }
 
@@ -146,19 +156,21 @@ if (!session) {
     })
       .then(function (res) {
         return res.json().then(function (data) {
+          var lang = getLang();
           if (res.status === 503) {
-            showError(data.error || 'KI ist noch nicht konfiguriert.');
+            showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
           } else if (res.status === 429) {
-            showError(data.error || 'Bitte kurz warten.');
+            showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
           } else if (res.ok && data.answer) {
             addBubble(data.answer, false);
           } else {
-            showError(data.error || 'Fehler bei der Anfrage.');
+            showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
           }
         });
       })
       .catch(function () {
-        showError('KI-Dienst nicht erreichbar.');
+        var lang = getLang();
+        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
       })
       .finally(function () {
         sendBtn.disabled = false;

@@ -105,21 +105,21 @@ const monthNamesDE: Record<string, string> = {
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4">STATISTIK-STUDIO</h1>
-        <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um deine Statistik zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de="STATISTIK-STUDIO" data-en="STATISTICS STUDIO">STATISTIK-STUDIO</h1>
+        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de="Melde dich an, um deine Statistik zu sehen." data-en="Sign in to see your statistics.">Melde dich an, um deine Statistik zu sehen.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de="ANMELDEN" data-en="SIGN IN">ANMELDEN</a>
       </div>
     ) : loadError ? (
       <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4">STATISTIK-STUDIO</h1>
+        <h1 class="text-display-lg text-primary mb-4 i18n" data-de="STATISTIK-STUDIO" data-en="STATISTICS STUDIO">STATISTIK-STUDIO</h1>
         <p class="text-body-lg text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</p>
       </div>
     ) : (
       <>
         <header class="text-center md:text-left">
-          <h1 class="text-display-lg text-primary mb-2">Statistik-Studio</h1>
-          <p class="text-body-lg text-on-surface-variant max-w-2xl">Analysiere deine Fangdaten, erkenne Tendenzen.</p>
-          <p class="text-body-md text-on-surface-variant/60 mt-xs">Analysen basieren auf deinen Fangdaten — Abweichungen möglich.</p>
+          <h1 class="text-display-lg text-primary mb-2 i18n" data-de="Statistik-Studio" data-en="Statistics Studio">Statistik-Studio</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de="Analysiere deine Fangdaten, erkenne Tendenzen." data-en="Analyze your catch data, spot trends.">Analysiere deine Fangdaten, erkenne Tendenzen.</p>
+          <p class="text-body-md text-on-surface-variant/60 mt-xs i18n" data-de="Analysen basieren auf deinen Fangdaten — Abweichungen möglich." data-en="Analyses are based on your catch data — deviations possible.">Analysen basieren auf deinen Fangdaten — Abweichungen möglich.</p>
         </header>
 
         <div id="active-filters-bar" class="hidden flex-wrap items-center gap-2"></div>
@@ -128,18 +128,18 @@ const monthNamesDE: Record<string, string> = {
           <section class="lg:col-span-8 flex flex-col gap-gutter">
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
               <div class="flex justify-between items-center mb-md border-b border-primary/40 pb-sm">
-                <h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Bedingungen</h2>
-                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2" data-testid="conditions-reset">ZURÜCKSETZEN</button>
+                <h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest i18n" data-de="Bedingungen" data-en="Conditions">Bedingungen</h2>
+                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2 i18n" data-testid="conditions-reset" data-de="ZURÜCKSETZEN" data-en="RESET">ZURÜCKSETZEN</button>
               </div>
 
               <div class="flex flex-col sm:flex-row sm:items-center gap-sm mb-md" id="zeitraum-row">
-                <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant">ZEITRAUM</span>
+                <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant i18n" data-de="ZEITRAUM" data-en="PERIOD">ZEITRAUM</span>
                 <div class="flex flex-wrap items-center gap-sm">
                   <input type="date" id="zeitraum-von" data-testid="zeitraum-von" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
                   <span class="text-body-md text-on-surface-variant">–</span>
                   <input type="date" id="zeitraum-bis" data-testid="zeitraum-bis" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
-                  <button type="button" id="btn-zeitraum-anwenden" data-testid="zeitraum-anwenden" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-11 hover:bg-surface-tint transition-colors cursor-pointer">ANWENDEN</button>
-                  <button type="button" id="btn-zeitraum-reset" data-testid="zeitraum-reset" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2">ZURÜCKSETZEN</button>
+                  <button type="button" id="btn-zeitraum-anwenden" data-testid="zeitraum-anwenden" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-11 hover:bg-surface-tint transition-colors cursor-pointer i18n" data-de="ANWENDEN" data-en="APPLY">ANWENDEN</button>
+                  <button type="button" id="btn-zeitraum-reset" data-testid="zeitraum-reset" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2 i18n" data-de="ZURÜCKSETZEN" data-en="RESET">ZURÜCKSETZEN</button>
                 </div>
               </div>
               <div id="zeitraum-warnung" class="hidden mb-md p-sm bg-error-container text-on-error-container rounded-lg text-body-md" data-testid="zeitraum-warnung"></div>
@@ -179,11 +179,11 @@ const monthNamesDE: Record<string, string> = {
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Mondphasen</h3>
+                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Mondphasen" data-en="Moon phases">Mondphasen</h3>
                 <div id="moon-chart" class="flex justify-between items-end h-32 pt-sm gap-2"></div>
               </div>
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Luftdruck</h3>
+                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Luftdruck" data-en="Air pressure">Luftdruck</h3>
                 <div id="pressure-chart" class="flex flex-col justify-end h-32 pt-sm gap-2"></div>
               </div>
             </div>
@@ -192,16 +192,16 @@ const monthNamesDE: Record<string, string> = {
           <section class="lg:col-span-4 flex flex-col gap-gutter">
             <div class="grid grid-cols-2 gap-gutter">
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">GESAMT FÄNGE</span>
+                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="GESAMT FÄNGE" data-en="TOTAL CATCHES">GESAMT FÄNGE</span>
                 <span id="metric-total" class="text-headline-lg text-primary">{initialConditions?.total?.fangzahl ?? 0}</span>
               </div>
               <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Ø GEWICHT</span>
+                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="Ø GEWICHT" data-en="Ø WEIGHT">Ø GEWICHT</span>
                 <span id="metric-avg" class="text-headline-lg text-primary">{initialConditions?.total?.avg_gewicht != null ? Number(initialConditions.total.avg_gewicht).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "–"}<span class="text-body-md text-sm"> KG</span></span>
               </div>
             </div>
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-              <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs">BESTE KOMBINATION</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="BESTE KOMBINATION" data-en="BEST COMBINATION">BESTE KOMBINATION</span>
               <div id="metric-best-kombi" class="mt-2">
                 {initialKombis.length > 0 ? (
                   <span class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full">{initialKombis[0].kombi}</span>
@@ -211,10 +211,10 @@ const monthNamesDE: Record<string, string> = {
               </div>
             </div>
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex-grow">
-              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Beste Kombinationen</h3>
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Beste Kombinationen" data-en="Best combinations">Beste Kombinationen</h3>
               <div id="kombis-list" class="space-y-md">
                 {initialKombis.length === 0 && (
-                  <p class="text-body-md text-on-surface-variant">Keine Kombinationen vorhanden.</p>
+                  <p class="text-body-md text-on-surface-variant i18n" data-de="Keine Kombinationen vorhanden." data-en="No combinations available.">Keine Kombinationen vorhanden.</p>
                 )}
                 {initialKombis.map((k: any) => {
                   const avg = Number(k.avg_gewicht) || 0;
@@ -236,7 +236,7 @@ const monthNamesDE: Record<string, string> = {
             </div>
 
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm">Insights</h3>
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Insights" data-en="Insights">Insights</h3>
               {isPro ? (
                 <div id="insights-cards" class="grid grid-cols-1 gap-md" data-testid="insights-cards">
                   {initialInsights ? (
@@ -277,7 +277,7 @@ const monthNamesDE: Record<string, string> = {
                       })}
                     </>
                   ) : (
-                    <p class="text-body-md text-on-surface-variant">Lade Insights...</p>
+                    <p class="text-body-md text-on-surface-variant i18n" data-de="Lade Insights..." data-en="Loading insights...">Lade Insights...</p>
                   )}
                 </div>
               ) : (
@@ -294,8 +294,8 @@ const monthNamesDE: Record<string, string> = {
                   </div>
                   <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant mb-2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <p class="text-body-md text-on-surface-variant mb-md max-w-xs">Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen.</p>
-                    <a href="/premium" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors">ZU PREMIUM</a>
+                    <p class="text-body-md text-on-surface-variant mb-md max-w-xs i18n" data-de="Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen." data-en="With Pro you see which weather produces the biggest carp.">Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen.</p>
+                    <a href="/premium" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors i18n" data-de="ZU PREMIUM" data-en="GO PREMIUM">ZU PREMIUM</a>
                   </div>
                 </div>
               )}
@@ -304,15 +304,15 @@ const monthNamesDE: Record<string, string> = {
         </div>
 
         <section class="w-full">
-          <h2 class="text-headline-md text-primary mb-md">Fänge mit diesen Bedingungen</h2>
+          <h2 class="text-headline-md text-primary mb-md i18n" data-de="Fänge mit diesen Bedingungen" data-en="Catches with these conditions">Fänge mit diesen Bedingungen</h2>
           <div id="drilldown-list" class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden">
             {initialDrilldown.length === 0 && (
-              <p class="p-lg text-body-md text-on-surface-variant">Keine Fänge gefunden.</p>
+              <p class="p-lg text-body-md text-on-surface-variant i18n" data-de="Keine Fänge gefunden." data-en="No catches found.">Keine Fänge gefunden.</p>
             )}
             {initialDrilldown.map((c: any) => {
               const w = Number(c.weight_kg) || 0;
               const sp = c.species || c.species_custom || "–";
-              const spLabel = speciesDE[sp] || sp;
+      const spLabel = speciesName(sp);
               const dt = c.catch_ts ? new Date(c.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
               const weather = c.weather || {};
               const moonText = weather.moon_text || "";
@@ -353,6 +353,10 @@ const monthNamesDE: Record<string, string> = {
 import { supabase } from "../lib/supabase-client";
 import { escHtml } from "../lib/escape";
 
+  function getLang(): string {
+    return localStorage.getItem("carp24-lang") || "de";
+  }
+
   const speciesDE: Record<string, string> = {
     SPIEGEL: "Spiegelkarpfen",
     LEDER: "Lederkarpfen",
@@ -361,10 +365,31 @@ import { escHtml } from "../lib/escape";
     ANDERE: "Andere",
   };
 
+  const speciesEN: Record<string, string> = {
+    SPIEGEL: "Mirror carp",
+    LEDER: "Leather carp",
+    SCHUPPEN: "Scale carp",
+    AMUR: "Amur carp",
+    ANDERE: "Other",
+  };
+
   const monthNamesDE: Record<string, string> = {
     "1": "Jan", "2": "Feb", "3": "Mär", "4": "Apr", "5": "Mai", "6": "Jun",
     "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
   };
+
+  const monthNamesEN: Record<string, string> = {
+    "1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun",
+    "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec",
+  };
+
+  function monthName(key: string): string {
+    return getLang() === "en" ? (monthNamesEN[key] || key) : (monthNamesDE[key] || key);
+  }
+
+  function speciesName(key: string): string {
+    return getLang() === "en" ? (speciesEN[key] || key) : (speciesDE[key] || key);
+  }
 
   const metaEl = document.getElementById("initial-meta");
   const meta = metaEl ? JSON.parse(metaEl.textContent || "{}") : {};
@@ -459,7 +484,7 @@ import { escHtml } from "../lib/escape";
       for (const [value, stats] of entries) {
         const count = Number((stats as any)?.fangzahl ?? 0);
         let displayValue = value;
-        if (dim.key === "monat") displayValue = monthNamesDE[value] || value;
+        if (dim.key === "monat") displayValue = monthName(value);
         else displayValue = value.toUpperCase();
 
         const btn = document.createElement("button");
@@ -583,7 +608,8 @@ import { escHtml } from "../lib/escape";
     container.innerHTML = "";
 
     if (kombis.length === 0) {
-      container.innerHTML = `<p class="text-body-md text-on-surface-variant">Keine Kombinationen vorhanden.</p>`;
+      const lang = getLang();
+      container.innerHTML = `<p class="text-body-md text-on-surface-variant">${lang === "en" ? "No combinations available." : "Keine Kombinationen vorhanden."}</p>`;
       return;
     }
 
@@ -594,10 +620,12 @@ import { escHtml } from "../lib/escape";
       const pct = Math.round((avg / maxAvg) * 100);
       const row = document.createElement("div");
       row.className = "flex justify-between items-center border-b border-primary/20 pb-sm";
+      const lang = getLang();
+      const catchesLabel = lang === "en" ? "catches" : "Fänge";
       row.innerHTML = `
         <div class="flex flex-col">
           <span class="font-label-sm text-label-sm font-bold">${escHtml(k.kombi)}</span>
-          <span class="text-body-md text-sm text-on-surface-variant">${k.fangzahl} Fänge (Ø ${fmtWeight(avg)} kg)</span>
+          <span class="text-body-md text-sm text-on-surface-variant">${k.fangzahl} ${catchesLabel} (Ø ${fmtWeight(avg)} kg)</span>
         </div>
         <div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden shrink-0">
           <div class="h-full bg-primary rounded-full" style="width:${pct}%"></div>
@@ -612,13 +640,14 @@ import { escHtml } from "../lib/escape";
     if (!container || !isPro) return;
     container.innerHTML = "";
 
+    const lang = getLang();
     const keys = ["beste_fangzeit", "beste_wetterlage", "beste_wassertemperatur", "beste_lufttemperatur", "beste_koeder_kombi"];
-    const titles: Record<string, string> = {
-      beste_fangzeit: "Beste Fangzeit",
-      beste_wetterlage: "Beste Wetterlage",
-      beste_wassertemperatur: "Beste Wassertemperatur",
-      beste_lufttemperatur: "Beste Lufttemperatur",
-      beste_koeder_kombi: "Beste Köder-Kombi",
+    const titles: Record<string, Record<string, string>> = {
+      beste_fangzeit: { de: "Beste Fangzeit", en: "Best Catch Time" },
+      beste_wetterlage: { de: "Beste Wetterlage", en: "Best Weather" },
+      beste_wassertemperatur: { de: "Beste Wassertemperatur", en: "Best Water Temperature" },
+      beste_lufttemperatur: { de: "Beste Lufttemperatur", en: "Best Air Temperature" },
+      beste_koeder_kombi: { de: "Beste Köder-Kombi", en: "Best Bait Combination" },
     };
 
     for (let idx = 0; idx < keys.length; idx++) {
@@ -630,17 +659,19 @@ import { escHtml } from "../lib/escape";
 
       if (!insight || insight.wert === null) {
         card.innerHTML = `
-          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key])}</div>
-          <p class="text-body-md text-on-surface-variant">${escHtml(insight?.hinweis || "Keine Daten verfügbar.")}</p>
+          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key][lang] || titles[key].de)}</div>
+          <p class="text-body-md text-on-surface-variant">${escHtml(insight?.hinweis || (lang === "en" ? "No data available." : "Keine Daten verfügbar."))}</p>
         `;
       } else {
         const diffPct = Number(insight.differenz_pct) || 0;
         const isPositive = diffPct > 0;
         const badgeClass = isPositive ? "bg-primary/10 text-primary" : "bg-error/10 text-error";
-        const diffText = isPositive ? `+${diffPct}% über Schnitt` : `${diffPct}% unter Schnitt`;
+        const diffText = isPositive
+          ? (lang === "en" ? `+${diffPct}% above average` : `+${diffPct}% über Schnitt`)
+          : (lang === "en" ? `${diffPct}% below average` : `${diffPct}% unter Schnitt`);
         const stichproben = insight.stichproben_hinweis ? `<p class="text-body-sm text-on-surface-variant/60 mt-xs">${escHtml(insight.stichproben_hinweis)}</p>` : "";
         card.innerHTML = `
-          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key])}</div>
+          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key][lang] || titles[key].de)}</div>
           <div class="text-headline-sm text-on-surface mb-xs">${escHtml(String(insight.wert))}</div>
           <div class="flex items-center gap-2 mb-xs">
             <span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full ${badgeClass}">${escHtml(diffText)}</span>
@@ -658,7 +689,8 @@ import { escHtml } from "../lib/escape";
     container.innerHTML = "";
 
     if (catches.length === 0) {
-      container.innerHTML = `<p class="p-lg text-body-md text-on-surface-variant">Keine Fänge gefunden.</p>`;
+      const lang = getLang();
+      container.innerHTML = `<p class="p-lg text-body-md text-on-surface-variant">${lang === "en" ? "No catches found." : "Keine Fänge gefunden."}</p>`;
       return;
     }
 
@@ -766,8 +798,11 @@ import { escHtml } from "../lib/escape";
     const btnAnwenden = document.getElementById("btn-zeitraum-anwenden") as HTMLButtonElement;
     const btnReset = document.getElementById("btn-reset") as HTMLButtonElement;
     if (btnAnwenden) {
+      const lang = getLang();
       btnAnwenden.disabled = loading;
-      btnAnwenden.textContent = loading ? "LÄDT..." : "ANWENDEN";
+      btnAnwenden.textContent = loading
+        ? (lang === "en" ? "LOADING…" : "LÄDT…")
+        : (lang === "en" ? "APPLY" : "ANWENDEN");
     }
     if (btnReset) btnReset.disabled = loading;
   }
@@ -812,7 +847,8 @@ import { escHtml } from "../lib/escape";
 
       if (condRes?.error) {
         if (conditionsError) {
-          conditionsError.textContent = "Fehler: " + condRes.error.message;
+          const lang = getLang();
+          conditionsError.textContent = (lang === "en" ? "Error: " : "Fehler: ") + condRes.error.message;
           conditionsError.classList.remove("hidden");
         }
       }
@@ -834,7 +870,8 @@ import { escHtml } from "../lib/escape";
       console.error("Statistik-Refresh fehlgeschlagen:", err);
       const conditionsError = document.getElementById("conditions-error");
       if (conditionsError) {
-        conditionsError.textContent = "Fehler beim Laden: " + (err.message || "Unbekannter Fehler");
+        const lang = getLang();
+        conditionsError.textContent = (lang === "en" ? "Loading error: " : "Fehler beim Laden: ") + (err.message || (lang === "en" ? "Unknown error" : "Unbekannter Fehler"));
         conditionsError.classList.remove("hidden");
       }
     } finally {
@@ -867,7 +904,8 @@ import { escHtml } from "../lib/escape";
 
     if (von && bis && von > bis) {
       if (warnung) {
-        warnung.textContent = "Startdatum liegt nach Enddatum — keine Ergebnisse.";
+        const lang = getLang();
+        warnung.textContent = lang === "en" ? "Start date is after end date — no results." : "Startdatum liegt nach Enddatum — keine Ergebnisse.";
         warnung.classList.remove("hidden");
       }
       return;

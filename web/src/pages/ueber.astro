@@ -39,6 +39,12 @@ const stats = [
   { value: "24/7", labelDe: "Immer verfügbar", labelEn: "Always available" },
   { value: "DSGVO", labelDe: "Datenschutz-konform", labelEn: "Privacy compliant" },
 ];
+
+const steps = [
+  { num: "1", titleDe: "Konto erstellen", titleEn: "Create account", textDe: "Kostenlos registrieren — nur E-Mail nötig. Kein Abo, keine versteckten Kosten.", textEn: "Register for free — only email needed. No subscription, no hidden costs." },
+  { num: "2", titleDe: "Fänge erfassen", titleEn: "Log catches", textDe: "Gewicht, Länge, Köder, Wetter — alles mit wenigen Tipps erfasst. Fotos inklusive.", textEn: "Weight, length, bait, weather — all logged with a few taps. Photos included." },
+  { num: "3", titleDe: "Erkenntnisse gewinnen", titleEn: "Gain insights", textDe: "Statistiken, Rückblicke und der KI-Assistent zeigen dir, was wirklich funktioniert.", textEn: "Statistics, reviews and the AI assistant show you what really works." },
+];
 ---
 
 <Layout title="Über Carp24 – Dein digitales Fangbuch" active="ueber">
@@ -46,17 +52,17 @@ const stats = [
 
     <!-- Hero -->
     <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-20 text-center max-w-3xl mx-auto">
-      <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">ÜBER CARP24</span>
-      <h1 class="text-display-lg text-on-surface mt-4">Dein Fang. Deine Daten. Dein Vorteil.</h1>
-      <p class="text-body-lg text-on-surface-variant mt-6 max-w-xl mx-auto">
+      <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de="ÜBER CARP24" data-en="ABOUT CARP24">ÜBER CARP24</span>
+      <h1 class="text-display-lg text-on-surface mt-4 i18n" data-de="Dein Fang. Deine Daten. Dein Vorteil." data-en="Your catch. Your data. Your edge.">Dein Fang. Deine Daten. Dein Vorteil.</h1>
+      <p class="text-body-lg text-on-surface-variant mt-6 max-w-xl mx-auto i18n" data-de="Carp24 ist das digitale Fangbuch für Karpfenangler, das mehr kann als nur Gewichte speichern. Es ist dein persönliches Tool, um besser zu werden — Session für Session." data-en="Carp24 is the digital catch log for carp anglers that does more than just store weights. It is your personal tool to get better — session by session.">
         Carp24 ist das digitale Fangbuch für Karpfenangler, das mehr kann als nur Gewichte speichern.
         Es ist dein persönliches Tool, um besser zu werden — Session für Session.
       </p>
       <div class="flex flex-wrap justify-center gap-6 mt-8">
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center">
+        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center i18n" data-de="Jetzt kostenlos starten" data-en="Start for free now">
           Jetzt kostenlos starten
         </a>
-        <a href="/premium" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
+        <a href="/premium" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors i18n" data-de="Premium entdecken" data-en="Discover Premium">
           Premium entdecken
         </a>
       </div>
@@ -65,9 +71,9 @@ const stats = [
     <!-- Vision -->
     <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
       <div class="text-center mb-12">
-        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">VISION</span>
-        <h2 class="text-headline-lg text-on-surface mt-2">Warum Carp24?</h2>
-        <p class="text-body-lg text-on-surface-variant mt-4 max-w-2xl mx-auto">
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de="VISION" data-en="VISION">VISION</span>
+        <h2 class="text-headline-lg text-on-surface mt-2 i18n" data-de="Warum Carp24?" data-en="Why Carp24?">Warum Carp24?</h2>
+        <p class="text-body-lg text-on-surface-variant mt-4 max-w-2xl mx-auto i18n" data-de="Die meisten Angler notieren ihre Fänge auf Zetteln oder in Apps, die nie wieder angeschaut werden. Carp24 ändert das. Wir verwandeln Rohdaten in Erkenntnisse, die dich zum besseren Angler machen." data-en="Most anglers note their catches on paper or in apps that are never looked at again. Carp24 changes that. We turn raw data into insights that make you a better angler.">
           Die meisten Angler notieren ihre Fänge auf Zetteln oder in Apps, die nie wieder angeschaut werden.
           Carp24 ändert das. Wir verwandeln Rohdaten in Erkenntnisse, die dich zum besseren Angler machen.
         </p>
@@ -79,8 +85,8 @@ const stats = [
             <div class="w-12 h-12 rounded-full border border-primary/40 flex items-center justify-center text-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={p.icon} />
             </div>
-            <h3 class="text-title-lg text-on-surface" data-de={p.titleDe} data-en={p.titleEn}>{p.titleDe}</h3>
-            <p class="text-body-md text-on-surface-variant" data-de={p.textDe} data-en={p.textEn}>{p.textDe}</p>
+            <h3 class="text-title-lg text-on-surface i18n" data-de={p.titleDe} data-en={p.titleEn}>{p.titleDe}</h3>
+            <p class="text-body-md text-on-surface-variant i18n" data-de={p.textDe} data-en={p.textEn}>{p.textDe}</p>
           </div>
         ))}
       </div>
@@ -92,7 +98,7 @@ const stats = [
         {stats.map((s) => (
           <div class="text-center p-lg">
             <div class="text-display-md text-primary font-bold">{s.value}</div>
-            <div class="text-body-md text-on-surface-variant mt-2" data-de={s.labelDe} data-en={s.labelEn}>{s.labelDe}</div>
+            <div class="text-body-md text-on-surface-variant mt-2 i18n" data-de={s.labelDe} data-en={s.labelEn}>{s.labelDe}</div>
           </div>
         ))}
       </div>
@@ -101,36 +107,28 @@ const stats = [
     <!-- So funktioniert's -->
     <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
       <div class="text-center mb-12">
-        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest">SO FUNKTIONIERT'S</span>
-        <h2 class="text-headline-lg text-on-surface mt-2">In 3 Schritten zum digitalen Fangbuch</h2>
+        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de="SO FUNKTIONIERT'S" data-en="HOW IT WORKS">SO FUNKTIONIERT'S</span>
+        <h2 class="text-headline-lg text-on-surface mt-2 i18n" data-de="In 3 Schritten zum digitalen Fangbuch" data-en="Digital catch log in 3 steps">In 3 Schritten zum digitalen Fangbuch</h2>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter md:gap-xl">
-        <div class="flex flex-col items-center text-center gap-4 p-lg">
-          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">1</div>
-          <h3 class="text-title-lg text-on-surface">Konto erstellen</h3>
-          <p class="text-body-md text-on-surface-variant">Kostenlos registrieren — nur E-Mail nötig. Kein Abo, keine versteckten Kosten.</p>
-        </div>
-        <div class="flex flex-col items-center text-center gap-4 p-lg">
-          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">2</div>
-          <h3 class="text-title-lg text-on-surface">Fänge erfassen</h3>
-          <p class="text-body-md text-on-surface-variant">Gewicht, Länge, Köder, Wetter — alles mit wenigen Tipps erfasst. Fotos inklusive.</p>
-        </div>
-        <div class="flex flex-col items-center text-center gap-4 p-lg">
-          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">3</div>
-          <h3 class="text-title-lg text-on-surface">Erkenntnisse gewinnen</h3>
-          <p class="text-body-md text-on-surface-variant">Statistiken, Rückblicke und der KI-Assistent zeigen dir, was wirklich funktioniert.</p>
-        </div>
+        {steps.map((s) => (
+          <div class="flex flex-col items-center text-center gap-4 p-lg">
+            <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md font-bold">{s.num}</div>
+            <h3 class="text-title-lg text-on-surface i18n" data-de={s.titleDe} data-en={s.titleEn}>{s.titleDe}</h3>
+            <p class="text-body-md text-on-surface-variant i18n" data-de={s.textDe} data-en={s.textEn}>{s.textDe}</p>
+          </div>
+        ))}
       </div>
     </section>
 
     <!-- CTA -->
     <section class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10 text-center">
-      <h2 class="text-headline-lg text-on-surface">Bereit für deinen ersten Fang?</h2>
-      <p class="text-body-lg text-on-surface-variant mt-4 max-w-xl mx-auto">
+      <h2 class="text-headline-lg text-on-surface i18n" data-de="Bereit für deinen ersten Fang?" data-en="Ready for your first catch?">Bereit für deinen ersten Fang?</h2>
+      <p class="text-body-lg text-on-surface-variant mt-4 max-w-xl mx-auto i18n" data-de="Starte jetzt kostenlos und mach dein Angelwissen messbar." data-en="Start for free now and make your fishing knowledge measurable.">
         Starte jetzt kostenlos und mach dein Angelwissen messbar.
       </p>
-      <a href="/login" class="inline-flex mt-8 bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 items-center">
+      <a href="/login" class="inline-flex mt-8 bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 items-center i18n" data-de="Kostenlos starten" data-en="Start for free">
         Kostenlos starten
       </a>
     </section>

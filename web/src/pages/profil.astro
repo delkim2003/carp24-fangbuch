@@ -326,7 +326,7 @@ if (createdAt) {
               <div class="bg-error/5 border border-error/30 rounded-2xl p-6 flex flex-col gap-4">
                 <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.konto_loeschen", "de")} data-en={t("profil.konto_loeschen", "en")}>{t("profil.konto_loeschen")}</p>
                 {/* Löschfunktion fehlt noch, X1-Deletion folgt mit Admin-Tool (DSGVO Art. 17) */}
-                <button type="button" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300 i18n" data-de={t("profil.konto_loeschen_btn", "de")} data-en={t("profil.konto_loeschen_btn", "en")}>
+                <button type="button" id="delete-account-btn" class="self-start border border-error text-error font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-error hover:text-on-error transition-colors duration-300 i18n" data-de={t("profil.konto_loeschen_btn", "de")} data-en={t("profil.konto_loeschen_btn", "en")}>
                   {t("profil.konto_loeschen_btn")}
                 </button>
               </div>
@@ -336,8 +336,8 @@ if (createdAt) {
           <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
               <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest i18n" data-de={t("profil.pro_status", "de")} data-en={t("profil.pro_status", "en")}>{t("profil.pro_status")}</span>
-              <p class="text-headline-md text-on-surface mb-8 leading-snug">
-                Dein Abonnement ist aktiv.<br />Nächste Abrechnung am<br />12. April 2027.
+              <p class="text-headline-md text-on-surface mb-8 leading-snug i18n" data-de="Dein Abonnement ist aktiv." data-en="Your subscription is active.">
+                Dein Abonnement ist aktiv.
               </p>
                 <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
                   {t("profil.abo_verwalten")}
@@ -1210,6 +1210,52 @@ csvImportBtn.addEventListener("click", async () => {
   csvImportBtn.disabled = false;
   csvImportBtn.textContent = "IMPORTIEREN";
 });
+
+// --- Account Deletion ---
+const deleteAccountBtn = document.getElementById("delete-account-btn") as HTMLButtonElement;
+if (deleteAccountBtn) {
+  deleteAccountBtn.addEventListener("click", async () => {
+    const lang = localStorage.getItem("carp24-lang") || "de";
+    const confirmMsg = lang === "en"
+      ? "Are you sure you want to permanently delete your account and all data? This action cannot be undone."
+      : "Bist du sicher, dass du dein Konto und alle Daten unwiderruflich löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.";
+    if (!window.confirm(confirmMsg)) return;
+
+    deleteAccountBtn.disabled = true;
+    deleteAccountBtn.textContent = lang === "en" ? "DELETING…" : "WIRD GELÖSCHT…";
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        alert(lang === "en" ? "Not signed in." : "Nicht eingeloggt.");
+        deleteAccountBtn.disabled = false;
+        deleteAccountBtn.textContent = lang === "en" ? "DELETE ACCOUNT" : "KONTO LÖSCHEN";
+        return;
+      }
+
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userData.user.id }),
+      });
+
+      if (res.ok) {
+        await supabase.auth.signOut();
+        window.location.href = "/";
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || (lang === "en" ? "Deletion failed." : "Löschen fehlgeschlagen."));
+        deleteAccountBtn.disabled = false;
+        deleteAccountBtn.textContent = lang === "en" ? "DELETE ACCOUNT" : "KONTO LÖSCHEN";
+      }
+    } catch {
+      const lang2 = localStorage.getItem("carp24-lang") || "de";
+      alert(lang2 === "en" ? "Network error." : "Netzwerkfehler.");
+      deleteAccountBtn.disabled = false;
+      deleteAccountBtn.textContent = lang2 === "en" ? "DELETE ACCOUNT" : "KONTO LÖSCHEN";
+    }
+  });
+}
 
 } // end guard: only run for logged-in users
 </script>
