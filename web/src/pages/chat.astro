@@ -107,7 +107,7 @@ const userId = session.user.id;
     if (window.__supabase) return window.__supabase;
     if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
       window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" }
       });
       return window.__supabase;
     }
