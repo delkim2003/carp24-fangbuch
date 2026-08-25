@@ -739,15 +739,12 @@ const userTripsJson = JSON.stringify(userTrips);
       } else {
         submitSuccess.textContent = 'Fang erfolgreich gespeichert!';
         submitSuccess.classList.remove('hidden');
-        var isPublicCheckbox = document.getElementById('is_public');
-        if (isPublicCheckbox && isPublicCheckbox.checked && result.id) {
-          var sbPub = getSupabase();
-          if (sbPub) {
-            sbPub.from("catches").update({ is_public: true }).eq("id", result.id).then(function () {});
-          }
-        }
         if (tripSelect) tripSelect.value = '';
         var sb = getSupabase();
+        var isPublicCheckbox = document.getElementById('is_public');
+        if (sb && isPublicCheckbox && isPublicCheckbox.checked && result.id) {
+          sb.from("catches").update({ is_public: true }).eq("id", result.id).then(function () {});
+        }
         if (sb) {
           sb.auth.getUser().then(function (ur) {
             var userId = ur.data && ur.data.user ? ur.data.user.id : null;

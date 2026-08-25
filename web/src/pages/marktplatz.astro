@@ -296,7 +296,7 @@ const myContactsJson = JSON.stringify(myContacts);
     }
     return '<div class="bg-[#ccca9b]/15 rounded-xl border border-primary/40 overflow-hidden shadow-sm flex flex-col">' +
       (photoUrl && !photoUrl.startsWith('__SIGNED__')
-        ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />'
+        ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />'
         : '<div class="w-full h-48 bg-surface-container-lowest flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-on-surface-variant/40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>'
       ) +
       '<div class="p-lg flex flex-col gap-sm flex-grow">' +
@@ -348,7 +348,7 @@ const myContactsJson = JSON.stringify(myContacts);
           if (sb) {
             sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
               if (res.data && res.data.signedUrl) {
-                img.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />';
+                img.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
               }
             });
           }
@@ -379,7 +379,7 @@ const myContactsJson = JSON.stringify(myContacts);
               if (lastCard) {
                 var imgDiv = lastCard.querySelector('div.w-full');
                 if (imgDiv) {
-                  imgDiv.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" class="w-full h-48 object-cover" />';
+                  imgDiv.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
                 }
               }
             }

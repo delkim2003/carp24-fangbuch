@@ -506,7 +506,7 @@ async function startEnrollment(friendlyName: string) {
 
   if (data.totp.qr_code) {
     const svgBase64 = btoa(unescape(encodeURIComponent(data.totp.qr_code)));
-    mfaQrContainer.innerHTML = `<img src="data:image/svg+xml;base64,${svgBase64}" alt="QR-Code für TOTP-Setup" class="w-48 h-48" />`;
+    mfaQrContainer.innerHTML = `<img src="data:image/svg+xml;base64,${svgBase64}" alt="QR-Code für TOTP-Setup" loading="lazy" class="w-48 h-48" />`;
   }
 
   if (data.totp.uri) {

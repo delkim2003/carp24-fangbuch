@@ -14,7 +14,7 @@ const wetterText = c.weather?.weather_text ?? null;
 ---
 <a href={`/faenge/${c.id}`} class="block bg-surface-container-high rounded-xl border border-primary/40 p-lg hover:bg-surface-container transition-colors">
   <div class="flex items-center gap-md">
-    {c.photos?.[0] && <img src={c.photos[0]} alt={speciesDe} class="w-20 h-20 rounded-lg object-cover" />}
+    {c.photos?.[0] && <img src={c.photos[0]} alt={speciesDe} loading="lazy" class="w-20 h-20 rounded-lg object-cover" />}
     <div class="flex-1 min-w-0">
       <div class="font-mono text-display-sm text-primary font-bold">{gewicht}</div>
       <div class="font-label-sm text-label-sm uppercase text-secondary">{speciesDe} · {c.water_name ?? "Unbekanntes Gewässer"}</div>
