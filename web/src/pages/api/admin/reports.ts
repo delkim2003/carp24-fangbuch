@@ -93,66 +93,100 @@ export const GET = async ({ request }: { request: Request }) => {
     });
   }
 
-  const enriched = await Promise.all(
-    (reports ?? []).map(async (r: any) => {
-      let reporterName = "Unbekannt";
-      if (r.reporter_id) {
-        const { data: reporter } = await supabaseAdmin
-          .from("profiles")
-          .select("display_name")
-          .eq("id", r.reporter_id)
-          .single();
-        if (reporter) reporterName = reporter.display_name;
-      }
+  const tableMap: Record<string, { table: string; fields: string }> = {
+    catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
+    forum_thread: { table: "forum_threads", fields: "id,user_id,title,body,created_at" },
+    forum_post: { table: "forum_posts", fields: "id,user_id,body,created_at" },
+    chat_message: { table: "chat_messages", fields: "id,user_id,body,created_at" },
+    marketplace_item: { table: "marketplace_items", fields: "id,user_id,title,price,status,created_at" },
+  };
 
-      let preview: any = null;
-      let ownerId: string | null = null;
-      const tableMap: Record<string, { table: string; fields: string }> = {
-        catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
-        forum_thread: { table: "forum_threads", fields: "id,user_id,title,body,created_at" },
-        forum_post: { table: "forum_posts", fields: "id,user_id,body,created_at" },
-        chat_message: { table: "chat_messages", fields: "id,user_id,body,created_at" },
-        marketplace_item: { table: "marketplace_items", fields: "id,user_id,title,price,status,created_at" },
-      };
+  const reporterIds = [...new Set((reports ?? []).map((r: any) => r.reporter_id).filter(Boolean))];
 
-      const mapping = tableMap[r.target_type];
-      if (mapping) {
-        const { data: content } = await supabaseAdmin
-          .from(mapping.table)
-          .select(mapping.fields)
-          .eq("id", r.target_id)
-          .single();
-        if (content) {
-          preview = content;
-          ownerId = content.user_id ?? null;
-          if (r.target_type === "catch" && content.water_id) {
-            const { data: water } = await supabaseAdmin
-              .from("waters")
-              .select("name")
-              .eq("id", content.water_id)
-              .single();
-            if (water) preview.water_name = water.name;
+  const targetsByType = new Map<string, string[]>();
+  for (const r of reports ?? []) {
+    if (r.target_type && r.target_id && tableMap[r.target_type]) {
+      const arr = targetsByType.get(r.target_type) ?? [];
+      arr.push(r.target_id);
+      targetsByType.set(r.target_type, arr);
+    }
+  }
+
+  const [reporterProfiles, ...contentResults] = await Promise.all([
+    reporterIds.length > 0
+      ? supabaseAdmin.from("profiles").select("id, display_name").in("id", reporterIds)
+      : Promise.resolve({ data: [] }),
+    ...[...targetsByType.entries()].map(([type, ids]) =>
+      supabaseAdmin.from(tableMap[type].table).select(tableMap[type].fields).in("id", ids)
+    ),
+  ]);
+
+  const reporterMap = new Map<string, string>();
+  for (const p of reporterProfiles.data ?? []) {
+    reporterMap.set(p.id, p.display_name);
+  }
+
+  const contentMap = new Map<string, any>();
+  const ownerIds = new Set<string>();
+  const waterIds = new Set<string>();
+  const typeKeys = [...targetsByType.keys()];
+
+  for (let i = 0; i < contentResults.length; i++) {
+    const type = typeKeys[i];
+    for (const item of contentResults[i].data ?? []) {
+      contentMap.set(`${type}:${item.id}`, item);
+      if (item.user_id) ownerIds.add(item.user_id);
+      if (type === "catch" && item.water_id) waterIds.add(item.water_id);
+    }
+  }
+
+  const [ownerProfiles, watersResult] = await Promise.all([
+    ownerIds.size > 0
+      ? supabaseAdmin.from("profiles").select("id, display_name").in("id", [...ownerIds])
+      : Promise.resolve({ data: [] }),
+    waterIds.size > 0
+      ? supabaseAdmin.from("waters").select("id, name").in("id", [...waterIds])
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const ownerMap = new Map<string, { id: string; display_name: string }>();
+  for (const p of ownerProfiles.data ?? []) {
+    ownerMap.set(p.id, { id: p.id, display_name: p.display_name });
+  }
+
+  const waterMap = new Map<string, string>();
+  for (const w of watersResult.data ?? []) {
+    waterMap.set(w.id, w.name);
+  }
+
+  const enriched = (reports ?? []).map((r: any) => {
+    const reporterName = r.reporter_id ? (reporterMap.get(r.reporter_id) ?? "Unbekannt") : "Unbekannt";
+
+    let preview: any = null;
+    let ownerDisplay: any = null;
+    let ownerName = "Unbekannt";
+
+    const mapping = tableMap[r.target_type];
+    if (mapping) {
+      const content = contentMap.get(`${r.target_type}:${r.target_id}`);
+      if (content) {
+        preview = { ...content };
+        if (r.target_type === "catch" && content.water_id) {
+          const wName = waterMap.get(content.water_id);
+          if (wName) preview.water_name = wName;
+        }
+        if (content.user_id) {
+          const owner = ownerMap.get(content.user_id);
+          if (owner) {
+            ownerName = owner.display_name;
+            ownerDisplay = owner;
           }
         }
       }
+    }
 
-      let ownerName = "Unbekannt";
-      let ownerDisplay: any = null;
-      if (ownerId) {
-        const { data: ownerProfile } = await supabaseAdmin
-          .from("profiles")
-          .select("id, display_name")
-          .eq("id", ownerId)
-          .single();
-        if (ownerProfile) {
-          ownerName = ownerProfile.display_name;
-          ownerDisplay = { id: ownerProfile.id, display_name: ownerProfile.display_name };
-        }
-      }
-
-      return { ...r, reporter_name: reporterName, preview, owner: ownerDisplay, owner_name: ownerName };
-    })
-  );
+    return { ...r, reporter_name: reporterName, preview, owner: ownerDisplay, owner_name: ownerName };
+  });
 
   return new Response(JSON.stringify({ reports: enriched }), {
     status: 200,

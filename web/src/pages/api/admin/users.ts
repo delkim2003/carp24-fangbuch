@@ -113,28 +113,33 @@ export const GET = async ({ request }: { request: Request }) => {
     });
   }
 
-  const users = await Promise.all(
-    (profiles ?? []).map(async (p: any) => {
-      const { count: catchesCount } = await supabaseAdmin
-        .from("catches")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", p.id)
-        .is("deleted_at", null);
+  const profileIds = (profiles ?? []).map((p: any) => p.id);
 
-      const { count: openReportsCount } = await supabaseAdmin
-        .from("content_reports")
-        .select("id", { count: "exact", head: true })
-        .eq("reporter_id", p.id)
-        .eq("status", "open");
+  const [{ data: allCatches }, { data: allReports }] = await Promise.all([
+    profileIds.length > 0
+      ? supabaseAdmin.from("catches").select("user_id").in("user_id", profileIds).is("deleted_at", null)
+      : Promise.resolve({ data: [] }),
+    profileIds.length > 0
+      ? supabaseAdmin.from("content_reports").select("reporter_id").in("reporter_id", profileIds).eq("status", "open")
+      : Promise.resolve({ data: [] }),
+  ]);
 
-      return {
-        ...p,
-        email: emailMap.get(p.id) ?? "",
-        catches_count: catchesCount ?? 0,
-        open_reports_count: openReportsCount ?? 0,
-      };
-    })
-  );
+  const catchesMap = new Map<string, number>();
+  for (const c of allCatches ?? []) {
+    catchesMap.set(c.user_id, (catchesMap.get(c.user_id) ?? 0) + 1);
+  }
+
+  const reportsMap = new Map<string, number>();
+  for (const r of allReports ?? []) {
+    reportsMap.set(r.reporter_id, (reportsMap.get(r.reporter_id) ?? 0) + 1);
+  }
+
+  const users = (profiles ?? []).map((p: any) => ({
+    ...p,
+    email: emailMap.get(p.id) ?? "",
+    catches_count: catchesMap.get(p.id) ?? 0,
+    open_reports_count: reportsMap.get(p.id) ?? 0,
+  }));
 
   return new Response(JSON.stringify({ users }), {
     status: 200,

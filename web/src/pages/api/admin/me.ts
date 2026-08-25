@@ -30,8 +30,8 @@ export const GET = async ({ request }: { request: Request }) => {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return new Response(JSON.stringify({ isAdmin: false, role: null }), {
-      status: 200,
+    return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
+      status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
