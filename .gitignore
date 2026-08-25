@@ -37,6 +37,7 @@ Thumbs.db
 # Secrets-Backups NIE committen (generate-keys.sh erzeugt .old)
 .env.*
 !*.env.example
+docs/FIX_PROMPT_P0.4_HOOK.txt
 
 # ===== Deploy-Artefakte (Quellen in supabase/functions/) =====
 infra/volumes/functions/

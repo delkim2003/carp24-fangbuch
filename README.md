@@ -1,63 +1,95 @@
-# 🐟 Carp24 — Digitales Fangbuch
+# 🎣 Carp24 — Dein digitales Fangbuch
 
-> **Domain:** carp24.org · **Stack:** Supabase self-hosted + Astro PWA + Mistral (EU)
-> **Status:** Phase 0 (Task 0.2 abgenommen nach 3-Experten-Audit-Loop 19.08.) · **Hetzner CX22: erst Phase 4** (Dev = Hauptserver)
+> Premium Digital Logbook für Karpfenangler. Erfasse, analysiere und teile deine Fänge.
 
-## Projekt
+[![Alpha](https://img.shields.io/badge/status-alpha-orange)]()
+[![Astro](https://img.shields.io/badge/Astro-5.x-FF5D01)]()
+[![Supabase](https://img.shields.io/badge/Supabase-Self--Hosted-3FCF8E)]()
+[![Tailwind](https://img.shields.io/badge/Tailwind-4.x-06B6D4)]()
 
-Persönliches digitales Fangbuch für Karpfenangler mit:
-- Fang erfassen <20s (Geo → Wetter automatisch, HEIC→WebP, offline-fähig)
-- Statistiken + Wetter-Korrelation (ab 30 Tagen Datenbasis)
-- KI-Chatbot (Mistral, SQL-Zahlenpfad, nur aggregierte Zahlen)
-- Optional teilen (posts-Snapshot, nie Koordinaten) + Community Board + Marktplatz
-- Privacy-first, self-hosted EU, keine Werbung
+## Features
 
-**Vollständige Spezifikation:** Vault `03_PROJEKTE/carp24-fangbuch/` (MASTER_SPRINT.md Plan v7 + BAUPLAN.md v2)
+- **Fangbuch** — Fänge erfassen mit Gewicht, Länge, Fischart, Köder, Methode, Gewässer, GPS, Foto
+- **Dashboard** — KPIs, Fänge pro Monat, Top-Fänge, Gewichtsverlauf
+- **Statistik-Studio** — Filter nach Wetter, Mondphase, Luftdruck, Wassertemperatur, Uhrzeit
+- **Jahres-Rückblick** — Saison-Zusammenfassung mit Top-Fängen und Statistiken
+- **Trips** — Angelausflüge planen und Fänge zuordnen
+- **Badges** — Gamification (10 Achievements: Erster Fang, 100kg, Nachtfischer, ...)
+- **Community-Board** — Öffentliche Fänge teilen
+- **Forum** — Kategorien, Threads, Antworten
+- **Chat** — Realtime-Community-Chat
+- **Marktplatz** — Angel-Ausrüstung kaufen/verkaufen
+- **KI-Assistent** — Fang-Analyse und Köder-Tipps (OpenRouter)
+- **CSV-Import** — Bestände Fänge importieren (max 500/Lauf)
+- **Premium** — Stripe-Integration für Pro-Features
+- **i18n** — Deutsch/Englisch
+- **Dark Mode** — System-Override
+- **DSGVO** — Klaro Consent, Matomo Self-Hosted, Account-Löschung, CSV-Export
 
-## Struktur
+## Tech-Stack
+
+| Layer | Technologie |
+|-------|-------------|
+| Frontend | Astro 5 (SSR) + Tailwind CSS 4 |
+| Backend | Supabase (Self-Hosted, Docker) |
+| Auth | Supabase Auth (E-Mail + OAuth Google/Facebook) |
+| DB | PostgreSQL 15 (Supabase) |
+| Realtime | Supabase Realtime (Chat) |
+| Payments | Stripe (Checkout + Webhook) |
+| KI | OpenRouter (GLM/MiMo) |
+| Analytics | Matomo (Self-Hosted, DSGVO) |
+| Consent | Klaro |
+| Server | Apache + Node.js (SSR) |
+
+## Projektstruktur
 
 ```
-├── supabase/          # Schema + Migrationen (MIGRATIONS_RUNBOOK.md!), Edge Functions
-├── web/               # Astro-PWA (Mobile-First)
-├── infra/             # docker-compose (Supabase v1.26.08 pinned), .env, backup.sh, monitoring/
-├── tests/             # pgTAP (tests/pgtap/), Playwright-E2E, k6
-├── docs/              # FIX_BATCH, MIGRATIONS_RUNBOOK, ADR
-├── .env.example       # Secrets PLATZHALTER (nie echte Werte!) — sync mit infra/.env.example
-└── .gitignore         # .env, volumes/**/data, storage, backups
+carp24-fangbuch/
+├── web/                    # Astro Frontend + SSR
+│   ├── src/
+│   │   ├── pages/          # Routen (30 Seiten)
+│   │   ├── components/     # Header, Footer, CatchCard, ...
+│   │   ├── layouts/        # Layout.astro
+│   │   └── lib/            # supabase-client, i18n, catch-service, ...
+│   ├── public/             # Statische Assets
+│   └── .env                # Environment (NICHT committen)
+├── supabase/
+│   └── migrations/         #35 SQL-Migrationen
+├── design/
+│   └── screens/            # Stitch-Design-Screens (HTML/PNG)
+├── docs/                   # Feature-Plan, RESUME, Audit-Reports
+└── infra/                  # Docker, Backups, Scripts
 ```
 
-**⚠️ Edge Functions leben real in `infra/volumes/functions/`** (edge-runtime mountet `./volumes/functions`), NICHT `supabase/functions/` — das ist nur Doku-Pfad.
-
-## Bring-up (Phase 0, Hauptserver)
+## Setup
 
 ```bash
-cd infra/
-# 1. Secrets generieren (KEINE manuellen Werte!)
-bash utils/generate-keys.sh --update-env   # erzeugt .env + .env.old (NICHT committen!)
-# 2. .env prüfen: Ports 8055/8443/5442/6543 auf 100.93.250.103 (Tailscale), DISABLE_SIGNUP=true
-chmod 600 .env
-# 3. Start
-docker compose up -d --wait   # 11 Container healthy
-# 4. Verifikation
-docker exec supabase-db pg_isready -U postgres          # accepting
-curl -s -o /dev/null -w '%{http_code}' http://100.93.250.103:8055/auth/v1/health  # 401 = Auth ok
+#1. Dependencies
+cd web && npm install
+
+#2. Environment
+cp .env.example .env
+# → Supabase-URL, Anon-Key, Service-Role-Key eintragen
+
+#3. Supabase Migrations
+cd ../supabase && supabase db reset
+
+#4. Dev-Server
+cd ../web && npm run dev
+# → http://localhost:4321
+
+#5. Build
+npm run build
+# → dist/ für Production
 ```
 
-**WICHTIG:** `.env`-Werte werden von Shell-Env-Variablen überschrieben! Vor Änderungen: `unset <VAR>` + `--force-recreate`.
+## Deployment
 
-## Migrationen (Task 0.3+)
+- **Server:** Tailscale-Netzwerk (100.93.250.103)
+- **Web:** Apache Reverse Proxy → Node.js SSR (Port8094)
+- **Supabase:** Docker Compose (Kong :8055, Auth, DB, Realtime, Storage)
+- **Domain:** carp24.org
 
-→ `docs/MIGRATIONS_RUNBOOK.md` — 0001_init.sql als `supabase_admin` anwenden (ON_ERROR_STOP=1), pgTAP als `supabase_admin` installieren (pgtap nicht trusted), `supabase_realtime` existiert bereits (ALTER PUBLICATION).
+## Lizenz
 
-## Branching
-
-- `main` — stabil, nur Releases
-- `sprint-N` — aktiver Sprint (BAUPLAN: EIN Task nach dem anderen)
-
-## Betriebsregeln (BAUPLAN v2)
-
-1. Git-Commit VOR jedem Fix · Ein Fix = ein Commit · QA nach jedem Fix
-2. OpenCode: KEINE Hermes-Skills, KEIN /tmp, nur OpenRouter-Auth
-3. **Jede Datei MUSS vollständig überschrieben werden. Keine Diffs, keine Snippets.**
-4. Produkt-KI = Mistral direkt (nicht OpenRouter!)
-5. Gate nach jeder Phase: Go/No-Go mit DoD
+Proprietary — ©2026 Philipp Schlemmer / einfach-online.dev
