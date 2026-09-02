@@ -12,6 +12,20 @@ export default defineConfig({
     mode: 'standalone',
   }),
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    css: {
+      transformer: 'lightningcss',
+      lightningcss: {
+        errorRecovery: true,
+        targets: {
+          chrome: 90 << 16,
+          firefox: 90 << 16,
+          safari: 14 << 16,
+        }
+      }
+    },
+    build: {
+      cssMinify: 'esbuild'
+    }
   }
 });
