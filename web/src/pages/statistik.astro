@@ -549,17 +549,26 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <style>
+  :global(html), :global(body) {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   .stats-page {
     display: flex;
     gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
     padding: 2rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .filter-sidebar {
     width: 25%;
     min-width: 240px;
+    box-sizing: border-box;
     position: sticky;
     top: 1rem;
     align-self: flex-start;
@@ -569,6 +578,13 @@ import Layout from '../layouts/Layout.astro';
     padding: 1.5rem;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
+  }
+
+  @media (max-width: 900px) {
+    .filter-sidebar {
+      width: 100%;
+      min-width: 0;
+    }
   }
 
   .filter-sidebar h2 {
@@ -743,6 +759,8 @@ import Layout from '../layouts/Layout.astro';
   .chart-card canvas {
     display: block;
     margin: 0 auto;
+    max-width: 100%;
+    height: auto;
   }
 
   .donut-legend {
@@ -770,6 +788,8 @@ import Layout from '../layouts/Layout.astro';
     border-collapse: collapse;
     font-family: var(--font-body-md, "Source Sans 3", sans-serif);
     font-size: 0.9rem;
+    display: block;
+    overflow-x: auto;
   }
 
   .kombi-table th,
@@ -890,7 +910,7 @@ import Layout from '../layouts/Layout.astro';
 
   @media (max-width: 900px) {
     .stats-page { flex-direction: column; }
-    .filter-sidebar { width: 100%; position: static; max-height: none; }
+    .filter-sidebar { position: static; max-height: none; }
     .chart-grid { grid-template-columns: 1fr; }
     .chart-card.wide { grid-column: 1; }
     .kpi-row { flex-direction: column; }
