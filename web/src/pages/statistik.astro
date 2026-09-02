@@ -4,6 +4,8 @@ import { createSSRClient } from '../lib/ssr-client';
 
 const supabase = createSSRClient(Astro);
 
+const { data: { user } } = await supabase.auth.getUser();
+
 const filters: Record<string, any> = {};
 
 const [
@@ -12,12 +14,18 @@ const [
   { data: insights },
   { data: verlauf },
   { data: wetter },
+  { data: badges },
+  { data: trips },
+  { data: drilldown },
 ] = await Promise.all([
   supabase.rpc('stats_conditions', { p_filters: filters }),
   supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
   supabase.rpc('stats_insights', { p_filters: filters }),
   supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
   supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+  supabase.rpc('stats_badges', { p_user_id: user?.id }),
+  supabase.rpc('stats_trips', { p_user_id: user?.id }),
+  supabase.rpc('stats_drilldown', { p_filters: filters }),
 ]);
 
 const total = conditions?.total ?? 0;
@@ -26,6 +34,9 @@ const bestKombis = kombis ?? [];
 const ins = insights ?? {};
 const verlaufData = verlauf ?? [];
 const wetterData = wetter ?? [];
+const badgesData = badges ?? [];
+const tripsData = trips ?? { trips: [], summary: {} };
+const drilldownData = drilldown ?? [];
 ---
 
 <Layout title="Statistik">
@@ -164,6 +175,94 @@ const wetterData = wetter ?? [];
                   <td>{k.kombi}</td>
                   <td>{k.fangzahl}</td>
                   <td>{Number(k.avg_gewicht).toFixed(1)} kg</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card">
+          <h3>🤖 KI-Analyse</h3>
+          <div class="insight-cards">
+            <div class="insight-card"><span class="insight-icon">⏰</span><span class="insight-text">Deine beste Fangzeit: <strong>{ins.beste_fangzeit?.wert ?? '–'}</strong> (Ø {ins.beste_fangzeit?.avg_gewicht ?? '–'} kg)</span></div>
+            <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>{ins.beste_wetterlage?.wert ?? '–'}</strong> (Ø {ins.beste_wetterlage?.avg_gewicht ?? '–'} kg)</span></div>
+            <div class="insight-card"><span class="insight-icon">🎣</span><span class="insight-text">Bestes Köder: <strong>{ins.beste_koeder_kombi?.wert ?? '–'}</strong> (Ø {ins.beste_koeder_kombi?.avg_gewicht ?? '–'} kg)</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>🏆 Badges</h3>
+          <div class="badges-progress">
+            <span class="badges-count">{badgesData.filter((b: any) => b.erreicht).length} / {badgesData.length}</span>
+            <div class="badges-bar"><div class="badges-bar-fill" style={`width: ${badgesData.length ? Math.round(badgesData.filter((b: any) => b.erreicht).length / badgesData.length * 100) : 0}%`}></div></div>
+          </div>
+          <div class="badges-grid" id="badgesGrid">
+            {badgesData.map((b: any) => (
+              <div class={`badge-item ${b.erreicht ? 'badge-earned' : 'badge-locked'}`}>
+                <span class="badge-icon">{b.icon ?? '🏅'}</span>
+                <span class="badge-name">{b.name}</span>
+                {b.erreicht && <span class="badge-date">{b.erreicht_am ? new Date(b.erreicht_am).toLocaleDateString('de-DE') : ''}</span>}
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>🗺️ Trips</h3>
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <span class="kpi-value">{tripsData.summary?.trip_anzahl ?? 0}</span>
+              <span class="kpi-label">TRIPS</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-value">{(tripsData.summary?.avg_gewicht ?? '–') + ' KG'}</span>
+              <span class="kpi-label">Ø GEWICHT / TRIP</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-value">{tripsData.summary?.bestes_gewaesser ?? '–'}</span>
+              <span class="kpi-label">BESTES GEWÄSSER</span>
+            </div>
+          </div>
+          <table class="kombi-table">
+            <thead>
+              <tr><th>Datum</th><th>Gewässer</th><th>Fänge</th><th>Ø Gewicht</th><th>Max Gewicht</th></tr>
+            </thead>
+            <tbody id="tripsBody">
+              {(tripsData.trips ?? []).map((t: any) => (
+                <tr>
+                  <td>{t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '–'}</td>
+                  <td>{t.gewaesser ?? '–'}</td>
+                  <td>{t.fangzahl ?? 0}</td>
+                  <td>{t.avg_gewicht ? Number(t.avg_gewicht).toFixed(1) + ' kg' : '–'}</td>
+                  <td>{t.max_gewicht ? Number(t.max_gewicht).toFixed(1) + ' kg' : '–'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>📋 Fangdetails</h3>
+          <table class="kombi-table">
+            <thead>
+              <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
+            </thead>
+            <tbody id="drilldownBody">
+              {drilldownData.map((d: any) => (
+                <tr>
+                  <td>{d.datum ? new Date(d.datum).toLocaleDateString('de-DE') : '–'}</td>
+                  <td>{d.gewicht ? Number(d.gewicht).toFixed(1) + ' kg' : '–'}</td>
+                  <td>{d.fischart ?? '–'}</td>
+                  <td>{d.gewaesser ?? '–'}</td>
+                  <td>{d.koeder ?? '–'}</td>
                 </tr>
               ))}
             </tbody>
@@ -402,6 +501,59 @@ const wetterData = wetter ?? [];
       new uPlot(opts, [labels, counts], el);
     }
 
+    function renderBadges(data: any[]) {
+      const grid = document.getElementById('badgesGrid');
+      if (!grid) return;
+      const earned = data.filter((b: any) => b.erreicht).length;
+      const total = data.length;
+      const countEl = grid.parentElement!.querySelector('.badges-count');
+      if (countEl) countEl.textContent = `${earned} / ${total}`;
+      const fillEl = grid.parentElement!.querySelector('.badges-bar-fill') as HTMLElement;
+      if (fillEl) fillEl.style.width = total ? `${Math.round(earned / total * 100)}%` : '0%';
+      grid.innerHTML = data.map((b: any) => `
+        <div class="badge-item ${b.erreicht ? 'badge-earned' : 'badge-locked'}">
+          <span class="badge-icon">${b.icon ?? '🏅'}</span>
+          <span class="badge-name">${b.name}</span>
+          ${b.erreicht ? `<span class="badge-date">${b.erreicht_am ? new Date(b.erreicht_am).toLocaleDateString('de-DE') : ''}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function renderTrips(data: any) {
+      const trips = data?.trips ?? [];
+      const summary = data?.summary ?? {};
+      const kpis = document.querySelectorAll('.stats-content .kpi-row:last-of-type .kpi-value');
+      if (kpis[0]) kpis[0].textContent = String(summary.trip_anzahl ?? 0);
+      if (kpis[1]) kpis[1].textContent = (summary.avg_gewicht ?? '–') + ' KG';
+      if (kpis[2]) kpis[2].textContent = summary.bestes_gewaesser ?? '–';
+      const tbody = document.getElementById('tripsBody');
+      if (tbody) {
+        tbody.innerHTML = trips.map((t: any) => `
+          <tr>
+            <td>${t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '–'}</td>
+            <td>${t.gewaesser ?? '–'}</td>
+            <td>${t.fangzahl ?? 0}</td>
+            <td>${t.avg_gewicht ? Number(t.avg_gewicht).toFixed(1) + ' kg' : '–'}</td>
+            <td>${t.max_gewicht ? Number(t.max_gewicht).toFixed(1) + ' kg' : '–'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function renderDrilldown(data: any[]) {
+      const tbody = document.getElementById('drilldownBody');
+      if (!tbody) return;
+      tbody.innerHTML = data.map((d: any) => `
+        <tr>
+          <td>${d.datum ? new Date(d.datum).toLocaleDateString('de-DE') : '–'}</td>
+          <td>${d.gewicht ? Number(d.gewicht).toFixed(1) + ' kg' : '–'}</td>
+          <td>${d.fischart ?? '–'}</td>
+          <td>${d.gewaesser ?? '–'}</td>
+          <td>${d.koeder ?? '–'}</td>
+        </tr>
+      `).join('');
+    }
+
     async function populateSelects() {
       const { data } = await supabase.rpc('stats_conditions', { p_filters: {} });
       if (!data?.buckets) return;
@@ -415,12 +567,14 @@ const wetterData = wetter ?? [];
         { data: ins },
         { data: verl },
         { data: wet },
+        { data: drill },
       ] = await Promise.all([
         supabase.rpc('stats_conditions', { p_filters: filters }),
         supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
         supabase.rpc('stats_insights', { p_filters: filters }),
         supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+        supabase.rpc('stats_drilldown', { p_filters: filters }),
       ]);
 
       const kpis = document.querySelectorAll('.kpi-value');
@@ -443,6 +597,15 @@ const wetterData = wetter ?? [];
           `<tr><td>${k.kombi}</td><td>${k.fangzahl}</td><td>${Number(k.avg_gewicht).toFixed(1)} kg</td></tr>`
         ).join('');
       }
+
+      if (ins) {
+        const insightCards = document.querySelectorAll('.insight-card .insight-text');
+        if (insightCards[0]) insightCards[0].innerHTML = `Deine beste Fangzeit: <strong>${ins.beste_fangzeit?.wert ?? '–'}</strong> (Ø ${ins.beste_fangzeit?.avg_gewicht ?? '–'} kg)`;
+        if (insightCards[1]) insightCards[1].innerHTML = `Beste Wetterlage: <strong>${ins.beste_wetterlage?.wert ?? '–'}</strong> (Ø ${ins.beste_wetterlage?.avg_gewicht ?? '–'} kg)`;
+        if (insightCards[2]) insightCards[2].innerHTML = `Bestes Köder: <strong>${ins.beste_koeder_kombi?.wert ?? '–'}</strong> (Ø ${ins.beste_koeder_kombi?.avg_gewicht ?? '–'} kg)`;
+      }
+
+      renderDrilldown(drill ?? []);
     }
 
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
@@ -695,6 +858,107 @@ const wetterData = wetter ?? [];
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+  }
+
+  .insight-cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .insight-card {
+    flex: 1;
+    min-width: 200px;
+    padding: 1rem;
+    background: var(--color-surface-container-low, #f1f6e7);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .insight-icon {
+    font-size: 1.5rem;
+  }
+
+  .insight-text {
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    font-size: 0.9rem;
+    color: var(--color-on-surface, #181d14);
+    line-height: 1.4;
+  }
+
+  .badges-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .badges-count {
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-primary-container, #6c7a57);
+    white-space: nowrap;
+  }
+
+  .badges-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--color-outline-variant, #c6c8bc);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .badges-bar-fill {
+    height: 100%;
+    background: var(--color-primary-container, #6c7a57);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .badges-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .badge-earned {
+    background: var(--color-surface-container-low, #f1f6e7);
+  }
+
+  .badge-locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+  }
+
+  .badge-icon {
+    font-size: 1.8rem;
+  }
+
+  .badge-name {
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-on-surface, #181d14);
+  }
+
+  .badge-date {
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    font-size: 0.65rem;
+    color: var(--color-on-surface-variant, #45483f);
   }
 
   @media (max-width: 900px) {
