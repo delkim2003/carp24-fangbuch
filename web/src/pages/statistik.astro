@@ -49,6 +49,27 @@ if (!session) {
           <label for="fischart">Fischart</label>
           <select id="fischart"><option value="">Alle</option></select>
         </div>
+        <div class="filter-group">
+          <label>Gewicht (kg)</label>
+          <div style="display:flex;gap:0.5rem">
+            <input type="number" id="gewichtMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+            <input type="number" id="gewichtMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Luftdruck (hPa)</label>
+          <div style="display:flex;gap:0.5rem">
+            <input type="number" id="druckMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+            <input type="number" id="druckMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Wassertemperatur (°C)</label>
+          <div style="display:flex;gap:0.5rem">
+            <input type="number" id="wassertempMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+            <input type="number" id="wassertempMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+          </div>
+        </div>
       </details>
 
       <button class="btn-apply" id="btnApply">Anwenden</button>
@@ -114,6 +135,10 @@ if (!session) {
         <section class="chart-card">
           <h3>Wetter-Korrelation</h3>
           <div id="wetterChart"></div>
+        </section>
+        <section class="chart-card">
+          <h3>🌤️ Luftdruck-Korrelation</h3>
+          <div id="luftdruckChart" style="min-height:260px"></div>
         </section>
         <section class="chart-card wide">
           <h3>Beste Kombinationen</h3>
@@ -245,6 +270,15 @@ if (!session) {
       if (w) f.wetter = w;
       const fa = (document.getElementById('fischart') as HTMLSelectElement)?.value;
       if (fa) f.art = fa;
+      const gMin = (document.getElementById('gewichtMin') as HTMLInputElement)?.value;
+      const gMax = (document.getElementById('gewichtMax') as HTMLInputElement)?.value;
+      if (gMin || gMax) f.gewicht = { min: gMin ? +gMin : null, max: gMax ? +gMax : null };
+      const dMin = (document.getElementById('druckMin') as HTMLInputElement)?.value;
+      const dMax = (document.getElementById('druckMax') as HTMLInputElement)?.value;
+      if (dMin || dMax) f.druck = { min: dMin ? +dMin : null, max: dMax ? +dMax : null };
+      const wtMin = (document.getElementById('wassertempMin') as HTMLInputElement)?.value;
+      const wtMax = (document.getElementById('wassertempMax') as HTMLInputElement)?.value;
+      if (wtMin || wtMax) f.wassertemp = { min: wtMin ? +wtMin : null, max: wtMax ? +wtMax : null };
       return f;
     }
 
@@ -482,6 +516,35 @@ if (!session) {
       new uPlot(opts, [indices, counts, avgW], el);
     }
 
+    function renderLuftdruck(data: any[]) {
+      const el = document.getElementById('luftdruckChart');
+      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      el.innerHTML = '';
+      const indices = data.map((_: any, i: number) => i);
+      const counts = data.map((d: any) => +d.catch_count);
+      const avgW = data.map((d: any) => +d.avg_weight);
+      const labels = data.map((d: any) => d.druck_bereich);
+      const opts: uPlot.Options = {
+        width: el.clientWidth || 500,
+        height: 260,
+        axes: [
+          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
+            values: () => labels },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif', side: 1 },
+        ],
+        series: [
+          {},
+          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
+          { label: 'Ø kg', stroke: '#e07a5f', width: 2, points: { show: true, size: 5 }, scale: 'y2' },
+        ],
+        scales: {
+          y2: { side: 1 },
+        },
+      };
+      new uPlot(opts, [indices, counts, avgW], el);
+    }
+
     function renderBadges(data: any[]) {
       const grid = document.getElementById('badgesGrid');
       if (!grid) return;
@@ -568,6 +631,7 @@ if (!session) {
         { data: ins },
         { data: verl },
         { data: wet },
+        { data: ldruck },
         { data: drill },
       ] = await Promise.all([
         supabase.rpc('stats_conditions', { p_filters: filters }),
@@ -575,6 +639,7 @@ if (!session) {
         supabase.rpc('stats_insights', { p_filters: filters }),
         supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+        supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
         supabase.rpc('stats_drilldown', { p_filters: filters }),
       ]);
 
@@ -598,6 +663,7 @@ if (!session) {
       drawMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
       renderVerlauf(verl ?? []);
       renderWetter(wet ?? []);
+      renderLuftdruck(ldruck ?? []);
 
       const kombiLabels: Record<string, string> = {
         mond: 'Mond', druck: 'Druck', wetter: 'Wetter', koeder: 'Köder',
