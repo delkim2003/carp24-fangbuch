@@ -418,7 +418,6 @@ if (!session) {
         { data: gewData },
         { data: mondData },
         { data: wetterData },
-        { data: uhrzeitData },
         { data: druckData },
         { data: windData },
         { data: tempData },
@@ -431,7 +430,6 @@ if (!session) {
         supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
         supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
-        supabase.rpc('stats_uhrzeit_korrelation', { p_filters: filters }),
         supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
         supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
         supabase.rpc('stats_wassertemp_korrelation', { p_filters: filters }),
@@ -460,7 +458,8 @@ if (!session) {
       }));
       renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', MOND_EMOJI);
       renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', WETTER_EMOJI);
-      renderConditionBars('uhrzeitBars', uhrzeitData ?? [], 'uhrzeit_bereich', 'catch_count', 'avg_weight', uhrzeitEmoji);
+      const uhrzeitBarsData = Object.entries(buckets.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
+      renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', uhrzeitEmoji);
       renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', druckEmoji);
       renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', () => '🌡️');
       renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', () => '💨');
