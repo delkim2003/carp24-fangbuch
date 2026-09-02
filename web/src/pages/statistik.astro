@@ -47,8 +47,18 @@ if (!session) return Astro.redirect('/login');
           <option value="maessig">10–20</option>
           <option value="stark">20+</option>
         </select>
-        <button id="btnApply" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-2 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-11 cursor-pointer">Anwenden</button>
+        <div id="fischartPills" class="flex flex-wrap gap-sm"></div>
+        <button id="btnClear" class="bg-surface-variant text-on-surface-variant font-nav-item text-nav-item uppercase py-2 px-6 rounded-full border border-primary/40 hover:bg-surface-tint transition-colors min-h-11 cursor-pointer">Zurücksetzen</button>
       </div>
+    </div>
+
+    <div id="filterCount" class="text-body-md text-on-surface-variant mb-xl">Alle Fänge</div>
+
+    <div class="flex flex-wrap gap-sm mb-xl">
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-mond="Vollmond">Vollmond</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-mond="Neumond">Neumond</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-wetter="Regen">Regen</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-wetter="Windig">Windig</button>
     </div>
 
     <!-- LOADING -->
@@ -255,6 +265,8 @@ if (!session) return Astro.redirect('/login');
     if (dt) f.druck_trend = dt;
     const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
     if (wi) f.wind = wi;
+    const fa = document.querySelector('#fischartPills .pill.active') as HTMLElement;
+    if (fa && fa.dataset.value) f.fischart = fa.dataset.value;
     return f;
   }
 
@@ -452,8 +464,13 @@ if (!session) return Astro.redirect('/login');
   function populateSelects(cond: any) {
     if (!cond?.buckets) return;
     const b = cond.buckets;
+    const prev: Record<string, string> = {};
+    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+      const el = document.getElementById(id) as HTMLSelectElement | null;
+      if (el) prev[id] = el.value;
+    });
     function fillSelect(id: string, obj: Record<string, any> | undefined) {
-      const sel = document.getElementById(id);
+      const sel = document.getElementById(id) as HTMLSelectElement | null;
       if (!sel || !obj) return;
       const firstOpt = sel.options[0];
       sel.innerHTML = '';
@@ -465,11 +482,35 @@ if (!session) return Astro.redirect('/login');
           sel.appendChild(opt);
         }
       });
+      if (prev[id]) sel.value = prev[id];
     }
     fillSelect('gewaesser', b.gewaesser);
     fillSelect('koeder', b.koeder);
     fillSelect('mondphase', b.mond);
     fillSelect('wetter', b.wetter);
+
+    const pillsEl = document.getElementById('fischartPills');
+    if (pillsEl && b.art) {
+      const prevActive = pillsEl.querySelector('.pill.active')?.getAttribute('data-value') ?? '';
+      const total = Object.values(b.art as Record<string, any>).reduce((s: number, v: any) => s + (Number(v?.fangzahl) || 0), 0);
+      let html = `<button class="pill active font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 bg-primary-container text-on-primary-container hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="">Alle <span class="opacity-60">${total}</span></button>`;
+      for (const [art, v] of Object.entries(b.art as Record<string, any>)) {
+        if (!art || art === 'Unbekannt') continue;
+        const cnt = Number(v?.fangzahl) || 0;
+        html += `<button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="${art}">${speciesName(art)} <span class="opacity-60">${cnt}</span></button>`;
+      }
+      pillsEl.innerHTML = html;
+      if (prevActive) {
+        pillsEl.querySelectorAll('.pill').forEach(p => {
+          if (p.getAttribute('data-value') === prevActive) {
+            p.classList.add('active','bg-primary-container','text-on-primary-container');
+            p.classList.remove('text-on-surface-variant');
+            pillsEl.querySelector('.pill[data-value=""]')?.classList.remove('active','bg-primary-container','text-on-primary-container');
+            pillsEl.querySelector('.pill[data-value=""]')?.classList.add('text-on-surface-variant');
+          }
+        });
+      }
+    }
   }
 
   let refreshSeq = 0;
@@ -516,6 +557,8 @@ if (!session) return Astro.redirect('/login');
     if (kpiAvg) kpiAvg.textContent = nf(cond?.total?.avg_gewicht) + ' kg';
     if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
     if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
+    const filterCountEl = document.getElementById('filterCount');
+    if (filterCountEl) filterCountEl.textContent = `${n(cond?.total?.fangzahl)} von ${n(cond?.total?.fangzahl)} Fängen`;
 
     renderBestConditions(bestCond);
 
@@ -548,10 +591,73 @@ if (!session) return Astro.redirect('/login');
     });
     btn.classList.add('active', 'bg-primary-container', 'text-on-primary-container');
     btn.classList.remove('text-on-surface-variant');
-    refresh();
+    debouncedRefresh();
   });
 
-  document.getElementById('btnApply')?.addEventListener('click', () => refresh());
+  document.getElementById('fischartPills')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
+    if (!btn) return;
+    document.querySelectorAll('#fischartPills .pill').forEach(b => {
+      b.classList.remove('active', 'bg-primary-container', 'text-on-primary-container');
+      b.classList.add('text-on-surface-variant');
+    });
+    btn.classList.add('active', 'bg-primary-container', 'text-on-primary-container');
+    btn.classList.remove('text-on-surface-variant');
+    debouncedRefresh();
+  });
+
+  ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => debouncedRefresh());
+  });
+
+  document.querySelectorAll('.preset-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const el = chip as HTMLElement;
+      const mond = el.dataset.mond;
+      const wetter = el.dataset.wetter;
+      if (mond) {
+        const sel = document.getElementById('mondphase') as HTMLSelectElement | null;
+        if (sel) sel.value = mond;
+      }
+      if (wetter) {
+        const sel = document.getElementById('wetter') as HTMLSelectElement | null;
+        if (sel) sel.value = wetter;
+      }
+      debouncedRefresh();
+    });
+  });
+
+  document.getElementById('btnClear')?.addEventListener('click', () => {
+    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+      const sel = document.getElementById(id) as HTMLSelectElement | null;
+      if (sel) sel.value = '';
+    });
+    document.querySelectorAll('#zeitraumPills .pill').forEach(b => {
+      b.classList.remove('active', 'bg-primary-container', 'text-on-primary-container');
+      b.classList.add('text-on-surface-variant');
+    });
+    const allPill = document.querySelector('#zeitraumPills .pill[data-value="all"]') as HTMLElement | null;
+    if (allPill) {
+      allPill.classList.add('active', 'bg-primary-container', 'text-on-primary-container');
+      allPill.classList.remove('text-on-surface-variant');
+    }
+    document.querySelectorAll('#fischartPills .pill').forEach(b => {
+      b.classList.remove('active', 'bg-primary-container', 'text-on-primary-container');
+      b.classList.add('text-on-surface-variant');
+    });
+    const allFisch = document.querySelector('#fischartPills .pill[data-value=""]') as HTMLElement | null;
+    if (allFisch) {
+      allFisch.classList.add('active', 'bg-primary-container', 'text-on-primary-container');
+      allFisch.classList.remove('text-on-surface-variant');
+    }
+    debouncedRefresh();
+  });
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  function debouncedRefresh() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => refresh(), 300);
+  }
 
   const observer = new MutationObserver(() => {
     CSS = getCSS();
