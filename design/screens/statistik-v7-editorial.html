@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Statistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#546140",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container-highest": "#dfe4d6",
+                        "inverse-surface": "#2d3228",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "outline": "#76786e",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-tertiary-container": "#faffff",
+                        "primary-fixed": "#d9e8be",
+                        "on-surface-variant": "#45483f",
+                        "surface-tint": "#556342",
+                        "surface-dim": "#d7dccd",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "inverse-on-surface": "#eef3e4",
+                        "secondary-container": "#e7e5b4",
+                        "primary-container": "#6c7a57",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-low": "#f1f6e7",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-secondary-container": "#67663f",
+                        "secondary": "#61603a",
+                        "background": "#f6fbec",
+                        "on-secondary-fixed-variant": "#494824",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface-variant": "#dfe4d6",
+                        "surface-bright": "#f6fbec",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-primary-container": "#fdfff0",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c6c8bc",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "on-primary-fixed": "#141f05",
+                        "tertiary-container": "#617a7c",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e5eadb",
+                        "surface": "#f6fbec",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#181d14",
+                        "surface-container": "#ebf0e1",
+                        "error": "#ba1a1a",
+                        "tertiary": "#496163",
+                        "on-surface": "#181d14"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "40px",
+                        "gutter": "20px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "margin-desktop": "64px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "nav-item": ["Public Sans"],
+                        "label-sm": ["Public Sans"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pt-24 min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop bg-background/95 backdrop-blur-sm h-[72px]">
+<div class="flex items-center gap-xl">
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed-dim">CARP24</h1>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Journal</a>
+<a class="font-nav-item text-nav-item text-primary dark:text-primary-fixed-dim border-b-[1px] border-primary pb-1" href="#">Statistics</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Waters</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Patterns</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop pb-xl">
+<header class="mb-xl text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Fangstatistiken</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Eine detaillierte Analyse Ihrer Fänge, Bedingungen und Muster.</p>
+</header>
+<!-- 1. FILTER-BAR -->
+<section class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg mb-xl">
+<div class="flex flex-col gap-md">
+<!-- Row 1: Timeframe pills -->
+<div class="flex flex-wrap items-center gap-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-sm">Zeitraum:</span>
+<button class="px-md py-xs rounded-full border border-primary text-primary font-nav-item text-nav-item hover:bg-primary/5 transition-colors">Alle</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">7 Tage</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">30 Tage</button>
+<button class="px-md py-xs rounded-full bg-primary/10 border border-primary text-primary font-nav-item text-nav-item">90 Tage</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">1 Jahr</button>
+</div>
+<!-- Row 2: Dropdowns & Action -->
+<div class="flex flex-wrap items-center gap-md pt-sm border-t border-outline-variant/20">
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Gewässer (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Köder (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Mondphase (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Wetter (Alle)</option>
+</select>
+<div class="flex-grow"></div>
+<button class="bg-primary text-on-primary font-nav-item text-nav-item px-lg py-sm rounded-full hover:bg-surface-tint transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Anwenden
+                    </button>
+</div>
+</div>
+</section>
+<!-- 2. KPIs -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Fänge Gesamt</span>
+<span class="font-display-lg text-display-lg text-primary">102</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Ø Gewicht</span>
+<span class="font-headline-lg text-headline-lg text-on-background">8.2 kg</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Max Gewicht</span>
+<span class="font-headline-lg text-headline-lg text-on-background">25.4 kg</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Befischte Gewässer</span>
+<span class="font-headline-lg text-headline-lg text-on-background">11</span>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md bg-background border-t border-outline-variant/20 mt-xl">
+<div class="font-nav-item text-nav-item font-bold text-primary">CARP24</div>
+<div class="font-body-md text-body-md text-on-surface-variant">© 2024 Carp24 Editorial Angling Systems</div>
+<div class="flex gap-md font-label-sm text-label-sm">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Data Export</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">API Documentation</a>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Statistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#546140",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container-highest": "#dfe4d6",
+                        "inverse-surface": "#2d3228",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "outline": "#76786e",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-tertiary-container": "#faffff",
+                        "primary-fixed": "#d9e8be",
+                        "on-surface-variant": "#45483f",
+                        "surface-tint": "#556342",
+                        "surface-dim": "#d7dccd",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "inverse-on-surface": "#eef3e4",
+                        "secondary-container": "#e7e5b4",
+                        "primary-container": "#6c7a57",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-low": "#f1f6e7",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-secondary-container": "#67663f",
+                        "secondary": "#61603a",
+                        "background": "#f6fbec",
+                        "on-secondary-fixed-variant": "#494824",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface-variant": "#dfe4d6",
+                        "surface-bright": "#f6fbec",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-primary-container": "#fdfff0",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c6c8bc",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "on-primary-fixed": "#141f05",
+                        "tertiary-container": "#617a7c",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e5eadb",
+                        "surface": "#f6fbec",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#181d14",
+                        "surface-container": "#ebf0e1",
+                        "error": "#ba1a1a",
+                        "tertiary": "#496163",
+                        "on-surface": "#181d14"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "40px",
+                        "gutter": "20px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "margin-desktop": "64px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "nav-item": ["Public Sans"],
+                        "label-sm": ["Public Sans"],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""]
+                    },
+                    "fontSize": {
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pt-24 min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop bg-background/95 backdrop-blur-sm h-[72px]">
+<div class="flex items-center gap-xl">
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed-dim">CARP24</h1>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Journal</a>
+<a class="font-nav-item text-nav-item text-primary dark:text-primary-fixed-dim border-b-[1px] border-primary pb-1" href="#">Statistics</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Waters</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary transition-colors" href="#">Patterns</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop pb-xl">
+<header class="mb-xl text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Fangstatistiken</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Eine detaillierte Analyse Ihrer Fänge, Bedingungen und Muster.</p>
+</header>
+<!-- 1. FILTER-BAR -->
+<section class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg mb-xl">
+<div class="flex flex-col gap-md">
+<!-- Row 1: Timeframe pills -->
+<div class="flex flex-wrap items-center gap-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-sm">Zeitraum:</span>
+<button class="px-md py-xs rounded-full border border-primary text-primary font-nav-item text-nav-item hover:bg-primary/5 transition-colors">Alle</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">7 Tage</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">30 Tage</button>
+<button class="px-md py-xs rounded-full bg-primary/10 border border-primary text-primary font-nav-item text-nav-item">90 Tage</button>
+<button class="px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-nav-item text-nav-item hover:border-primary hover:text-primary transition-colors">1 Jahr</button>
+</div>
+<!-- Row 2: Dropdowns & Action -->
+<div class="flex flex-wrap items-center gap-md pt-sm border-t border-outline-variant/20">
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Gewässer (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Köder (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Mondphase (Alle)</option>
+</select>
+<select class="bg-surface border border-outline-variant/50 rounded-lg px-md py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Wetter (Alle)</option>
+</select>
+<div class="flex-grow"></div>
+<button class="bg-primary text-on-primary font-nav-item text-nav-item px-lg py-sm rounded-full hover:bg-surface-tint transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Anwenden
+                    </button>
+</div>
+</div>
+</section>
+<!-- 2. KPIs -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Fänge Gesamt</span>
+<span class="font-display-lg text-display-lg text-primary">102</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Ø Gewicht</span>
+<span class="font-headline-lg text-headline-lg text-on-background">8.2 kg</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Max Gewicht</span>
+<span class="font-headline-lg text-headline-lg text-on-background">25.4 kg</span>
+</div>
+<div class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg flex flex-col justify-center items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Befischte Gewässer</span>
+<span class="font-headline-lg text-headline-lg text-on-background">11</span>
+</div>
+</section>
+<!-- 1. BESTE BEDINGUNGEN -->
+<section class="mb-xl">
+<div class="bg-surface border-l-4 border-l-primary border-y border-r border-outline-variant/20 rounded-r-[16px] p-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Beste Bedingungen</h3>
+<div class="flex flex-wrap gap-sm">
+<span class="bg-surface-container px-md py-xs rounded-full font-nav-item text-nav-item text-on-surface">Vollmond</span>
+<span class="bg-surface-container px-md py-xs rounded-full font-nav-item text-nav-item text-on-surface">Windig</span>
+<span class="bg-surface-container px-md py-xs rounded-full font-nav-item text-nav-item text-on-surface">6-12 Uhr</span>
+</div>
+</div>
+<div class="text-left md:text-right">
+<div class="font-headline-md text-headline-md text-on-background">33 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Ø 9.3 kg</div>
+</div>
+</div>
+</section>
+<!-- 2 & 3. CHARTS ROW -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-xl">
+<!-- DIMENSIONEN-ANALYSE -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-lg">
+<h3 class="font-headline-md text-headline-md mb-lg">Dimensionen-Analyse</h3>
+<div class="flex flex-col gap-md">
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Mondphase</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 80%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 9.1 kg</div>
+</div>
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Wetter</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 8.5 kg</div>
+</div>
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Tageszeit</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 40%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 7.8 kg</div>
+</div>
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Luftdruck</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 55%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 8.2 kg</div>
+</div>
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Wassertemp.</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 70%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 8.8 kg</div>
+</div>
+<!-- Row -->
+<div class="flex items-center gap-md">
+<div class="w-24 font-body-md text-body-md text-on-surface-variant">Windstärke</div>
+<div class="flex-grow h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 45%"></div>
+</div>
+<div class="w-16 text-right font-label-sm text-label-sm text-on-surface-variant">Ø 7.9 kg</div>
+</div>
+</div>
+</div>
+<!-- GEWICHTSVERLAUF -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-lg flex flex-col">
+<h3 class="font-headline-md text-headline-md mb-lg">Gewichtsverlauf</h3>
+<div class="flex-grow min-h-[200px] flex items-end justify-between gap-xs pt-xl pb-sm border-b border-outline-variant/20 relative">
+<!-- Mock line chart SVG -->
+<svg class="absolute top-0 left-0 w-full h-full pb-8" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="text-primary" d="M0,80 Q10,70 20,75 T40,60 T60,50 T80,40 T100,20" fill="none" stroke="currentColor" stroke-width="2"></path>
+<path class="text-primary/10" d="M0,80 L0,100 L100,100 L100,20 Q80,40 60,50 T40,60 T20,75 Q10,70 0,80 Z" fill="currentColor"></path>
+</svg>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Jan</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Feb</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Mar</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Apr</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Mai</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Jun</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Jul</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Aug</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Sep</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Okt</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Nov</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-center w-8 z-10">Dez</div>
+</div>
+</div>
+</section>
+<!-- 4. FÄNGE NACH GEWÄSSER -->
+<section class="mb-xl">
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-lg">
+<h3 class="font-headline-md text-headline-md mb-lg">Fänge nach Gewässer (Top 8)</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-gutter gap-y-md">
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Lac de Saint-Cassien</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 100%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">42</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Baggersee Süd</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/80" style="width: 65%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">27</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Rhein Altarm</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/70" style="width: 45%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">19</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Vereinssee Nord</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/60" style="width: 35%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">15</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Waldsee</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/50" style="width: 25%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">11</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Kanal Km 12</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/40" style="width: 20%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">8</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Stausee</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/30" style="width: 15%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">6</div>
+</div>
+<!-- Bar -->
+<div class="flex items-center gap-md">
+<div class="w-32 font-body-md text-body-md truncate">Dorfteich</div>
+<div class="flex-grow h-4 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary/20" style="width: 10%"></div>
+</div>
+<div class="w-8 text-right font-label-sm text-label-sm text-on-surface-variant">4</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. TOP KOMBINATIONEN -->
+<section class="mb-xl">
+<h3 class="font-headline-md text-headline-md mb-lg">Top Kombinationen</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- Top 1 -->
+<div class="bg-surface border-2 border-[#D4AF37]/50 rounded-[16px] p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold px-2 py-1 rounded-bl-lg">#1</div>
+<div class="font-headline-md text-headline-md text-on-background mb-xs">24 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 11.2 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Scopex Squid 20mm</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Kiesbank 3-4m</span>
+</div>
+</div>
+<!-- Top 2 -->
+<div class="bg-surface border-2 border-[#C0C0C0]/50 rounded-[16px] p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-[#C0C0C0]/20 text-on-surface-variant text-xs font-bold px-2 py-1 rounded-bl-lg">#2</div>
+<div class="font-headline-md text-headline-md text-on-background mb-xs">18 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 9.5 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Tigernuss</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Schilfkante 1m</span>
+</div>
+</div>
+<!-- Top 3 -->
+<div class="bg-surface border-2 border-[#CD7F32]/50 rounded-[16px] p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-[#CD7F32]/20 text-[#CD7F32] text-xs font-bold px-2 py-1 rounded-bl-lg">#3</div>
+<div class="font-headline-md text-headline-md text-on-background mb-xs">15 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 8.9 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Krill Pellet</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Plateau 5m</span>
+</div>
+</div>
+<!-- 4 -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-md">
+<div class="font-headline-md text-headline-md text-on-background mb-xs">12 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 7.4 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Strawberry 15mm</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Seerosen 2m</span>
+</div>
+</div>
+<!-- 5 -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-md">
+<div class="font-headline-md text-headline-md text-on-background mb-xs">9 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 12.1 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Spicy Tuna 24mm</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Tiefes Loch 8m</span>
+</div>
+</div>
+<!-- 6 -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-md">
+<div class="font-headline-md text-headline-md text-on-background mb-xs">8 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 6.8 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Mais</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Ufernah 1.5m</span>
+</div>
+</div>
+<!-- 7 -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-md">
+<div class="font-headline-md text-headline-md text-on-background mb-xs">6 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 8.2 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Pineapple Pop-Up</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Krautbett 3m</span>
+</div>
+</div>
+<!-- 8 -->
+<div class="bg-surface border border-outline-variant/20 rounded-[16px] p-md">
+<div class="font-headline-md text-headline-md text-on-background mb-xs">4 Fänge</div>
+<div class="font-body-md text-body-md text-on-surface-variant mb-sm">Ø 14.5 kg</div>
+<div class="flex flex-col gap-xs mt-auto">
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Monster Crab 30mm</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-sm py-xs rounded">Fahrrinne 6m</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. FANGDETAILS -->
+<section class="mb-xl overflow-hidden rounded-[16px] border border-outline-variant/20 bg-surface">
+<div class="p-lg border-b border-outline-variant/20">
+<h3 class="font-headline-md text-headline-md">Fangdetails</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md">
+<thead class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<tr>
+<th class="px-lg py-sm font-medium">Datum</th>
+<th class="px-lg py-sm font-medium">Gewicht</th>
+<th class="px-lg py-sm font-medium">Fischart</th>
+<th class="px-lg py-sm font-medium">Gewässer</th>
+<th class="px-lg py-sm font-medium">Köder</th>
+<th class="px-lg py-sm font-medium">Länge</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-lg py-md">12. Okt 2024</td>
+<td class="px-lg py-md font-semibold">14.2 kg</td>
+<td class="px-lg py-md">Spiegelkarpfen</td>
+<td class="px-lg py-md">Lac de Saint-Cassien</td>
+<td class="px-lg py-md">Scopex Squid 20mm</td>
+<td class="px-lg py-md">82 cm</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-lg py-md">10. Okt 2024</td>
+<td class="px-lg py-md font-semibold">9.8 kg</td>
+<td class="px-lg py-md">Schuppenkarpfen</td>
+<td class="px-lg py-md">Baggersee Süd</td>
+<td class="px-lg py-md">Tigernuss</td>
+<td class="px-lg py-md">75 cm</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-lg py-md">05. Okt 2024</td>
+<td class="px-lg py-md font-semibold">21.5 kg</td>
+<td class="px-lg py-md">Spiegelkarpfen</td>
+<td class="px-lg py-md">Lac de Saint-Cassien</td>
+<td class="px-lg py-md">Krill Pellet</td>
+<td class="px-lg py-md">94 cm</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-lg py-md">28. Sep 2024</td>
+<td class="px-lg py-md font-semibold">11.1 kg</td>
+<td class="px-lg py-md">Schuppenkarpfen</td>
+<td class="px-lg py-md">Rhein Altarm</td>
+<td class="px-lg py-md">Strawberry 15mm</td>
+<td class="px-lg py-md">78 cm</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-lg py-md">15. Sep 2024</td>
+<td class="px-lg py-md font-semibold">7.4 kg</td>
+<td class="px-lg py-md">Graskarpfen</td>
+<td class="px-lg py-md">Vereinssee Nord</td>
+<td class="px-lg py-md">Mais</td>
+<td class="px-lg py-md">68 cm</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md bg-background border-t border-outline-variant/20 mt-xl">
+<div class="font-nav-item text-nav-item font-bold text-primary">CARP24</div>
+<div class="font-body-md text-body-md text-on-surface-variant">© 2024 Carp24 Editorial Angling Systems</div>
+<div class="flex gap-md font-label-sm text-label-sm">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Data Export</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">API Documentation</a>
+</div>
+</footer>
+</body></html>

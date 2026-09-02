@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Statistiken</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;family=Source+Sans+3:wght@400;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#76786e",
+                        "tertiary-container": "#617a7c",
+                        "outline-variant": "#c6c8bc",
+                        "on-primary-fixed": "#141f05",
+                        "secondary-fixed-dim": "#cbc99a",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#e7e5b4",
+                        "on-surface": "#181d14",
+                        "primary-fixed": "#d9e8be",
+                        "surface-container-low": "#f1f6e7",
+                        "on-secondary-container": "#67663f",
+                        "on-background": "#181d14",
+                        "inverse-primary": "#bdcca4",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#cde7e9",
+                        "surface-container-high": "#e5eadb",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "surface": "#f6fbec",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e7e5b4",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f6fbec",
+                        "surface-bright": "#f6fbec",
+                        "tertiary": "#496163",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#faffff",
+                        "secondary": "#61603a",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-secondary-fixed-variant": "#494824",
+                        "surface-container": "#ebf0e1",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "primary-fixed-dim": "#bdcca4",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-surface-variant": "#45483f",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dfe4d6",
+                        "primary": "#546140",
+                        "primary-container": "#6c7a57",
+                        "surface-tint": "#556342",
+                        "inverse-surface": "#2d3228",
+                        "on-primary-container": "#fdfff0",
+                        "inverse-on-surface": "#eef3e4",
+                        "surface-dim": "#d7dccd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "headline-lg-mobile": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "nav-item": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "data": ["\"JetBrains Mono\""]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            /* Force Dark Mode Colors according to prompt requirements if they diverge slightly from theme */
+            background-color: #181d14;
+            color: #dfe4d6;
+        }
+        .bg-surface-dark { background-color: #2d3228; }
+        .text-on-surface-dark { color: #dfe4d6; }
+        .border-sage { border-color: rgba(108, 122, 87, 0.2); }
+        .bg-sage-chart { background-color: #6c7a57; }
+        
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        .bento-item-full { grid-column: span 12; }
+        .bento-item-half { grid-column: span 6; }
+        .bento-item-third { grid-column: span 4; }
+        .bento-item-quarter { grid-column: span 3; }
+        
+        @media (max-width: 1024px) {
+            .bento-item-half, .bento-item-third, .bento-item-quarter { grid-column: span 12; }
+        }
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .bento-item-quarter { grid-column: span 6; }
+        }
+
+        .data-font { font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+        .label-font { font-family: 'Public Sans', sans-serif; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; color: #a1a695; }
+        
+        /* Subtle chart styling */
+        .chart-bar-fill {
+            height: 100%;
+            background-color: #6c7a57;
+            border-radius: 2px;
+            transition: width 0.5s ease-in-out;
+        }
+        .chart-bar-bg {
+            height: 8px;
+            background-color: rgba(108, 122, 87, 0.1);
+            border-radius: 2px;
+            width: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex">
+<!-- Side Navigation Shell (from JSON mapping context - active tab Catch Logs / Fänge) -->
+<nav class="bg-surface-dark h-full w-64 fixed left-0 border-r border-primary/10 flex flex-col py-lg hidden md:flex z-50">
+<div class="px-md mb-xl flex flex-col gap-unit">
+<span class="text-headline-md font-headline-md font-semibold text-primary-fixed-dim tracking-tight">Angler's Journal</span>
+<span class="text-label-sm font-label-sm text-outline-variant">Archival Records</span>
+</div>
+<div class="flex-1 flex flex-col gap-sm">
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-nav-item font-nav-item">Overview</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">dark_mode</span>
+<span class="text-nav-item font-nav-item">Moon Phase</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">cloudy_snowing</span>
+<span class="text-nav-item font-nav-item">Weather Patterns</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">speed</span>
+<span class="text-nav-item font-nav-item">Atmospheric Pressure</span>
+</a>
+<a class="text-primary-fixed-dim font-bold border-l-4 border-primary-fixed-dim pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm translate-x-1 duration-200 bg-surface-container-highest/20" href="#">
+<span class="material-symbols-outlined font-variation-settings-'FILL'-1">history</span>
+<span class="text-nav-item font-nav-item">Catch Logs</span>
+</a>
+</div>
+<div class="mt-auto px-md">
+<button class="w-full bg-primary-container text-on-primary-container py-2 rounded-full text-label-sm font-label-sm mb-lg">Export Report</button>
+<div class="flex flex-col gap-sm">
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-nav-item font-nav-item">Settings</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant pl-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-nav-item font-nav-item">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 px-margin-mobile md:px-margin-desktop py-xl max-w-[1600px] w-full">
+<header class="mb-xl">
+<h1 class="text-display-lg font-display-lg text-primary-fixed-dim mb-sm">Fangstatistiken</h1>
+<p class="text-body-lg font-body-lg text-outline-variant">Archivierte Daten und Musteranalysen.</p>
+</header>
+<!-- 1. FILTER-BAR -->
+<section class="bg-surface-dark border border-sage rounded-xl p-lg mb-xl shadow-sm">
+<!-- Row 1: Zeiträume -->
+<div class="flex flex-wrap gap-sm mb-md pb-md border-b border-sage/50">
+<span class="label-font self-center mr-md">Zeitraum</span>
+<button class="px-4 py-1.5 rounded-full bg-primary-container text-on-primary-container text-label-sm font-label-sm">Alle</button>
+<button class="px-4 py-1.5 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 transition-colors text-label-sm font-label-sm">7 Tage</button>
+<button class="px-4 py-1.5 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 transition-colors text-label-sm font-label-sm">30 Tage</button>
+<button class="px-4 py-1.5 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 transition-colors text-label-sm font-label-sm">90 Tage</button>
+<button class="px-4 py-1.5 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 transition-colors text-label-sm font-label-sm">1 Jahr</button>
+</div>
+<!-- Row 2: Dropdowns -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-md">
+<div class="flex flex-col gap-xs">
+<label class="label-font">Gewässer</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle Gewässer</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="label-font">Köder</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle Köder</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="label-font">Mondphase</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle Phasen</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="label-font">Wetter</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle Bedingungen</option>
+</select>
+</div>
+</div>
+<!-- Row 3: Mehr Dropdowns, Pills & Button -->
+<div class="flex flex-wrap items-end justify-between gap-md">
+<div class="flex gap-md">
+<div class="flex flex-col gap-xs w-32">
+<label class="label-font">Luftdruck</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs w-32">
+<label class="label-font">Wind</label>
+<select class="bg-[#181d14] border-none text-outline-variant rounded-md p-2 data-font focus:ring-1 focus:ring-primary-container">
+<option>Alle</option>
+</select>
+</div>
+</div>
+<div class="flex gap-sm items-center flex-1 ml-md">
+<span class="label-font mr-sm">Fischart</span>
+<button class="px-3 py-1 rounded-full bg-primary/20 border border-primary text-primary-fixed-dim text-xs font-label-sm">Karpfen</button>
+<button class="px-3 py-1 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 text-xs font-label-sm">Wels</button>
+<button class="px-3 py-1 rounded-full border border-sage text-outline-variant hover:bg-surface-container-highest/20 text-xs font-label-sm">Zander</button>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full text-label-sm font-label-sm self-end">Anwenden</button>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="bento-grid">
+<!-- 2. KPIs -->
+<div class="bento-item-full grid grid-cols-2 md:grid-cols-4 gap-gutter mb-sm">
+<div class="bg-surface-dark border border-sage rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary-container transition-colors">
+<div class="absolute -right-4 -top-4 opacity-5"><span class="material-symbols-outlined text-[100px]">phishing</span></div>
+<span class="label-font z-10">Fänge Gesamt</span>
+<span class="text-display-lg font-display-lg text-primary-fixed-dim z-10">102</span>
+</div>
+<div class="bg-surface-dark border border-sage rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden">
+<span class="label-font z-10">Ø Gewicht</span>
+<span class="text-headline-lg font-headline-lg text-outline-variant z-10">8.2 <span class="text-body-md text-outline">kg</span></span>
+</div>
+<div class="bg-surface-dark border border-sage rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden">
+<span class="label-font z-10">Max Gewicht</span>
+<span class="text-headline-lg font-headline-lg text-outline-variant z-10">25.4 <span class="text-body-md text-outline">kg</span></span>
+</div>
+<div class="bg-surface-dark border border-sage rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden">
+<span class="label-font z-10">Befischte Gewässer</span>
+<span class="text-headline-lg font-headline-lg text-outline-variant z-10">11</span>
+</div>
+</div>
+<!-- 3. BESTE BEDINGUNGEN -->
+<div class="bento-item-half bg-surface-dark border border-sage rounded-xl p-0 flex overflow-hidden relative min-h-[200px]">
+<!-- Akzent Linie -->
+<div class="w-1.5 bg-primary-container h-full absolute left-0 top-0"></div>
+<div class="p-lg pl-[30px] flex flex-col justify-between w-full h-full relative z-10 bg-gradient-to-r from-surface-dark to-transparent">
+<div>
+<h2 class="text-headline-md font-headline-md text-primary-fixed-dim mb-xs">Beste Bedingungen</h2>
+<p class="text-body-md font-body-md text-outline-variant">Historische Erfolgsmuster</p>
+</div>
+<div class="flex flex-wrap gap-sm my-md">
+<div class="bg-[#181d14] border border-sage/50 rounded px-3 py-1.5 flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm text-primary-fixed-dim">dark_mode</span>
+<span class="data-font text-outline-variant">Vollmond</span>
+</div>
+<div class="bg-[#181d14] border border-sage/50 rounded px-3 py-1.5 flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm text-primary-fixed-dim">air</span>
+<span class="data-font text-outline-variant">Windig</span>
+</div>
+<div class="bg-[#181d14] border border-sage/50 rounded px-3 py-1.5 flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm text-primary-fixed-dim">schedule</span>
+<span class="data-font text-outline-variant">6-12 Uhr</span>
+</div>
+</div>
+<div class="mt-auto border-t border-sage/30 pt-sm">
+<span class="data-font text-primary-fixed-dim font-bold">33 Fänge</span>
+<span class="data-font text-outline-variant ml-sm">(Ø 9.3 kg)</span>
+</div>
+</div>
+<!-- Abstract visual placeholder -->
+<div class="absolute right-0 top-0 w-1/2 h-full opacity-10 bg-[radial-gradient(ellipse_at_right,_var(--tw-gradient-stops))] from-primary-fixed-dim via-[#181d14] to-[#181d14]"></div>
+</div>
+<!-- 4. BEDINGUNGEN MATRIX -->
+<div class="bento-item-half bg-surface-dark border border-sage rounded-xl p-lg flex flex-col">
+<h3 class="label-font mb-md">Dimensionen-Analyse</h3>
+<div class="flex-1 flex flex-col justify-between gap-sm">
+<!-- Row -->
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Mondphase</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 85%;"></div></div>
+<span class="data-font text-right text-xs">9.1 kg</span>
+</div>
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Wetter</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 65%;"></div></div>
+<span class="data-font text-right text-xs">7.8 kg</span>
+</div>
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Tageszeit</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 92%;"></div></div>
+<span class="data-font text-right text-xs">9.4 kg</span>
+</div>
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Luftdruck</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 45%;"></div></div>
+<span class="data-font text-right text-xs">6.2 kg</span>
+</div>
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Wassertemp.</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 78%;"></div></div>
+<span class="data-font text-right text-xs">8.5 kg</span>
+</div>
+<div class="grid grid-cols-[100px_1fr_60px] items-center gap-md">
+<span class="data-font text-outline-variant text-xs truncate">Windstärke</span>
+<div class="chart-bar-bg relative"><div class="chart-bar-fill absolute left-0" style="width: 55%;"></div></div>
+<span class="data-font text-right text-xs">7.1 kg</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
