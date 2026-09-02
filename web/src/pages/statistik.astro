@@ -1,8 +1,15 @@
 ---
+import { createSSRClient } from '../lib/ssr-client';
 import Layout from '../layouts/Layout.astro';
+
+const supabase = createSSRClient(Astro);
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) {
+  return Astro.redirect('/login');
+}
 ---
 
-<Layout title="Statistik">
+<Layout title="Statistik" active="statistik">
   <div class="stats-page">
     <aside class="filter-sidebar" id="filterSidebar">
       <h2>Filter</h2>
@@ -204,6 +211,15 @@ import Layout from '../layouts/Layout.astro';
     import uPlot from 'uplot';
     import 'uplot/dist/uPlot.min.css';
 
+    const CSS = {
+      primary: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-container').trim() || '#6c7a57',
+      primaryDim: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a',
+      primaryFixed: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed').trim() || '#dde5b6',
+      surface: getComputedStyle(document.documentElement).getPropertyValue('--color-surface-container-lowest').trim() || '#fff',
+      outline: getComputedStyle(document.documentElement).getPropertyValue('--color-outline-variant').trim() || '#c6c8bc',
+      onSurface: getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#181d14',
+    };
+
     const MONAT_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
     function monatName(m: number) { return MONAT_NAMES[m - 1] ?? String(m); }
 
@@ -250,7 +266,7 @@ import Layout from '../layouts/Layout.astro';
         ctx.clearRect(0, 0, W, H);
         return;
       }
-      const palette = ['#6c7a57','#a3b18a','#dde5b6','#bfc0c0','#588157','#3a5a40','#344e41'];
+      const palette = [CSS.primary, CSS.primaryDim, CSS.primaryFixed, '#bfc0c0', '#588157', '#3a5a40', '#344e41'];
       let start = -Math.PI / 2;
 
       data.forEach((d, i) => {
@@ -264,7 +280,7 @@ import Layout from '../layouts/Layout.astro';
         start += angle;
       });
 
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+      ctx.fillStyle = CSS.onSurface;
       ctx.font = 'bold 28px "Source Serif 4", serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -304,9 +320,9 @@ import Layout from '../layouts/Layout.astro';
       data.forEach((d, i) => {
         const y = 10 + i * (barH + 4);
         const barW = ((W - marginLeft - marginRight) * d.value) / maxVal;
-        ctx.fillStyle = '#6c7a57';
+        ctx.fillStyle = CSS.primary;
         ctx.fillRect(marginLeft, y, barW, barH);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.fillStyle = CSS.onSurface;
         ctx.font = '12px "Source Sans 3", sans-serif';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
@@ -339,9 +355,9 @@ import Layout from '../layouts/Layout.astro';
       data.forEach((d, i) => {
         const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
         const barH = (chartH * d.value) / maxVal;
-        ctx.fillStyle = '#6c7a57';
+        ctx.fillStyle = CSS.primary;
         ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.fillStyle = CSS.onSurface;
         ctx.font = '11px "Source Sans 3", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
@@ -372,9 +388,9 @@ import Layout from '../layouts/Layout.astro';
       data.forEach((d, i) => {
         const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
         const barH = (chartH * d.value) / maxVal;
-        ctx.fillStyle = '#6c7a57';
+        ctx.fillStyle = CSS.primary;
         ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.fillStyle = CSS.onSurface;
         ctx.font = '11px "Source Sans 3", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
@@ -394,13 +410,13 @@ import Layout from '../layouts/Layout.astro';
         width: el.clientWidth || 500,
         height: 260,
         axes: [
-          { stroke: '#888', grid: { stroke: '#dfe4d6' }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { stroke: '#dfe4d6' }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
         ],
         series: [
           {},
-          { label: 'Ø Gewicht', stroke: '#6c7a57', width: 2, points: { show: true, size: 5 } },
-          { label: 'Max Gewicht', stroke: '#a3b18a', width: 2, dash: [6, 3] },
+          { label: 'Ø Gewicht', stroke: CSS.primary, width: 2, points: { show: true, size: 5 } },
+          { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
         ],
       };
       new uPlot(opts, [months, avgW, maxW], el);
@@ -417,12 +433,12 @@ import Layout from '../layouts/Layout.astro';
         width: el.clientWidth || 500,
         height: 260,
         axes: [
-          { stroke: '#888', grid: { stroke: '#dfe4d6' }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { stroke: '#dfe4d6' }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
         ],
         series: [
           {},
-          { label: 'Fänge', stroke: '#6c7a57', bars: { show: true, width: 0.6, fill: '#6c7a57' } },
+          { label: 'Fänge', stroke: CSS.primary, bars: { show: true, width: 0.6, fill: CSS.primary } },
         ],
       };
       new uPlot(opts, [labels, counts], el);
@@ -484,6 +500,24 @@ import Layout from '../layouts/Layout.astro';
     async function populateSelects() {
       const { data } = await supabase.rpc('stats_conditions', { p_filters: {} });
       if (!data?.buckets) return;
+      const b = data.buckets;
+      function fillSelect(id: string, obj: Record<string, any> | undefined) {
+        const sel = document.getElementById(id);
+        if (!sel || !obj) return;
+        Object.keys(obj).forEach(k => {
+          if (k && k !== 'Unbekannt') {
+            const opt = document.createElement('option');
+            opt.value = k; opt.textContent = k;
+            sel.appendChild(opt);
+          }
+        });
+      }
+      fillSelect('gewaesser', b.gewaesser);
+      fillSelect('koeder', b.koeder);
+      fillSelect('mondphase', b.mond);
+      fillSelect('wetter', b.wetter);
+      fillSelect('fischart', b.art);
+      fillSelect('methode', b.methode || {});
     }
 
     async function refresh() {
@@ -533,6 +567,7 @@ import Layout from '../layouts/Layout.astro';
       }
 
       renderDrilldown(drill ?? []);
+      populateSelects();
     }
 
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
@@ -774,13 +809,17 @@ import Layout from '../layouts/Layout.astro';
     color: var(--color-on-surface-variant, #45483f);
   }
 
+  .donut-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .donut-legend i {
     display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 2px;
-    margin-right: 4px;
-    vertical-align: middle;
   }
 
   .kombi-table {
