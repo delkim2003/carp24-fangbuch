@@ -1,0 +1,60 @@
+/* Carp24 Editorial — Design Tokens from Stitch design.md */
+:root {
+  /* Colors */
+  --color-surface: #f6fbec;
+  --color-surface-dim: #d7dccd;
+  --color-surface-bright: #f6fbec;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f6e7;
+  --color-surface-container: #ebf0e1;
+  --color-surface-container-high: #e5eadb;
+  --color-surface-container-highest: #dfe4d6;
+  --color-on-surface: #181d14;
+  --color-on-surface-variant: #45483f;
+  --color-inverse-surface: #2d3228;
+  --color-inverse-on-surface: #eef3e4;
+  --color-outline: #76786e;
+  --color-outline-variant: #c6c8bc;
+  --color-surface-tint: #556342;
+  --color-primary: #546140;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #6c7a57;
+  --color-on-primary-container: #fdfff0;
+  --color-inverse-primary: #bdcca4;
+  --color-secondary: #61603a;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e7e5b4;
+  --color-on-secondary-container: #67663f;
+  --color-tertiary: #496163;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #617a7c;
+  --color-on-tertiary-container: #faffff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-background: #f6fbec;
+  --color-on-background: #181d14;
+  --color-surface-variant: #dfe4d6;
+
+  /* Typography */
+  --font-headline: "Source Serif 4", serif;
+  --font-body: "Source Sans 3", sans-serif;
+  --font-label: "Public Sans", sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-gutter: 20px;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  --radius-card: 16px;
+}

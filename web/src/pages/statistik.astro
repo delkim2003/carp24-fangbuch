@@ -1,12 +1,11 @@
 ---
 import { createSSRClient } from '../lib/ssr-client';
 import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase-client';
 
-const supabase = createSSRClient(Astro);
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) {
-  return Astro.redirect('/login');
-}
+const client = createSSRClient(Astro);
+const { data: { session } } = await client.auth.getSession();
+if (!session) return Astro.redirect('/login');
 ---
 
 <Layout title="Statistik" active="statistik">
@@ -15,6 +14,7 @@ if (!session) {
 
     <div class="filter-bar" id="filterBar">
       <div class="filter-row">
+        <span class="filter-label">ZEITRAUM:</span>
         <div class="filter-pills" id="zeitraumPills">
           <button class="pill active" data-value="all">Alle</button>
           <button class="pill" data-value="7d">7d</button>
@@ -41,9 +41,6 @@ if (!session) {
           <option value="maessig">10–20</option>
           <option value="stark">20+</option>
         </select>
-        <div class="filter-pills" id="fischartPills">
-          <button class="pill active" data-value="">Alle</button>
-        </div>
         <button class="btn-apply" id="btnApply">Anwenden</button>
       </div>
     </div>
@@ -53,7 +50,7 @@ if (!session) {
     </div>
 
     <div class="kpi-row" id="kpiRow">
-      <div class="kpi-card kpi-fang">
+      <div class="kpi-card">
         <span class="kpi-value" id="kpiFang">0</span>
         <span class="kpi-label">Fänge</span>
       </div>
@@ -71,14 +68,14 @@ if (!session) {
       </div>
     </div>
 
-    <section class="card wide" id="bestConditionsCard">
-      <h3>Beste Bedingungen</h3>
-      <div class="best-cond-content" id="bestConditions">
+    <section class="beste-bed" id="bestConditionsCard">
+      <span class="beste-bed-label">BESTE BEDINGUNGEN</span>
+      <div class="beste-bed-content" id="bestConditions">
         <p class="placeholder">Wird berechnet…</p>
       </div>
     </section>
 
-    <div class="charts-grid">
+    <div class="charts-row">
       <section class="card">
         <h3>Dimensionen-Analyse</h3>
         <div class="conditions-grid">
@@ -115,22 +112,22 @@ if (!session) {
       </section>
     </div>
 
-    <section class="card wide">
-      <h3>Fänge nach Gewässer</h3>
+    <section class="card" id="gewaesserSection">
+      <h3>Fänge nach Gewässer (Top 8)</h3>
       <div id="gewaesserChart" class="gewaesser-chart"></div>
     </section>
 
-    <section class="card wide">
+    <section class="card" id="kombiSection">
       <h3>Top Kombinationen</h3>
       <div id="kombiCards" class="kombi-cards"></div>
     </section>
 
-    <section class="card wide">
+    <section class="card" id="drilldownSection">
       <h3>Fangdetails</h3>
       <div id="drilldownContainer">
         <table class="detail-table">
           <thead>
-            <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
+            <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th><th>Länge</th></tr>
           </thead>
           <tbody id="drilldownBody"></tbody>
         </table>
@@ -225,8 +222,6 @@ if (!session) {
       if (m) f.mond = m;
       const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
       if (w) f.wetter = w;
-      const fa = (document.querySelector('#fischartPills .pill.active') as HTMLElement)?.dataset?.value;
-      if (fa) f.art = fa;
       const dt = (document.getElementById('druckTrend') as HTMLSelectElement)?.value;
       if (dt) f.druck_trend = dt;
       const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
@@ -239,7 +234,7 @@ if (!session) {
       if (!el) return;
       if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
       const maxVal = Math.max(...data.map(d => n(d[valueKey])));
-      const color = '#6c7a57';
+      const color = CSS.primary;
       el.innerHTML = data.map(d => {
         const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
         const label = d[labelKey] ?? '–';
@@ -267,15 +262,12 @@ if (!session) {
       if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
 
       el.innerHTML = `
-        <div class="best-cond-badge">
-          <div class="best-cond-chips">
-            ${parts.map(p => `<span class="condition-chip">${p}</span>`).join('')}
-          </div>
-          <div class="best-cond-result">
-            <span class="best-cond-count">${n(best.fangzahl)}</span>
-            <span class="best-cond-label">Fänge</span>
-            <span class="best-cond-avg">(Ø ${nf(best.avg_gewicht)} kg)</span>
-          </div>
+        <div class="beste-bed-chips">
+          ${parts.map(p => `<span class="condition-chip">${p}</span>`).join('')}
+        </div>
+        <div class="beste-bed-result">
+          <span class="beste-bed-count">${n(best.fangzahl)} Fänge</span>
+          <span class="beste-bed-avg">Ø ${nf(best.avg_gewicht)} kg</span>
         </div>
       `;
     }
@@ -292,9 +284,9 @@ if (!session) {
 
       const heatColor = (val: number): string => {
         const pct = val / maxVal;
-        if (pct > 0.66) return '#3a4d29';
-        if (pct > 0.33) return '#6c7a57';
-        return '#a3b18a';
+        if (pct > 0.66) return CSS.primary;
+        if (pct > 0.33) return CSS.primaryDim;
+        return CSS.outline;
       };
 
       let html = top8.map(d => {
@@ -352,8 +344,8 @@ if (!session) {
         ],
         series: [
           {},
-          { label: 'Ø Gewicht', stroke: '#6c7a57', fill: 'rgba(108,122,87,0.18)', width: 2, points: { show: true, size: 4 } },
-          { label: 'Max Gewicht', stroke: '#a3b18a', width: 2, dash: [6, 3] },
+          { label: 'Ø Gewicht', stroke: CSS.primary, fill: 'rgba(108,122,87,0.18)', width: 2, points: { show: true, size: 4 } },
+          { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
         ],
       };
       new uPlot(opts, [months, avgW, maxW], el);
@@ -393,7 +385,7 @@ if (!session) {
       const tbody = document.getElementById('drilldownBody');
       const container = document.getElementById('drilldownContainer');
       if (!tbody || !container) return;
-      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="no-data">Keine Daten</td></tr>'; return; }
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="no-data">Keine Daten</td></tr>'; return; }
 
       const rows = data.map((d: any) => `
         <tr>
@@ -402,6 +394,7 @@ if (!session) {
           <td>${speciesName(d.species)}</td>
           <td>${d.water_name ?? '–'}</td>
           <td>${d.bait ?? '–'}</td>
+          <td>${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</td>
         </tr>
       `).join('');
       tbody.innerHTML = rows;
@@ -413,6 +406,7 @@ if (!session) {
           <div class="detail-card-row"><span class="detail-card-label">Fischart</span><span>${speciesName(d.species)}</span></div>
           <div class="detail-card-row"><span class="detail-card-label">Gewässer</span><span>${d.water_name ?? '–'}</span></div>
           <div class="detail-card-row"><span class="detail-card-label">Köder</span><span>${d.bait ?? '–'}</span></div>
+          <div class="detail-card-row"><span class="detail-card-label">Länge</span><span>${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</span></div>
         </div>
       `).join('');
       const existingCards = container.querySelector('.detail-cards-mobile');
@@ -444,21 +438,6 @@ if (!session) {
       fillSelect('koeder', b.koeder);
       fillSelect('mondphase', b.mond);
       fillSelect('wetter', b.wetter);
-
-      const fischartPills = document.getElementById('fischartPills');
-      if (fischartPills && b.art) {
-        fischartPills.innerHTML = '<button class="pill active" data-value="">Alle</button>';
-        Object.keys(b.art).forEach(k => {
-          if (k && k !== 'Unbekannt') {
-            fischartPills.innerHTML += `<button class="pill" data-value="${k}">${speciesName(k)} (${n(b.art[k])})</button>`;
-          }
-        });
-        fischartPills.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
-          fischartPills.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-          p.classList.add('active');
-          refresh();
-        }));
-      }
     }
 
     let refreshSeq = 0;
@@ -536,14 +515,6 @@ if (!session) {
       refresh();
     });
 
-    document.getElementById('fischartPills')?.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
-      if (!btn) return;
-      document.querySelectorAll('#fischartPills .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      refresh();
-    });
-
     document.getElementById('btnApply')?.addEventListener('click', () => refresh());
 
     const observer = new MutationObserver(() => {
@@ -557,6 +528,22 @@ if (!session) {
 </Layout>
 
 <style>
+  :root {
+    --color-bg: #f6fbec;
+    --color-surface: #ebf0e1;
+    --color-primary: #546140;
+    --color-primary-container: #6c7a57;
+    --color-on-surface: #181d14;
+    --color-outline-variant: #c6c8bc;
+    --color-surface-variant: #dfe4d6;
+    --radius-card: 16px;
+    --radius-input: 8px;
+    --radius-pill: 9999px;
+    --font-headline: 'Source Serif 4', serif;
+    --font-body: 'Source Sans 3', sans-serif;
+    --font-label: 'Public Sans', sans-serif;
+  }
+
   :global(html), :global(body) {
     overflow-x: hidden;
     width: 100%;
@@ -565,21 +552,21 @@ if (!session) {
   .stats-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.5rem 1rem;
+    padding: 2.5rem 1.5rem;
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
-    font-family: 'Source Serif 4', 'Georgia', serif;
-    background: #f6fbec;
+    font-family: var(--font-body);
+    background: var(--color-bg);
     min-height: 100vh;
   }
 
   .stats-page h1 {
-    font-family: 'Source Serif 4', serif;
+    font-family: var(--font-headline);
     font-weight: 700;
     font-size: 2rem;
-    margin: 0 0 1.25rem;
-    color: #3a4d29;
+    margin: 0 0 1.5rem;
+    color: var(--color-primary);
     letter-spacing: -0.02em;
   }
 
@@ -593,8 +580,8 @@ if (!session) {
   .skeleton-spinner {
     width: 36px;
     height: 36px;
-    border: 3px solid #c6c8bc;
-    border-top-color: #6c7a57;
+    border: 3px solid var(--color-outline-variant);
+    border-top-color: var(--color-primary-container);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -605,7 +592,8 @@ if (!session) {
 
   .no-data {
     text-align: center;
-    color: #7a8a6a;
+    color: var(--color-on-surface);
+    opacity: 0.5;
     padding: 1.5rem;
     font-size: 0.9rem;
     font-style: italic;
@@ -613,21 +601,22 @@ if (!session) {
 
   .placeholder {
     text-align: center;
-    color: #7a8a6a;
+    color: var(--color-on-surface);
+    opacity: 0.5;
     padding: 1rem;
     font-style: italic;
   }
 
+  /* ── FILTER ── */
   .filter-bar {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    margin-bottom: 1.5rem;
-    padding: 0.85rem 1.1rem;
-    background: #fff;
-    border: 1px solid #dde4d0;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(60,80,40,0.06);
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: var(--color-surface-variant);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-card);
   }
 
   .filter-row {
@@ -637,44 +626,54 @@ if (!session) {
     align-items: center;
   }
 
+  .filter-label {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface);
+    opacity: 0.7;
+    margin-right: 0.25rem;
+  }
+
   .filter-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
+    gap: 0.35rem;
   }
 
   .pill {
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    border: 1px solid #c6ccba;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-outline-variant);
     background: transparent;
     font-size: 0.8rem;
     cursor: pointer;
-    font-family: 'Source Serif 4', serif;
-    color: #3a4d29;
+    font-family: var(--font-label);
+    color: var(--color-on-surface);
     transition: all 0.15s;
     white-space: nowrap;
     height: 32px;
     display: inline-flex;
     align-items: center;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .pill.active,
   .pill:hover {
-    background: #6c7a57;
-    color: #f6fbec;
-    border-color: #6c7a57;
+    background: var(--color-primary-container);
+    color: var(--color-bg);
+    border-color: var(--color-primary-container);
   }
 
   select {
-    padding: 0.3rem 1.8rem 0.3rem 0.75rem;
-    border: 1px solid #c6ccba;
-    border-radius: 999px;
+    padding: 0.35rem 1.8rem 0.35rem 0.75rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-input);
     font-size: 0.8rem;
-    background: #fff;
-    color: #3a4d29;
-    font-family: 'Source Serif 4', serif;
+    background: var(--color-bg);
+    color: var(--color-on-surface);
+    font-family: var(--font-label);
     cursor: pointer;
     height: 32px;
     appearance: none;
@@ -686,115 +685,92 @@ if (!session) {
   }
 
   .btn-apply {
-    padding: 0.35rem 1.1rem;
-    background: #6c7a57;
-    color: #f6fbec;
+    padding: 0.35rem 1.25rem;
+    background: var(--color-primary-container);
+    color: var(--color-bg);
     border: none;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    font-family: 'Source Serif 4', serif;
+    font-family: var(--font-label);
     transition: opacity 0.15s;
     height: 32px;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
   }
 
   .btn-apply:hover {
     opacity: 0.85;
   }
 
+  /* ── KPIs ── */
   .kpi-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
   }
 
   .kpi-card {
-    flex: 1;
-    min-width: 160px;
-    background: #fff;
-    border: 1px solid #dde4d0;
-    border-radius: 12px;
-    padding: 1.1rem;
+    background: var(--color-surface-variant);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 1px 4px rgba(60,80,40,0.06);
-  }
-
-  .kpi-card.kpi-fang {
-    flex: 1.5;
-    background: linear-gradient(135deg, #6c7a57 0%, #7a8a62 100%);
-    border-color: #6c7a57;
-  }
-
-  .kpi-card.kpi-fang .kpi-value {
-    font-size: 2.5rem;
-    color: #f6fbec;
-    font-weight: 800;
-  }
-
-  .kpi-card.kpi-fang .kpi-label {
-    color: #f6fbec;
-    opacity: 0.85;
   }
 
   .kpi-value {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    font-family: 'Source Serif 4', serif;
-    color: #6c7a57;
+    font-family: var(--font-headline);
+    color: var(--color-primary-container);
     line-height: 1.1;
   }
 
   .kpi-label {
     display: block;
     font-size: 0.75rem;
-    color: #7a8a6a;
-    margin-top: 0.25rem;
+    color: var(--color-on-surface);
+    opacity: 0.6;
+    margin-top: 0.35rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-label);
   }
 
-  .card {
-    background: #fff;
-    border: 1px solid #dde4d0;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1.25rem;
-    box-shadow: 0 1px 4px rgba(60,80,40,0.04);
-  }
-
-  .card h3 {
-    font-family: 'Source Serif 4', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0 0 1rem;
-    color: #3a4d29;
-    letter-spacing: -0.01em;
-  }
-
-  .best-cond-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .best-cond-badge {
-    border-left: 4px solid #6c7a57;
-    padding: 1rem 1.25rem;
+  /* ── BESTE BEDINGUNGEN ── */
+  .beste-bed {
+    background: var(--color-surface);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 var(--radius-card) var(--radius-card) 0;
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-    background: #f6fbec;
-    border-radius: 0 10px 10px 0;
   }
 
-  .best-cond-chips {
+  .beste-bed-label {
+    font-family: var(--font-label);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+    width: 100%;
+  }
+
+  .beste-bed-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .beste-bed-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
@@ -804,50 +780,63 @@ if (!session) {
   .condition-chip {
     display: inline-flex;
     align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    background: #e8eedd;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-variant);
     font-size: 0.85rem;
-    color: #3a4d29;
+    color: var(--color-on-surface);
     white-space: nowrap;
     font-weight: 500;
+    font-family: var(--font-body);
   }
 
-  .best-cond-result {
+  .beste-bed-result {
     display: flex;
     align-items: baseline;
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
-  .best-cond-count {
-    font-size: 2rem;
-    font-weight: 800;
-    font-family: 'Source Serif 4', serif;
-    color: #6c7a57;
-    line-height: 1;
+  .beste-bed-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-headline);
+    color: var(--color-primary-container);
   }
 
-  .best-cond-label {
-    font-size: 0.85rem;
-    color: #7a8a6a;
-    font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
+  .beste-bed-avg {
+    color: var(--color-on-surface);
+    opacity: 0.6;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
   }
 
-  .best-cond-avg {
-    color: #7a8a6a;
-    font-size: 0.85rem;
-    font-family: 'Source Sans 3', sans-serif;
+  /* ── CARDS ── */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
   }
 
-  .charts-grid {
+  .card h3 {
+    font-family: var(--font-headline);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    color: var(--color-primary);
+    letter-spacing: -0.01em;
+  }
+
+  /* ── CHARTS ROW ── */
+  .charts-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 2.5rem;
   }
 
-  .charts-grid > .card {
+  .charts-row > .card {
     margin-bottom: 0;
   }
 
@@ -858,13 +847,13 @@ if (!session) {
   }
 
   .condition-row h4 {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     margin-bottom: 0.4rem;
-    color: #6c7a57;
+    color: var(--color-primary-container);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-family: 'Source Sans 3', sans-serif;
+    letter-spacing: 0.06em;
+    font-family: var(--font-label);
   }
 
   .condition-bars {
@@ -883,18 +872,19 @@ if (!session) {
   .condition-bar-label {
     width: 140px;
     text-align: right;
-    color: #5a6a4a;
+    color: var(--color-on-surface);
+    opacity: 0.7;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex-shrink: 0;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
   .condition-bar-track {
     flex: 1;
     height: 22px;
-    background: #f0f4e8;
+    background: var(--color-surface-variant);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -908,19 +898,21 @@ if (!session) {
 
   .condition-bar-value {
     font-weight: 700;
-    color: #3a4d29;
+    color: var(--color-on-surface);
     min-width: 30px;
     text-align: right;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
   .condition-bar-avg {
-    color: #7a8a6a;
+    color: var(--color-on-surface);
+    opacity: 0.5;
     font-size: 0.75rem;
     min-width: 70px;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
+  /* ── GEWÄSSER ── */
   .gewaesser-chart {
     display: flex;
     flex-direction: column;
@@ -939,18 +931,19 @@ if (!session) {
   .gewaesser-bar-label {
     width: 180px;
     text-align: right;
-    color: #5a6a4a;
+    color: var(--color-on-surface);
+    opacity: 0.7;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex-shrink: 0;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
   .gewaesser-bar-track {
     flex: 1;
     height: 24px;
-    background: #f0f4e8;
+    background: var(--color-surface-variant);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -965,9 +958,9 @@ if (!session) {
   .gewaesser-bar-value {
     width: 40px;
     font-weight: 700;
-    color: #3a4d29;
+    color: var(--color-on-surface);
     text-align: right;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
   .gewaesser-more {
@@ -977,27 +970,28 @@ if (!session) {
   .gewaesser-more summary {
     cursor: pointer;
     font-size: 0.8rem;
-    color: #6c7a57;
+    color: var(--color-primary-container);
     padding: 0.3rem 0;
     font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
+  /* ── KOMBI CARDS ── */
   .kombi-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
   }
 
   .kombi-card {
-    background: #f6fbec;
-    border-radius: 10px;
-    padding: 0.85rem;
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-card);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     position: relative;
-    border: 2px solid #dde4d0;
+    border: 2px solid var(--color-outline-variant);
     transition: border-color 0.2s;
   }
 
@@ -1023,14 +1017,14 @@ if (!session) {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #6c7a57;
-    color: #f6fbec;
+    background: var(--color-primary-container);
+    color: var(--color-bg);
     font-size: 0.7rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-label);
   }
 
   .kombi-card.rank-1 .kombi-rank {
@@ -1057,27 +1051,30 @@ if (!session) {
   .kombi-card-count {
     font-size: 1.1rem;
     font-weight: 700;
-    font-family: 'Source Serif 4', serif;
-    color: #6c7a57;
+    font-family: var(--font-headline);
+    color: var(--color-primary-container);
   }
 
   .kombi-card-weight {
     font-size: 0.8rem;
-    color: #7a8a6a;
-    font-family: 'Source Sans 3', sans-serif;
+    color: var(--color-on-surface);
+    opacity: 0.6;
+    font-family: var(--font-body);
   }
 
   .kombi-card-label {
     font-size: 0.85rem;
-    color: #5a6a4a;
+    color: var(--color-on-surface);
+    opacity: 0.8;
     line-height: 1.4;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
+  /* ── DETAIL TABLE ── */
   .detail-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
     font-size: 0.85rem;
     display: block;
     overflow-x: auto;
@@ -1086,25 +1083,27 @@ if (!session) {
   .detail-table th,
   .detail-table td {
     text-align: left;
-    padding: 0.5rem 0.7rem;
-    border-bottom: 1px solid #dde4d0;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-outline-variant);
   }
 
   .detail-table th {
     font-weight: 700;
-    color: #6c7a57;
+    color: var(--color-primary-container);
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    background: #f6fbec;
+    background: var(--color-surface-variant);
+    font-family: var(--font-label);
   }
 
   .detail-table tr:nth-child(even) {
-    background: #f8faF2;
+    background: var(--color-surface-variant);
+    opacity: 0.5;
   }
 
   .detail-table tbody tr:hover {
-    background: #eef2e4;
+    background: var(--color-surface-variant);
   }
 
   .detail-cards-mobile {
@@ -1112,38 +1111,37 @@ if (!session) {
   }
 
   .detail-card {
-    background: #f6fbec;
-    border-radius: 8px;
-    padding: 0.75rem;
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-input);
+    padding: 0.85rem;
     margin-bottom: 0.5rem;
-    border: 1px solid #dde4d0;
+    border: 1px solid var(--color-outline-variant);
   }
 
   .detail-card-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.2rem 0;
+    padding: 0.25rem 0;
     font-size: 0.85rem;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: var(--font-body);
   }
 
   .detail-card-label {
-    color: #7a8a6a;
+    color: var(--color-on-surface);
+    opacity: 0.6;
     font-weight: 600;
+    font-family: var(--font-label);
   }
 
   @media (max-width: 900px) {
     .kpi-row {
-      flex-wrap: wrap;
+      grid-template-columns: repeat(2, 1fr);
     }
-    .kpi-card {
-      min-width: calc(50% - 0.5rem);
-    }
-    .kpi-card.kpi-fang {
-      min-width: 100%;
-    }
-    .charts-grid {
+    .charts-row {
       grid-template-columns: 1fr;
+    }
+    .kombi-cards {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
@@ -1156,10 +1154,10 @@ if (!session) {
     }
     .filter-bar {
       gap: 0.35rem;
-      padding: 0.5rem;
+      padding: 1rem;
     }
     .card {
-      padding: 0.85rem;
+      padding: 1rem;
     }
     .condition-bar-label {
       width: 100px;
