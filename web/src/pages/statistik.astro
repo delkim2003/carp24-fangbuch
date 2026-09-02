@@ -158,13 +158,8 @@ if (!session) {
           </div>
         </section>
         <section class="chart-card wide">
-          <h3>Beste Kombinationen</h3>
-          <table class="kombi-table">
-            <thead>
-              <tr><th>Kombi</th><th>Fänge</th><th>Ø Gewicht</th></tr>
-            </thead>
-            <tbody id="kombiBody"></tbody>
-          </table>
+          <h3>⭐ Beste Kombinationen</h3>
+          <div id="kombiCards" class="kombi-cards"></div>
         </section>
       </div>
 
@@ -526,7 +521,7 @@ if (!session) {
         { data: drill },
       ] = await Promise.all([
         supabase.rpc('stats_conditions', { p_filters: filters }),
-        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
+        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 8 }),
         supabase.rpc('stats_insights', { p_filters: filters }),
         supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
@@ -556,17 +551,26 @@ if (!session) {
       renderConditions(mondData, wet ?? [], druck ?? [], wind ?? []);
 
       const kombiLabels: Record<string, string> = {
-        mond: 'Mond', druck: 'Druck', wetter: 'Wetter', koeder: 'Köder',
-        uhrzeit: 'Uhrzeit', wassertemp: 'Wassertemp', lufttemp: 'Lufttemp', wind: 'Wind'
+        mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
+        uhrzeit: '⏰', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
       };
-      const tbody = document.getElementById('kombiBody');
-      if (tbody) {
-        tbody.innerHTML = (kombis ?? []).map((k: any) => {
+      const kombiContainer = document.getElementById('kombiCards');
+      if (kombiContainer) {
+        kombiContainer.innerHTML = (kombis ?? []).slice(0, 8).map((k: any) => {
           const parts = k.kombi.split(' + ').map((p: string) => {
             const [key, val] = p.split('=');
-            return (kombiLabels[key] || key) + ': ' + val;
+            return `${kombiLabels[key] || key} ${val}`;
           });
-          return `<tr><td>${parts.join(' · ')}</td><td>${k.fangzahl}</td><td>${Number(k.avg_gewicht).toFixed(1)} kg</td></tr>`;
+          const avg = Number(k.avg_gewicht).toFixed(1);
+          const stars = avg >= 10 ? '⭐⭐⭐' : avg >= 7 ? '⭐⭐' : '⭐';
+          return `<div class="kombi-card">
+            <div class="kombi-card-header">
+              <span class="kombi-card-weight">${avg} kg</span>
+              <span class="kombi-card-count">${k.fangzahl} Fänge</span>
+            </div>
+            <div class="kombi-card-label">${parts.join(' · ')}</div>
+            <div class="kombi-card-stars">${stars}</div>
+          </div>`;
         }).join('');
       }
 
@@ -855,6 +859,46 @@ if (!session) {
   .condition-bar-avg {
     color: var(--color-on-surface-variant);
     font-size: 0.75rem;
+  }
+
+  .kombi-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .kombi-card {
+    background: var(--color-surface-container-low);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .kombi-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .kombi-card-weight {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  .kombi-card-count {
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container);
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+  }
+  .kombi-card-label {
+    font-size: 0.85rem;
+    color: var(--color-on-surface-variant);
+    line-height: 1.4;
+  }
+  .kombi-card-stars {
+    color: #f59e0b;
+    font-size: 0.9rem;
   }
 
   .kombi-table {
