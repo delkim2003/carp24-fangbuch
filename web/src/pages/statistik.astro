@@ -639,6 +639,16 @@ if (!session) {
       });
     });
 
+    const observer = new MutationObserver(() => {
+      CSS.primary = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-container').trim() || '#6c7a57';
+      CSS.primaryDim = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a';
+      CSS.primaryFixed = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed').trim() || '#dde5b6';
+      CSS.surface = getComputedStyle(document.documentElement).getPropertyValue('--color-surface-container-lowest').trim() || '#fff';
+      CSS.outline = getComputedStyle(document.documentElement).getPropertyValue('--color-outline-variant').trim() || '#c6c8bc';
+      refresh();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     refresh();
   </script>
 </Layout>
