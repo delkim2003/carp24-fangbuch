@@ -514,10 +514,14 @@ if (!session) {
       }
     }
 
+    let refreshSeq = 0;
+
     async function refresh() {
+      const mySeq = ++refreshSeq;
       const loadingEl = document.getElementById('loading-indicator');
       if (loadingEl) loadingEl.style.display = 'block';
       const { data: { user } } = await supabase.auth.getUser();
+      if (mySeq !== refreshSeq) return;
       const filters = getFilters();
       const [
         { data: cond },
@@ -542,11 +546,13 @@ if (!session) {
         supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
         supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
       ]);
+      if (mySeq !== refreshSeq) return;
 
       const [{ data: badgeData }, { data: tripData }] = await Promise.all([
         supabase.rpc('stats_badges', { p_user_id: user?.id }),
         supabase.rpc('stats_trips', { p_user_id: user?.id }),
       ]);
+      if (mySeq !== refreshSeq) return;
       renderBadges(badgeData);
       renderTrips(tripData);
 
