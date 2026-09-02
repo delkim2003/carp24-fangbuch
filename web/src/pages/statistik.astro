@@ -52,24 +52,23 @@ if (!session) {
           <label for="wetter">Wetter</label>
           <select id="wetter"><option value="">Alle</option></select>
         </div>
-
         <div class="filter-section">
           <label for="druckTrend">Luftdruck</label>
           <select id="druckTrend">
             <option value="">Alle</option>
-            <option value="niedrig">&lt;1010 hPa</option>
-            <option value="mittel">1010-1020 hPa</option>
-            <option value="hoch">&gt;1020 hPa</option>
+            <option value="niedrig">&lt;1005 hPa</option>
+            <option value="mittel">1005–1015 hPa</option>
+            <option value="hoch">&gt;=1015 hPa</option>
           </select>
         </div>
         <div class="filter-section">
           <label for="wind">Wind</label>
           <select id="wind">
             <option value="">Alle</option>
-            <option value="windstill">Windstill (&lt;5 km/h)</option>
-            <option value="leicht">Leicht (5-15 km/h)</option>
-            <option value="maessig">Mäßig (15-30 km/h)</option>
-            <option value="stark">Stark (&gt;30 km/h)</option>
+            <option value="windstill">&lt;5 km/h</option>
+            <option value="leicht">5–10 km/h</option>
+            <option value="maessig">10–20 km/h</option>
+            <option value="stark">20+ km/h</option>
           </select>
         </div>
         <div class="filter-section">
@@ -88,135 +87,96 @@ if (!session) {
 
     <main class="stats-content">
       <h1>Fang-Statistiken</h1>
+      <div id="loading-indicator" class="loading-indicator">Daten laden...</div>
 
-      <div id="loading-indicator" style="display:none;text-align:center;padding:2rem;color:var(--color-on-surface-variant)">⏳ Daten laden...</div>
-
-      <div class="kpi-row main-kpi">
+      <!-- 1. KPIs -->
+      <div class="kpi-row" id="kpiRow">
         <div class="kpi-card">
-          <span class="kpi-value">0</span>
-          <span class="kpi-label">GESAMTE FÄNGE</span>
+          <span class="kpi-value" id="kpiFang">0</span>
+          <span class="kpi-label">FÄNGE</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">– KG</span>
-          <span class="kpi-label">SCHWERSTER FANG</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-value">– KG</span>
+          <span class="kpi-value" id="kpiAvg">– kg</span>
           <span class="kpi-label">Ø GEWICHT</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">0</span>
-          <span class="kpi-label">AKTIVE GEWÄSSER</span>
+          <span class="kpi-value" id="kpiMax">– kg</span>
+          <span class="kpi-label">MAX GEWICHT</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value" id="kpiWater">0</span>
+          <span class="kpi-label">GEWÄSSER</span>
         </div>
       </div>
 
+      <!-- 2. Beste Bedingungen -->
       <div class="chart-grid">
-        <section class="chart-card">
-          <h3>📊 Carp24 Analyse</h3>
-          <div class="insight-cards">
-            <div class="insight-card"><span class="insight-icon">⏰</span><span class="insight-text">Deine beste Fangzeit: <strong>–</strong> (Ø – kg)</span></div>
-            <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>–</strong> (Ø – kg)</span></div>
-            <div class="insight-card"><span class="insight-icon">🎣</span><span class="insight-text">Bestes Köder: <strong>–</strong> (Ø – kg)</span></div>
+        <section class="chart-card wide" id="bestConditionsCard">
+          <h3>⭐ Beste Bedingungen</h3>
+          <div class="best-cond-content" id="bestConditions">
+            <p class="best-cond-placeholder">Wird berechnet...</p>
           </div>
         </section>
       </div>
 
-      <div class="chart-grid">
-        <section class="chart-card">
-          <h3>Fänge nach Gewässer</h3>
-          <div id="gewaesserChart"></div>
-        </section>
-        <section class="chart-card">
-          <h3>Mondphasen</h3>
-          <div id="mondChart"></div>
-        </section>
-      </div>
-
+      <!-- 3. Bedingungen Matrix -->
       <div class="chart-grid">
         <section class="chart-card wide">
-          <h3>Fänge pro Monat</h3>
-          <div id="monatChart"></div>
-        </section>
-      </div>
-
-      <div class="chart-grid">
-        <section class="chart-card">
-          <h3>Gewichtsverlauf</h3>
-          <div id="verlaufChart"></div>
-        </section>
-      </div>
-
-      <div class="chart-grid">
-        <section class="chart-card wide">
-          <h3>🌙 Bedingungen</h3>
+          <h3>📊 Bedingungen-Matrix</h3>
           <div class="conditions-grid">
             <div class="condition-row">
-              <h4>Mondphase</h4>
+              <h4>🌙 Mondphase</h4>
               <div id="mondBars" class="condition-bars"></div>
             </div>
             <div class="condition-row">
-              <h4>Wetter</h4>
+              <h4>🌤️ Wetter</h4>
               <div id="wetterBars" class="condition-bars"></div>
             </div>
             <div class="condition-row">
-              <h4>Luftdruck (hPa)</h4>
+              <h4>📊 Luftdruck</h4>
               <div id="druckBars" class="condition-bars"></div>
             </div>
             <div class="condition-row">
-              <h4>Windstärke</h4>
+              <h4>🌡️ Wassertemperatur</h4>
+              <div id="tempBars" class="condition-bars"></div>
+            </div>
+            <div class="condition-row">
+              <h4>💨 Wind</h4>
               <div id="windBars" class="condition-bars"></div>
             </div>
           </div>
         </section>
+      </div>
+
+      <!-- 4. Gewichtsverlauf -->
+      <div class="chart-grid">
         <section class="chart-card wide">
-          <h3>⭐ Beste Kombinationen</h3>
+          <h3>📈 Gewichtsverlauf</h3>
+          <div id="verlaufChart"></div>
+        </section>
+      </div>
+
+      <!-- 5. Gewässer -->
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>🏞️ Fänge nach Gewässer</h3>
+          <div id="gewaesserChart"></div>
+        </section>
+      </div>
+
+      <!-- 6. Kombi-Cards -->
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>🏆 Top Kombinationen</h3>
           <div id="kombiCards" class="kombi-cards"></div>
         </section>
       </div>
 
-
-
-      <div class="chart-grid">
-        <section class="chart-card wide">
-          <h3>🏆 Badges</h3>
-          <div class="badges-progress">
-            <span class="badges-count">0 / 0</span>
-            <div class="badges-bar"><div class="badges-bar-fill" style="width: 0%"></div></div>
-          </div>
-          <div class="badges-grid" id="badgesGrid"></div>
-        </section>
-      </div>
-
-      <div class="chart-grid">
-        <section class="chart-card wide">
-          <h3>🗺️ Trips</h3>
-          <div class="kpi-row trip-kpi">
-            <div class="kpi-card">
-              <span class="kpi-value">0</span>
-              <span class="kpi-label">TRIPS</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-value">– KG</span>
-              <span class="kpi-label">Ø GEWICHT / TRIP</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-value">–</span>
-              <span class="kpi-label">BESTES GEWÄSSER</span>
-            </div>
-          </div>
-          <table class="kombi-table">
-            <thead>
-              <tr><th>Datum</th><th>Gewässer</th><th>Fänge</th><th>Ø Gewicht</th><th>Max Gewicht</th></tr>
-            </thead>
-            <tbody id="tripsBody"></tbody>
-          </table>
-        </section>
-      </div>
-
+      <!-- 7. Fangdetails -->
       <div class="chart-grid">
         <section class="chart-card wide">
           <h3>📋 Fangdetails</h3>
-          <table class="kombi-table">
+          <table class="detail-table">
             <thead>
               <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
             </thead>
@@ -232,15 +192,6 @@ if (!session) {
     import uPlot from 'uplot';
     import 'uplot/dist/uPlot.min.css';
 
-    const CSS = {
-      primary: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-container').trim() || '#6c7a57',
-      primaryDim: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a',
-      primaryFixed: getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed').trim() || '#dde5b6',
-      surface: getComputedStyle(document.documentElement).getPropertyValue('--color-surface-container-lowest').trim() || '#fff',
-      outline: getComputedStyle(document.documentElement).getPropertyValue('--color-outline-variant').trim() || '#c6c8bc',
-      onSurface: getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#181d14',
-    };
-
     const MONAT_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
     function monatName(m: number) { return MONAT_NAMES[m - 1] ?? String(m); }
 
@@ -254,24 +205,42 @@ if (!session) {
       return map[s?.toLowerCase()] ?? s ?? '–';
     }
 
+    function n(val: unknown): number {
+      const v = Number(val);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    function nf(val: unknown, digits = 1): string {
+      const v = Number(val);
+      return Number.isFinite(v) ? v.toFixed(digits) : '–';
+    }
+
+    function getCSS(): Record<string, string> {
+      const s = getComputedStyle(document.documentElement);
+      return {
+        primary: s.getPropertyValue('--color-primary-container').trim() || '#6c7a57',
+        primaryDim: s.getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a',
+        primaryFixed: s.getPropertyValue('--color-primary-fixed').trim() || '#dde5b6',
+        surface: s.getPropertyValue('--color-surface-container-lowest').trim() || '#fff',
+        outline: s.getPropertyValue('--color-outline-variant').trim() || '#c6c8bc',
+        onSurface: s.getPropertyValue('--color-on-surface').trim() || '#181d14',
+        onSurfaceVar: s.getPropertyValue('--color-on-surface-variant').trim() || '#45483f',
+      };
+    }
+
+    let CSS = getCSS();
+
     function getFilters(): Record<string, any> {
       const f: Record<string, any> = {};
       const z = document.querySelector('#zeitraumPills .pill.active') as HTMLElement;
       if (z) {
         const val = z.dataset.value;
         const now = new Date();
-        if (val === '7d') {
-          const d = new Date(now); d.setDate(d.getDate()-7);
-          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
-        } else if (val === '30d') {
-          const d = new Date(now); d.setDate(d.getDate()-30);
-          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
-        } else if (val === '90d') {
-          const d = new Date(now); d.setDate(d.getDate()-90);
-          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
-        } else if (val === '1y') {
-          const d = new Date(now); d.setFullYear(d.getFullYear()-1);
-          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
+        if (val && val !== 'all') {
+          const d = new Date(now);
+          if (val === '1y') d.setFullYear(d.getFullYear() - 1);
+          else d.setDate(d.getDate() - parseInt(val));
+          f.zeitraum = { von: d.toISOString().slice(0, 10), bis: now.toISOString().slice(0, 10) };
         }
       }
       const g = (document.getElementById('gewaesser') as HTMLSelectElement)?.value;
@@ -291,21 +260,83 @@ if (!session) {
       return f;
     }
 
+    function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
+      const maxVal = Math.max(...data.map(d => n(d[valueKey])));
+      el.innerHTML = data.map(d => {
+        const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
+        return `<div class="condition-bar">
+          <span class="condition-bar-label">${d[labelKey] ?? '–'}</span>
+          <div class="condition-bar-track"><div class="condition-bar-fill" style="width:${pct}%"></div></div>
+          <span class="condition-bar-value">${n(d[valueKey])}</span>
+          <span class="condition-bar-avg">Ø ${nf(d[avgKey])} kg</span>
+        </div>`;
+      }).join('');
+    }
+
+    function renderBestConditions(best: any) {
+      const el = document.getElementById('bestConditions');
+      if (!el) return;
+      if (!best) { el.innerHTML = '<p class="best-cond-placeholder">Keine Daten</p>'; return; }
+
+      const mondEmoji: Record<string, string> = {
+        'Neumond': '🌑', 'Zunehmend': '🌒', 'Erstes Viertel': '🌓',
+        'Zunehmender Gibbus': '🌔', 'Vollmond': '🌕', 'Abnehmender Gibbus': '🌖',
+        'Letztes Viertel': '🌗', 'Abnehmend': '🌘'
+      };
+
+      const parts: string[] = [];
+      if (best.mond) parts.push(`${mondEmoji[best.mond] || '🌙'} ${best.mond}`);
+      if (best.wetter) parts.push(`🌤️ ${best.wetter}`);
+      if (best.druck) parts.push(`📊 ${best.druck}`);
+      if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
+      if (best.wind) parts.push(`💨 ${best.wind}`);
+      if (best.koeder) parts.push(`🎣 ${best.koeder}`);
+
+      const emoji = best.mond ? (mondEmoji[best.mond] || '🌙') : '⭐';
+
+      el.innerHTML = `
+        <div class="best-cond-main">
+          <span class="best-cond-emoji">${emoji}</span>
+          <div class="best-cond-stats">
+            <span class="best-cond-weight">${nf(best.avg_gewicht)} kg</span>
+            <span class="best-cond-label">Ø Gewicht</span>
+          </div>
+          <div class="best-cond-stats">
+            <span class="best-cond-count">${n(best.fangzahl)}</span>
+            <span class="best-cond-label">Fänge</span>
+          </div>
+        </div>
+        <div class="best-cond-parts">${parts.map(p => `<span class="best-cond-tag">${p}</span>`).join('')}</div>
+        <button class="btn-filter-best" id="btnFilterBest">Diese Bedingungen filtern</button>
+      `;
+
+      document.getElementById('btnFilterBest')?.addEventListener('click', () => {
+        if (best.mond) (document.getElementById('mondphase') as HTMLSelectElement).value = best.mond;
+        if (best.wetter) (document.getElementById('wetter') as HTMLSelectElement).value = best.wetter;
+        if (best.koeder) (document.getElementById('koeder') as HTMLSelectElement).value = best.koeder;
+        refresh();
+      });
+    }
+
     function renderGewaesser(data: any[]) {
       const el = document.getElementById('gewaesserChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      if (!el) return;
+      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
       el.innerHTML = '';
       const labels = data.map((d: any) => d.water_name || 'Unbekannt');
-      const counts = data.map((d: any) => +d.catch_count);
+      const counts = data.map((d: any) => n(d.catch_count));
       const indices = data.map((_: any, i: number) => i);
 
       const opts: uPlot.Options = {
-        width: el.clientWidth || 400,
-        height: Math.max(200, data.length * 35),
+        width: el.clientWidth || 600,
+        height: Math.max(200, data.length * 36),
         axes: [
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: () => labels },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: CSS.onSurfaceVar, grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
+            values: (_u: any, _vals: any) => labels },
+          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
         ],
         series: [
           {},
@@ -315,85 +346,29 @@ if (!session) {
       new uPlot(opts, [indices, counts], el);
     }
 
-    function renderMond(data: any[]) {
-      const el = document.getElementById('mondChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const mondEmoji: Record<string, string> = {
-        'Neumond': '🌑', 'Zunehmend': '🌒', 'Erstes Viertel': '🌓',
-        'Zunehmender Gibbus': '🌔', 'Vollmond': '🌕', 'Abnehmender Gibbus': '🌖',
-        'Letztes Viertel': '🌗', 'Abnehmend': '🌘'
-      };
-      const labels = data.map((d: any) => `${mondEmoji[d.mond_phase] || '🌙'} ${d.mond_phase}`);
-      const counts = data.map((d: any) => +d.catch_count);
-      const avgW = data.map((d: any) => +d.avg_weight);
-      const indices = data.map((_: any, i: number) => i);
-
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 400,
-        height: 260,
-        axes: [
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: () => labels },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif', side: 1 },
-        ],
-        series: [
-          {},
-          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
-          { label: 'Ø kg', stroke: '#e07a5f', width: 2, points: { show: true, size: 5 }, scale: 'y2' },
-        ],
-        scales: { y2: { side: 1 } },
-      };
-      new uPlot(opts, [indices, counts, avgW], el);
-    }
-
-    function renderMonat(data: { label: string; value: number }[]) {
-      const el = document.getElementById('monatChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const labels = data.map(d => d.label);
-      const values = data.map(d => d.value);
-      const indices = data.map((_, i) => i);
-
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 500,
-        height: 260,
-        axes: [
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: () => labels },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-        ],
-        series: [
-          {},
-          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
-        ],
-      };
-      new uPlot(opts, [indices, values], el);
-    }
-
     function renderVerlauf(data: any[]) {
       const el = document.getElementById('verlaufChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      if (!el) return;
+      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
       el.innerHTML = '';
       const months = data.map((d: any) => {
         const [y, m] = d.month.split('-');
         return Math.floor(new Date(+y, +m - 1, 15).getTime() / 1000);
       });
-      const avgW = data.map((d: any) => +d.avg_weight);
-      const maxW = data.map((d: any) => +d.max_weight);
+      const avgW = data.map((d: any) => n(d.avg_weight));
+      const maxW = data.map((d: any) => n(d.max_weight));
 
       const opts: uPlot.Options = {
-        width: el.clientWidth || 500,
-        height: 260,
+        width: el.clientWidth || 600,
+        height: 280,
         axes: [
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
-            values: (u, vals) => vals.map(v => {
+          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
+            values: (_u: any, vals: any) => vals.map((v: number) => {
               const d = new Date(v * 1000);
               return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
             }),
           },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
         ],
         series: [
           {},
@@ -404,73 +379,42 @@ if (!session) {
       new uPlot(opts, [months, avgW, maxW], el);
     }
 
-    function renderConditions(mond: any[], wetter: any[], druck: any[], wind: any[]) {
-      function renderBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string) {
-        const el = document.getElementById(containerId);
-        if (!el || !data.length) { if (el) el.innerHTML = '<p style="color:#999;font-size:0.8rem;">Keine Daten</p>'; return; }
-        const maxVal = Math.max(...data.map(d => +d[valueKey]));
-        el.innerHTML = data.map(d => {
-          const pct = maxVal > 0 ? (+d[valueKey] / maxVal * 100) : 0;
-          return `<div class="condition-bar">
-            <span class="condition-bar-label">${d[labelKey]}</span>
-            <div class="condition-bar-fill" style="width:${pct}%"></div>
-            <span class="condition-bar-value">${d[valueKey]}</span>
-            <span class="condition-bar-avg">Ø ${Number(d[avgKey]).toFixed(1)} kg</span>
-          </div>`;
-        }).join('');
-      }
-      renderBars('mondBars', mond, 'mond_phase', 'catch_count', 'avg_weight');
-      renderBars('wetterBars', wetter, 'weather_type', 'catch_count', 'avg_weight');
-      renderBars('druckBars', druck, 'druck_bereich', 'catch_count', 'avg_weight');
-      renderBars('windBars', wind, 'wind_bereich', 'catch_count', 'avg_weight');
-    }
+    function renderKombis(data: any[]) {
+      const el = document.getElementById('kombiCards');
+      if (!el) return;
+      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
 
-    function renderBadges(data: any[]) {
-      const grid = document.getElementById('badgesGrid');
-      if (!grid) return;
-      const earned = data.filter((b: any) => b.erreicht).length;
-      const total = data.length;
-      const countEl = grid.parentElement!.querySelector('.badges-count');
-      if (countEl) countEl.textContent = `${earned} / ${total}`;
-      const fillEl = grid.parentElement!.querySelector('.badges-bar-fill') as HTMLElement;
-      if (fillEl) fillEl.style.width = total ? `${Math.round(earned / total * 100)}%` : '0%';
-      grid.innerHTML = data.map((b: any) => `
-        <div class="badge-item ${b.erreicht ? 'badge-earned' : 'badge-locked'}">
-          <span class="badge-icon">${b.icon ?? '🏅'}</span>
-          <span class="badge-name">${b.name}</span>
-          ${b.erreicht ? `<span class="badge-date">${b.erreicht_am ? new Date(b.erreicht_am).toLocaleDateString('de-DE') : ''}</span>` : ''}
-        </div>
-      `).join('');
-    }
+      const kombiLabels: Record<string, string> = {
+        mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
+        uhrzeit: '⏰', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
+      };
 
-    function renderTrips(data: any) {
-      const trips = data?.trips ?? [];
-      const summary = data?.summary ?? {};
-      const tripKpis = document.querySelectorAll('.trip-kpi .kpi-value');
-      if (tripKpis[0]) tripKpis[0].textContent = String(summary.trip_anzahl ?? 0);
-      if (tripKpis[1]) tripKpis[1].textContent = (summary.avg_gewicht ?? '–') + ' KG';
-      if (tripKpis[2]) tripKpis[2].textContent = summary.bestes_gewaesser ?? '–';
-      const tbody = document.getElementById('tripsBody');
-      if (tbody) {
-        tbody.innerHTML = trips.map((t: any) => `
-          <tr>
-            <td>${t.datum ? new Date(t.datum).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'}) : '–'}</td>
-            <td>${t.gewaesser ?? '–'}</td>
-            <td>${t.fangzahl ?? 0}</td>
-            <td>${t.avg_gewicht ? Number(t.avg_gewicht).toFixed(1) + ' kg' : '–'}</td>
-            <td>${t.max_gewicht ? Number(t.max_gewicht).toFixed(1) + ' kg' : '–'}</td>
-          </tr>
-        `).join('');
-      }
+      el.innerHTML = data.slice(0, 8).map((k: any) => {
+        const parts = (k.kombi ?? '').split(' + ').map((p: string) => {
+          const [key, val] = p.split('=');
+          return `${kombiLabels[key] || key} ${val}`;
+        });
+        const avg = nf(k.avg_gewicht);
+        const stars = n(k.avg_gewicht) >= 10 ? '⭐⭐⭐' : n(k.avg_gewicht) >= 7 ? '⭐⭐' : '⭐';
+        return `<div class="kombi-card">
+          <div class="kombi-card-header">
+            <span class="kombi-card-weight">${avg} kg</span>
+            <span class="kombi-card-count">${n(k.fangzahl)} Fänge</span>
+          </div>
+          <div class="kombi-card-label">${parts.join(' · ')}</div>
+          <div class="kombi-card-stars">${stars}</div>
+        </div>`;
+      }).join('');
     }
 
     function renderDrilldown(data: any[]) {
       const tbody = document.getElementById('drilldownBody');
       if (!tbody) return;
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="no-data">Keine Daten</td></tr>'; return; }
       tbody.innerHTML = data.map((d: any) => `
         <tr>
-          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'}) : '–'}</td>
-          <td>${d.weight_kg ? Number(d.weight_kg).toFixed(1) + ' kg' : '–'}</td>
+          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</td>
+          <td>${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</td>
           <td>${speciesName(d.species)}</td>
           <td>${d.water_name ?? '–'}</td>
           <td>${d.bait ?? '–'}</td>
@@ -503,7 +447,7 @@ if (!session) {
         fischartPills.innerHTML = '<button class="pill active" data-value="">Alle</button>';
         Object.keys(b.art).forEach(k => {
           if (k && k !== 'Unbekannt') {
-            fischartPills.innerHTML += `<button class="pill" data-value="${k}">${k} (${b.art[k]})</button>`;
+            fischartPills.innerHTML += `<button class="pill" data-value="${k}">${k} (${n(b.art[k])})</button>`;
           }
         });
         fischartPills.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
@@ -520,92 +464,76 @@ if (!session) {
       const mySeq = ++refreshSeq;
       const loadingEl = document.getElementById('loading-indicator');
       if (loadingEl) loadingEl.style.display = 'block';
-      const { data: { user } } = await supabase.auth.getUser();
-      if (mySeq !== refreshSeq) return;
       const filters = getFilters();
+
       const [
         { data: cond },
-        { data: kombis },
-        { data: ins },
+        { data: bestCond },
         { data: verl },
-        { data: wet },
-        { data: ldruck },
-        { data: wind },
-        { data: drill },
         { data: gewData },
         { data: mondData },
+        { data: wetterData },
+        { data: druckData },
+        { data: windData },
+        { data: tempData },
+        { data: kombis },
+        { data: drill },
       ] = await Promise.all([
         supabase.rpc('stats_conditions', { p_filters: filters }),
-        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 8 }),
-        supabase.rpc('stats_insights', { p_filters: filters }),
+        supabase.rpc('stats_best_conditions', { p_filters: filters }),
         supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
+        supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
+        supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
         supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
         supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
+        supabase.rpc('stats_wassertemp_korrelation', { p_filters: filters }),
+        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 8 }),
         supabase.rpc('stats_drilldown', { p_filters: filters }),
-        supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
-        supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
       ]);
+
       if (mySeq !== refreshSeq) return;
 
-      const [{ data: badgeData }, { data: tripData }] = await Promise.all([
-        supabase.rpc('stats_badges', { p_user_id: user?.id }),
-        supabase.rpc('stats_trips', { p_user_id: user?.id }),
-      ]);
-      if (mySeq !== refreshSeq) return;
-      renderBadges(badgeData);
-      renderTrips(tripData);
+      // KPIs
+      const kpiFang = document.getElementById('kpiFang');
+      const kpiAvg = document.getElementById('kpiAvg');
+      const kpiMax = document.getElementById('kpiMax');
+      const kpiWater = document.getElementById('kpiWater');
+      if (kpiFang) kpiFang.textContent = String(n(cond?.total?.fangzahl));
+      if (kpiAvg) kpiAvg.textContent = nf(cond?.total?.avg_gewicht) + ' kg';
+      if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
+      if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
 
-      const mainKpis = document.querySelectorAll('.main-kpi .kpi-value');
-      if (mainKpis[0]) mainKpis[0].textContent = String(cond?.total?.fangzahl ?? 0);
-      if (mainKpis[1]) mainKpis[1].textContent = (cond?.total?.max_gewicht ?? '–') + ' KG';
-      if (mainKpis[2]) mainKpis[2].textContent = (cond?.total?.avg_gewicht ?? '–') + ' KG';
-      if (mainKpis[3]) mainKpis[3].textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
+      // Beste Bedingungen
+      renderBestConditions(bestCond);
 
-      const buckets = cond?.buckets ?? {};
-      renderGewaesser(gewData ?? []);
-      renderMond(mondData ?? []);
-      renderMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: Number(v?.fangzahl ?? 0) })));
+      // Bedingungen Matrix (Mond from buckets, rest from RPCs)
+      const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
+        mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
+      }));
+      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight');
+      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight');
+      renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight');
+      renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight');
+      renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight');
+
+      // Charts
       renderVerlauf(verl ?? []);
-      const mondBarsData = Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ mond_phase: label, catch_count: Number(v?.fangzahl ?? 0), avg_weight: +(v?.avg_gewicht ?? 0) }));
-      renderConditions(mondBarsData, wet ?? [], ldruck ?? [], wind ?? []);
+      renderGewaesser(gewData ?? []);
 
-      const kombiLabels: Record<string, string> = {
-        mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
-        uhrzeit: '⏰', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
-      };
-      const kombiContainer = document.getElementById('kombiCards');
-      if (kombiContainer) {
-        kombiContainer.innerHTML = (kombis ?? []).slice(0, 8).map((k: any) => {
-          const parts = k.kombi.split(' + ').map((p: string) => {
-            const [key, val] = p.split('=');
-            return `${kombiLabels[key] || key} ${val}`;
-          });
-          const avg = Number(k.avg_gewicht).toFixed(1);
-          const stars = avg >= 10 ? '⭐⭐⭐' : avg >= 7 ? '⭐⭐' : '⭐';
-          return `<div class="kombi-card">
-            <div class="kombi-card-header">
-              <span class="kombi-card-weight">${avg} kg</span>
-              <span class="kombi-card-count">${k.fangzahl} Fänge</span>
-            </div>
-            <div class="kombi-card-label">${parts.join(' · ')}</div>
-            <div class="kombi-card-stars">${stars}</div>
-          </div>`;
-        }).join('');
-      }
+      // Kombi-Cards
+      renderKombis(kombis ?? []);
 
-      if (ins) {
-        const insightCards = document.querySelectorAll('.insight-card .insight-text');
-        if (insightCards[0]) insightCards[0].innerHTML = `Deine beste Fangzeit: <strong>${ins.beste_fangzeit?.wert ?? '–'}</strong> (Ø ${ins.beste_fangzeit?.avg_gewicht ?? '–'} kg)`;
-        if (insightCards[1]) insightCards[1].innerHTML = `Beste Wetterlage: <strong>${ins.beste_wetterlage?.wert ?? '–'}</strong> (Ø ${ins.beste_wetterlage?.avg_gewicht ?? '–'} kg)`;
-        if (insightCards[2]) insightCards[2].innerHTML = `Bestes Köder: <strong>${ins.beste_koeder_kombi?.wert ?? '–'}</strong> (Ø ${ins.beste_koeder_kombi?.avg_gewicht ?? '–'} kg)`;
-      }
-
+      // Fangdetails
       renderDrilldown(drill ?? []);
+
+      // Selects
       populateSelects(cond);
+
       if (loadingEl) loadingEl.style.display = 'none';
     }
 
+    // Pills
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
       const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
       if (!btn) return;
@@ -620,31 +548,23 @@ if (!session) {
         const preset = (p as HTMLElement).dataset.preset;
         document.querySelectorAll('#zeitraumPills .pill').forEach(x => x.classList.remove('active'));
         document.querySelector('#zeitraumPills .pill[data-value="all"]')?.classList.add('active');
-        ['gewaesser','koeder','mondphase','wetter','fischart','druckTrend','wind'].forEach(id => {
+        ['gewaesser', 'koeder', 'mondphase', 'wetter', 'druckTrend', 'wind'].forEach(id => {
           const sel = document.getElementById(id) as HTMLSelectElement;
           if (sel) sel.value = '';
         });
         document.querySelectorAll('#fischartPills .pill').forEach(x => x.classList.remove('active'));
         document.querySelector('#fischartPills .pill[data-value=""]')?.classList.add('active');
-        if (preset === 'vollmond') {
-          (document.getElementById('mondphase') as HTMLSelectElement).value = 'Vollmond';
-        } else if (preset === 'neumond') {
-          (document.getElementById('mondphase') as HTMLSelectElement).value = 'Neumond';
-        } else if (preset === 'regen') {
-          (document.getElementById('wetter') as HTMLSelectElement).value = 'Regen';
-        } else if (preset === 'wind') {
-          (document.getElementById('wind') as HTMLSelectElement).value = 'stark';
-        }
+        if (preset === 'vollmond') (document.getElementById('mondphase') as HTMLSelectElement).value = 'Vollmond';
+        else if (preset === 'neumond') (document.getElementById('mondphase') as HTMLSelectElement).value = 'Neumond';
+        else if (preset === 'regen') (document.getElementById('wetter') as HTMLSelectElement).value = 'Regen';
+        else if (preset === 'wind') (document.getElementById('wind') as HTMLSelectElement).value = 'stark';
         refresh();
       });
     });
 
+    // Dark Mode
     const observer = new MutationObserver(() => {
-      CSS.primary = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-container').trim() || '#6c7a57';
-      CSS.primaryDim = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a';
-      CSS.primaryFixed = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-fixed').trim() || '#dde5b6';
-      CSS.surface = getComputedStyle(document.documentElement).getPropertyValue('--color-surface-container-lowest').trim() || '#fff';
-      CSS.outline = getComputedStyle(document.documentElement).getPropertyValue('--color-outline-variant').trim() || '#c6c8bc';
+      CSS = getCSS();
       refresh();
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -668,8 +588,25 @@ if (!session) {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
+  .loading-indicator {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-on-surface-variant, #45483f);
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+  }
+
+  .no-data {
+    text-align: center;
+    color: var(--color-on-surface-variant, #999);
+    padding: 2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Sidebar */
   .filter-sidebar {
     width: 25%;
     min-width: 240px;
@@ -683,13 +620,6 @@ if (!session) {
     padding: 1.5rem;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
-  }
-
-  @media (max-width: 900px) {
-    .filter-sidebar {
-      width: 100%;
-      min-width: 0;
-    }
   }
 
   .filter-sidebar h2 {
@@ -709,7 +639,6 @@ if (!session) {
     font-weight: 600;
     margin-bottom: 0.35rem;
     color: var(--color-on-surface-variant, #45483f);
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
   .pills {
@@ -737,7 +666,7 @@ if (!session) {
     border-color: var(--color-primary-container, #6c7a57);
   }
 
-  select, input[type="number"] {
+  select {
     width: 100%;
     padding: 0.4rem 0.5rem;
     border: 1px solid var(--color-outline-variant, #c6c8bc);
@@ -746,16 +675,6 @@ if (!session) {
     background: var(--color-surface-container-lowest, #fff);
     color: var(--color-on-surface, #181d14);
     font-family: var(--font-body-md, "Source Sans 3", sans-serif);
-  }
-
-  .range-row {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  .range-row input {
-    flex: 1;
   }
 
   .filter-advanced {
@@ -769,7 +688,6 @@ if (!session) {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-on-surface-variant, #45483f);
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
   .btn-apply {
@@ -791,6 +709,7 @@ if (!session) {
     opacity: 0.85;
   }
 
+  /* Content */
   .stats-content {
     flex: 1;
     min-width: 0;
@@ -803,6 +722,7 @@ if (!session) {
     color: var(--color-on-surface, #181d14);
   }
 
+  /* KPIs */
   .kpi-row {
     display: flex;
     gap: 1rem;
@@ -812,7 +732,7 @@ if (!session) {
 
   .kpi-card {
     flex: 1;
-    min-width: 160px;
+    min-width: 140px;
     background: var(--color-surface-container-lowest, #fff);
     border: 1px solid var(--color-outline-variant, #c6c8bc);
     border-radius: 12px;
@@ -830,12 +750,14 @@ if (!session) {
 
   .kpi-label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--color-on-surface-variant, #45483f);
     margin-top: 0.3rem;
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
+  /* Chart Grid */
   .chart-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -861,101 +783,206 @@ if (!session) {
     color: var(--color-on-surface-variant, #45483f);
   }
 
-  .chart-card canvas {
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    height: auto;
+  /* Beste Bedingungen */
+  .best-cond-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
+  .best-cond-placeholder {
+    text-align: center;
+    color: var(--color-on-surface-variant, #999);
+    padding: 1rem;
+  }
+
+  .best-cond-main {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .best-cond-emoji {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .best-cond-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .best-cond-weight {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    color: var(--color-primary-container, #6c7a57);
+  }
+
+  .best-cond-count {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    color: var(--color-on-surface, #181d14);
+  }
+
+  .best-cond-label {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #45483f);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .best-cond-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .best-cond-tag {
+    padding: 0.3rem 0.7rem;
+    background: var(--color-surface-container-low, #f1f6e7);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--color-on-surface, #181d14);
+  }
+
+  .btn-filter-best {
+    align-self: flex-start;
+    padding: 0.5rem 1.2rem;
+    background: var(--color-primary-container, #6c7a57);
+    color: var(--color-on-primary-container, #fdfff0);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    transition: opacity 0.15s;
+  }
+
+  .btn-filter-best:hover {
+    opacity: 0.85;
+  }
+
+  /* Condition Bars */
   .conditions-grid {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
+
   .condition-row h4 {
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface-variant, #45483f);
   }
+
   .condition-bars {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
+
   .condition-bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.8rem;
   }
+
   .condition-bar-label {
-    width: 100px;
+    width: 110px;
     text-align: right;
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface-variant, #45483f);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex-shrink: 0;
   }
-  .condition-bar-fill {
-    height: 20px;
+
+  .condition-bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--color-surface-container-low, #f1f6e7);
     border-radius: 4px;
-    background: var(--color-primary);
+    overflow: hidden;
+  }
+
+  .condition-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--color-primary-container, #6c7a57);
     min-width: 2px;
     transition: width 0.3s;
   }
+
   .condition-bar-value {
     font-weight: 600;
-    color: var(--color-on-surface);
+    color: var(--color-on-surface, #181d14);
     min-width: 30px;
-  }
-  .condition-bar-avg {
-    color: var(--color-on-surface-variant);
-    font-size: 0.75rem;
+    text-align: right;
   }
 
+  .condition-bar-avg {
+    color: var(--color-on-surface-variant, #45483f);
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+
+  /* Kombi Cards */
   .kombi-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
   }
+
   .kombi-card {
-    background: var(--color-surface-container-low);
+    background: var(--color-surface-container-low, #f1f6e7);
     border-radius: 12px;
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
+
   .kombi-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   .kombi-card-weight {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-primary);
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    color: var(--color-primary-container, #6c7a57);
   }
+
   .kombi-card-count {
     font-size: 0.8rem;
-    color: var(--color-on-surface-variant);
-    background: var(--color-surface-container);
+    color: var(--color-on-surface-variant, #45483f);
+    background: var(--color-surface-container, #e8edd8);
     padding: 0.2rem 0.5rem;
     border-radius: 8px;
   }
+
   .kombi-card-label {
     font-size: 0.85rem;
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface-variant, #45483f);
     line-height: 1.4;
   }
+
   .kombi-card-stars {
     color: #f59e0b;
     font-size: 0.9rem;
   }
 
-  .kombi-table {
+  /* Detail Table */
+  .detail-table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--font-body-md, "Source Sans 3", sans-serif);
@@ -964,14 +991,14 @@ if (!session) {
     overflow-x: auto;
   }
 
-  .kombi-table th,
-  .kombi-table td {
+  .detail-table th,
+  .detail-table td {
     text-align: left;
     padding: 0.6rem 0.8rem;
     border-bottom: 1px solid var(--color-outline-variant, #c6c8bc);
   }
 
-  .kombi-table th {
+  .detail-table th {
     font-weight: 600;
     color: var(--color-on-surface-variant, #45483f);
     font-size: 0.8rem;
@@ -979,126 +1006,54 @@ if (!session) {
     letter-spacing: 0.04em;
   }
 
-  .kombi-table tr:nth-child(even) {
+  .detail-table tr:nth-child(even) {
     background: var(--color-surface-container-low, #f1f6e7);
   }
 
-  .insight-cards {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .insight-card {
-    flex: 1;
-    min-width: 200px;
-    padding: 1rem;
-    background: var(--color-surface-container-low, #f1f6e7);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .insight-icon {
-    font-size: 1.5rem;
-  }
-
-  .insight-text {
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
-    font-size: 0.9rem;
-    color: var(--color-on-surface, #181d14);
-    line-height: 1.4;
-  }
-
-  .badges-progress {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .badges-count {
-    font-family: var(--font-headline-md, "Source Serif 4", serif);
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--color-primary-container, #6c7a57);
-    white-space: nowrap;
-  }
-
-  .badges-bar {
-    flex: 1;
-    height: 8px;
-    background: var(--color-outline-variant, #c6c8bc);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .badges-bar-fill {
-    height: 100%;
-    background: var(--color-primary-container, #6c7a57);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-  }
-
-  .badges-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .badge-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.75rem;
-    border-radius: 8px;
-    min-width: 80px;
-    text-align: center;
-  }
-
-  .badge-earned {
-    background: var(--color-surface-container-low, #f1f6e7);
-  }
-
-  .badge-locked {
-    opacity: 0.4;
-    filter: grayscale(1);
-  }
-
-  .badge-icon {
-    font-size: 1.8rem;
-  }
-
-  .badge-name {
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-on-surface, #181d14);
-  }
-
-  .badge-date {
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
-    font-size: 0.65rem;
-    color: var(--color-on-surface-variant, #45483f);
-  }
-
+  /* Responsive */
   @media (max-width: 900px) {
-    .stats-page { flex-direction: column; }
-    .filter-sidebar { position: static; max-height: none; }
-    .chart-grid { grid-template-columns: 1fr; }
-    .chart-card.wide { grid-column: 1; }
-    .kpi-row { flex-direction: column; }
-    .kpi-card { min-width: 100%; }
-    .insight-cards { flex-direction: column; }
+    .stats-page {
+      flex-direction: column;
+    }
+    .filter-sidebar {
+      width: 100%;
+      min-width: 0;
+      position: static;
+      max-height: none;
+    }
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+    .chart-card.wide {
+      grid-column: 1;
+    }
+    .kpi-row {
+      flex-direction: column;
+    }
+    .kpi-card {
+      min-width: 100%;
+    }
   }
 
   @media (max-width: 600px) {
-    .stats-page { padding: 1rem 0.5rem; }
-    .filter-sidebar { padding: 1rem; }
-    .chart-card { padding: 1rem; }
-    h1 { font-size: 1.4rem; }
-    canvas { max-width: 100% !important; height: auto !important; }
+    .stats-page {
+      padding: 1rem 0.5rem;
+    }
+    .filter-sidebar {
+      padding: 1rem;
+    }
+    .chart-card {
+      padding: 1rem;
+    }
+    .stats-content h1 {
+      font-size: 1.4rem;
+    }
+    .best-cond-main {
+      gap: 1rem;
+    }
+    .condition-bar-label {
+      width: 80px;
+      font-size: 0.75rem;
+    }
   }
 </style>
