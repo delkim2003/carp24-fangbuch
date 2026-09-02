@@ -19,7 +19,7 @@ if (!session) return Astro.redirect('/login');
 
     <!-- FILTER -->
     <div id="filterBar" class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg mb-xl">
-      <div class="flex flex-wrap gap-sm items-center mb-md">
+      <div class="flex flex-wrap gap-sm items-center mb-3">
         <span class="font-nav-item text-nav-item text-on-surface-variant uppercase tracking-widest mr-sm">Zeitraum:</span>
         <div id="zeitraumPills" class="flex flex-wrap gap-sm">
           <button class="pill active font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer bg-primary-container text-on-primary-container" data-value="all">Alle</button>
@@ -29,7 +29,7 @@ if (!session) return Astro.redirect('/login');
           <button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="1y">1y</button>
         </div>
       </div>
-      <div class="flex flex-wrap gap-sm items-center">
+      <div class="flex flex-wrap gap-3 items-center">
         <select id="gewaesser" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Gewässer</option></select>
         <select id="koeder" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Köder</option></select>
         <select id="mondphase" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Mond</option></select>
@@ -47,6 +47,15 @@ if (!session) return Astro.redirect('/login');
           <option value="maessig">10–20</option>
           <option value="stark">20+</option>
         </select>
+        <select id="uhrzeit" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm">
+          <option value="">Tageszeit</option>
+          <option value="0-6">Nacht (0-6)</option>
+          <option value="6-12">Morgen (6-12)</option>
+          <option value="12-18">Mittag (12-18)</option>
+          <option value="18-24">Abend (18-24)</option>
+        </select>
+      </div>
+      <div class="flex flex-wrap gap-3 items-center mt-3">
         <div id="fischartPills" class="flex flex-wrap gap-sm"></div>
         <button id="btnClear" class="bg-surface-variant text-on-surface-variant font-nav-item text-nav-item uppercase py-2 px-6 rounded-full border border-primary/40 hover:bg-surface-tint transition-colors min-h-11 cursor-pointer">Zurücksetzen</button>
       </div>
@@ -54,11 +63,16 @@ if (!session) return Astro.redirect('/login');
 
     <div id="filterCount" class="text-body-md text-on-surface-variant mb-xl">Alle Fänge</div>
 
-    <div class="flex flex-wrap gap-sm mb-xl">
-      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-mond="Vollmond">Vollmond</button>
-      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-mond="Neumond">Neumond</button>
-      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-wetter="Regen">Regen</button>
-      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-wetter="Windig">Windig</button>
+    <div class="flex flex-wrap gap-2 mb-xl">
+      <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-2">Schnellfilter:</span>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-mond="Vollmond">Vollmond</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-mond="Neumond">Neumond</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-wetter="Sonnig">Sonnig</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-wetter="Windig">Windig</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-wetter="Regen">Regen</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-uhrzeit="6-12">Morgens</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-uhrzeit="18-24">Abends</button>
+      <button class="preset-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-high transition-colors min-h-11 cursor-pointer" data-druck="hoch">Hochdruck</button>
     </div>
 
     <!-- LOADING -->
@@ -127,8 +141,13 @@ if (!session) return Astro.redirect('/login');
       </section>
 
       <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
-        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Gewichtsverlauf</h3>
-        <div id="verlaufChart" class="flex-1 min-h-[300px]"></div>
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Fänge pro Monat</h3>
+        <div id="monatBars" class="flex flex-col gap-2"></div>
+      </section>
+
+      <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Beste Zeiten</h3>
+        <div id="zeitenBars" class="flex flex-col gap-2"></div>
       </section>
     </div>
 
@@ -136,6 +155,12 @@ if (!session) return Astro.redirect('/login');
     <section id="gewaesserSection" class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg mb-xl">
       <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Fänge nach Gewässer (Top 8)</h3>
       <div id="gewaesserChart" class="flex flex-col gap-sm max-h-[400px] overflow-y-auto"></div>
+    </section>
+
+    <!-- KÖDER-ANALYSE -->
+    <section id="koederSection" class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg mb-xl">
+      <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Köder-Analyse</h3>
+      <div id="koederBars" class="flex flex-col gap-sm"></div>
     </section>
 
     <!-- KOMBI-CARDS -->
@@ -174,8 +199,6 @@ if (!session) return Astro.redirect('/login');
 
 <script>
   import { supabase } from '../lib/supabase-client';
-  import uPlot from 'uplot';
-  import 'uplot/dist/uPlot.min.css';
 
   function n(val: unknown): number {
     const v = Number(val);
@@ -250,6 +273,8 @@ if (!session) return Astro.redirect('/login');
     if (dt) f.druck_trend = dt;
     const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
     if (wi) f.wind = wi;
+    const u = (document.getElementById('uhrzeit') as HTMLSelectElement)?.value;
+    if (u) f.uhrzeit = u;
     const fa = document.querySelector('#fischartPills .pill.active') as HTMLElement;
     if (fa && fa.dataset.value) f.fischart = fa.dataset.value;
     return f;
@@ -341,39 +366,51 @@ if (!session) return Astro.redirect('/login');
     el.innerHTML = html;
   }
 
-  function renderVerlauf(data: any[]) {
-    const el = document.getElementById('verlaufChart');
+  function renderSimpleBars(containerId: string, data: { label: string; count: number }[]) {
+    const el = document.getElementById(containerId);
     if (!el) return;
     if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md">Keine Daten</p>'; return; }
-    el.innerHTML = '';
-    const months = data.map((d: any) => {
-      const [y, m] = d.month.split('-');
-      return Math.floor(new Date(+y, +m - 1, 15).getTime() / 1000);
-    });
-    const avgW = data.map((d: any) => n(d.avg_weight));
-    const maxW = data.map((d: any) => n(d.max_weight));
+    const maxVal = Math.max(...data.map(d => d.count));
+    const color = CSS.primary;
+    el.innerHTML = data.map(d => {
+      const pct = maxVal > 0 ? (d.count / maxVal * 100) : 0;
+      return `<div class="flex items-center gap-sm text-body-md">
+        <span class="w-[100px] text-right text-on-surface-variant truncate flex-shrink-0">${d.label}</span>
+        <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
+        <span class="font-bold text-on-surface min-w-[30px] text-right">${d.count}</span>
+      </div>`;
+    }).join('');
+  }
 
-    const opts: uPlot.Options = {
-      width: el.clientWidth || 600,
-      height: 320,
-      cursor: { show: true },
-      legend: { show: true },
-      axes: [
-        { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
-          values: (_u: any, vals: any) => vals.map((v: number) => {
-            const d = new Date(v * 1000);
-            return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
-          }),
-        },
-        { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-      ],
-      series: [
-        {},
-        { label: 'Ø Gewicht', stroke: CSS.primary, fill: 'rgba(108,122,87,0.18)', width: 2, points: { show: true, size: 4 } },
-        { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
-      ],
-    };
-    new uPlot(opts, [months, avgW, maxW], el);
+  function renderMonat(data: any[]) {
+    const monatLabels = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+    const byMonth: Record<number, number> = {};
+    (data ?? []).forEach((d: any) => {
+      const parts = d.month?.split('-');
+      if (parts?.length === 2) {
+        const m = parseInt(parts[1]) - 1;
+        byMonth[m] = n(d.catch_count);
+      }
+    });
+    const bars = monatLabels.map((label, i) => ({ label, count: byMonth[i] ?? 0 }));
+    renderSimpleBars('monatBars', bars);
+  }
+
+  function renderZeiten(cond: any) {
+    const zeitLabels: Record<string, string> = { '0-6': 'Nacht', '6-12': 'Morgen', '12-18': 'Mittag', '18-24': 'Abend' };
+    const order = ['0-6', '6-12', '12-18', '18-24'];
+    const uhrzeitBuckets = cond?.buckets?.uhrzeit ?? {};
+    const bars = order.map(key => ({ label: zeitLabels[key] ?? key, count: n(uhrzeitBuckets[key]?.fangzahl) }));
+    renderSimpleBars('zeitenBars', bars);
+  }
+
+  function renderKoeder(cond: any) {
+    const koederBuckets = cond?.buckets?.koeder ?? {};
+    const entries = Object.entries(koederBuckets)
+      .map(([label, v]: any) => ({ label, count: n(v?.fangzahl) }))
+      .filter(e => e.label && e.label !== 'Unbekannt')
+      .sort((a, b) => b.count - a.count);
+    renderSimpleBars('koederBars', entries);
   }
 
   function renderKombis(data: any[]) {
@@ -449,7 +486,7 @@ if (!session) return Astro.redirect('/login');
     if (!cond?.buckets) return;
     const b = cond.buckets;
     const prev: Record<string, string> = {};
-    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind','uhrzeit'].forEach(id => {
       const el = document.getElementById(id) as HTMLSelectElement | null;
       if (el) prev[id] = el.value;
     });
@@ -557,7 +594,9 @@ if (!session) return Astro.redirect('/login');
     renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp');
     renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind');
 
-    renderVerlauf(verl ?? []);
+    renderMonat(verl ?? []);
+    renderZeiten(cond);
+    renderKoeder(cond);
     renderGewaesser(gewData ?? []);
     renderKombis(kombis ?? []);
     renderDrilldown(drill ?? []);
@@ -590,7 +629,7 @@ if (!session) return Astro.redirect('/login');
     debouncedRefresh();
   });
 
-  ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+  ['gewaesser','koeder','mondphase','wetter','druckTrend','wind','uhrzeit'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', () => debouncedRefresh());
   });
 
@@ -599,6 +638,8 @@ if (!session) return Astro.redirect('/login');
       const el = chip as HTMLElement;
       const mond = el.dataset.mond;
       const wetter = el.dataset.wetter;
+      const uhrzeit = el.dataset.uhrzeit;
+      const druck = el.dataset.druck;
       if (mond) {
         const sel = document.getElementById('mondphase') as HTMLSelectElement | null;
         if (sel) sel.value = mond;
@@ -607,12 +648,20 @@ if (!session) return Astro.redirect('/login');
         const sel = document.getElementById('wetter') as HTMLSelectElement | null;
         if (sel) sel.value = wetter;
       }
+      if (uhrzeit) {
+        const sel = document.getElementById('uhrzeit') as HTMLSelectElement | null;
+        if (sel) sel.value = uhrzeit;
+      }
+      if (druck) {
+        const sel = document.getElementById('druckTrend') as HTMLSelectElement | null;
+        if (sel) sel.value = druck;
+      }
       debouncedRefresh();
     });
   });
 
   document.getElementById('btnClear')?.addEventListener('click', () => {
-    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind'].forEach(id => {
+    ['gewaesser','koeder','mondphase','wetter','druckTrend','wind','uhrzeit'].forEach(id => {
       const sel = document.getElementById(id) as HTMLSelectElement | null;
       if (sel) sel.value = '';
     });
