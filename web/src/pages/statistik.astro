@@ -424,7 +424,10 @@ if (!session) {
       const el = document.getElementById('verlaufChart');
       if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
       el.innerHTML = '';
-      const months = data.map((d: any) => d.month);
+      const months = data.map((d: any) => {
+        const [y, m] = d.month.split('-');
+        return Math.floor(new Date(+y, +m - 1, 15).getTime() / 1000);
+      });
       const avgW = data.map((d: any) => +d.avg_weight);
       const maxW = data.map((d: any) => +d.max_weight);
 
@@ -432,7 +435,12 @@ if (!session) {
         width: el.clientWidth || 500,
         height: 260,
         axes: [
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
+            values: (u, vals) => vals.map(v => {
+              const d = new Date(v * 1000);
+              return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
+            }),
+          },
           { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
         ],
         series: [
@@ -448,22 +456,30 @@ if (!session) {
       const el = document.getElementById('wetterChart');
       if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
       el.innerHTML = '';
-      const labels = data.map((d: any) => d.weather_type);
+      const indices = data.map((_: any, i: number) => i);
       const counts = data.map((d: any) => +d.catch_count);
+      const avgW = data.map((d: any) => +d.avg_weight);
+      const labels = data.map((d: any) => d.weather_type);
 
       const opts: uPlot.Options = {
         width: el.clientWidth || 500,
         height: 260,
         axes: [
+          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
+            values: () => labels },
           { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif', side: 1 },
         ],
         series: [
           {},
-          { label: 'Fänge', stroke: CSS.primary, bars: { show: true, width: 0.6, fill: CSS.primary } },
+          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
+          { label: 'Ø kg', stroke: '#e07a5f', width: 2, points: { show: true, size: 5 }, scale: 'y2' },
         ],
+        scales: {
+          y2: { side: 1 },
+        },
       };
-      new uPlot(opts, [labels, counts], el);
+      new uPlot(opts, [indices, counts, avgW], el);
     }
 
     function renderBadges(data: any[]) {
