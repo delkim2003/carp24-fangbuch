@@ -14,37 +14,45 @@ if (!session) {
     <h1>Fang-Statistiken</h1>
 
     <div class="filter-bar" id="filterBar">
-      <div class="filter-pills" id="zeitraumPills">
-        <button class="pill active" data-value="all">Alle</button>
-        <button class="pill" data-value="7d">7d</button>
-        <button class="pill" data-value="30d">30d</button>
-        <button class="pill" data-value="90d">90d</button>
-        <button class="pill" data-value="1y">1y</button>
+      <div class="filter-row">
+        <div class="filter-pills" id="zeitraumPills">
+          <button class="pill active" data-value="all">Alle</button>
+          <button class="pill" data-value="7d">7d</button>
+          <button class="pill" data-value="30d">30d</button>
+          <button class="pill" data-value="90d">90d</button>
+          <button class="pill" data-value="1y">1y</button>
+        </div>
       </div>
-      <select id="gewaesser"><option value="">Gewässer</option></select>
-      <select id="koeder"><option value="">Köder</option></select>
-      <select id="mondphase"><option value="">Mond</option></select>
-      <select id="wetter"><option value="">Wetter</option></select>
-      <select id="druckTrend">
-        <option value="">Druck</option>
-        <option value="niedrig">&lt;1005</option>
-        <option value="mittel">1005–1015</option>
-        <option value="hoch">&gt;=1015</option>
-      </select>
-      <select id="wind">
-        <option value="">Wind</option>
-        <option value="windstill">&lt;5</option>
-        <option value="leicht">5–10</option>
-        <option value="maessig">10–20</option>
-        <option value="stark">20+</option>
-      </select>
-      <div class="filter-pills" id="fischartPills">
-        <button class="pill active" data-value="">Alle</button>
+      <div class="filter-row">
+        <select id="gewaesser"><option value="">Gewässer</option></select>
+        <select id="koeder"><option value="">Köder</option></select>
+        <select id="mondphase"><option value="">Mond</option></select>
+        <select id="wetter"><option value="">Wetter</option></select>
       </div>
-      <button class="btn-apply" id="btnApply">Anwenden</button>
+      <div class="filter-row">
+        <select id="druckTrend">
+          <option value="">Druck</option>
+          <option value="niedrig">&lt;1005</option>
+          <option value="mittel">1005–1015</option>
+          <option value="hoch">&gt;=1015</option>
+        </select>
+        <select id="wind">
+          <option value="">Wind</option>
+          <option value="windstill">&lt;5</option>
+          <option value="leicht">5–10</option>
+          <option value="maessig">10–20</option>
+          <option value="stark">20+</option>
+        </select>
+        <div class="filter-pills" id="fischartPills">
+          <button class="pill active" data-value="">Alle</button>
+        </div>
+        <button class="btn-apply" id="btnApply">Anwenden</button>
+      </div>
     </div>
 
-    <div id="loading-indicator" class="loading-indicator">Daten laden...</div>
+    <div id="loading-indicator" class="loading-indicator">
+      <div class="skeleton-spinner"></div>
+    </div>
 
     <div class="kpi-row" id="kpiRow">
       <div class="kpi-card kpi-fang">
@@ -75,27 +83,27 @@ if (!session) {
     <section class="card wide">
       <h3>Bedingungen-Matrix</h3>
       <div class="conditions-grid">
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="mond">
           <h4>🌙 Mondphase</h4>
           <div id="mondBars" class="condition-bars"></div>
         </div>
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="wetter">
           <h4>🌤️ Wetter</h4>
           <div id="wetterBars" class="condition-bars"></div>
         </div>
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="uhrzeit">
           <h4>🌅 Tageszeit</h4>
           <div id="uhrzeitBars" class="condition-bars"></div>
         </div>
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="druck">
           <h4>📊 Luftdruck</h4>
           <div id="druckBars" class="condition-bars"></div>
         </div>
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="temp">
           <h4>🌡️ Wassertemperatur</h4>
           <div id="tempBars" class="condition-bars"></div>
         </div>
-        <div class="condition-row">
+        <div class="condition-row" data-dimension="wind">
           <h4>💨 Wind</h4>
           <div id="windBars" class="condition-bars"></div>
         </div>
@@ -109,7 +117,7 @@ if (!session) {
 
     <section class="card wide">
       <h3>Fänge nach Gewässer</h3>
-      <div id="gewaesserChart"></div>
+      <div id="gewaesserChart" class="gewaesser-chart"></div>
     </section>
 
     <section class="card wide">
@@ -119,12 +127,14 @@ if (!session) {
 
     <section class="card wide">
       <h3>Fangdetails</h3>
-      <table class="detail-table">
-        <thead>
-          <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
-        </thead>
-        <tbody id="drilldownBody"></tbody>
-      </table>
+      <div id="drilldownContainer">
+        <table class="detail-table">
+          <thead>
+            <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
+          </thead>
+          <tbody id="drilldownBody"></tbody>
+        </table>
+      </div>
     </section>
   </div>
 
@@ -224,18 +234,28 @@ if (!session) {
       return f;
     }
 
-    function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, emojiFn?: (label: string) => string) {
+    const DIM_COLORS: Record<string, string> = {
+      mond: '#7c8a5b',
+      wetter: '#5a8a7a',
+      uhrzeit: '#6a7a8a',
+      druck: '#5a7a6a',
+      temp: '#7a6a5a',
+      wind: '#6a5a7a',
+    };
+
+    function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, dimension: string, emojiFn?: (label: string) => string) {
       const el = document.getElementById(containerId);
       if (!el) return;
       if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
       const maxVal = Math.max(...data.map(d => n(d[valueKey])));
+      const color = DIM_COLORS[dimension] || '#6c7a57';
       el.innerHTML = data.map(d => {
         const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
         const label = d[labelKey] ?? '–';
         const emoji = emojiFn ? emojiFn(label) : '';
         return `<div class="condition-bar">
           <span class="condition-bar-label">${emoji ? emoji + ' ' : ''}${label}</span>
-          <div class="condition-bar-track"><div class="condition-bar-fill" style="width:${pct}%"></div></div>
+          <div class="condition-bar-track"><div class="condition-bar-fill" style="width:${pct}%;background:${color}"></div></div>
           <span class="condition-bar-value">${n(d[valueKey])}</span>
           <span class="condition-bar-avg">Ø ${nf(d[avgKey])} kg</span>
         </div>`;
@@ -256,11 +276,15 @@ if (!session) {
       if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
 
       el.innerHTML = `
-        <div class="best-cond-line">
-          <span class="best-cond-combo">${parts.join(' · ')}</span>
-          <span class="best-cond-arrow">→</span>
-          <span class="best-cond-count">${n(best.fangzahl)} Fänge</span>
-          <span class="best-cond-avg">(Ø ${nf(best.avg_gewicht)} kg)</span>
+        <div class="best-cond-badge">
+          <div class="best-cond-chips">
+            ${parts.map(p => `<span class="condition-chip">${p}</span>`).join('')}
+          </div>
+          <div class="best-cond-result">
+            <span class="best-cond-count">${n(best.fangzahl)}</span>
+            <span class="best-cond-label">Fänge</span>
+            <span class="best-cond-avg">(Ø ${nf(best.avg_gewicht)} kg)</span>
+          </div>
         </div>
       `;
     }
@@ -269,25 +293,44 @@ if (!session) {
       const el = document.getElementById('gewaesserChart');
       if (!el) return;
       if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const labels = data.map((d: any) => d.water_name || 'Unbekannt');
-      const counts = data.map((d: any) => n(d.catch_count));
-      const indices = data.map((_: any, i: number) => i);
 
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 600,
-        height: Math.max(200, data.length * 36),
-        axes: [
-          { stroke: CSS.onSurfaceVar, grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: (_u: any, _vals: any) => labels },
-          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-        ],
-        series: [
-          {},
-          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
-        ],
+      const sorted = [...data].sort((a, b) => n(b.catch_count) - n(a.catch_count));
+      const top8 = sorted.slice(0, 8);
+      const rest = sorted.slice(8);
+      const maxVal = n(top8[0]?.catch_count) || 1;
+
+      const heatColor = (val: number): string => {
+        const pct = val / maxVal;
+        if (pct > 0.66) return '#3a4d29';
+        if (pct > 0.33) return '#6c7a57';
+        return '#a3b18a';
       };
-      new uPlot(opts, [indices, counts], el);
+
+      let html = top8.map(d => {
+        const count = n(d.catch_count);
+        const pct = (count / maxVal * 100);
+        return `<div class="gewaesser-bar">
+          <span class="gewaesser-bar-label">${d.water_name || 'Unbekannt'}</span>
+          <div class="gewaesser-bar-track"><div class="gewaesser-bar-fill" style="width:${pct}%;background:${heatColor(count)}"></div></div>
+          <span class="gewaesser-bar-value">${count}</span>
+        </div>`;
+      }).join('');
+
+      if (rest.length) {
+        html += `<details class="gewaesser-more"><summary>Weitere anzeigen (${rest.length})</summary>`;
+        html += rest.map(d => {
+          const count = n(d.catch_count);
+          const pct = (count / maxVal * 100);
+          return `<div class="gewaesser-bar">
+            <span class="gewaesser-bar-label">${d.water_name || 'Unbekannt'}</span>
+            <div class="gewaesser-bar-track"><div class="gewaesser-bar-fill" style="width:${pct}%;background:${heatColor(count)}"></div></div>
+            <span class="gewaesser-bar-value">${count}</span>
+          </div>`;
+        }).join('');
+        html += '</details>';
+      }
+
+      el.innerHTML = html;
     }
 
     function renderVerlauf(data: any[]) {
@@ -304,7 +347,9 @@ if (!session) {
 
       const opts: uPlot.Options = {
         width: el.clientWidth || 600,
-        height: 280,
+        height: 320,
+        cursor: { show: true },
+        legend: { show: true },
         axes: [
           { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
             values: (_u: any, vals: any) => vals.map((v: number) => {
@@ -316,7 +361,7 @@ if (!session) {
         ],
         series: [
           {},
-          { label: 'Ø Gewicht', stroke: CSS.primary, width: 2, points: { show: true, size: 5 } },
+          { label: 'Ø Gewicht', stroke: '#6c7a57', fill: 'rgba(108,122,87,0.2)', width: 2, points: { show: true, size: 4 } },
           { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
         ],
       };
@@ -335,12 +380,15 @@ if (!session) {
 
       const sorted = [...data].sort((a, b) => n(b.fangzahl) - n(a.fangzahl));
 
-      el.innerHTML = sorted.slice(0, 8).map((k: any) => {
+      el.innerHTML = sorted.slice(0, 8).map((k: any, i: number) => {
+        const rank = i + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : '';
         const parts = (k.kombi ?? '').split(' + ').map((p: string) => {
           const [key, val] = p.split('=');
           return `${kombiLabels[key] || key} ${val}`;
         });
-        return `<div class="kombi-card">
+        return `<div class="kombi-card ${rankClass}">
+          <div class="kombi-rank">${rank}</div>
           <div class="kombi-card-header">
             <span class="kombi-card-count">${n(k.fangzahl)} Fänge</span>
             <span class="kombi-card-weight">Ø ${nf(k.avg_gewicht)} kg</span>
@@ -352,9 +400,11 @@ if (!session) {
 
     function renderDrilldown(data: any[]) {
       const tbody = document.getElementById('drilldownBody');
-      if (!tbody) return;
+      const container = document.getElementById('drilldownContainer');
+      if (!tbody || !container) return;
       if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="no-data">Keine Daten</td></tr>'; return; }
-      tbody.innerHTML = data.map((d: any) => `
+
+      const rows = data.map((d: any) => `
         <tr>
           <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</td>
           <td>${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</td>
@@ -363,6 +413,23 @@ if (!session) {
           <td>${d.bait ?? '–'}</td>
         </tr>
       `).join('');
+      tbody.innerHTML = rows;
+
+      let cards = data.map((d: any) => `
+        <div class="detail-card">
+          <div class="detail-card-row"><span class="detail-card-label">Datum</span><span>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</span></div>
+          <div class="detail-card-row"><span class="detail-card-label">Gewicht</span><span>${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</span></div>
+          <div class="detail-card-row"><span class="detail-card-label">Fischart</span><span>${speciesName(d.species)}</span></div>
+          <div class="detail-card-row"><span class="detail-card-label">Gewässer</span><span>${d.water_name ?? '–'}</span></div>
+          <div class="detail-card-row"><span class="detail-card-label">Köder</span><span>${d.bait ?? '–'}</span></div>
+        </div>
+      `).join('');
+      const existingCards = container.querySelector('.detail-cards-mobile');
+      if (existingCards) existingCards.remove();
+      const cardsDiv = document.createElement('div');
+      cardsDiv.className = 'detail-cards-mobile';
+      cardsDiv.innerHTML = cards;
+      container.appendChild(cardsDiv);
     }
 
     function populateSelects(cond: any) {
@@ -408,7 +475,7 @@ if (!session) {
     async function refresh() {
       const mySeq = ++refreshSeq;
       const loadingEl = document.getElementById('loading-indicator');
-      if (loadingEl) loadingEl.style.display = 'block';
+      if (loadingEl) loadingEl.style.display = 'flex';
       const filters = getFilters();
 
       const [
@@ -439,7 +506,6 @@ if (!session) {
 
       if (mySeq !== refreshSeq) return;
 
-      // KPIs
       const kpiFang = document.getElementById('kpiFang');
       const kpiAvg = document.getElementById('kpiAvg');
       const kpiMax = document.getElementById('kpiMax');
@@ -449,38 +515,28 @@ if (!session) {
       if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
       if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
 
-      // Beste Bedingungen
       renderBestConditions(bestCond);
 
-      // Bedingungen Matrix
       const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
         mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
       }));
-      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', (l) => MOND_EMOJI[l] || '🌙');
-      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', (l) => WETTER_EMOJI[l] || '🌤️');
+      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', 'mond', (l) => MOND_EMOJI[l] || '🌙');
+      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', 'wetter', (l) => WETTER_EMOJI[l] || '🌤️');
       const uhrzeitBarsData = Object.entries(cond?.buckets?.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
-      renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', uhrzeitEmoji);
-      renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', druckEmoji);
-      renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', () => '🌡️');
-      renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', () => '💨');
+      renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', 'uhrzeit', uhrzeitEmoji);
+      renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', 'druck', druckEmoji);
+      renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp', () => '🌡️');
+      renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind', () => '💨');
 
-      // Charts
       renderVerlauf(verl ?? []);
       renderGewaesser(gewData ?? []);
-
-      // Kombi-Cards
       renderKombis(kombis ?? []);
-
-      // Fangdetails
       renderDrilldown(drill ?? []);
-
-      // Selects
       populateSelects(cond);
 
       if (loadingEl) loadingEl.style.display = 'none';
     }
 
-    // Zeitraum Pills
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
       const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
       if (!btn) return;
@@ -489,7 +545,6 @@ if (!session) {
       refresh();
     });
 
-    // Fischart Pills initial
     document.getElementById('fischartPills')?.addEventListener('click', (e) => {
       const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
       if (!btn) return;
@@ -500,7 +555,6 @@ if (!session) {
 
     document.getElementById('btnApply')?.addEventListener('click', () => refresh());
 
-    // Dark Mode
     const observer = new MutationObserver(() => {
       CSS = getCSS();
       refresh();
@@ -536,9 +590,22 @@ if (!session) {
 
   .loading-indicator {
     display: none;
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--color-on-surface-variant, #45483f);
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+
+  .skeleton-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-outline-variant, #c6c8bc);
+    border-top-color: var(--color-primary-container, #6c7a57);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .no-data {
@@ -554,17 +621,22 @@ if (!session) {
     padding: 1rem;
   }
 
-  /* Filter Bar */
   .filter-bar {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
-    align-items: center;
     margin-bottom: 1.5rem;
     padding: 0.75rem 1rem;
     background: var(--color-surface-container-lowest, #fff);
     border: 1px solid var(--color-outline-variant, #c6c8bc);
     border-radius: 12px;
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   .filter-pills {
@@ -584,6 +656,9 @@ if (!session) {
     color: var(--color-on-surface, #181d14);
     transition: all 0.15s;
     white-space: nowrap;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .pill.active,
@@ -594,14 +669,21 @@ if (!session) {
   }
 
   select {
-    padding: 0.3rem 0.5rem;
+    padding: 0.3rem 1rem;
     border: 1px solid var(--color-outline-variant, #c6c8bc);
-    border-radius: 6px;
+    border-radius: 999px;
     font-size: 0.8rem;
     background: var(--color-surface-container-lowest, #fff);
     color: var(--color-on-surface, #181d14);
     font-family: var(--font-body-md, "Source Sans 3", sans-serif);
     cursor: pointer;
+    height: 32px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2345483f' d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 1.8rem;
   }
 
   .btn-apply {
@@ -609,19 +691,19 @@ if (!session) {
     background: var(--color-primary-container, #6c7a57);
     color: var(--color-on-primary-container, #fdfff0);
     border: none;
-    border-radius: 8px;
+    border-radius: 999px;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-body-md, "Source Sans 3", sans-serif);
     transition: opacity 0.15s;
+    height: 32px;
   }
 
   .btn-apply:hover {
     opacity: 0.85;
   }
 
-  /* KPIs */
   .kpi-row {
     display: flex;
     gap: 1rem;
@@ -631,12 +713,13 @@ if (!session) {
 
   .kpi-card {
     flex: 1;
-    min-width: 120px;
+    min-width: 160px;
     background: var(--color-surface-container-lowest, #fff);
     border: 1px solid var(--color-outline-variant, #c6c8bc);
     border-radius: 12px;
     padding: 1rem;
     text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
 
   .kpi-card.kpi-fang {
@@ -646,7 +729,7 @@ if (!session) {
   }
 
   .kpi-card.kpi-fang .kpi-value {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     color: var(--color-on-primary-container, #fdfff0);
   }
 
@@ -657,7 +740,7 @@ if (!session) {
 
   .kpi-value {
     display: block;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 700;
     font-family: var(--font-headline-md, "Source Serif 4", serif);
     color: var(--color-primary-container, #6c7a57);
@@ -672,7 +755,6 @@ if (!session) {
     text-transform: uppercase;
   }
 
-  /* Cards */
   .card {
     background: var(--color-surface-container-lowest, #fff);
     border: 1px solid var(--color-outline-variant, #c6c8bc);
@@ -688,45 +770,66 @@ if (!session) {
     color: var(--color-on-surface-variant, #45483f);
   }
 
-  /* Beste Bedingungen */
   .best-cond-content {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .best-cond-line {
+  .best-cond-badge {
+    border-left: 4px solid var(--color-primary-container, #6c7a57);
+    padding: 1rem 1.25rem;
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 1.05rem;
-    line-height: 1.6;
+    align-items: center;
+    gap: 1rem;
+    background: var(--color-surface-container-low, #f1f6e7);
+    border-radius: 0 10px 10px 0;
   }
 
-  .best-cond-combo {
+  .best-cond-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    flex: 1;
+  }
+
+  .condition-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: var(--color-surface-container, #e8edd9);
+    font-size: 0.85rem;
     color: var(--color-on-surface, #181d14);
-    font-weight: 500;
+    white-space: nowrap;
   }
 
-  .best-cond-arrow {
-    color: var(--color-on-surface-variant, #45483f);
-    font-size: 1.2rem;
+  .best-cond-result {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
   }
 
   .best-cond-count {
-    font-size: 1.4rem;
+    font-size: 2rem;
     font-weight: 700;
     font-family: var(--font-headline-md, "Source Serif 4", serif);
     color: var(--color-primary-container, #6c7a57);
+    line-height: 1;
+  }
+
+  .best-cond-label {
+    font-size: 0.85rem;
+    color: var(--color-on-surface-variant, #45483f);
+    font-weight: 600;
   }
 
   .best-cond-avg {
     color: var(--color-on-surface-variant, #45483f);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 
-  /* Condition Bars */
   .conditions-grid {
     display: flex;
     flex-direction: column;
@@ -754,7 +857,7 @@ if (!session) {
   }
 
   .condition-bar-label {
-    width: 130px;
+    width: 150px;
     text-align: right;
     color: var(--color-on-surface-variant, #45483f);
     overflow: hidden;
@@ -765,16 +868,15 @@ if (!session) {
 
   .condition-bar-track {
     flex: 1;
-    height: 20px;
+    height: 24px;
     background: var(--color-surface-container-low, #f1f6e7);
-    border-radius: 4px;
+    border-radius: 6px;
     overflow: hidden;
   }
 
   .condition-bar-fill {
     height: 100%;
-    border-radius: 4px;
-    background: var(--color-primary-container, #6c7a57);
+    border-radius: 6px;
     min-width: 2px;
     transition: width 0.3s;
   }
@@ -792,7 +894,64 @@ if (!session) {
     min-width: 70px;
   }
 
-  /* Kombi Cards */
+  .gewaesser-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .gewaesser-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .gewaesser-bar-label {
+    width: 180px;
+    text-align: right;
+    color: var(--color-on-surface-variant, #45483f);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .gewaesser-bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--color-surface-container-low, #f1f6e7);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .gewaesser-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    min-width: 2px;
+    transition: width 0.3s;
+  }
+
+  .gewaesser-bar-value {
+    width: 40px;
+    font-weight: 600;
+    color: var(--color-on-surface, #181d14);
+    text-align: right;
+  }
+
+  .gewaesser-more {
+    margin-top: 0.5rem;
+  }
+
+  .gewaesser-more summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--color-primary-container, #6c7a57);
+    padding: 0.3rem 0;
+  }
+
   .kombi-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -806,6 +965,51 @@ if (!session) {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    position: relative;
+    border: 2px solid transparent;
+  }
+
+  .kombi-card.rank-1 {
+    border-color: #d4a843;
+  }
+
+  .kombi-card.rank-2 {
+    border-color: #b8b8b8;
+  }
+
+  .kombi-card.rank-3 {
+    border-color: #c4956a;
+  }
+
+  .kombi-rank {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-primary-container, #6c7a57);
+    color: var(--color-on-primary-container, #fdfff0);
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .kombi-card.rank-1 .kombi-rank {
+    background: #d4a843;
+    color: #fff;
+  }
+
+  .kombi-card.rank-2 .kombi-rank {
+    background: #b8b8b8;
+    color: #fff;
+  }
+
+  .kombi-card.rank-3 .kombi-rank {
+    background: #c4956a;
+    color: #fff;
   }
 
   .kombi-card-header {
@@ -832,7 +1036,6 @@ if (!session) {
     line-height: 1.4;
   }
 
-  /* Detail Table */
   .detail-table {
     width: 100%;
     border-collapse: collapse;
@@ -861,7 +1064,33 @@ if (!session) {
     background: var(--color-surface-container-low, #f1f6e7);
   }
 
-  /* Responsive */
+  .detail-table tbody tr:hover {
+    background: var(--color-surface-container-high, #e2e6d5);
+  }
+
+  .detail-cards-mobile {
+    display: none;
+  }
+
+  .detail-card {
+    background: var(--color-surface-container-low, #f1f6e7);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-card-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    font-size: 0.85rem;
+  }
+
+  .detail-card-label {
+    color: var(--color-on-surface-variant, #45483f);
+    font-weight: 600;
+  }
+
   @media (max-width: 900px) {
     .kpi-row {
       flex-wrap: wrap;
@@ -889,14 +1118,18 @@ if (!session) {
       font-size: 1.4rem;
     }
     .condition-bar-label {
-      width: 90px;
+      width: 100px;
       font-size: 0.75rem;
     }
-    .best-cond-line {
-      font-size: 0.9rem;
+    .gewaesser-bar-label {
+      width: 120px;
+      font-size: 0.75rem;
     }
-    .best-cond-count {
-      font-size: 1.2rem;
+    .detail-table {
+      display: none;
+    }
+    .detail-cards-mobile {
+      display: block;
     }
   }
 </style>
