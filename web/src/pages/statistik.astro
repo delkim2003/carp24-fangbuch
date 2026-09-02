@@ -26,6 +26,13 @@ if (!session) {
       </div>
 
       <div class="filter-section">
+        <label>Fischart</label>
+        <div class="pills" id="fischartPills">
+          <button class="pill active" data-value="">Alle</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
         <label for="gewaesser">Gewässer</label>
         <select id="gewaesser"><option value="">Alle</option></select>
       </div>
@@ -45,10 +52,7 @@ if (!session) {
           <label for="wetter">Wetter</label>
           <select id="wetter"><option value="">Alle</option></select>
         </div>
-        <div class="filter-section">
-          <label for="fischart">Fischart</label>
-          <select id="fischart"><option value="">Alle</option></select>
-        </div>
+
         <div class="filter-group">
           <label>Gewicht (kg)</label>
           <div style="display:flex;gap:0.5rem">
@@ -107,13 +111,6 @@ if (!session) {
             <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>–</strong> (Ø – kg)</span></div>
             <div class="insight-card"><span class="insight-icon">🎣</span><span class="insight-text">Bestes Köder: <strong>–</strong> (Ø – kg)</span></div>
           </div>
-        </section>
-      </div>
-
-      <div class="chart-grid">
-        <section class="chart-card">
-          <h3>Fänge nach Fischart</h3>
-          <canvas id="donutChart" width="320" height="320"></canvas>
         </section>
       </div>
 
@@ -270,7 +267,7 @@ if (!session) {
       if (m) f.mond = m;
       const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
       if (w) f.wetter = w;
-      const fa = (document.getElementById('fischart') as HTMLSelectElement)?.value;
+      const fa = (document.querySelector('#fischartPills .pill.active') as HTMLElement)?.dataset?.value;
       if (fa) f.art = fa;
       const gMin = (document.getElementById('gewichtMin') as HTMLInputElement)?.value;
       const gMax = (document.getElementById('gewichtMax') as HTMLInputElement)?.value;
@@ -282,61 +279,6 @@ if (!session) {
       const wtMax = (document.getElementById('wassertempMax') as HTMLInputElement)?.value;
       if (wtMin || wtMax) f.wassertemp = { min: wtMin ? +wtMin : null, max: wtMax ? +wtMax : null };
       return f;
-    }
-
-    function drawDonut(data: { label: string; value: number }[]) {
-      const canvas = document.getElementById('donutChart') as HTMLCanvasElement;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d')!;
-      const dpr = window.devicePixelRatio || 1;
-      const W = 320, H = 320;
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = W + 'px';
-      canvas.style.height = H + 'px';
-
-      const cx = W / 2, cy = H / 2, R = 120, r = 70;
-      const total = data.reduce((s, d) => s + d.value, 0);
-      if (total === 0) {
-        ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = CSS.onSurface;
-        ctx.font = '14px "Source Sans 3", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
-        return;
-      }
-      const palette = [CSS.primary, CSS.primaryDim, CSS.primaryFixed, '#bfc0c0', '#588157', '#3a5a40', '#344e41'];
-      let start = -Math.PI / 2;
-
-      data.forEach((d, i) => {
-        const angle = (d.value / total) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, start, start + angle);
-        ctx.arc(cx, cy, r, start + angle, start, true);
-        ctx.closePath();
-        ctx.fillStyle = palette[i % palette.length];
-        ctx.fill();
-        start += angle;
-      });
-
-      ctx.fillStyle = CSS.onSurface;
-      ctx.font = 'bold 28px "Source Serif 4", serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(String(total), cx, cy - 10);
-      ctx.font = '13px "Source Sans 3", sans-serif';
-      ctx.fillText('Fänge', cx, cy + 14);
-
-      let legend = canvas.parentElement!.querySelector('.donut-legend') as HTMLElement;
-      if (!legend) {
-        legend = document.createElement('div');
-        legend.className = 'donut-legend';
-        canvas.parentElement!.appendChild(legend);
-      }
-      legend.innerHTML = data.map((d, i) =>
-        `<span><i style="background:${palette[i % palette.length]}"></i>${d.label} (${d.value})</span>`
-      ).join('');
     }
 
     function drawGewaesser(data: { label: string; value: number }[]) {
@@ -619,7 +561,21 @@ if (!session) {
       fillSelect('koeder', b.koeder);
       fillSelect('mondphase', b.mond);
       fillSelect('wetter', b.wetter);
-      fillSelect('fischart', b.art);
+
+      const fischartPills = document.getElementById('fischartPills');
+      if (fischartPills && b.art) {
+        fischartPills.innerHTML = '<button class="pill active" data-value="">Alle</button>';
+        Object.keys(b.art).forEach(k => {
+          if (k && k !== 'Unbekannt') {
+            fischartPills.innerHTML += `<button class="pill" data-value="${k}">${k} (${b.art[k]})</button>`;
+          }
+        });
+        fischartPills.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
+          fischartPills.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+          p.classList.add('active');
+          refresh();
+        }));
+      }
     }
 
     async function refresh() {
@@ -659,7 +615,6 @@ if (!session) {
       if (mainKpis[3]) mainKpis[3].textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
 
       const buckets = cond?.buckets ?? {};
-      drawDonut(Object.entries(buckets.art ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
       drawGewaesser(Object.entries(buckets.gewaesser ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
       drawMond(Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
       drawMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
@@ -920,30 +875,6 @@ if (!session) {
     margin: 0 auto;
     max-width: 100%;
     height: auto;
-  }
-
-  .donut-legend {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.8rem;
-    margin-top: 1rem;
-    font-size: 0.8rem;
-    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
-    color: var(--color-on-surface-variant, #45483f);
-  }
-
-  .donut-legend span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .donut-legend i {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
   }
 
   .kombi-table {
