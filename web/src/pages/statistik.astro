@@ -565,9 +565,9 @@ if (!session) {
       const buckets = cond?.buckets ?? {};
       renderGewaesser(gewData ?? []);
       renderMond(mondData ?? []);
-      renderMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
+      renderMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: Number(v?.fangzahl ?? 0) })));
       renderVerlauf(verl ?? []);
-      const mondBarsData = Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ mond_phase: label, catch_count: +(v?.fangzahl ?? v ?? 0), avg_weight: +(v?.avg_gewicht ?? 0) }));
+      const mondBarsData = Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ mond_phase: label, catch_count: Number(v?.fangzahl ?? 0), avg_weight: +(v?.avg_gewicht ?? 0) }));
       renderConditions(mondBarsData, wet ?? [], ldruck ?? [], wind ?? []);
 
       const kombiLabels: Record<string, string> = {
