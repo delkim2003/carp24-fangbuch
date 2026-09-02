@@ -53,25 +53,32 @@ if (!session) {
           <select id="wetter"><option value="">Alle</option></select>
         </div>
 
-        <div class="filter-group">
-          <label>Gewicht (kg)</label>
-          <div style="display:flex;gap:0.5rem">
-            <input type="number" id="gewichtMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
-            <input type="number" id="gewichtMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
-          </div>
+        <div class="filter-section">
+          <label for="druckTrend">Luftdruck</label>
+          <select id="druckTrend">
+            <option value="">Alle</option>
+            <option value="niedrig">&lt;1010 hPa</option>
+            <option value="mittel">1010-1020 hPa</option>
+            <option value="hoch">&gt;1020 hPa</option>
+          </select>
         </div>
-        <div class="filter-group">
-          <label>Luftdruck (hPa)</label>
-          <div style="display:flex;gap:0.5rem">
-            <input type="number" id="druckMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
-            <input type="number" id="druckMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
-          </div>
+        <div class="filter-section">
+          <label for="wind">Wind</label>
+          <select id="wind">
+            <option value="">Alle</option>
+            <option value="windstill">Windstill (&lt;5 km/h)</option>
+            <option value="leicht">Leicht (5-15 km/h)</option>
+            <option value="maessig">Mäßig (15-30 km/h)</option>
+            <option value="stark">Stark (&gt;30 km/h)</option>
+          </select>
         </div>
-        <div class="filter-group">
-          <label>Wassertemperatur (°C)</label>
-          <div style="display:flex;gap:0.5rem">
-            <input type="number" id="wassertempMin" placeholder="Min" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
-            <input type="number" id="wassertempMax" placeholder="Max" style="width:80px;padding:0.4rem;border:1px solid var(--color-outline);border-radius:8px;background:var(--color-surface);color:var(--color-on-surface)">
+        <div class="filter-section">
+          <label>Quick-Filters</label>
+          <div class="pills" id="presetPills">
+            <button class="pill" data-preset="vollmond">🌕 Vollmond</button>
+            <button class="pill" data-preset="neumond">🌑 Neumond</button>
+            <button class="pill" data-preset="regen">🌧️ Regen</button>
+            <button class="pill" data-preset="wind">💨 Windig</button>
           </div>
         </div>
       </details>
@@ -273,15 +280,10 @@ if (!session) {
       if (w) f.wetter = w;
       const fa = (document.querySelector('#fischartPills .pill.active') as HTMLElement)?.dataset?.value;
       if (fa) f.art = fa;
-      const gMin = (document.getElementById('gewichtMin') as HTMLInputElement)?.value;
-      const gMax = (document.getElementById('gewichtMax') as HTMLInputElement)?.value;
-      if (gMin || gMax) f.gewicht = { min: gMin ? +gMin : null, max: gMax ? +gMax : null };
-      const dMin = (document.getElementById('druckMin') as HTMLInputElement)?.value;
-      const dMax = (document.getElementById('druckMax') as HTMLInputElement)?.value;
-      if (dMin || dMax) f.druck = { min: dMin ? +dMin : null, max: dMax ? +dMax : null };
-      const wtMin = (document.getElementById('wassertempMin') as HTMLInputElement)?.value;
-      const wtMax = (document.getElementById('wassertempMax') as HTMLInputElement)?.value;
-      if (wtMin || wtMax) f.wassertemp = { min: wtMin ? +wtMin : null, max: wtMax ? +wtMax : null };
+      const dt = (document.getElementById('druckTrend') as HTMLSelectElement)?.value;
+      if (dt) f.druck_trend = dt;
+      const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
+      if (wi) f.wind = wi;
       return f;
     }
 
@@ -594,6 +596,30 @@ if (!session) {
     });
 
     document.getElementById('btnApply')?.addEventListener('click', () => refresh());
+
+    document.getElementById('presetPills')?.querySelectorAll('.pill').forEach(p => {
+      p.addEventListener('click', () => {
+        const preset = (p as HTMLElement).dataset.preset;
+        document.querySelectorAll('#zeitraumPills .pill').forEach(x => x.classList.remove('active'));
+        document.querySelector('#zeitraumPills .pill[data-value="all"]')?.classList.add('active');
+        ['gewaesser','koeder','mondphase','wetter','fischart','druckTrend','wind'].forEach(id => {
+          const sel = document.getElementById(id) as HTMLSelectElement;
+          if (sel) sel.value = '';
+        });
+        document.querySelectorAll('#fischartPills .pill').forEach(x => x.classList.remove('active'));
+        document.querySelector('#fischartPills .pill[data-value=""]')?.classList.add('active');
+        if (preset === 'vollmond') {
+          (document.getElementById('mondphase') as HTMLSelectElement).value = 'Vollmond';
+        } else if (preset === 'neumond') {
+          (document.getElementById('mondphase') as HTMLSelectElement).value = 'Neumond';
+        } else if (preset === 'regen') {
+          (document.getElementById('wetter') as HTMLSelectElement).value = 'Regen';
+        } else if (preset === 'wind') {
+          (document.getElementById('wind') as HTMLSelectElement).value = 'stark';
+        }
+        refresh();
+      });
+    });
 
     refresh();
   </script>
