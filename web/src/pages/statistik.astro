@@ -120,6 +120,27 @@ const wetterData = wetter ?? [];
           <h3>Fänge nach Fischart</h3>
           <canvas id="donutChart" width="320" height="320"></canvas>
         </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card">
+          <h3>Fänge nach Gewässer</h3>
+          <canvas id="gewaesserChart" width="400" height="260"></canvas>
+        </section>
+        <section class="chart-card">
+          <h3>Mondphasen</h3>
+          <canvas id="mondChart" width="400" height="260"></canvas>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card wide">
+          <h3>Fänge pro Monat</h3>
+          <canvas id="monatChart" width="800" height="260"></canvas>
+        </section>
+      </div>
+
+      <div class="chart-grid">
         <section class="chart-card">
           <h3>Gewichtsverlauf</h3>
           <div id="verlaufChart"></div>
@@ -156,6 +177,9 @@ const wetterData = wetter ?? [];
     import { supabase } from '../lib/supabase-client';
     import uPlot from 'uplot';
     import 'uplot/dist/uPlot.min.css';
+
+    const MONAT_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    function monatName(m: number) { return MONAT_NAMES[m - 1] ?? String(m); }
 
     function getFilters(): Record<string, any> {
       const f: Record<string, any> = {};
@@ -233,6 +257,105 @@ const wetterData = wetter ?? [];
       ).join('');
     }
 
+    function drawGewaesser(data: { label: string; value: number }[]) {
+      const canvas = document.getElementById('gewaesserChart') as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d')!;
+      const dpr = window.devicePixelRatio || 1;
+      const W = 400, H = 260;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.clearRect(0, 0, W, H);
+
+      if (!data.length) return;
+      const maxVal = Math.max(...data.map(d => d.value), 1);
+      const barH = Math.min(28, (H - 20) / data.length - 4);
+      const marginLeft = 120, marginRight = 50;
+
+      data.forEach((d, i) => {
+        const y = 10 + i * (barH + 4);
+        const barW = ((W - marginLeft - marginRight) * d.value) / maxVal;
+        ctx.fillStyle = '#6c7a57';
+        ctx.fillRect(marginLeft, y, barW, barH);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.font = '12px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(d.label, marginLeft - 8, y + barH / 2);
+        ctx.textAlign = 'left';
+        ctx.fillText(String(d.value), marginLeft + barW + 6, y + barH / 2);
+      });
+    }
+
+    function drawMond(data: { label: string; value: number }[]) {
+      const canvas = document.getElementById('mondChart') as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d')!;
+      const dpr = window.devicePixelRatio || 1;
+      const W = 400, H = 260;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.clearRect(0, 0, W, H);
+
+      if (!data.length) return;
+      const maxVal = Math.max(...data.map(d => d.value), 1);
+      const marginLeft = 50, marginBottom = 40, marginTop = 20;
+      const chartW = W - marginLeft - 20;
+      const chartH = H - marginTop - marginBottom;
+      const barW = Math.min(60, chartW / data.length - 8);
+
+      data.forEach((d, i) => {
+        const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
+        const barH = (chartH * d.value) / maxVal;
+        ctx.fillStyle = '#6c7a57';
+        ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.font = '11px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
+        ctx.fillText(String(d.value), x + barW / 2, marginTop + chartH - barH - 6);
+      });
+    }
+
+    function drawMonat(data: { label: string; value: number }[]) {
+      const canvas = document.getElementById('monatChart') as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d')!;
+      const dpr = window.devicePixelRatio || 1;
+      const W = 800, H = 260;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.clearRect(0, 0, W, H);
+
+      if (!data.length) return;
+      const maxVal = Math.max(...data.map(d => d.value), 1);
+      const marginLeft = 50, marginBottom = 40, marginTop = 20;
+      const chartW = W - marginLeft - 20;
+      const chartH = H - marginTop - marginBottom;
+      const barW = Math.min(50, chartW / data.length - 8);
+
+      data.forEach((d, i) => {
+        const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
+        const barH = (chartH * d.value) / maxVal;
+        ctx.fillStyle = '#6c7a57';
+        ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+        ctx.font = '11px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
+        ctx.fillText(String(d.value), x + barW / 2, marginTop + chartH - barH - 6);
+      });
+    }
+
     function renderVerlauf(data: any[]) {
       const el = document.getElementById('verlaufChart');
       if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
@@ -308,6 +431,9 @@ const wetterData = wetter ?? [];
 
       const buckets = cond?.buckets ?? {};
       drawDonut(Object.entries(buckets.art ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
+      drawGewaesser(Object.entries(buckets.gewaesser ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
+      drawMond(Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
+      drawMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
       renderVerlauf(verl ?? []);
       renderWetter(wet ?? []);
 
