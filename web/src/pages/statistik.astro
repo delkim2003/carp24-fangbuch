@@ -119,10 +119,6 @@ if (!session) {
           <h3>Fänge nach Gewässer</h3>
           <canvas id="gewaesserChart" width="400" height="260"></canvas>
         </section>
-        <section class="chart-card">
-          <h3>Mondphasen</h3>
-          <canvas id="mondChart" width="400" height="260"></canvas>
-        </section>
       </div>
 
       <div class="chart-grid">
@@ -140,13 +136,26 @@ if (!session) {
       </div>
 
       <div class="chart-grid">
-        <section class="chart-card">
-          <h3>Wetter-Korrelation</h3>
-          <div id="wetterChart"></div>
-        </section>
-        <section class="chart-card">
-          <h3>🌤️ Luftdruck-Korrelation</h3>
-          <div id="luftdruckChart" style="min-height:260px"></div>
+        <section class="chart-card wide">
+          <h3>🌙 Bedingungen</h3>
+          <div class="conditions-grid">
+            <div class="condition-row">
+              <h4>Mondphase</h4>
+              <div id="mondBars" class="condition-bars"></div>
+            </div>
+            <div class="condition-row">
+              <h4>Wetter</h4>
+              <div id="wetterBars" class="condition-bars"></div>
+            </div>
+            <div class="condition-row">
+              <h4>Luftdruck (hPa)</h4>
+              <div id="druckBars" class="condition-bars"></div>
+            </div>
+            <div class="condition-row">
+              <h4>Windstärke</h4>
+              <div id="windBars" class="condition-bars"></div>
+            </div>
+          </div>
         </section>
         <section class="chart-card wide">
           <h3>Beste Kombinationen</h3>
@@ -320,45 +329,6 @@ if (!session) {
       });
     }
 
-    function drawMond(data: { label: string; value: number }[]) {
-      const canvas = document.getElementById('mondChart') as HTMLCanvasElement;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d')!;
-      const dpr = window.devicePixelRatio || 1;
-      const W = 400, H = 260;
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = W + 'px';
-      canvas.style.height = H + 'px';
-      ctx.clearRect(0, 0, W, H);
-
-      if (!data.length) {
-        ctx.fillStyle = CSS.onSurface;
-        ctx.font = '14px "Source Sans 3", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
-        return;
-      }
-      const maxVal = Math.max(...data.map(d => d.value), 1);
-      const marginLeft = 50, marginBottom = 40, marginTop = 20;
-      const chartW = W - marginLeft - 20;
-      const chartH = H - marginTop - marginBottom;
-      const barW = Math.min(60, chartW / data.length - 8);
-
-      data.forEach((d, i) => {
-        const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
-        const barH = (chartH * d.value) / maxVal;
-        ctx.fillStyle = CSS.primary;
-        ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
-        ctx.fillStyle = CSS.onSurface;
-        ctx.font = '11px "Source Sans 3", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
-        ctx.fillText(String(d.value), x + barW / 2, marginTop + chartH - barH - 6);
-      });
-    }
-
     function drawMonat(data: { label: string; value: number }[]) {
       const canvas = document.getElementById('monatChart') as HTMLCanvasElement;
       if (!canvas) return;
@@ -430,63 +400,25 @@ if (!session) {
       new uPlot(opts, [months, avgW, maxW], el);
     }
 
-    function renderWetter(data: any[]) {
-      const el = document.getElementById('wetterChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const indices = data.map((_: any, i: number) => i);
-      const counts = data.map((d: any) => +d.catch_count);
-      const avgW = data.map((d: any) => +d.avg_weight);
-      const labels = data.map((d: any) => d.weather_type);
-
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 500,
-        height: 260,
-        axes: [
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: () => labels },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif', side: 1 },
-        ],
-        series: [
-          {},
-          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
-          { label: 'Ø kg', stroke: '#e07a5f', width: 2, points: { show: true, size: 5 }, scale: 'y2' },
-        ],
-        scales: {
-          y2: { side: 1 },
-        },
-      };
-      new uPlot(opts, [indices, counts, avgW], el);
-    }
-
-    function renderLuftdruck(data: any[]) {
-      const el = document.getElementById('luftdruckChart');
-      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const indices = data.map((_: any, i: number) => i);
-      const counts = data.map((d: any) => +d.catch_count);
-      const avgW = data.map((d: any) => +d.avg_weight);
-      const labels = data.map((d: any) => d.druck_bereich);
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 500,
-        height: 260,
-        axes: [
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
-            values: () => labels },
-          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif', side: 1 },
-        ],
-        series: [
-          {},
-          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
-          { label: 'Ø kg', stroke: '#e07a5f', width: 2, points: { show: true, size: 5 }, scale: 'y2' },
-        ],
-        scales: {
-          y2: { side: 1 },
-        },
-      };
-      new uPlot(opts, [indices, counts, avgW], el);
+    function renderConditions(mond: any[], wetter: any[], druck: any[], wind: any[]) {
+      function renderBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string) {
+        const el = document.getElementById(containerId);
+        if (!el || !data.length) { if (el) el.innerHTML = '<p style="color:#999;font-size:0.8rem;">Keine Daten</p>'; return; }
+        const maxVal = Math.max(...data.map(d => +d[valueKey]));
+        el.innerHTML = data.map(d => {
+          const pct = maxVal > 0 ? (+d[valueKey] / maxVal * 100) : 0;
+          return `<div class="condition-bar">
+            <span class="condition-bar-label">${d[labelKey]}</span>
+            <div class="condition-bar-fill" style="width:${pct}%"></div>
+            <span class="condition-bar-value">${d[valueKey]}</span>
+            <span class="condition-bar-avg">Ø ${Number(d[avgKey]).toFixed(1)} kg</span>
+          </div>`;
+        }).join('');
+      }
+      renderBars('mondBars', mond, 'mond_phase', 'catch_count', 'avg_weight');
+      renderBars('wetterBars', wetter, 'weather_type', 'catch_count', 'avg_weight');
+      renderBars('druckBars', druck, 'druck_bereich', 'catch_count', 'avg_weight');
+      renderBars('windBars', wind, 'wind_bereich', 'catch_count', 'avg_weight');
     }
 
     function renderBadges(data: any[]) {
@@ -590,6 +522,7 @@ if (!session) {
         { data: verl },
         { data: wet },
         { data: ldruck },
+        { data: wind },
         { data: drill },
       ] = await Promise.all([
         supabase.rpc('stats_conditions', { p_filters: filters }),
@@ -598,6 +531,7 @@ if (!session) {
         supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
         supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
+        supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
         supabase.rpc('stats_drilldown', { p_filters: filters }),
       ]);
 
@@ -616,11 +550,10 @@ if (!session) {
 
       const buckets = cond?.buckets ?? {};
       drawGewaesser(Object.entries(buckets.gewaesser ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
-      drawMond(Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
       drawMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
       renderVerlauf(verl ?? []);
-      renderWetter(wet ?? []);
-      renderLuftdruck(ldruck ?? []);
+      const mondData = Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ mond_phase: label, catch_count: +(v?.fangzahl ?? v ?? 0), avg_weight: +(v?.avg_gewicht ?? 0) }));
+      renderConditions(mondData, wet ?? [], druck ?? [], wind ?? []);
 
       const kombiLabels: Record<string, string> = {
         mond: 'Mond', druck: 'Druck', wetter: 'Wetter', koeder: 'Köder',
@@ -875,6 +808,53 @@ if (!session) {
     margin: 0 auto;
     max-width: 100%;
     height: auto;
+  }
+
+  .conditions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .condition-row h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-on-surface-variant);
+  }
+  .condition-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .condition-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+  .condition-bar-label {
+    width: 100px;
+    text-align: right;
+    color: var(--color-on-surface-variant);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .condition-bar-fill {
+    height: 20px;
+    border-radius: 4px;
+    background: var(--color-primary);
+    min-width: 2px;
+    transition: width 0.3s;
+  }
+  .condition-bar-value {
+    font-weight: 600;
+    color: var(--color-on-surface);
+    min-width: 30px;
+  }
+  .condition-bar-avg {
+    color: var(--color-on-surface-variant);
+    font-size: 0.75rem;
   }
 
   .kombi-table {
