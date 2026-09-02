@@ -128,7 +128,7 @@ if (!session) {
 
       <div class="chart-grid">
         <section class="chart-card">
-          <h3>🤖 KI-Analyse</h3>
+          <h3>📊 Carp24 Analyse</h3>
           <div class="insight-cards">
             <div class="insight-card"><span class="insight-icon">⏰</span><span class="insight-text">Deine beste Fangzeit: <strong>–</strong> (Ø – kg)</span></div>
             <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>–</strong> (Ø – kg)</span></div>
@@ -204,6 +204,16 @@ if (!session) {
 
     const MONAT_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
     function monatName(m: number) { return MONAT_NAMES[m - 1] ?? String(m); }
+
+    function speciesName(s: string): string {
+      const map: Record<string, string> = {
+        karpfen: 'Karpfen', schlei: 'Schlei', barsch: 'Barsch',
+        hecht: 'Hecht', zander: 'Zander', wels: 'Wels',
+        amur: 'Amur', karausche: 'Karausche', rotfeder: 'Rotfeder',
+        brasse: 'Brasse', aland: 'Aland', laube: 'Laube',
+      };
+      return map[s?.toLowerCase()] ?? s ?? '–';
+    }
 
     function getFilters(): Record<string, any> {
       const f: Record<string, any> = {};
@@ -485,7 +495,7 @@ if (!session) {
       if (tbody) {
         tbody.innerHTML = trips.map((t: any) => `
           <tr>
-            <td>${t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '–'}</td>
+            <td>${t.datum ? new Date(t.datum).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'}) : '–'}</td>
             <td>${t.gewaesser ?? '–'}</td>
             <td>${t.fangzahl ?? 0}</td>
             <td>${t.avg_gewicht ? Number(t.avg_gewicht).toFixed(1) + ' kg' : '–'}</td>
@@ -500,9 +510,9 @@ if (!session) {
       if (!tbody) return;
       tbody.innerHTML = data.map((d: any) => `
         <tr>
-          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE') : '–'}</td>
+          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'}) : '–'}</td>
           <td>${d.weight_kg ? Number(d.weight_kg).toFixed(1) + ' kg' : '–'}</td>
-          <td>${d.species ?? '–'}</td>
+          <td>${speciesName(d.species)}</td>
           <td>${d.water_name ?? '–'}</td>
           <td>${d.bait ?? '–'}</td>
         </tr>
@@ -515,6 +525,7 @@ if (!session) {
       function fillSelect(id: string, obj: Record<string, any> | undefined) {
         const sel = document.getElementById(id);
         if (!sel || !obj) return;
+        while (sel.options.length > 1) sel.remove(1);
         Object.keys(obj).forEach(k => {
           if (k && k !== 'Unbekannt') {
             const opt = document.createElement('option');
@@ -572,11 +583,19 @@ if (!session) {
       renderVerlauf(verl ?? []);
       renderWetter(wet ?? []);
 
+      const kombiLabels: Record<string, string> = {
+        mond: 'Mond', druck: 'Druck', wetter: 'Wetter', koeder: 'Köder',
+        uhrzeit: 'Uhrzeit', wassertemp: 'Wassertemp', lufttemp: 'Lufttemp', wind: 'Wind'
+      };
       const tbody = document.getElementById('kombiBody');
       if (tbody) {
-        tbody.innerHTML = (kombis ?? []).map((k: any) =>
-          `<tr><td>${k.kombi}</td><td>${k.fangzahl}</td><td>${Number(k.avg_gewicht).toFixed(1)} kg</td></tr>`
-        ).join('');
+        tbody.innerHTML = (kombis ?? []).map((k: any) => {
+          const parts = k.kombi.split(' + ').map((p: string) => {
+            const [key, val] = p.split('=');
+            return (kombiLabels[key] || key) + ': ' + val;
+          });
+          return `<tr><td>${parts.join(' · ')}</td><td>${k.fangzahl}</td><td>${Number(k.avg_gewicht).toFixed(1)} kg</td></tr>`;
+        }).join('');
       }
 
       if (ins) {
@@ -865,6 +884,10 @@ if (!session) {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+  }
+
+  .kombi-table tr:nth-child(even) {
+    background: var(--color-surface-container-low, #f1f6e7);
   }
 
   .insight-cards {
