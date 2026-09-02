@@ -46,26 +46,6 @@ if (!session) {
           <select id="wetter"><option value="">Alle</option></select>
         </div>
         <div class="filter-section">
-          <label>Gewicht (kg)</label>
-          <div class="range-row">
-            <input type="number" id="gewichtMin" placeholder="Min" min="0" step="0.1" />
-            <span>–</span>
-            <input type="number" id="gewichtMax" placeholder="Max" min="0" step="0.1" />
-          </div>
-        </div>
-        <div class="filter-section">
-          <label for="methode">Methode</label>
-          <select id="methode"><option value="">Alle</option></select>
-        </div>
-        <div class="filter-section">
-          <label>Wassertemp. (°C)</label>
-          <div class="range-row">
-            <input type="number" id="tempMin" placeholder="Min" step="0.5" />
-            <span>–</span>
-            <input type="number" id="tempMax" placeholder="Max" step="0.5" />
-          </div>
-        </div>
-        <div class="filter-section">
           <label for="fischart">Fischart</label>
           <select id="fischart"><option value="">Alle</option></select>
         </div>
@@ -226,25 +206,33 @@ if (!session) {
     function getFilters(): Record<string, any> {
       const f: Record<string, any> = {};
       const z = document.querySelector('#zeitraumPills .pill.active') as HTMLElement;
-      if (z) f.zeitraum = z.dataset.value;
+      if (z) {
+        const val = z.dataset.value;
+        const now = new Date();
+        if (val === '7d') {
+          const d = new Date(now); d.setDate(d.getDate()-7);
+          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
+        } else if (val === '30d') {
+          const d = new Date(now); d.setDate(d.getDate()-30);
+          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
+        } else if (val === '90d') {
+          const d = new Date(now); d.setDate(d.getDate()-90);
+          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
+        } else if (val === '1y') {
+          const d = new Date(now); d.setFullYear(d.getFullYear()-1);
+          f.zeitraum = { von: d.toISOString().slice(0,10), bis: now.toISOString().slice(0,10) };
+        }
+      }
       const g = (document.getElementById('gewaesser') as HTMLSelectElement)?.value;
       if (g) f.gewaesser = g;
       const k = (document.getElementById('koeder') as HTMLSelectElement)?.value;
       if (k) f.koeder = k;
       const m = (document.getElementById('mondphase') as HTMLSelectElement)?.value;
-      if (m) f.mondphase = m;
+      if (m) f.mond = m;
       const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
       if (w) f.wetter = w;
-      const gMin = (document.getElementById('gewichtMin') as HTMLInputElement)?.value;
-      const gMax = (document.getElementById('gewichtMax') as HTMLInputElement)?.value;
-      if (gMin || gMax) f.gewicht = { min: gMin ? +gMin : null, max: gMax ? +gMax : null };
-      const meth = (document.getElementById('methode') as HTMLSelectElement)?.value;
-      if (meth) f.methode = meth;
-      const tMin = (document.getElementById('tempMin') as HTMLInputElement)?.value;
-      const tMax = (document.getElementById('tempMax') as HTMLInputElement)?.value;
-      if (tMin || tMax) f.wassertemp = { min: tMin ? +tMin : null, max: tMax ? +tMax : null };
       const fa = (document.getElementById('fischart') as HTMLSelectElement)?.value;
-      if (fa) f.fischart = fa;
+      if (fa) f.art = fa;
       return f;
     }
 
@@ -497,10 +485,9 @@ if (!session) {
       `).join('');
     }
 
-    async function populateSelects() {
-      const { data } = await supabase.rpc('stats_conditions', { p_filters: {} });
-      if (!data?.buckets) return;
-      const b = data.buckets;
+    function populateSelects(cond: any) {
+      if (!cond?.buckets) return;
+      const b = cond.buckets;
       function fillSelect(id: string, obj: Record<string, any> | undefined) {
         const sel = document.getElementById(id);
         if (!sel || !obj) return;
@@ -517,10 +504,10 @@ if (!session) {
       fillSelect('mondphase', b.mond);
       fillSelect('wetter', b.wetter);
       fillSelect('fischart', b.art);
-      fillSelect('methode', b.methode || {});
     }
 
     async function refresh() {
+      const { data: { user } } = await supabase.auth.getUser();
       const filters = getFilters();
       const [
         { data: cond },
@@ -537,6 +524,13 @@ if (!session) {
         supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
         supabase.rpc('stats_drilldown', { p_filters: filters }),
       ]);
+
+      const [{ data: badgeData }, { data: tripData }] = await Promise.all([
+        supabase.rpc('stats_badges', { p_user_id: user?.id }),
+        supabase.rpc('stats_trips', { p_user_id: user?.id }),
+      ]);
+      renderBadges(badgeData);
+      renderTrips(tripData);
 
       const kpis = document.querySelectorAll('.kpi-value');
       if (kpis[0]) kpis[0].textContent = String(cond?.total?.fangzahl ?? 0);
@@ -567,7 +561,7 @@ if (!session) {
       }
 
       renderDrilldown(drill ?? []);
-      populateSelects();
+      populateSelects(cond);
     }
 
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
