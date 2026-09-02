@@ -213,31 +213,16 @@ if (!session) return Astro.redirect('/login');
 
   let CSS = getCSS();
 
-  const MOND_EMOJI: Record<string, string> = {
-    'Neumond': '🌑', 'Zunehmend': '🌒', 'Erstes Viertel': '🌓',
-    'Zunehmender Gibbus': '🌔', 'Vollmond': '🌕', 'Abnehmender Gibbus': '🌖',
-    'Letztes Viertel': '🌗', 'Abnehmend': '🌘'
-  };
+  const MOND_EMOJI: Record<string, string> = {};
 
-  const WETTER_EMOJI: Record<string, string> = {
-    'Sonnig': '☀️', 'Bewölkt': '☁️', 'Regen': '🌧️', 'Windig': '💨', 'Neblig': '🌫️',
-    'sonnig': '☀️', 'bewölkt': '☁️', 'regen': '🌧️', 'windig': '💨', 'neblig': '🌫️',
-  };
+  const WETTER_EMOJI: Record<string, string> = {};
 
-  function uhrzeitEmoji(label: string): string {
-    const l = label.toLowerCase();
-    if (l.includes('nacht') || l.includes('0-6') || l.includes('0–6')) return '🌙';
-    if (l.includes('morgen') || l.includes('6-12') || l.includes('6–12')) return '🌅';
-    if (l.includes('mittag') || l.includes('12-18') || l.includes('12–18')) return '☀️';
-    if (l.includes('abend') || l.includes('18-24') || l.includes('18–24') || l.includes('18-0')) return '🌇';
-    return '🌅';
+  function uhrzeitEmoji(_label: string): string {
+    return '';
   }
 
-  function druckEmoji(label: string): string {
-    const l = label.toLowerCase();
-    if (l.includes('fall') || l.includes('niedrig') || l.includes('<') || l.includes('↘')) return '↘️';
-    if (l.includes('steig') || l.includes('hoch') || l.includes('>') || l.includes('↗')) return '↗️';
-    return '➡️';
+  function druckEmoji(_label: string): string {
+    return '';
   }
 
   function getFilters(): Record<string, any> {
@@ -270,7 +255,7 @@ if (!session) return Astro.redirect('/login');
     return f;
   }
 
-  function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, dimension: string, emojiFn?: (label: string) => string) {
+  function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, _dimension: string) {
     const el = document.getElementById(containerId);
     if (!el) return;
     if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md">Keine Daten</p>'; return; }
@@ -279,9 +264,8 @@ if (!session) return Astro.redirect('/login');
     el.innerHTML = data.map(d => {
       const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
       const label = d[labelKey] ?? '–';
-      const emoji = emojiFn ? emojiFn(label) : '';
       return `<div class="flex items-center gap-sm text-body-md">
-        <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${emoji ? emoji + ' ' : ''}${label}</span>
+        <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${label}</span>
         <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
         <span class="font-bold text-on-surface min-w-[30px] text-right">${n(d[valueKey])}</span>
         <span class="text-on-surface-variant opacity-50 text-xs min-w-[70px]">Ø ${nf(d[avgKey])} kg</span>
@@ -295,12 +279,12 @@ if (!session) return Astro.redirect('/login');
     if (!best) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic">Keine Daten</p>'; return; }
 
     const parts: string[] = [];
-    if (best.mond) parts.push(`${MOND_EMOJI[best.mond] || '🌙'} ${best.mond}`);
-    if (best.wetter) parts.push(`${WETTER_EMOJI[best.wetter] || '🌤️'} ${best.wetter}`);
-    if (best.uhrzeit) parts.push(`${uhrzeitEmoji(best.uhrzeit)} ${best.uhrzeit}`);
-    if (best.druck) parts.push(`${druckEmoji(best.druck)} ${best.druck}`);
-    if (best.wind) parts.push(`💨 ${best.wind}`);
-    if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
+    if (best.mond) parts.push(best.mond);
+    if (best.wetter) parts.push(best.wetter);
+    if (best.uhrzeit) parts.push(best.uhrzeit);
+    if (best.druck) parts.push(best.druck);
+    if (best.wind) parts.push(best.wind);
+    if (best.wassertemp) parts.push(best.wassertemp);
 
     el.innerHTML = `
       <div class="flex flex-wrap gap-sm flex-1">
@@ -398,8 +382,8 @@ if (!session) return Astro.redirect('/login');
     if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md col-span-full">Keine Daten</p>'; return; }
 
     const kombiLabels: Record<string, string> = {
-      mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
-      uhrzeit: '🌅', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
+      mond: '', druck: '', wetter: '', koeder: '',
+      uhrzeit: '', wassertemp: '', lufttemp: '', wind: ''
     };
 
     const sorted = [...data].sort((a, b) => n(b.fangzahl) - n(a.fangzahl));
@@ -565,13 +549,13 @@ if (!session) return Astro.redirect('/login');
     const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
       mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
     }));
-    renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', 'mond', (l) => MOND_EMOJI[l] || '🌙');
-    renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', 'wetter', (l) => WETTER_EMOJI[l] || '🌤️');
+    renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', 'mond');
+    renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', 'wetter');
     const uhrzeitBarsData = Object.entries(cond?.buckets?.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
-    renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', 'uhrzeit', uhrzeitEmoji);
-    renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', 'druck', druckEmoji);
-    renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp', () => '🌡️');
-    renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind', () => '💨');
+    renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', 'uhrzeit');
+    renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', 'druck');
+    renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp');
+    renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind');
 
     renderVerlauf(verl ?? []);
     renderGewaesser(gewData ?? []);
