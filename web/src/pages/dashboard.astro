@@ -3,11 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { t } from "../lib/i18n";
 import { createSSRClient } from "../lib/ssr-client";
 
-const supabase = createSSRClient(Astro.request, (cookiesToSet) => {
-  cookiesToSet.forEach(({ name, value, options }) => {
-    Astro.cookies.set(name, value, options);
-  });
-});
+const supabase = createSSRClient(Astro);
 
 const { data: { session } } = await supabase.auth.getSession();
 

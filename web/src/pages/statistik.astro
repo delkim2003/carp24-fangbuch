@@ -1,915 +1,585 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { createSSRClient } from "../lib/ssr-client";
+import Layout from '../layouts/Layout.astro';
+import { createSSRClient } from '../lib/ssr-client';
 
 const supabase = createSSRClient(Astro);
 
-const { data: { session } } = await supabase.auth.getSession();
+const filters: Record<string, any> = {};
 
-let isPro = false;
-let initialConditions: any = null;
-let initialDrilldown: any[] = [];
-let initialKombis: any[] = [];
-let initialInsights: any = null;
-let loadError: string | null = null;
+const [
+  { data: conditions },
+  { data: kombis },
+  { data: insights },
+  { data: verlauf },
+  { data: wetter },
+] = await Promise.all([
+  supabase.rpc('stats_conditions', { p_filters: filters }),
+  supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
+  supabase.rpc('stats_insights', { p_filters: filters }),
+  supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
+  supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+]);
 
-if (session) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_pro")
-    .eq("id", session.user.id)
-    .single();
-  isPro = profile?.is_pro ?? false;
-
-  const results = await Promise.allSettled([
-    supabase.rpc("stats_conditions", { p_filters: {} }),
-    supabase.rpc("stats_drilldown", { p_filters: {} }),
-    supabase.rpc("stats_beste_kombis", { p_filters: {}, p_limit: 5 }),
-  ]);
-
-  const condRes = results[0].status === "fulfilled" ? results[0].value : null;
-  const drillRes = results[1].status === "fulfilled" ? results[1].value : null;
-  const kombiRes = results[2].status === "fulfilled" ? results[2].value : null;
-
-  if (condRes?.error) loadError = condRes.error.message;
-  else if (drillRes?.error) loadError = drillRes.error.message;
-  else if (kombiRes?.error) loadError = kombiRes.error.message;
-  else {
-    initialConditions = condRes?.data ?? null;
-    initialDrilldown = drillRes?.data ?? [];
-    initialKombis = kombiRes?.data ?? [];
-  }
-
-  if (!loadError && isPro) {
-    const { data: insightsData, error: insightsErr } = await supabase.rpc("stats_insights", { p_filters: {} });
-    if (!insightsErr) initialInsights = insightsData ?? null;
-  }
-}
-
-const speciesDE: Record<string, string> = {
-  SPIEGEL: "Spiegelkarpfen",
-  LEDER: "Lederkarpfen",
-  SCHUPPEN: "Schuppenkarpfen",
-  AMUR: "Amurkarpfen",
-  ANDERE: "Andere",
-};
-
-const DIMENSIONS = [
-  { key: "mond", label: "MOND", bucketKey: "mond" },
-  { key: "druck_bucket", label: "LUFTDRUCK", bucketKey: "druck" },
-  { key: "wind_bucket", label: "WIND", bucketKey: "wind" },
-  { key: "wetter", label: "WETTER", bucketKey: "wetter" },
-  { key: "gewaesser", label: "GEWÄSSER", bucketKey: "gewaesser" },
-  { key: "art", label: "ART", bucketKey: "art" },
-  { key: "koeder", label: "KÖDER", bucketKey: "koeder" },
-  { key: "monat", label: "MONAT", bucketKey: "monat" },
-  { key: "uhrzeit_bucket", label: "UHRZEIT", bucketKey: "uhrzeit" },
-  { key: "wasser_temp_bucket", label: "WASSERTEMPERATUR", bucketKey: "wassertemp" },
-  { key: "lufttemp_bucket", label: "LUFTTEMPERATUR", bucketKey: "lufttemp" },
-] as const;
-
-const monthNamesDE: Record<string, string> = {
-  "1": "Jan", "2": "Feb", "3": "Mär", "4": "Apr", "5": "Mai", "6": "Jun",
-  "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
-};
+const total = conditions?.total ?? 0;
+const buckets = conditions?.buckets ?? {};
+const bestKombis = kombis ?? [];
+const ins = insights ?? {};
+const verlaufData = verlauf ?? [];
+const wetterData = wetter ?? [];
 ---
 
-<Layout title="Carp24 – Statistik" active="statistik" noindex>
-  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
-    {!session ? (
-      <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4 i18n" data-de="STATISTIK-STUDIO" data-en="STATISTICS STUDIO">STATISTIK-STUDIO</h1>
-        <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de="Melde dich an, um deine Statistik zu sehen." data-en="Sign in to see your statistics.">Melde dich an, um deine Statistik zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de="ANMELDEN" data-en="SIGN IN">ANMELDEN</a>
-      </div>
-    ) : loadError ? (
-      <div class="text-center py-24">
-        <h1 class="text-display-lg text-primary mb-4 i18n" data-de="STATISTIK-STUDIO" data-en="STATISTICS STUDIO">STATISTIK-STUDIO</h1>
-        <p class="text-body-lg text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</p>
-      </div>
-    ) : (
-      <>
-        <header class="text-center md:text-left">
-          <h1 class="text-display-lg text-primary mb-2 i18n" data-de="Statistik-Studio" data-en="Statistics Studio">Statistik-Studio</h1>
-          <p class="text-body-lg text-on-surface-variant max-w-2xl i18n" data-de="Analysiere deine Fangdaten, erkenne Tendenzen." data-en="Analyze your catch data, spot trends.">Analysiere deine Fangdaten, erkenne Tendenzen.</p>
-          <p class="text-body-md text-on-surface-variant/60 mt-xs i18n" data-de="Analysen basieren auf deinen Fangdaten — Abweichungen möglich." data-en="Analyses are based on your catch data — deviations possible.">Analysen basieren auf deinen Fangdaten — Abweichungen möglich.</p>
-        </header>
+<Layout title="Statistik">
+  <div class="stats-page">
+    <aside class="filter-sidebar" id="filterSidebar">
+      <h2>Filter</h2>
 
-        <div id="active-filters-bar" class="hidden flex-wrap items-center gap-2"></div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-          <section class="lg:col-span-8 flex flex-col gap-gutter">
-            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-              <div class="flex justify-between items-center mb-md border-b border-primary/40 pb-sm">
-                <h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest i18n" data-de="Bedingungen" data-en="Conditions">Bedingungen</h2>
-                <button id="btn-reset" type="button" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2 i18n" data-testid="conditions-reset" data-de="ZURÜCKSETZEN" data-en="RESET">ZURÜCKSETZEN</button>
-              </div>
-
-              <div class="flex flex-col sm:flex-row sm:items-center gap-sm mb-md" id="zeitraum-row">
-                <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant i18n" data-de="ZEITRAUM" data-en="PERIOD">ZEITRAUM</span>
-                <div class="flex flex-wrap items-center gap-sm">
-                  <input type="date" id="zeitraum-von" data-testid="zeitraum-von" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
-                  <span class="text-body-md text-on-surface-variant">–</span>
-                  <input type="date" id="zeitraum-bis" data-testid="zeitraum-bis" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11" />
-                  <button type="button" id="btn-zeitraum-anwenden" data-testid="zeitraum-anwenden" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full min-h-11 hover:bg-surface-tint transition-colors cursor-pointer i18n" data-de="ANWENDEN" data-en="APPLY">ANWENDEN</button>
-                  <button type="button" id="btn-zeitraum-reset" data-testid="zeitraum-reset" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer min-h-11 px-2 i18n" data-de="ZURÜCKSETZEN" data-en="RESET">ZURÜCKSETZEN</button>
-                </div>
-              </div>
-              <div id="zeitraum-warnung" class="hidden mb-md p-sm bg-error-container text-on-error-container rounded-lg text-body-md" data-testid="zeitraum-warnung"></div>
-
-              <div id="conditions-error" class="hidden mb-md p-sm bg-error-container text-on-error-container rounded-lg text-body-md" data-testid="conditions-error"></div>
-
-              <div id="conditions-rows" class="space-y-md">
-                {DIMENSIONS.map((dim) => {
-                  const buckets = initialConditions?.buckets?.[dim.bucketKey] || {};
-                  const entries = Object.entries(buckets);
-                  if (entries.length === 0) return null;
-                  return (
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-sm" data-dimension={dim.key}>
-                      <span class="font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant">{dim.label}</span>
-                      <div class="flex flex-wrap gap-sm" data-chips={dim.key}>
-                        {entries.map(([value, stats]: [string, any]) => {
-                          const count = Number(stats?.fangzahl ?? 0);
-                          const displayValue = dim.key === "monat" ? (monthNamesDE[value] || value) : value.toUpperCase();
-                          return (
-                            <button
-                              type="button"
-                              data-dim={dim.key}
-                              data-val={value}
-                              aria-pressed="false"
-                              class="chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 text-on-surface-variant hover:bg-primary hover:text-white transition-colors cursor-pointer min-h-11"
-                            >
-                              {displayValue} ({count})
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Mondphasen" data-en="Moon phases">Mondphasen</h3>
-                <div id="moon-chart" class="flex justify-between items-end h-32 pt-sm gap-2"></div>
-              </div>
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Luftdruck" data-en="Air pressure">Luftdruck</h3>
-                <div id="pressure-chart" class="flex flex-col justify-end h-32 pt-sm gap-2"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="lg:col-span-4 flex flex-col gap-gutter">
-            <div class="grid grid-cols-2 gap-gutter">
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="GESAMT FÄNGE" data-en="TOTAL CATCHES">GESAMT FÄNGE</span>
-                <span id="metric-total" class="text-headline-lg text-primary">{initialConditions?.total?.fangzahl ?? 0}</span>
-              </div>
-              <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-                <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="Ø GEWICHT" data-en="Ø WEIGHT">Ø GEWICHT</span>
-                <span id="metric-avg" class="text-headline-lg text-primary">{initialConditions?.total?.avg_gewicht != null ? Number(initialConditions.total.avg_gewicht).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "–"}<span class="text-body-md text-sm"> KG</span></span>
-              </div>
-            </div>
-            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-md flex flex-col justify-center items-center text-center">
-              <span class="font-label-sm text-label-sm text-on-surface-variant mb-xs i18n" data-de="BESTE KOMBINATION" data-en="BEST COMBINATION">BESTE KOMBINATION</span>
-              <div id="metric-best-kombi" class="mt-2">
-                {initialKombis.length > 0 ? (
-                  <span class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full">{initialKombis[0].kombi}</span>
-                ) : (
-                  <span class="text-on-surface-variant font-label-sm text-label-sm">–</span>
-                )}
-              </div>
-            </div>
-            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex-grow">
-              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Beste Kombinationen" data-en="Best combinations">Beste Kombinationen</h3>
-              <div id="kombis-list" class="space-y-md">
-                {initialKombis.length === 0 && (
-                  <p class="text-body-md text-on-surface-variant i18n" data-de="Keine Kombinationen vorhanden." data-en="No combinations available.">Keine Kombinationen vorhanden.</p>
-                )}
-                {initialKombis.map((k: any) => {
-                  const avg = Number(k.avg_gewicht) || 0;
-                  const maxAvg = initialKombis.reduce((m: number, x: any) => Math.max(m, Number(x.avg_gewicht) || 0), 0);
-                  const pct = maxAvg > 0 ? Math.round((avg / maxAvg) * 100) : 0;
-                  return (
-                    <div class="flex justify-between items-center border-b border-primary/20 pb-sm">
-                      <div class="flex flex-col">
-                        <span class="font-label-sm text-label-sm font-bold">{k.kombi}</span>
-                        <span class="text-body-md text-sm text-on-surface-variant">{k.fangzahl} Fänge (Ø {avg.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg)</span>
-                      </div>
-                      <div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden shrink-0">
-                        <div class="h-full bg-primary rounded-full" style={`width:${pct}%`}></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg">
-              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-md border-b border-primary/40 pb-sm i18n" data-de="Insights" data-en="Insights">Insights</h3>
-              {isPro ? (
-                <div id="insights-cards" class="grid grid-cols-1 gap-md" data-testid="insights-cards">
-                  {initialInsights ? (
-                    <>
-                      {["beste_fangzeit", "beste_wetterlage", "beste_wassertemperatur", "beste_lufttemperatur", "beste_koeder_kombi"].map((key, idx) => {
-                        const insight = initialInsights?.[key];
-                        const titles: Record<string, string> = {
-                          beste_fangzeit: "Beste Fangzeit",
-                          beste_wetterlage: "Beste Wetterlage",
-                          beste_wassertemperatur: "Beste Wassertemperatur",
-                          beste_lufttemperatur: "Beste Lufttemperatur",
-                          beste_koeder_kombi: "Beste Köder-Kombi",
-                        };
-                        if (!insight || insight.wert === null) {
-                          return (
-                            <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10" data-testid={`insight-card-${idx}`}>
-                              <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">{titles[key]}</div>
-                              <p class="text-body-md text-on-surface-variant">{insight?.hinweis || "Keine Daten verfügbar."}</p>
-                            </div>
-                          );
-                        }
-                        const diffPct = Number(insight.differenz_pct) || 0;
-                        const isPositive = diffPct > 0;
-                        const badgeClass = isPositive ? "bg-primary/10 text-primary" : "bg-error/10 text-error";
-                        const diffText = isPositive ? `+${diffPct}% über Schnitt` : `${diffPct}% unter Schnitt`;
-                        return (
-                          <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10" data-testid={`insight-card-${idx}`}>
-                            <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">{titles[key]}</div>
-                            <div class="text-headline-sm text-on-surface mb-xs">{insight.wert}</div>
-                            <div class="flex items-center gap-2 mb-xs">
-                              <span class={`font-label-sm text-label-sm px-2 py-0.5 rounded-full ${badgeClass}`}>{diffText}</span>
-                            </div>
-                            {insight.stichproben_hinweis && (
-                              <p class="text-body-sm text-on-surface-variant/60">{insight.stichproben_hinweis}</p>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </>
-                  ) : (
-                    <p class="text-body-md text-on-surface-variant i18n" data-de="Lade Insights..." data-en="Loading insights...">Lade Insights...</p>
-                  )}
-                </div>
-              ) : (
-                <div class="relative" data-testid="insights-premium-lock">
-                  <div class="opacity-30 pointer-events-none select-none space-y-md">
-                    <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10">
-                      <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">Beste Fangzeit</div>
-                      <div class="text-headline-sm text-on-surface mb-xs">–</div>
-                    </div>
-                    <div class="bg-surface-container-lowest rounded-lg p-md border border-primary/10">
-                      <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">Beste Wetterlage</div>
-                      <div class="text-headline-sm text-on-surface mb-xs">–</div>
-                    </div>
-                  </div>
-                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant mb-2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <p class="text-body-md text-on-surface-variant mb-md max-w-xs i18n" data-de="Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen." data-en="With Pro you see which weather produces the biggest carp.">Mit Pro siehst du, bei welchem Wetter die größten Karpfen beissen.</p>
-                    <a href="/premium" class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full min-h-11 hover:bg-surface-tint transition-colors i18n" data-de="ZU PREMIUM" data-en="GO PREMIUM">ZU PREMIUM</a>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
+      <div class="filter-section">
+        <label>Zeitraum</label>
+        <div class="pills" id="zeitraumPills">
+          <button class="pill active" data-value="all">Alle</button>
+          <button class="pill" data-value="7d">7 Tage</button>
+          <button class="pill" data-value="30d">30 Tage</button>
+          <button class="pill" data-value="90d">90 Tage</button>
+          <button class="pill" data-value="1y">1 Jahr</button>
         </div>
+      </div>
 
-        <section class="w-full">
-          <h2 class="text-headline-md text-primary mb-md i18n" data-de="Fänge mit diesen Bedingungen" data-en="Catches with these conditions">Fänge mit diesen Bedingungen</h2>
-          <div id="drilldown-list" class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden">
-            {initialDrilldown.length === 0 && (
-              <p class="p-lg text-body-md text-on-surface-variant i18n" data-de="Keine Fänge gefunden." data-en="No catches found.">Keine Fänge gefunden.</p>
-            )}
-            {initialDrilldown.map((c: any) => {
-              const w = Number(c.weight_kg) || 0;
-              const sp = c.species || c.species_custom || "–";
-      const spLabel = speciesName(sp);
-              const dt = c.catch_ts ? new Date(c.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
-              const weather = c.weather || {};
-              const moonText = weather.moon_text || "";
-              const weatherText = weather.weather_text || "";
-              const pressure = weather.pressure_hpa != null ? `${weather.pressure_hpa} hPa` : "";
-              return (
-                <a href={`/faenge/${c.id}`} class="flex items-center p-md border-b border-primary/20 last:border-b-0 hover:bg-primary/5 transition-colors">
-                  <div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
-                    <div class="flex flex-col">
-                      <span class="font-mono text-primary text-lg font-bold">{w > 0 ? w.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " KG" : "–"}</span>
-                      <span class="text-body-md text-sm text-on-surface-variant">{spLabel} • {c.water_name || "–"} • {dt}</span>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      {moonText && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{String(moonText).toUpperCase()}</span>}
-                      {weatherText && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{String(weatherText).toUpperCase()}</span>}
-                      {pressure && <span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">{pressure}</span>}
-                    </div>
-                  </div>
-                </a>
-              );
-            })}
+      <div class="filter-section">
+        <label for="gewaesser">Gewässer</label>
+        <select id="gewaesser"><option value="">Alle</option></select>
+      </div>
+
+      <div class="filter-section">
+        <label for="koeder">Köder</label>
+        <select id="koeder"><option value="">Alle</option></select>
+      </div>
+
+      <details class="filter-advanced">
+        <summary>Weitere Filter</summary>
+        <div class="filter-section">
+          <label for="mondphase">Mondphase</label>
+          <select id="mondphase"><option value="">Alle</option></select>
+        </div>
+        <div class="filter-section">
+          <label for="wetter">Wetter</label>
+          <select id="wetter"><option value="">Alle</option></select>
+        </div>
+        <div class="filter-section">
+          <label>Gewicht (kg)</label>
+          <div class="range-row">
+            <input type="number" id="gewichtMin" placeholder="Min" min="0" step="0.1" />
+            <span>–</span>
+            <input type="number" id="gewichtMax" placeholder="Max" min="0" step="0.1" />
           </div>
+        </div>
+        <div class="filter-section">
+          <label for="methode">Methode</label>
+          <select id="methode"><option value="">Alle</option></select>
+        </div>
+        <div class="filter-section">
+          <label>Wassertemp. (°C)</label>
+          <div class="range-row">
+            <input type="number" id="tempMin" placeholder="Min" step="0.5" />
+            <span>–</span>
+            <input type="number" id="tempMax" placeholder="Max" step="0.5" />
+          </div>
+        </div>
+        <div class="filter-section">
+          <label for="fischart">Fischart</label>
+          <select id="fischart"><option value="">Alle</option></select>
+        </div>
+      </details>
+
+      <button class="btn-apply" id="btnApply">Anwenden</button>
+    </aside>
+
+    <main class="stats-content">
+      <h1>Fang-Statistiken</h1>
+
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <span class="kpi-value">{total}</span>
+          <span class="kpi-label">Fänge gesamt</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{ins.beste_fangzeit ?? '–'}</span>
+          <span class="kpi-label">Beste Fangzeit</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{ins.beste_wetterlage ?? '–'}</span>
+          <span class="kpi-label">Beste Wetterlage</span>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card">
+          <h3>Fänge nach Fischart</h3>
+          <canvas id="donutChart" width="320" height="320"></canvas>
         </section>
-      </>
-    )}
-  </main>
+        <section class="chart-card">
+          <h3>Gewichtsverlauf</h3>
+          <div id="verlaufChart"></div>
+        </section>
+      </div>
+
+      <div class="chart-grid">
+        <section class="chart-card">
+          <h3>Wetter-Korrelation</h3>
+          <div id="wetterChart"></div>
+        </section>
+        <section class="chart-card wide">
+          <h3>Beste Kombinationen</h3>
+          <table class="kombi-table">
+            <thead>
+              <tr><th>Kombi</th><th>Fänge</th><th>Ø Gewicht</th></tr>
+            </thead>
+            <tbody id="kombiBody">
+              {bestKombis.map((k: any) => (
+                <tr>
+                  <td>{k.kombi}</td>
+                  <td>{k.fangzahl}</td>
+                  <td>{Number(k.avg_gewicht).toFixed(1)} kg</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase-client';
+    import uPlot from 'uplot';
+    import 'uplot/dist/uPlot.min.css';
+
+    function getFilters(): Record<string, any> {
+      const f: Record<string, any> = {};
+      const z = document.querySelector('#zeitraumPills .pill.active') as HTMLElement;
+      if (z) f.zeitraum = z.dataset.value;
+      const g = (document.getElementById('gewaesser') as HTMLSelectElement)?.value;
+      if (g) f.gewaesser = g;
+      const k = (document.getElementById('koeder') as HTMLSelectElement)?.value;
+      if (k) f.koeder = k;
+      const m = (document.getElementById('mondphase') as HTMLSelectElement)?.value;
+      if (m) f.mondphase = m;
+      const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
+      if (w) f.wetter = w;
+      const gMin = (document.getElementById('gewichtMin') as HTMLInputElement)?.value;
+      const gMax = (document.getElementById('gewichtMax') as HTMLInputElement)?.value;
+      if (gMin || gMax) f.gewicht = { min: gMin ? +gMin : null, max: gMax ? +gMax : null };
+      const meth = (document.getElementById('methode') as HTMLSelectElement)?.value;
+      if (meth) f.methode = meth;
+      const tMin = (document.getElementById('tempMin') as HTMLInputElement)?.value;
+      const tMax = (document.getElementById('tempMax') as HTMLInputElement)?.value;
+      if (tMin || tMax) f.wassertemp = { min: tMin ? +tMin : null, max: tMax ? +tMax : null };
+      const fa = (document.getElementById('fischart') as HTMLSelectElement)?.value;
+      if (fa) f.fischart = fa;
+      return f;
+    }
+
+    function drawDonut(data: { label: string; value: number }[]) {
+      const canvas = document.getElementById('donutChart') as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d')!;
+      const dpr = window.devicePixelRatio || 1;
+      const W = 320, H = 320;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const cx = W / 2, cy = H / 2, R = 120, r = 70;
+      const total = data.reduce((s, d) => s + d.value, 0);
+      if (total === 0) {
+        ctx.clearRect(0, 0, W, H);
+        return;
+      }
+      const palette = ['#6c7a57','#a3b18a','#dde5b6','#bfc0c0','#588157','#3a5a40','#344e41'];
+      let start = -Math.PI / 2;
+
+      data.forEach((d, i) => {
+        const angle = (d.value / total) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, start, start + angle);
+        ctx.arc(cx, cy, r, start + angle, start, true);
+        ctx.closePath();
+        ctx.fillStyle = palette[i % palette.length];
+        ctx.fill();
+        start += angle;
+      });
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-on-surface').trim() || '#222';
+      ctx.font = 'bold 28px "Source Serif 4", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(total), cx, cy - 10);
+      ctx.font = '13px "Source Sans 3", sans-serif';
+      ctx.fillText('Fänge', cx, cy + 14);
+
+      let legend = canvas.parentElement!.querySelector('.donut-legend') as HTMLElement;
+      if (!legend) {
+        legend = document.createElement('div');
+        legend.className = 'donut-legend';
+        canvas.parentElement!.appendChild(legend);
+      }
+      legend.innerHTML = data.map((d, i) =>
+        `<span><i style="background:${palette[i % palette.length]}"></i>${d.label} (${d.value})</span>`
+      ).join('');
+    }
+
+    function renderVerlauf(data: any[]) {
+      const el = document.getElementById('verlaufChart');
+      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      el.innerHTML = '';
+      const months = data.map((d: any) => d.month);
+      const avgW = data.map((d: any) => +d.avg_weight);
+      const maxW = data.map((d: any) => +d.max_weight);
+
+      const opts: uPlot.Options = {
+        width: el.clientWidth || 500,
+        height: 260,
+        axes: [
+          { stroke: '#888', grid: { stroke: '#dfe4d6' } },
+          { stroke: '#888', grid: { stroke: '#dfe4d6' } },
+        ],
+        series: [
+          {},
+          { label: 'Ø Gewicht', stroke: '#6c7a57', width: 2, points: { show: true, size: 5 } },
+          { label: 'Max Gewicht', stroke: '#a3b18a', width: 2, dash: [6, 3] },
+        ],
+      };
+      new uPlot(opts, [months, avgW, maxW], el);
+    }
+
+    function renderWetter(data: any[]) {
+      const el = document.getElementById('wetterChart');
+      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      el.innerHTML = '';
+      const labels = data.map((d: any) => d.weather_type);
+      const counts = data.map((d: any) => +d.catch_count);
+
+      const opts: uPlot.Options = {
+        width: el.clientWidth || 500,
+        height: 260,
+        axes: [
+          { stroke: '#888', grid: { stroke: '#dfe4d6' } },
+          { stroke: '#888', grid: { stroke: '#dfe4d6' } },
+        ],
+        series: [
+          {},
+          { label: 'Fänge', stroke: '#6c7a57', bars: { show: true, width: 0.6, fill: '#6c7a57' } },
+        ],
+      };
+      new uPlot(opts, [labels, counts], el);
+    }
+
+    async function populateSelects() {
+      const { data } = await supabase.rpc('stats_conditions', { p_filters: {} });
+      if (!data?.buckets) return;
+    }
+
+    async function refresh() {
+      const filters = getFilters();
+      const [
+        { data: cond },
+        { data: kombis },
+        { data: ins },
+        { data: verl },
+        { data: wet },
+      ] = await Promise.all([
+        supabase.rpc('stats_conditions', { p_filters: filters }),
+        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
+        supabase.rpc('stats_insights', { p_filters: filters }),
+        supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
+        supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+      ]);
+
+      const kpis = document.querySelectorAll('.kpi-value');
+      if (kpis[0]) kpis[0].textContent = String(cond?.total ?? 0);
+      if (kpis[1]) kpis[1].textContent = ins?.beste_fangzeit ?? '–';
+      if (kpis[2]) kpis[2].textContent = ins?.beste_wetterlage ?? '–';
+
+      const buckets = cond?.buckets ?? {};
+      drawDonut(Object.entries(buckets).map(([label, value]) => ({ label, value: +(value ?? 0) })));
+      renderVerlauf(verl ?? []);
+      renderWetter(wet ?? []);
+
+      const tbody = document.getElementById('kombiBody');
+      if (tbody) {
+        tbody.innerHTML = (kombis ?? []).map((k: any) =>
+          `<tr><td>${k.kombi}</td><td>${k.fangzahl}</td><td>${Number(k.avg_gewicht).toFixed(1)} kg</td></tr>`
+        ).join('');
+      }
+    }
+
+    document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
+      if (!btn) return;
+      document.querySelectorAll('#zeitraumPills .pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    document.getElementById('btnApply')?.addEventListener('click', () => refresh());
+
+    refresh();
+  </script>
 </Layout>
 
-{session && initialConditions && (
-  <script type="application/json" id="initial-conditions-data" set:html={JSON.stringify(initialConditions).replace(/</g, "\\u003c")} />
-)}
-
-{session && (
-  <script type="application/json" id="initial-meta" set:html={JSON.stringify({ isPro }).replace(/</g, "\\u003c")} />
-)}
-
-<script>
-import { supabase } from "../lib/supabase-client";
-import { escHtml } from "../lib/escape";
-
-  function getLang(): string {
-    return localStorage.getItem("carp24-lang") || "de";
+<style>
+  .stats-page {
+    display: flex;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
   }
 
-  const speciesDE: Record<string, string> = {
-    SPIEGEL: "Spiegelkarpfen",
-    LEDER: "Lederkarpfen",
-    SCHUPPEN: "Schuppenkarpfen",
-    AMUR: "Amurkarpfen",
-    ANDERE: "Andere",
-  };
-
-  const speciesEN: Record<string, string> = {
-    SPIEGEL: "Mirror carp",
-    LEDER: "Leather carp",
-    SCHUPPEN: "Scale carp",
-    AMUR: "Amur carp",
-    ANDERE: "Other",
-  };
-
-  const monthNamesDE: Record<string, string> = {
-    "1": "Jan", "2": "Feb", "3": "Mär", "4": "Apr", "5": "Mai", "6": "Jun",
-    "7": "Jul", "8": "Aug", "9": "Sep", "10": "Okt", "11": "Nov", "12": "Dez",
-  };
-
-  const monthNamesEN: Record<string, string> = {
-    "1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun",
-    "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec",
-  };
-
-  function monthName(key: string): string {
-    return getLang() === "en" ? (monthNamesEN[key] || key) : (monthNamesDE[key] || key);
+  .filter-sidebar {
+    width: 25%;
+    min-width: 240px;
+    position: sticky;
+    top: 1rem;
+    align-self: flex-start;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid var(--color-outline-variant, #c6c8bc);
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
   }
 
-  function speciesName(key: string): string {
-    return getLang() === "en" ? (speciesEN[key] || key) : (speciesDE[key] || key);
+  .filter-sidebar h2 {
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    color: var(--color-on-surface, #181d14);
   }
 
-  const metaEl = document.getElementById("initial-meta");
-  const meta = metaEl ? JSON.parse(metaEl.textContent || "{}") : {};
-  const isPro: boolean = meta.isPro ?? false;
-
-  const state: Record<string, string | null> = {
-    mond: null,
-    druck_bucket: null,
-    wind_bucket: null,
-    wetter: null,
-    gewaesser: null,
-    art: null,
-    koeder: null,
-    monat: null,
-    uhrzeit_bucket: null,
-    wasser_temp_bucket: null,
-    lufttemp_bucket: null,
-  };
-
-  let zeitraumVon = "";
-  let zeitraumBis = "";
-
-  function buildFilters(): Record<string, any> {
-    const f: Record<string, any> = {};
-    for (const [k, v] of Object.entries(state)) {
-      if (v !== null) f[k] = v;
-    }
-    if (zeitraumVon && zeitraumBis) {
-      f.zeitraum = { von: zeitraumVon, bis: zeitraumBis };
-    }
-    return f;
+  .filter-section {
+    margin-bottom: 1rem;
   }
 
-  function fmtWeight(v: unknown): string {
-    const n = Number(v) || 0;
-    return n.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  .filter-section label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    color: var(--color-on-surface-variant, #45483f);
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
-  function fmtDate(ts: string): string {
-    return new Date(ts).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
   }
 
-  function renderChips(buckets: Record<string, Record<string, any>>) {
-    const dims: Array<{ key: string; bucketKey: string; label: string }> = [
-      { key: "mond", bucketKey: "mond", label: "MOND" },
-      { key: "druck_bucket", bucketKey: "druck", label: "LUFTDRUCK" },
-      { key: "wind_bucket", bucketKey: "wind", label: "WIND" },
-      { key: "wetter", bucketKey: "wetter", label: "WETTER" },
-      { key: "gewaesser", bucketKey: "gewaesser", label: "GEWÄSSER" },
-      { key: "art", bucketKey: "art", label: "ART" },
-      { key: "koeder", bucketKey: "koeder", label: "KÖDER" },
-      { key: "monat", bucketKey: "monat", label: "MONAT" },
-      { key: "uhrzeit_bucket", bucketKey: "uhrzeit", label: "UHRZEIT" },
-      { key: "wasser_temp_bucket", bucketKey: "wassertemp", label: "WASSERTEMPERATUR" },
-      { key: "lufttemp_bucket", bucketKey: "lufttemp", label: "LUFTTEMPERATUR" },
-    ];
-
-    // Kanonische Bucket-Werte für statische Dimensionen — Chips immer sichtbar (auch bei 0 Fängen)
-    const defaultBuckets: Record<string, string[]> = {
-      druck: ["<1005", "1005-1015", ">=1015"],
-      wind: ["<5", "5-10", "10-20", ">=20"],
-      monat: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
-      uhrzeit: ["0-6", "6-12", "12-18", "18-24"],
-      wassertemp: ["<10", "10-15", "15-20", "20-25", ">=25"],
-      lufttemp: ["<5", "5-10", "10-15", "15-20", ">=20"],
-    };
-
-    const container = document.getElementById("conditions-rows");
-    if (!container) return;
-    container.innerHTML = "";
-
-    for (const dim of dims) {
-      const b = buckets[dim.bucketKey] || {};
-      let entries = Object.entries(b);
-      if (entries.length === 0 && defaultBuckets[dim.bucketKey]) {
-        entries = defaultBuckets[dim.bucketKey].map((v) => [v, { fangzahl: 0 }] as [string, any]);
-      }
-      if (entries.length === 0) continue;
-
-      const row = document.createElement("div");
-      row.className = "flex flex-col sm:flex-row sm:items-center gap-sm";
-      row.dataset.dimension = dim.key;
-
-      const lbl = document.createElement("span");
-      lbl.className = "font-label-sm text-label-sm w-24 shrink-0 text-on-surface-variant";
-      lbl.textContent = dim.label;
-      row.appendChild(lbl);
-
-      const chipWrap = document.createElement("div");
-      chipWrap.className = "flex flex-wrap gap-sm";
-
-      for (const [value, stats] of entries) {
-        const count = Number((stats as any)?.fangzahl ?? 0);
-        let displayValue = value;
-        if (dim.key === "monat") displayValue = monthName(value);
-        else displayValue = value.toUpperCase();
-
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.dataset.dim = dim.key;
-        btn.dataset.val = value;
-        btn.setAttribute("aria-pressed", state[dim.key] === value ? "true" : "false");
-        const isActive = state[dim.key] === value;
-        btn.className = `chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 transition-colors cursor-pointer min-h-11 ${isActive ? "bg-primary text-white" : "text-on-surface-variant hover:bg-primary hover:text-white"}`;
-        btn.textContent = `${displayValue} (${count})`;
-        btn.addEventListener("click", () => handleChipClick(dim.key, value));
-        chipWrap.appendChild(btn);
-      }
-
-      row.appendChild(chipWrap);
-      container.appendChild(row);
-    }
+  .pill {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-outline-variant, #c6c8bc);
+    background: transparent;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    color: var(--color-on-surface, #181d14);
+    transition: all 0.15s;
   }
 
-  function renderMoonChart(buckets: Record<string, any>) {
-    const container = document.getElementById("moon-chart");
-    if (!container) return;
-    container.innerHTML = "";
-
-    const phases = ["neumond", "zunehmend", "vollmond", "abnehmend"];
-    const labels: Record<string, string> = { neumond: "NEU", zunehmend: "ZUN", vollmond: "VOLL", abnehmend: "ABN" };
-    const opacities: Record<string, string> = { neumond: "0.4", zunehmend: "0.5", vollmond: "1", abnehmend: "0.4" };
-
-    const mond = buckets.mond || {};
-    const maxVal = phases.reduce((m, p) => Math.max(m, Number(mond[p]?.fangzahl) || 0), 0) || 1;
-
-    for (const phase of phases) {
-      const count = Number(mond[phase]?.fangzahl) || 0;
-      const hPct = Math.round((count / maxVal) * 100);
-      const isActive = state.mond === phase;
-
-      const col = document.createElement("button");
-      col.type = "button";
-      col.className = "flex flex-col items-center w-1/4 cursor-pointer group";
-      col.setAttribute("aria-pressed", isActive ? "true" : "false");
-      col.addEventListener("click", () => handleChipClick("mond", phase));
-
-      const bar = document.createElement("div");
-      bar.className = `w-full rounded-t-sm transition-all ${isActive ? "bg-primary" : "bg-primary/20 group-hover:bg-primary/40"}`;
-      bar.style.height = `${Math.max(hPct, 4)}%`;
-      bar.style.opacity = isActive ? "1" : opacities[phase];
-      col.appendChild(bar);
-
-      const lbl = document.createElement("span");
-      lbl.className = `font-label-sm text-label-sm mt-xs ${isActive ? "text-primary font-bold" : ""}`;
-      lbl.textContent = `${labels[phase]} (${count})`;
-      col.appendChild(lbl);
-
-      container.appendChild(col);
-    }
+  .pill.active,
+  .pill:hover {
+    background: var(--color-primary-container, #6c7a57);
+    color: var(--color-on-primary-container, #fdfff0);
+    border-color: var(--color-primary-container, #6c7a57);
   }
 
-  function renderPressureChart(buckets: Record<string, any>) {
-    const container = document.getElementById("pressure-chart");
-    if (!container) return;
-    container.innerHTML = "";
-
-    const druckBuckets = buckets.druck || {};
-    const order = [">=1015", "1005-1015", "<1005"];
-    const labels: Record<string, string> = { ">=1015": "≥1015", "1005-1015": "1005–15", "<1005": "<1005" };
-    const maxVal = order.reduce((m, k) => Math.max(m, Number(druckBuckets[k]?.fangzahl) || 0), 0) || 1;
-
-    for (const bucket of order) {
-      const count = Number(druckBuckets[bucket]?.fangzahl) || 0;
-      const wPct = Math.round((count / maxVal) * 100);
-      const isActive = state.druck_bucket === bucket;
-
-      const row = document.createElement("button");
-      row.type = "button";
-      row.className = "flex items-center cursor-pointer group";
-      row.setAttribute("aria-pressed", isActive ? "true" : "false");
-      row.addEventListener("click", () => handleChipClick("druck_bucket", bucket));
-
-      const lbl = document.createElement("span");
-      lbl.className = "font-label-sm text-label-sm w-14 shrink-0";
-      lbl.textContent = labels[bucket] || bucket;
-      row.appendChild(lbl);
-
-      const bar = document.createElement("div");
-      bar.className = `h-4 rounded-r-sm transition-all ${isActive ? "bg-primary" : "bg-primary/20 group-hover:bg-primary/40"}`;
-      bar.style.width = `${Math.max(wPct, 4)}%`;
-      row.appendChild(bar);
-
-      const cnt = document.createElement("span");
-      cnt.className = "font-label-sm text-label-sm ml-2 text-on-surface-variant";
-      cnt.textContent = `(${count})`;
-      row.appendChild(cnt);
-
-      container.appendChild(row);
-    }
+  select, input[type="number"] {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--color-outline-variant, #c6c8bc);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: var(--color-surface-container-lowest, #fff);
+    color: var(--color-on-surface, #181d14);
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
-  function renderMetrics(total: any, kombis: any[]) {
-    const totalEl = document.getElementById("metric-total");
-    if (totalEl) totalEl.textContent = String(total?.fangzahl ?? 0);
-
-    const avgEl = document.getElementById("metric-avg");
-    if (avgEl) {
-      const avg = total?.avg_gewicht;
-      avgEl.innerHTML = `${avg != null ? fmtWeight(avg) : "–"}<span class="text-body-md text-sm"> KG</span>`;
-    }
-
-    const bestEl = document.getElementById("metric-best-kombi");
-    if (bestEl) {
-      if (kombis.length > 0) {
-        bestEl.innerHTML = `<span class="bg-primary text-white font-label-sm text-label-sm px-4 py-2 rounded-full">${escHtml(kombis[0].kombi)}</span>`;
-      } else {
-        bestEl.innerHTML = `<span class="text-on-surface-variant font-label-sm text-label-sm">–</span>`;
-      }
-    }
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
-  function renderKombis(kombis: any[]) {
-    const container = document.getElementById("kombis-list");
-    if (!container) return;
-    container.innerHTML = "";
-
-    if (kombis.length === 0) {
-      const lang = getLang();
-      container.innerHTML = `<p class="text-body-md text-on-surface-variant">${lang === "en" ? "No combinations available." : "Keine Kombinationen vorhanden."}</p>`;
-      return;
-    }
-
-    const maxAvg = kombis.reduce((m, k) => Math.max(m, Number(k.avg_gewicht) || 0), 0) || 1;
-
-    for (const k of kombis) {
-      const avg = Number(k.avg_gewicht) || 0;
-      const pct = Math.round((avg / maxAvg) * 100);
-      const row = document.createElement("div");
-      row.className = "flex justify-between items-center border-b border-primary/20 pb-sm";
-      const lang = getLang();
-      const catchesLabel = lang === "en" ? "catches" : "Fänge";
-      row.innerHTML = `
-        <div class="flex flex-col">
-          <span class="font-label-sm text-label-sm font-bold">${escHtml(k.kombi)}</span>
-          <span class="text-body-md text-sm text-on-surface-variant">${k.fangzahl} ${catchesLabel} (Ø ${fmtWeight(avg)} kg)</span>
-        </div>
-        <div class="w-16 h-2 bg-primary/20 rounded-full overflow-hidden shrink-0">
-          <div class="h-full bg-primary rounded-full" style="width:${pct}%"></div>
-        </div>
-      `;
-      container.appendChild(row);
-    }
+  .range-row input {
+    flex: 1;
   }
 
-  function renderInsights(insights: any) {
-    const container = document.getElementById("insights-cards");
-    if (!container || !isPro) return;
-    container.innerHTML = "";
-
-    const lang = getLang();
-    const keys = ["beste_fangzeit", "beste_wetterlage", "beste_wassertemperatur", "beste_lufttemperatur", "beste_koeder_kombi"];
-    const titles: Record<string, Record<string, string>> = {
-      beste_fangzeit: { de: "Beste Fangzeit", en: "Best Catch Time" },
-      beste_wetterlage: { de: "Beste Wetterlage", en: "Best Weather" },
-      beste_wassertemperatur: { de: "Beste Wassertemperatur", en: "Best Water Temperature" },
-      beste_lufttemperatur: { de: "Beste Lufttemperatur", en: "Best Air Temperature" },
-      beste_koeder_kombi: { de: "Beste Köder-Kombi", en: "Best Bait Combination" },
-    };
-
-    for (let idx = 0; idx < keys.length; idx++) {
-      const key = keys[idx];
-      const insight = insights?.[key];
-      const card = document.createElement("div");
-      card.className = "bg-surface-container-lowest rounded-lg p-md border border-primary/10";
-      card.dataset.testid = `insight-card-${idx}`;
-
-      if (!insight || insight.wert === null) {
-        card.innerHTML = `
-          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key][lang] || titles[key].de)}</div>
-          <p class="text-body-md text-on-surface-variant">${escHtml(insight?.hinweis || (lang === "en" ? "No data available." : "Keine Daten verfügbar."))}</p>
-        `;
-      } else {
-        const diffPct = Number(insight.differenz_pct) || 0;
-        const isPositive = diffPct > 0;
-        const badgeClass = isPositive ? "bg-primary/10 text-primary" : "bg-error/10 text-error";
-        const diffText = isPositive
-          ? (lang === "en" ? `+${diffPct}% above average` : `+${diffPct}% über Schnitt`)
-          : (lang === "en" ? `${diffPct}% below average` : `${diffPct}% unter Schnitt`);
-        const stichproben = insight.stichproben_hinweis ? `<p class="text-body-sm text-on-surface-variant/60 mt-xs">${escHtml(insight.stichproben_hinweis)}</p>` : "";
-        card.innerHTML = `
-          <div class="font-label-sm text-label-sm text-primary uppercase mb-xs">${escHtml(titles[key][lang] || titles[key].de)}</div>
-          <div class="text-headline-sm text-on-surface mb-xs">${escHtml(String(insight.wert))}</div>
-          <div class="flex items-center gap-2 mb-xs">
-            <span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full ${badgeClass}">${escHtml(diffText)}</span>
-          </div>
-          ${stichproben}
-        `;
-      }
-      container.appendChild(card);
-    }
+  .filter-advanced {
+    border-top: 1px solid var(--color-outline-variant, #c6c8bc);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
   }
 
-  function renderDrilldown(catches: any[]) {
-    const container = document.getElementById("drilldown-list");
-    if (!container) return;
-    container.innerHTML = "";
-
-    if (catches.length === 0) {
-      const lang = getLang();
-      container.innerHTML = `<p class="p-lg text-body-md text-on-surface-variant">${lang === "en" ? "No catches found." : "Keine Fänge gefunden."}</p>`;
-      return;
-    }
-
-    for (const c of catches) {
-      const w = Number(c.weight_kg) || 0;
-      const sp = c.species || c.species_custom || "–";
-      const spLabel = speciesDE[sp] || sp;
-      const dt = c.catch_ts ? fmtDate(c.catch_ts) : "–";
-      const weather = c.weather || {};
-      const moonText = weather.moon_text || "";
-      const weatherText = weather.weather_text || "";
-      const pressure = weather.pressure_hpa != null ? `${weather.pressure_hpa} hPa` : "";
-
-      let tags = "";
-      if (moonText) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(String(moonText).toUpperCase())}</span>`;
-      if (weatherText) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(String(weatherText).toUpperCase())}</span>`;
-      if (pressure) tags += `<span class="bg-[#7B9496]/10 text-[#7B9496] font-label-sm text-[10px] px-2 py-1 rounded-full">${escHtml(pressure)}</span>`;
-
-      const a = document.createElement("a");
-      a.href = `/faenge/${c.id}`;
-      a.className = "flex items-center p-md border-b border-primary/20 last:border-b-0 hover:bg-primary/5 transition-colors";
-      a.innerHTML = `
-        <div class="flex-grow flex flex-col md:flex-row md:items-center justify-between gap-2">
-          <div class="flex flex-col">
-            <span class="font-mono text-primary text-lg font-bold">${w > 0 ? fmtWeight(w) + " KG" : "–"}</span>
-            <span class="text-body-md text-sm text-on-surface-variant">${escHtml(spLabel)} • ${escHtml(c.water_name || "–")} • ${dt}</span>
-          </div>
-          <div class="flex flex-wrap gap-2">${tags}</div>
-        </div>
-      `;
-      container.appendChild(a);
-    }
+  .filter-advanced summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant, #45483f);
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
   }
 
-  function renderActiveFilters() {
-    const bar = document.getElementById("active-filters-bar");
-    if (!bar) return;
-
-    const active = Object.entries(state).filter(([, v]) => v !== null);
-    const hasZeitraum = zeitraumVon && zeitraumBis;
-
-    if (active.length === 0 && !hasZeitraum) {
-      bar.classList.add("hidden");
-      bar.innerHTML = "";
-      return;
-    }
-
-    bar.classList.remove("hidden");
-    bar.innerHTML = "";
-
-    const labelMap: Record<string, string> = {
-      mond: "MOND", druck_bucket: "DRUCK", wind_bucket: "WIND", wetter: "WETTER",
-      gewaesser: "GEWÄSSER", art: "ART", koeder: "KÖDER", monat: "MONAT", uhrzeit_bucket: "UHRZEIT",
-      wasser_temp_bucket: "WASSERTEMP", lufttemp_bucket: "LUFTTEMP",
-    };
-
-    if (hasZeitraum) {
-      const pill = document.createElement("span");
-      pill.className = "inline-flex items-center gap-1 bg-primary text-white font-label-sm text-label-sm px-3 py-1 rounded-full";
-      pill.innerHTML = `ZEITRAUM=${escHtml(zeitraumVon)}–${escHtml(zeitraumBis)} <button type="button" data-remove-zeitraum="true" class="ml-1 hover:opacity-70 cursor-pointer" aria-label="Zeitraum entfernen">&times;</button>`;
-      bar.appendChild(pill);
-    }
-
-    for (const [dim, val] of active) {
-      const pill = document.createElement("span");
-      pill.className = "inline-flex items-center gap-1 bg-primary text-white font-label-sm text-label-sm px-3 py-1 rounded-full";
-      const displayVal = dim === "monat" ? (monthNamesDE[val!] || val) : val;
-      pill.innerHTML = `${labelMap[dim] || dim}=${escHtml(String(displayVal))} <button type="button" data-remove-dim="${dim}" class="ml-1 hover:opacity-70 cursor-pointer" aria-label="Filter entfernen">&times;</button>`;
-      bar.appendChild(pill);
-    }
-
-    bar.querySelectorAll("[data-remove-dim]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const dim = (btn as HTMLElement).dataset.removeDim;
-        if (dim) {
-          state[dim] = null;
-          refreshAll();
-        }
-      });
-    });
-
-    bar.querySelectorAll("[data-remove-zeitraum]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        zeitraumVon = "";
-        zeitraumBis = "";
-        const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
-        const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
-        if (vonInput) vonInput.value = "";
-        if (bisInput) bisInput.value = "";
-        refreshAll();
-      });
-    });
+  .btn-apply {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.6rem;
+    background: var(--color-primary-container, #6c7a57);
+    color: var(--color-on-primary-container, #fdfff0);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    transition: opacity 0.15s;
   }
 
-  let refreshSeq = 0;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-  async function handleChipClick(dim: string, value: string) {
-    state[dim] = state[dim] === value ? null : value;
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => refreshAll(), 200);
+  .btn-apply:hover {
+    opacity: 0.85;
   }
 
-  function setLoading(loading: boolean) {
-    const btnAnwenden = document.getElementById("btn-zeitraum-anwenden") as HTMLButtonElement;
-    const btnReset = document.getElementById("btn-reset") as HTMLButtonElement;
-    if (btnAnwenden) {
-      const lang = getLang();
-      btnAnwenden.disabled = loading;
-      btnAnwenden.textContent = loading
-        ? (lang === "en" ? "LOADING…" : "LÄDT…")
-        : (lang === "en" ? "APPLY" : "ANWENDEN");
-    }
-    if (btnReset) btnReset.disabled = loading;
+  .stats-content {
+    flex: 1;
+    min-width: 0;
   }
 
-  async function refreshAll() {
-    const mySeq = ++refreshSeq;
-    const filters = buildFilters();
-
-    document.querySelectorAll<HTMLElement>(".chip-btn").forEach((btn) => {
-      const dim = btn.dataset.dim;
-      const val = btn.dataset.val;
-      if (dim && val) {
-        const isActive = state[dim] === val;
-        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-        btn.className = `chip-btn font-label-sm text-label-sm border border-primary/40 rounded-full px-4 py-1 transition-colors cursor-pointer min-h-11 ${isActive ? "bg-primary text-white" : "text-on-surface-variant hover:bg-primary hover:text-white"}`;
-      }
-    });
-
-    const conditionsError = document.getElementById("conditions-error");
-    if (conditionsError) conditionsError.classList.add("hidden");
-
-    setLoading(true);
-
-    try {
-      const rpcs: Promise<any>[] = [
-        supabase.rpc("stats_conditions", { p_filters: filters }),
-        supabase.rpc("stats_drilldown", { p_filters: filters }),
-        supabase.rpc("stats_beste_kombis", { p_filters: filters, p_limit: 5 }),
-      ];
-      if (isPro) {
-        rpcs.push(supabase.rpc("stats_insights", { p_filters: filters }));
-      }
-
-      const results = await Promise.allSettled(rpcs);
-
-      if (mySeq !== refreshSeq) return;
-
-      const condRes = results[0].status === "fulfilled" ? results[0].value : null;
-      const drillRes = results[1].status === "fulfilled" ? results[1].value : null;
-      const kombiRes = results[2].status === "fulfilled" ? results[2].value : null;
-      const insightsRes = isPro && results[3] ? (results[3].status === "fulfilled" ? results[3].value : null) : null;
-
-      if (condRes?.error) {
-        if (conditionsError) {
-          const lang = getLang();
-          conditionsError.textContent = (lang === "en" ? "Error: " : "Fehler: ") + condRes.error.message;
-          conditionsError.classList.remove("hidden");
-        }
-      }
-
-      const conditions = condRes?.data ?? { buckets: {}, total: {} };
-      const drilldown = drillRes?.data ?? [];
-      const kombis = kombiRes?.data ?? [];
-      const insights = insightsRes?.data ?? null;
-
-      renderChips(conditions?.buckets || {});
-      renderMoonChart(conditions?.buckets || {});
-      renderPressureChart(conditions?.buckets || {});
-      renderMetrics(conditions?.total, kombis);
-      renderKombis(kombis);
-      renderDrilldown(drilldown);
-      renderActiveFilters();
-      if (isPro && insights) renderInsights(insights);
-    } catch (err: any) {
-      console.error("Statistik-Refresh fehlgeschlagen:", err);
-      const conditionsError = document.getElementById("conditions-error");
-      if (conditionsError) {
-        const lang = getLang();
-        conditionsError.textContent = (lang === "en" ? "Loading error: " : "Fehler beim Laden: ") + (err.message || (lang === "en" ? "Unknown error" : "Unbekannter Fehler"));
-        conditionsError.classList.remove("hidden");
-      }
-    } finally {
-      setLoading(false);
-    }
+  .stats-content h1 {
+    font-family: var(--font-headline-lg, "Source Serif 4", serif);
+    font-size: 1.8rem;
+    margin: 0 0 1.5rem;
+    color: var(--color-on-surface, #181d14);
   }
 
-  document.getElementById("btn-reset")?.addEventListener("click", () => {
-    for (const k of Object.keys(state)) state[k] = null;
-    zeitraumVon = "";
-    zeitraumBis = "";
-    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
-    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
-    if (vonInput) vonInput.value = "";
-    if (bisInput) bisInput.value = "";
-    const warnung = document.getElementById("zeitraum-warnung");
-    if (warnung) warnung.classList.add("hidden");
-    refreshAll();
-  });
+  .kpi-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
 
-  document.getElementById("btn-zeitraum-anwenden")?.addEventListener("click", () => {
-    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
-    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
-    const warnung = document.getElementById("zeitraum-warnung");
+  .kpi-card {
+    flex: 1;
+    min-width: 160px;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid var(--color-outline-variant, #c6c8bc);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+  }
 
-    const von = vonInput?.value || "";
-    const bis = bisInput?.value || "";
+  .kpi-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: var(--font-headline-md, "Source Serif 4", serif);
+    color: var(--color-primary-container, #6c7a57);
+  }
 
-    if (warnung) warnung.classList.add("hidden");
+  .kpi-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant, #45483f);
+    margin-top: 0.3rem;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+  }
 
-    if (von && bis && von > bis) {
-      if (warnung) {
-        const lang = getLang();
-        warnung.textContent = lang === "en" ? "Start date is after end date — no results." : "Startdatum liegt nach Enddatum — keine Ergebnisse.";
-        warnung.classList.remove("hidden");
-      }
-      return;
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .chart-card {
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid var(--color-outline-variant, #c6c8bc);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .chart-card.wide {
+    grid-column: 1 / -1;
+  }
+
+  .chart-card h3 {
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+    color: var(--color-on-surface-variant, #45483f);
+  }
+
+  .chart-card canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    color: var(--color-on-surface-variant, #45483f);
+  }
+
+  .donut-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .kombi-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body-md, "Source Sans 3", sans-serif);
+    font-size: 0.9rem;
+  }
+
+  .kombi-table th,
+  .kombi-table td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--color-outline-variant, #c6c8bc);
+  }
+
+  .kombi-table th {
+    font-weight: 600;
+    color: var(--color-on-surface-variant, #45483f);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 900px) {
+    .stats-page {
+      flex-direction: column-reverse;
     }
-
-    zeitraumVon = von;
-    zeitraumBis = bis;
-    refreshAll();
-  });
-
-  document.getElementById("btn-zeitraum-reset")?.addEventListener("click", () => {
-    zeitraumVon = "";
-    zeitraumBis = "";
-    const vonInput = document.getElementById("zeitraum-von") as HTMLInputElement;
-    const bisInput = document.getElementById("zeitraum-bis") as HTMLInputElement;
-    if (vonInput) vonInput.value = "";
-    if (bisInput) bisInput.value = "";
-    const warnung = document.getElementById("zeitraum-warnung");
-    if (warnung) warnung.classList.add("hidden");
-    refreshAll();
-  });
-
-  const initDataEl = document.getElementById("initial-conditions-data");
-  const initBuckets = initDataEl ? (JSON.parse(initDataEl.textContent || "{}")?.buckets || {}) : {};
-  renderMoonChart(initBuckets);
-  renderPressureChart(initBuckets);
-  renderChips(initBuckets);
-
-  document.querySelectorAll<HTMLElement>(".chip-btn[data-dim][data-val]").forEach((btn) => {
-    const dim = btn.dataset.dim!;
-    const val = btn.dataset.val!;
-    btn.addEventListener("click", () => handleChipClick(dim, val));
-  });
-</script>
+    .filter-sidebar {
+      width: 100%;
+      position: static;
+      max-height: none;
+    }
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+    .chart-card.wide {
+      grid-column: auto;
+    }
+  }
+</style>

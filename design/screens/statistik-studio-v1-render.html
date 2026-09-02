@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Statistik-Studio - Carp24</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#45483f",
+                    "surface-dim": "#d7dccd",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#e7e5b4",
+                    "surface-tint": "#556342",
+                    "secondary-fixed": "#e7e5b4",
+                    "tertiary-fixed": "#cde7e9",
+                    "surface-container-low": "#f1f6e7",
+                    "surface-container-highest": "#dfe4d6",
+                    "tertiary-container": "#617a7c",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e5eadb",
+                    "primary": "#546140",
+                    "inverse-surface": "#2d3228",
+                    "primary-fixed": "#d9e8be",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#494824",
+                    "on-primary-fixed-variant": "#3e4b2c",
+                    "surface-variant": "#dfe4d6",
+                    "on-secondary-fixed": "#1d1d01",
+                    "inverse-on-surface": "#eef3e4",
+                    "on-tertiary-fixed-variant": "#334b4d",
+                    "outline-variant": "#c6c8bc",
+                    "error": "#ba1a1a",
+                    "secondary": "#61603a",
+                    "primary-container": "#6c7a57",
+                    "on-background": "#181d14",
+                    "on-primary-container": "#fdfff0",
+                    "outline": "#76786e",
+                    "on-error": "#ffffff",
+                    "on-secondary-container": "#67663f",
+                    "surface-bright": "#f6fbec",
+                    "on-primary-fixed": "#141f05",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#bdcca4",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#ebf0e1",
+                    "surface": "#f6fbec",
+                    "on-surface": "#181d14",
+                    "background": "#f6fbec",
+                    "tertiary": "#496163",
+                    "primary-fixed-dim": "#bdcca4",
+                    "tertiary-fixed-dim": "#b1cbcd",
+                    "on-tertiary-fixed": "#061f21",
+                    "on-tertiary-container": "#faffff",
+                    "secondary-fixed-dim": "#cbc99a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "unit": "4px",
+                    "gutter": "20px",
+                    "xl": "40px",
+                    "lg": "24px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "nav-item": [
+                            "Public Sans"
+                    ],
+                    "body-md": [
+                            "\"Source Sans 3\""
+                    ],
+                    "headline-md": [
+                            "\"Source Serif 4\""
+                    ],
+                    "headline-lg-mobile": [
+                            "\"Source Serif 4\""
+                    ],
+                    "body-lg": [
+                            "\"Source Sans 3\""
+                    ],
+                    "label-sm": [
+                            "Public Sans"
+                    ],
+                    "headline-lg": [
+                            "\"Source Serif 4\""
+                    ],
+                    "display-lg": [
+                            "\"Source Serif 4\""
+                    ]
+            },
+            "fontSize": {
+                    "nav-item": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.08em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            background-color: theme('colors.background');
+        }
+        .chart-bar-fill {
+            transition: width 1s ease-out;
+        }
+    </style>
+<style>.reveal{opacity:1!important;transform:none!important} *{animation:none!important;transition:none!important}</style></head>
+<body class="text-on-surface antialiased font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full h-20 bg-surface dark:bg-inverse-surface border-b border-outline-variant/20 dark:border-outline/20">
+<div class="flex justify-between items-center px-margin-desktop max-w-screen-2xl mx-auto h-full px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-8 h-full">
+<a class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim tracking-tight" href="#">carp24</a>
+<nav class="hidden md:flex items-center gap-6 h-full">
+<a class="text-on-surface-variant dark:text-surface-variant font-nav-item text-nav-item hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 h-full flex items-center" href="#">Fangbuch</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b border-primary dark:border-primary-fixed-dim font-nav-item text-nav-item h-full flex items-center pt-[1px]" href="#">Statistik</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-nav-item text-nav-item hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 h-full flex items-center" href="#">Board</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-nav-item text-nav-item hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 h-full flex items-center" href="#">Forum</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A portrait of an experienced angler in his 40s wearing a technical fishing jacket, outdoors, soft early morning lighting, premium editorial style, muted colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbxvYNcm2rXpXyNXIg5b5rTZwy3_8UOo3NnL4A6L5qAest9s1nISgUbyALyi3lbA-42FW7o9hT1iwHStBrkS_8CxEKZVwC5yzDNkDCmk6tooi2AcUQoecrXrrc2-Q5dmFzoXNwgBb4FWhdOipo9MuO-5v-omgumQ9Ne-62s6-6ddtCipcb_DT1flpYkRlUjE6ZpoOsx2YcXQ07spyMLeefmlWAOuJd0iF-LE5EKrV8KmYzn8JdVEWaoNJLdD06q-rO8F0ZSxCgRqKO"/>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-sm">Statistik-Studio</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Analysiere deine Fangdaten, erkenne Tendenzen.</p>
+</div>
+<button class="flex items-center gap-sm px-lg py-sm rounded-full border border-primary-container/20 text-on-surface hover:bg-surface-container transition-colors font-label-sm text-label-sm uppercase tracking-widest">
+<span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                FILTER
+            </button>
+</section>
+<!-- KPI Row -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col items-center justify-center text-center">
+<span class="font-label-sm text-label-sm text-tertiary mb-xs uppercase">GESAMTE FÄNGE</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">102</span>
+</div>
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col items-center justify-center text-center">
+<span class="font-label-sm text-label-sm text-tertiary mb-xs uppercase">SCHWERSTER FANG</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">24,3 KG</span>
+</div>
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col items-center justify-center text-center">
+<span class="font-label-sm text-label-sm text-tertiary mb-xs uppercase">Ø GEWICHT</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">8,7 KG</span>
+</div>
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col items-center justify-center text-center">
+<span class="font-label-sm text-label-sm text-tertiary mb-xs uppercase">AKTIVE GEWÄSSER</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">10</span>
+</div>
+</section>
+<!-- Main Chart -->
+<section class="bg-surface-variant rounded-xl p-lg border border-primary-container/20">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-lg border-b border-primary-container/15 pb-sm">FÄNGE NACH GEWÄSSER</h2>
+<div class="flex flex-col gap-md">
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Lobau Altwässer</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 100%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">13</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Grundlsee</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 92%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">12</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Donau Altwasser Linz</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 84%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">11</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Kiesgrube Pischelsdorf</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 84%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">11</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Güssinger Teich</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 84%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">11</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="w-40 font-body-md text-body-md text-on-surface-variant text-right shrink-0">Mondsee</span>
+<div class="flex-grow h-6 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 76%;"></div>
+</div>
+<span class="w-12 font-label-sm text-label-sm text-on-surface-variant">10</span>
+</div>
+</div>
+</section>
+<!-- Secondary Charts Row -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Mondphasen -->
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20">
+<h3 class="font-label-sm text-label-sm text-tertiary mb-md uppercase border-b border-primary-container/15 pb-xs">MONDPHASEN</h3>
+<div class="flex flex-col gap-sm">
+<div class="flex items-center gap-sm">
+<span class="w-24 font-body-md text-body-md text-on-surface-variant text-right">Vollmond</span>
+<div class="flex-grow h-4 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 90%;"></div>
+</div>
+<span class="w-8 font-label-sm text-label-sm text-on-surface-variant">28</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-24 font-body-md text-body-md text-on-surface-variant text-right">Neumond</span>
+<div class="flex-grow h-4 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 70%;"></div>
+</div>
+<span class="w-8 font-label-sm text-label-sm text-on-surface-variant">22</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-24 font-body-md text-body-md text-on-surface-variant text-right">Zunehmend</span>
+<div class="flex-grow h-4 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+<span class="w-8 font-label-sm text-label-sm text-on-surface-variant">31</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-24 font-body-md text-body-md text-on-surface-variant text-right">Abnehmend</span>
+<div class="flex-grow h-4 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 67%;"></div>
+</div>
+<span class="w-8 font-label-sm text-label-sm text-on-surface-variant">21</span>
+</div>
+</div>
+</div>
+<!-- Fischverteilung (Simplified Donut Representation) -->
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col">
+<h3 class="font-label-sm text-label-sm text-tertiary mb-md uppercase border-b border-primary-container/15 pb-xs">FISCHVERTEILUNG</h3>
+<div class="flex-grow flex items-center justify-center py-sm">
+<!-- Placeholder for actual chart, using a CSS circle representation for now -->
+<div class="w-32 h-32 rounded-full border-[12px] border-surface-container relative flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border-[12px] border-primary-container" style="clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 80% 100%);"></div>
+<div class="absolute inset-0 rounded-full border-[12px] border-tertiary-container" style="clip-path: polygon(50% 50%, 80% 100%, 0 100%, 0 50%);"></div>
+<div class="absolute inset-0 rounded-full border-[12px] border-secondary" style="clip-path: polygon(50% 50%, 0 50%, 0 0, 30% 0);"></div>
+<span class="font-headline-md text-headline-md text-on-surface">102</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-x-md gap-y-xs justify-center mt-sm">
+<div class="flex items-center gap-xs"><div class="w-3 h-3 rounded-full bg-primary-container"></div><span class="font-label-sm text-label-sm text-on-surface-variant">Spiegel 40%</span></div>
+<div class="flex items-center gap-xs"><div class="w-3 h-3 rounded-full bg-tertiary-container"></div><span class="font-label-sm text-label-sm text-on-surface-variant">Schuppen 32%</span></div>
+<div class="flex items-center gap-xs"><div class="w-3 h-3 rounded-full bg-secondary"></div><span class="font-label-sm text-label-sm text-on-surface-variant">Leder 11%</span></div>
+<div class="flex items-center gap-xs"><div class="w-3 h-3 rounded-full bg-outline"></div><span class="font-label-sm text-label-sm text-on-surface-variant">Amur 9%</span></div>
+</div>
+</div>
+<!-- Fänge pro Monat (Simplified Vertical Bar Chart) -->
+<div class="bg-surface-variant rounded-xl p-lg border border-primary-container/20 flex flex-col">
+<h3 class="font-label-sm text-label-sm text-tertiary mb-md uppercase border-b border-primary-container/15 pb-xs">FÄNGE PRO MONAT</h3>
+<div class="flex-grow flex items-end justify-between pt-lg pb-sm px-xs h-40">
+<div class="w-4 bg-primary-container/30 rounded-t-sm" style="height: 10%;"></div>
+<div class="w-4 bg-primary-container/50 rounded-t-sm" style="height: 15%;"></div>
+<div class="w-4 bg-primary-container/70 rounded-t-sm" style="height: 40%;"></div>
+<div class="w-4 bg-primary-container rounded-t-sm" style="height: 80%;"></div>
+<div class="w-4 bg-primary-container rounded-t-sm" style="height: 100%;"></div>
+<div class="w-4 bg-primary-container rounded-t-sm" style="height: 85%;"></div>
+<div class="w-4 bg-primary-container rounded-t-sm" style="height: 90%;"></div>
+<div class="w-4 bg-primary-container rounded-t-sm" style="height: 70%;"></div>
+<div class="w-4 bg-primary-container/70 rounded-t-sm" style="height: 60%;"></div>
+<div class="w-4 bg-primary-container/50 rounded-t-sm" style="height: 40%;"></div>
+<div class="w-4 bg-primary-container/30 rounded-t-sm" style="height: 20%;"></div>
+<div class="w-4 bg-primary-container/20 rounded-t-sm" style="height: 10%;"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant text-[10px]">
+<span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span>
+</div>
+</div>
+</section>
+<!-- Top Kombis -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">BESTE KÖDER-KOMBINATIONEN</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="bg-surface-variant rounded-xl p-md border border-primary-container/20">
+<p class="font-body-md text-body-md text-on-surface font-semibold mb-xs">Boilies 20mm</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex flex-wrap gap-x-sm gap-y-xs items-center">
+<span>Spiegelkarpfen</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>18 Fänge</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Ø 9,2 KG</span>
+</p>
+</div>
+<div class="bg-surface-variant rounded-xl p-md border border-primary-container/20">
+<p class="font-body-md text-body-md text-on-surface font-semibold mb-xs">Tigernüsse</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex flex-wrap gap-x-sm gap-y-xs items-center">
+<span>Schuppenkarpfen</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>14 Fänge</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Ø 7,8 KG</span>
+</p>
+</div>
+<div class="bg-surface-variant rounded-xl p-md border border-primary-container/20">
+<p class="font-body-md text-body-md text-on-surface font-semibold mb-xs">Pop-Ups 15mm</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex flex-wrap gap-x-sm gap-y-xs items-center">
+<span>Spiegelkarpfen</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>12 Fänge</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Ø 11,1 KG</span>
+</p>
+</div>
+<div class="bg-surface-variant rounded-xl p-md border border-primary-container/20">
+<p class="font-body-md text-body-md text-on-surface font-semibold mb-xs">Maiskette</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex flex-wrap gap-x-sm gap-y-xs items-center">
+<span>Amur</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>9 Fänge</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Ø 14,5 KG</span>
+</p>
+</div>
+</div>
+</section>
+<!-- Drilldown Table -->
+<section class="bg-surface-variant rounded-xl border border-primary-container/20 overflow-hidden">
+<div class="p-lg border-b border-primary-container/15">
+<h2 class="font-headline-md text-headline-md text-on-surface">FANGDETAILS</h2>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="bg-surface-container font-label-sm text-label-sm text-tertiary uppercase">
+<th class="px-lg py-md font-medium">Datum</th>
+<th class="px-lg py-md font-medium">Gewicht</th>
+<th class="px-lg py-md font-medium">Fischart</th>
+<th class="px-lg py-md font-medium">Gewässer</th>
+<th class="px-lg py-md font-medium">Köder</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface-variant">
+<tr class="border-b border-primary-container/10 hover:bg-surface-container/50 transition-colors">
+<td class="px-lg py-md">28.08.2026</td>
+<td class="px-lg py-md font-semibold text-on-surface">14,2 KG</td>
+<td class="px-lg py-md">Spiegelkarpfen</td>
+<td class="px-lg py-md">Lobau Altwässer</td>
+<td class="px-lg py-md">Boilies 20mm</td>
+</tr>
+<tr class="bg-surface/30 border-b border-primary-container/10 hover:bg-surface-container/50 transition-colors">
+<td class="px-lg py-md">22.08.2026</td>
+<td class="px-lg py-md font-semibold text-on-surface">8,5 KG</td>
+<td class="px-lg py-md">Schuppenkarpfen</td>
+<td class="px-lg py-md">Grundlsee</td>
+<td class="px-lg py-md">Tigernüsse</td>
+</tr>
+<tr class="border-b border-primary-container/10 hover:bg-surface-container/50 transition-colors">
+<td class="px-lg py-md">15.08.2026</td>
+<td class="px-lg py-md font-semibold text-on-surface">24,3 KG</td>
+<td class="px-lg py-md">Spiegelkarpfen</td>
+<td class="px-lg py-md">Donau Altwasser Linz</td>
+<td class="px-lg py-md">Pop-Ups 15mm</td>
+</tr>
+<tr class="bg-surface/30 border-b border-primary-container/10 hover:bg-surface-container/50 transition-colors">
+<td class="px-lg py-md">02.08.2026</td>
+<td class="px-lg py-md font-semibold text-on-surface">12,1 KG</td>
+<td class="px-lg py-md">Amur</td>
+<td class="px-lg py-md">Mondsee</td>
+<td class="px-lg py-md">Maiskette</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="px-lg py-md">28.07.2026</td>
+<td class="px-lg py-md font-semibold text-on-surface">6,8 KG</td>
+<td class="px-lg py-md">Lederkarpfen</td>
+<td class="px-lg py-md">Güssinger Teich</td>
+<td class="px-lg py-md">Boilies 15mm</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Footer Note -->
+<p class="text-center font-label-sm text-label-sm text-outline uppercase tracking-widest mt-md">
+            Basierend auf 102 Fängen · Letzter Fang: 28.08.2026
+        </p>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-xl bg-surface-container-low dark:bg-surface-dim border-t border-outline-variant/20 dark:border-outline/20 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-screen-2xl mx-auto gap-md px-margin-mobile md:px-margin-desktop">
+<span class="font-headline-md text-headline-md text-on-surface-variant">carp24</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed-dim uppercase" href="#">Impressum</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed-dim uppercase" href="#">Datenschutz</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed-dim uppercase" href="#">AGB</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed-dim uppercase" href="#">Kontakt</a>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant">© 2024 carp24. All rights reserved.</span>
+</div>
+</footer>
+</body></html>
