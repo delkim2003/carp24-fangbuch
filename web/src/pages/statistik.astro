@@ -472,11 +472,11 @@ import Layout from '../layouts/Layout.astro';
       if (!tbody) return;
       tbody.innerHTML = data.map((d: any) => `
         <tr>
-          <td>${d.datum ? new Date(d.datum).toLocaleDateString('de-DE') : '–'}</td>
-          <td>${d.gewicht ? Number(d.gewicht).toFixed(1) + ' kg' : '–'}</td>
-          <td>${d.fischart ?? '–'}</td>
-          <td>${d.gewaesser ?? '–'}</td>
-          <td>${d.koeder ?? '–'}</td>
+          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE') : '–'}</td>
+          <td>${d.weight_kg ? Number(d.weight_kg).toFixed(1) + ' kg' : '–'}</td>
+          <td>${d.species ?? '–'}</td>
+          <td>${d.water_name ?? '–'}</td>
+          <td>${d.bait ?? '–'}</td>
         </tr>
       `).join('');
     }
