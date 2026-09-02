@@ -1,1180 +1,563 @@
 ---
-import { createSSRClient } from '../lib/ssr-client';
 import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase-client';
+import { createSSRClient } from '../lib/ssr-client';
 
-const client = createSSRClient(Astro);
-const { data: { session } } = await client.auth.getSession();
+const supabase = createSSRClient(Astro);
+const { data: { session } } = await supabase.auth.getSession();
 if (!session) return Astro.redirect('/login');
 ---
 
-<Layout title="Statistik" active="statistik">
-  <div class="stats-page">
-    <h1>Fang-Statistiken</h1>
+<Layout title="Carp24 – Statistik" active="statistik" noindex>
+  <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
 
-    <div class="filter-bar" id="filterBar">
-      <div class="filter-row">
-        <span class="filter-label">ZEITRAUM:</span>
-        <div class="filter-pills" id="zeitraumPills">
-          <button class="pill active" data-value="all">Alle</button>
-          <button class="pill" data-value="7d">7d</button>
-          <button class="pill" data-value="30d">30d</button>
-          <button class="pill" data-value="90d">90d</button>
-          <button class="pill" data-value="1y">1y</button>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div>
+        <h1 class="text-display-lg text-primary mb-2">Fang-Statistiken</h1>
+        <p class="text-body-lg text-on-surface-variant">Deine Fänge im Überblick — analysiere Bedingungen, Trends und Kombinationen.</p>
+      </div>
+    </div>
+
+    <!-- FILTER -->
+    <div id="filterBar" class="bg-surface-variant border border-outline-variant/20 rounded-[16px] p-lg mb-xl">
+      <div class="flex flex-wrap gap-sm items-center mb-md">
+        <span class="font-nav-item text-nav-item text-on-surface-variant uppercase tracking-widest mr-sm">Zeitraum:</span>
+        <div id="zeitraumPills" class="flex flex-wrap gap-sm">
+          <button class="pill active font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer bg-primary-container text-on-primary-container" data-value="all">Alle</button>
+          <button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="7d">7d</button>
+          <button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="30d">30d</button>
+          <button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="90d">90d</button>
+          <button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="1y">1y</button>
         </div>
       </div>
-      <div class="filter-row">
-        <select id="gewaesser"><option value="">Gewässer</option></select>
-        <select id="koeder"><option value="">Köder</option></select>
-        <select id="mondphase"><option value="">Mond</option></select>
-        <select id="wetter"><option value="">Wetter</option></select>
-        <select id="druckTrend">
+      <div class="flex flex-wrap gap-sm items-center">
+        <select id="gewaesser" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Gewässer</option></select>
+        <select id="koeder" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Köder</option></select>
+        <select id="mondphase" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Mond</option></select>
+        <select id="wetter" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm"><option value="">Wetter</option></select>
+        <select id="druckTrend" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm">
           <option value="">Druck</option>
           <option value="niedrig">&lt;1005</option>
           <option value="mittel">1005–1015</option>
           <option value="hoch">&gt;=1015</option>
         </select>
-        <select id="wind">
+        <select id="wind" class="bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 min-h-11 text-sm">
           <option value="">Wind</option>
           <option value="windstill">&lt;5</option>
           <option value="leicht">5–10</option>
           <option value="maessig">10–20</option>
           <option value="stark">20+</option>
         </select>
-        <button class="btn-apply" id="btnApply">Anwenden</button>
+        <button id="btnApply" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-2 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-11 cursor-pointer">Anwenden</button>
       </div>
     </div>
 
-    <div id="loading-indicator" class="loading-indicator">
-      <div class="skeleton-spinner"></div>
+    <!-- LOADING -->
+    <div id="loading-indicator" class="hidden justify-center items-center py-lg">
+      <div class="w-9 h-9 border-[3px] border-outline-variant border-t-primary-container rounded-full animate-spin"></div>
     </div>
 
-    <div class="kpi-row" id="kpiRow">
-      <div class="kpi-card">
-        <span class="kpi-value" id="kpiFang">0</span>
-        <span class="kpi-label">Fänge</span>
+    <!-- KPIs -->
+    <div id="kpiRow" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+      <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
+        <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">Fänge</span>
+        <span id="kpiFang" class="text-display-lg text-primary">0</span>
       </div>
-      <div class="kpi-card">
-        <span class="kpi-value" id="kpiAvg">–</span>
-        <span class="kpi-label">Ø Gewicht</span>
+      <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
+        <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">Ø Gewicht</span>
+        <span id="kpiAvg" class="text-display-lg text-primary">–</span>
       </div>
-      <div class="kpi-card">
-        <span class="kpi-value" id="kpiMax">–</span>
-        <span class="kpi-label">Max Gewicht</span>
+      <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
+        <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">Max Gewicht</span>
+        <span id="kpiMax" class="text-display-lg text-primary">–</span>
       </div>
-      <div class="kpi-card">
-        <span class="kpi-value" id="kpiWater">0</span>
-        <span class="kpi-label">Gewässer</span>
+      <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col justify-between min-h-32">
+        <span class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">Gewässer</span>
+        <span id="kpiWater" class="text-display-lg text-primary">0</span>
       </div>
     </div>
 
-    <section class="beste-bed" id="bestConditionsCard">
-      <span class="beste-bed-label">BESTE BEDINGUNGEN</span>
-      <div class="beste-bed-content" id="bestConditions">
-        <p class="placeholder">Wird berechnet…</p>
+    <!-- BESTE BEDINGUNGEN -->
+    <section id="bestConditionsCard" class="bg-surface border-l-4 border-l-primary rounded-r-[16px] p-lg mb-xl">
+      <span class="font-nav-item text-nav-item text-primary uppercase tracking-widest block mb-md">Beste Bedingungen</span>
+      <div id="bestConditions" class="flex flex-wrap items-center gap-md">
+        <p class="text-body-md text-on-surface-variant italic">Wird berechnet…</p>
       </div>
     </section>
 
-    <div class="charts-row">
-      <section class="card">
-        <h3>Dimensionen-Analyse</h3>
-        <div class="conditions-grid">
-          <div class="condition-row" data-dimension="mond">
-            <h4>Mondphase</h4>
-            <div id="mondBars" class="condition-bars"></div>
+    <!-- CHARTS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-xl">
+      <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Dimensionen-Analyse</h3>
+        <div class="flex flex-col gap-lg">
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Mondphase</h4>
+            <div id="mondBars" class="flex flex-col gap-sm"></div>
           </div>
-          <div class="condition-row" data-dimension="wetter">
-            <h4>Wetter</h4>
-            <div id="wetterBars" class="condition-bars"></div>
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Wetter</h4>
+            <div id="wetterBars" class="flex flex-col gap-sm"></div>
           </div>
-          <div class="condition-row" data-dimension="uhrzeit">
-            <h4>Tageszeit</h4>
-            <div id="uhrzeitBars" class="condition-bars"></div>
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Tageszeit</h4>
+            <div id="uhrzeitBars" class="flex flex-col gap-sm"></div>
           </div>
-          <div class="condition-row" data-dimension="druck">
-            <h4>Luftdruck</h4>
-            <div id="druckBars" class="condition-bars"></div>
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Luftdruck</h4>
+            <div id="druckBars" class="flex flex-col gap-sm"></div>
           </div>
-          <div class="condition-row" data-dimension="temp">
-            <h4>Wassertemperatur</h4>
-            <div id="tempBars" class="condition-bars"></div>
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Wassertemperatur</h4>
+            <div id="tempBars" class="flex flex-col gap-sm"></div>
           </div>
-          <div class="condition-row" data-dimension="wind">
-            <h4>Wind</h4>
-            <div id="windBars" class="condition-bars"></div>
+          <div>
+            <h4 class="font-label-sm text-label-sm text-primary-container uppercase tracking-widest mb-sm">Wind</h4>
+            <div id="windBars" class="flex flex-col gap-sm"></div>
           </div>
         </div>
       </section>
 
-      <section class="card">
-        <h3>Gewichtsverlauf</h3>
-        <div id="verlaufChart"></div>
+      <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Gewichtsverlauf</h3>
+        <div id="verlaufChart" class="flex-1 min-h-[300px]"></div>
       </section>
     </div>
 
-    <section class="card" id="gewaesserSection">
-      <h3>Fänge nach Gewässer (Top 8)</h3>
-      <div id="gewaesserChart" class="gewaesser-chart"></div>
+    <!-- GEWÄSSER -->
+    <section id="gewaesserSection" class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg mb-xl">
+      <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Fänge nach Gewässer (Top 8)</h3>
+      <div id="gewaesserChart" class="flex flex-col gap-sm max-h-[400px] overflow-y-auto"></div>
     </section>
 
-    <section class="card" id="kombiSection">
-      <h3>Top Kombinationen</h3>
-      <div id="kombiCards" class="kombi-cards"></div>
+    <!-- KOMBI-CARDS -->
+    <section id="kombiSection" class="mb-xl">
+      <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest mb-4">Top Kombinationen</h3>
+      <div id="kombiCards" class="grid grid-cols-2 lg:grid-cols-4 gap-gutter"></div>
     </section>
 
-    <section class="card" id="drilldownSection">
-      <h3>Fangdetails</h3>
-      <div id="drilldownContainer">
-        <table class="detail-table">
-          <thead>
-            <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th><th>Länge</th></tr>
-          </thead>
-          <tbody id="drilldownBody"></tbody>
-        </table>
+    <!-- FANGDETAILS -->
+    <section id="drilldownSection" class="overflow-hidden rounded-[16px] border border-outline-variant/20">
+      <div class="bg-surface-container-high p-lg border-b border-outline-variant/20">
+        <h3 class="font-nav-item text-nav-item text-primary-container uppercase tracking-widest">Fangdetails</h3>
+      </div>
+      <div id="drilldownContainer" class="bg-surface">
+        <div class="overflow-x-auto">
+          <table class="w-full text-body-md">
+            <thead>
+              <tr class="bg-surface-variant">
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Datum</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Gewicht</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Fischart</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Gewässer</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Köder</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Länge</th>
+              </tr>
+            </thead>
+            <tbody id="drilldownBody"></tbody>
+          </table>
+        </div>
+        <div id="drilldownCards" class="flex flex-col gap-sm p-lg lg:hidden"></div>
       </div>
     </section>
-  </div>
 
-  <script>
-    import { supabase } from '../lib/supabase-client';
-    import uPlot from 'uplot';
-    import 'uplot/dist/uPlot.min.css';
-
-    function n(val: unknown): number {
-      const v = Number(val);
-      return Number.isFinite(v) ? v : 0;
-    }
-
-    function nf(val: unknown, digits = 1): string {
-      const v = Number(val);
-      return Number.isFinite(v) ? v.toFixed(digits) : '–';
-    }
-
-    function speciesName(s: string): string {
-      const map: Record<string, string> = {
-        karpfen: 'Karpfen', schlei: 'Schlei', barsch: 'Barsch',
-        hecht: 'Hecht', zander: 'Zander', wels: 'Wels',
-        amur: 'Amur', karausche: 'Karausche', rotfeder: 'Rotfeder',
-        brasse: 'Brasse', aland: 'Aland', laube: 'Laube',
-      };
-      return map[s?.toLowerCase()] ?? s ?? '–';
-    }
-
-    function getCSS(): Record<string, string> {
-      const s = getComputedStyle(document.documentElement);
-      return {
-        primary: s.getPropertyValue('--color-primary-container').trim() || '#6c7a57',
-        primaryDim: s.getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a',
-        surface: s.getPropertyValue('--color-surface-container-lowest').trim() || '#fff',
-        outline: s.getPropertyValue('--color-outline-variant').trim() || '#c6c8bc',
-        onSurface: s.getPropertyValue('--color-on-surface').trim() || '#181d14',
-        onSurfaceVar: s.getPropertyValue('--color-on-surface-variant').trim() || '#45483f',
-      };
-    }
-
-    let CSS = getCSS();
-
-    const MOND_EMOJI: Record<string, string> = {
-      'Neumond': '🌑', 'Zunehmend': '🌒', 'Erstes Viertel': '🌓',
-      'Zunehmender Gibbus': '🌔', 'Vollmond': '🌕', 'Abnehmender Gibbus': '🌖',
-      'Letztes Viertel': '🌗', 'Abnehmend': '🌘'
-    };
-
-    const WETTER_EMOJI: Record<string, string> = {
-      'Sonnig': '☀️', 'Bewölkt': '☁️', 'Regen': '🌧️', 'Windig': '💨', 'Neblig': '🌫️',
-      'sonnig': '☀️', 'bewölkt': '☁️', 'regen': '🌧️', 'windig': '💨', 'neblig': '🌫️',
-    };
-
-    function uhrzeitEmoji(label: string): string {
-      const l = label.toLowerCase();
-      if (l.includes('nacht') || l.includes('0-6') || l.includes('0–6')) return '🌙';
-      if (l.includes('morgen') || l.includes('6-12') || l.includes('6–12')) return '🌅';
-      if (l.includes('mittag') || l.includes('12-18') || l.includes('12–18')) return '☀️';
-      if (l.includes('abend') || l.includes('18-24') || l.includes('18–24') || l.includes('18-0')) return '🌇';
-      return '🌅';
-    }
-
-    function druckEmoji(label: string): string {
-      const l = label.toLowerCase();
-      if (l.includes('fall') || l.includes('niedrig') || l.includes('<') || l.includes('↘')) return '↘️';
-      if (l.includes('steig') || l.includes('hoch') || l.includes('>') || l.includes('↗')) return '↗️';
-      return '➡️';
-    }
-
-    function getFilters(): Record<string, any> {
-      const f: Record<string, any> = {};
-      const z = document.querySelector('#zeitraumPills .pill.active') as HTMLElement;
-      if (z) {
-        const val = z.dataset.value;
-        const now = new Date();
-        if (val && val !== 'all') {
-          const d = new Date(now);
-          if (val === '1y') d.setFullYear(d.getFullYear() - 1);
-          else d.setDate(d.getDate() - parseInt(val));
-          f.zeitraum = { von: d.toISOString().slice(0, 10), bis: now.toISOString().slice(0, 10) };
-        }
-      }
-      const g = (document.getElementById('gewaesser') as HTMLSelectElement)?.value;
-      if (g) f.gewaesser = g;
-      const k = (document.getElementById('koeder') as HTMLSelectElement)?.value;
-      if (k) f.koeder = k;
-      const m = (document.getElementById('mondphase') as HTMLSelectElement)?.value;
-      if (m) f.mond = m;
-      const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
-      if (w) f.wetter = w;
-      const dt = (document.getElementById('druckTrend') as HTMLSelectElement)?.value;
-      if (dt) f.druck_trend = dt;
-      const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
-      if (wi) f.wind = wi;
-      return f;
-    }
-
-    function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, dimension: string, emojiFn?: (label: string) => string) {
-      const el = document.getElementById(containerId);
-      if (!el) return;
-      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
-      const maxVal = Math.max(...data.map(d => n(d[valueKey])));
-      const color = CSS.primary;
-      el.innerHTML = data.map(d => {
-        const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
-        const label = d[labelKey] ?? '–';
-        const emoji = emojiFn ? emojiFn(label) : '';
-        return `<div class="condition-bar">
-          <span class="condition-bar-label">${emoji ? emoji + ' ' : ''}${label}</span>
-          <div class="condition-bar-track"><div class="condition-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-          <span class="condition-bar-value">${n(d[valueKey])}</span>
-          <span class="condition-bar-avg">Ø ${nf(d[avgKey])} kg</span>
-        </div>`;
-      }).join('');
-    }
-
-    function renderBestConditions(best: any) {
-      const el = document.getElementById('bestConditions');
-      if (!el) return;
-      if (!best) { el.innerHTML = '<p class="placeholder">Keine Daten</p>'; return; }
-
-      const parts: string[] = [];
-      if (best.mond) parts.push(`${MOND_EMOJI[best.mond] || '🌙'} ${best.mond}`);
-      if (best.wetter) parts.push(`${WETTER_EMOJI[best.wetter] || '🌤️'} ${best.wetter}`);
-      if (best.uhrzeit) parts.push(`${uhrzeitEmoji(best.uhrzeit)} ${best.uhrzeit}`);
-      if (best.druck) parts.push(`${druckEmoji(best.druck)} ${best.druck}`);
-      if (best.wind) parts.push(`💨 ${best.wind}`);
-      if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
-
-      el.innerHTML = `
-        <div class="beste-bed-chips">
-          ${parts.map(p => `<span class="condition-chip">${p}</span>`).join('')}
-        </div>
-        <div class="beste-bed-result">
-          <span class="beste-bed-count">${n(best.fangzahl)} Fänge</span>
-          <span class="beste-bed-avg">Ø ${nf(best.avg_gewicht)} kg</span>
-        </div>
-      `;
-    }
-
-    function renderGewaesser(data: any[]) {
-      const el = document.getElementById('gewaesserChart');
-      if (!el) return;
-      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
-
-      const sorted = [...data].sort((a, b) => n(b.catch_count) - n(a.catch_count));
-      const top8 = sorted.slice(0, 8);
-      const rest = sorted.slice(8);
-      const maxVal = n(top8[0]?.catch_count) || 1;
-
-      const heatColor = (val: number): string => {
-        const pct = val / maxVal;
-        if (pct > 0.66) return CSS.primary;
-        if (pct > 0.33) return CSS.primaryDim;
-        return CSS.outline;
-      };
-
-      let html = top8.map(d => {
-        const count = n(d.catch_count);
-        const pct = (count / maxVal * 100);
-        return `<div class="gewaesser-bar">
-          <span class="gewaesser-bar-label">${d.water_name || 'Unbekannt'}</span>
-          <div class="gewaesser-bar-track"><div class="gewaesser-bar-fill" style="width:${pct}%;background:${heatColor(count)}"></div></div>
-          <span class="gewaesser-bar-value">${count}</span>
-        </div>`;
-      }).join('');
-
-      if (rest.length) {
-        html += `<details class="gewaesser-more"><summary>Weitere anzeigen (${rest.length})</summary>`;
-        html += rest.map(d => {
-          const count = n(d.catch_count);
-          const pct = (count / maxVal * 100);
-          return `<div class="gewaesser-bar">
-            <span class="gewaesser-bar-label">${d.water_name || 'Unbekannt'}</span>
-            <div class="gewaesser-bar-track"><div class="gewaesser-bar-fill" style="width:${pct}%;background:${heatColor(count)}"></div></div>
-            <span class="gewaesser-bar-value">${count}</span>
-          </div>`;
-        }).join('');
-        html += '</details>';
-      }
-
-      el.innerHTML = html;
-    }
-
-    function renderVerlauf(data: any[]) {
-      const el = document.getElementById('verlaufChart');
-      if (!el) return;
-      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
-      el.innerHTML = '';
-      const months = data.map((d: any) => {
-        const [y, m] = d.month.split('-');
-        return Math.floor(new Date(+y, +m - 1, 15).getTime() / 1000);
-      });
-      const avgW = data.map((d: any) => n(d.avg_weight));
-      const maxW = data.map((d: any) => n(d.max_weight));
-
-      const opts: uPlot.Options = {
-        width: el.clientWidth || 600,
-        height: 320,
-        cursor: { show: true },
-        legend: { show: true },
-        axes: [
-          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
-            values: (_u: any, vals: any) => vals.map((v: number) => {
-              const d = new Date(v * 1000);
-              return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
-            }),
-          },
-          { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
-        ],
-        series: [
-          {},
-          { label: 'Ø Gewicht', stroke: CSS.primary, fill: 'rgba(108,122,87,0.18)', width: 2, points: { show: true, size: 4 } },
-          { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
-        ],
-      };
-      new uPlot(opts, [months, avgW, maxW], el);
-    }
-
-    function renderKombis(data: any[]) {
-      const el = document.getElementById('kombiCards');
-      if (!el) return;
-      if (!data.length) { el.innerHTML = '<p class="no-data">Keine Daten</p>'; return; }
-
-      const kombiLabels: Record<string, string> = {
-        mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
-        uhrzeit: '🌅', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
-      };
-
-      const sorted = [...data].sort((a, b) => n(b.fangzahl) - n(a.fangzahl));
-
-      el.innerHTML = sorted.slice(0, 8).map((k: any, i: number) => {
-        const rank = i + 1;
-        const rankClass = rank <= 3 ? `rank-${rank}` : '';
-        const parts = (k.kombi ?? '').split(' + ').map((p: string) => {
-          const [key, val] = p.split('=');
-          return `${kombiLabels[key] || key} ${val}`;
-        });
-        return `<div class="kombi-card ${rankClass}">
-          <div class="kombi-rank">${rank}</div>
-          <div class="kombi-card-header">
-            <span class="kombi-card-count">${n(k.fangzahl)} Fänge</span>
-            <span class="kombi-card-weight">Ø ${nf(k.avg_gewicht)} kg</span>
-          </div>
-          <div class="kombi-card-label">${parts.join(' · ')}</div>
-        </div>`;
-      }).join('');
-    }
-
-    function renderDrilldown(data: any[]) {
-      const tbody = document.getElementById('drilldownBody');
-      const container = document.getElementById('drilldownContainer');
-      if (!tbody || !container) return;
-      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="no-data">Keine Daten</td></tr>'; return; }
-
-      const rows = data.map((d: any) => `
-        <tr>
-          <td>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</td>
-          <td>${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</td>
-          <td>${speciesName(d.species)}</td>
-          <td>${d.water_name ?? '–'}</td>
-          <td>${d.bait ?? '–'}</td>
-          <td>${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</td>
-        </tr>
-      `).join('');
-      tbody.innerHTML = rows;
-
-      let cards = data.map((d: any) => `
-        <div class="detail-card">
-          <div class="detail-card-row"><span class="detail-card-label">Datum</span><span>${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</span></div>
-          <div class="detail-card-row"><span class="detail-card-label">Gewicht</span><span>${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</span></div>
-          <div class="detail-card-row"><span class="detail-card-label">Fischart</span><span>${speciesName(d.species)}</span></div>
-          <div class="detail-card-row"><span class="detail-card-label">Gewässer</span><span>${d.water_name ?? '–'}</span></div>
-          <div class="detail-card-row"><span class="detail-card-label">Köder</span><span>${d.bait ?? '–'}</span></div>
-          <div class="detail-card-row"><span class="detail-card-label">Länge</span><span>${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</span></div>
-        </div>
-      `).join('');
-      const existingCards = container.querySelector('.detail-cards-mobile');
-      if (existingCards) existingCards.remove();
-      const cardsDiv = document.createElement('div');
-      cardsDiv.className = 'detail-cards-mobile';
-      cardsDiv.innerHTML = cards;
-      container.appendChild(cardsDiv);
-    }
-
-    function populateSelects(cond: any) {
-      if (!cond?.buckets) return;
-      const b = cond.buckets;
-      function fillSelect(id: string, obj: Record<string, any> | undefined) {
-        const sel = document.getElementById(id);
-        if (!sel || !obj) return;
-        const firstOpt = sel.options[0];
-        sel.innerHTML = '';
-        sel.appendChild(firstOpt);
-        Object.keys(obj).forEach(k => {
-          if (k && k !== 'Unbekannt') {
-            const opt = document.createElement('option');
-            opt.value = k; opt.textContent = k;
-            sel.appendChild(opt);
-          }
-        });
-      }
-      fillSelect('gewaesser', b.gewaesser);
-      fillSelect('koeder', b.koeder);
-      fillSelect('mondphase', b.mond);
-      fillSelect('wetter', b.wetter);
-    }
-
-    let refreshSeq = 0;
-
-    async function refresh() {
-      const mySeq = ++refreshSeq;
-      const loadingEl = document.getElementById('loading-indicator');
-      if (loadingEl) loadingEl.style.display = 'flex';
-      const filters = getFilters();
-
-      const [
-        { data: cond },
-        { data: bestCond },
-        { data: verl },
-        { data: gewData },
-        { data: mondData },
-        { data: wetterData },
-        { data: druckData },
-        { data: windData },
-        { data: tempData },
-        { data: kombis },
-        { data: drill },
-      ] = await Promise.all([
-        supabase.rpc('stats_conditions', { p_filters: filters }),
-        supabase.rpc('stats_best_conditions', { p_filters: filters }),
-        supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
-        supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
-        supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
-        supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
-        supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
-        supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
-        supabase.rpc('stats_wassertemp_korrelation', { p_filters: filters }),
-        supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 8 }),
-        supabase.rpc('stats_drilldown', { p_filters: filters }),
-      ]);
-
-      if (mySeq !== refreshSeq) return;
-
-      const kpiFang = document.getElementById('kpiFang');
-      const kpiAvg = document.getElementById('kpiAvg');
-      const kpiMax = document.getElementById('kpiMax');
-      const kpiWater = document.getElementById('kpiWater');
-      if (kpiFang) kpiFang.textContent = String(n(cond?.total?.fangzahl));
-      if (kpiAvg) kpiAvg.textContent = nf(cond?.total?.avg_gewicht) + ' kg';
-      if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
-      if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
-
-      renderBestConditions(bestCond);
-
-      const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
-        mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
-      }));
-      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', 'mond', (l) => MOND_EMOJI[l] || '🌙');
-      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', 'wetter', (l) => WETTER_EMOJI[l] || '🌤️');
-      const uhrzeitBarsData = Object.entries(cond?.buckets?.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
-      renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', 'uhrzeit', uhrzeitEmoji);
-      renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', 'druck', druckEmoji);
-      renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp', () => '🌡️');
-      renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind', () => '💨');
-
-      renderVerlauf(verl ?? []);
-      renderGewaesser(gewData ?? []);
-      renderKombis(kombis ?? []);
-      renderDrilldown(drill ?? []);
-      populateSelects(cond);
-
-      if (loadingEl) loadingEl.style.display = 'none';
-    }
-
-    document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
-      if (!btn) return;
-      document.querySelectorAll('#zeitraumPills .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      refresh();
-    });
-
-    document.getElementById('btnApply')?.addEventListener('click', () => refresh());
-
-    const observer = new MutationObserver(() => {
-      CSS = getCSS();
-      refresh();
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-    refresh();
-  </script>
+  </main>
 </Layout>
 
-<style>
-  :root {
-    --color-bg: #f6fbec;
-    --color-surface: #ebf0e1;
-    --color-primary: #546140;
-    --color-primary-container: #6c7a57;
-    --color-on-surface: #181d14;
-    --color-outline-variant: #c6c8bc;
-    --color-surface-variant: #dfe4d6;
-    --radius-card: 16px;
-    --radius-input: 8px;
-    --radius-pill: 9999px;
-    --font-headline: 'Source Serif 4', serif;
-    --font-body: 'Source Sans 3', sans-serif;
-    --font-label: 'Public Sans', sans-serif;
-  }
-
-  :global(html), :global(body) {
-    overflow-x: hidden;
-    width: 100%;
-  }
-
-  .stats-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    font-family: var(--font-body);
-    background: var(--color-bg);
-    min-height: 100vh;
-  }
-
-  .stats-page h1 {
-    font-family: var(--font-headline);
-    font-weight: 700;
-    font-size: 2rem;
-    margin: 0 0 1.5rem;
-    color: var(--color-primary);
-    letter-spacing: -0.02em;
-  }
-
-  .loading-indicator {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-  }
-
-  .skeleton-spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid var(--color-outline-variant);
-    border-top-color: var(--color-primary-container);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .no-data {
-    text-align: center;
-    color: var(--color-on-surface);
-    opacity: 0.5;
-    padding: 1.5rem;
-    font-size: 0.9rem;
-    font-style: italic;
-  }
-
-  .placeholder {
-    text-align: center;
-    color: var(--color-on-surface);
-    opacity: 0.5;
-    padding: 1rem;
-    font-style: italic;
-  }
-
-  /* ── FILTER ── */
-  .filter-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2.5rem;
-    padding: 1.5rem;
-    background: var(--color-surface-variant);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--radius-card);
-  }
-
-  .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .filter-label {
-    font-family: var(--font-label);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--color-on-surface);
-    opacity: 0.7;
-    margin-right: 0.25rem;
-  }
-
-  .filter-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-
-  .pill {
-    padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--color-outline-variant);
-    background: transparent;
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-family: var(--font-label);
-    color: var(--color-on-surface);
-    transition: all 0.15s;
-    white-space: nowrap;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    font-weight: 600;
-  }
-
-  .pill.active,
-  .pill:hover {
-    background: var(--color-primary-container);
-    color: var(--color-bg);
-    border-color: var(--color-primary-container);
-  }
-
-  select {
-    padding: 0.35rem 1.8rem 0.35rem 0.75rem;
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--radius-input);
-    font-size: 0.8rem;
-    background: var(--color-bg);
-    color: var(--color-on-surface);
-    font-family: var(--font-label);
-    cursor: pointer;
-    height: 32px;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2345483f' d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.6rem center;
-    font-weight: 500;
-  }
-
-  .btn-apply {
-    padding: 0.35rem 1.25rem;
-    background: var(--color-primary-container);
-    color: var(--color-bg);
-    border: none;
-    border-radius: var(--radius-pill);
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font-label);
-    transition: opacity 0.15s;
-    height: 32px;
-    letter-spacing: 0.02em;
-  }
-
-  .btn-apply:hover {
-    opacity: 0.85;
-  }
-
-  /* ── KPIs ── */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .kpi-card {
-    background: var(--color-surface-variant);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-    text-align: center;
-  }
-
-  .kpi-value {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    font-family: var(--font-headline);
-    color: var(--color-primary-container);
-    line-height: 1.1;
-  }
-
-  .kpi-label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--color-on-surface);
-    opacity: 0.6;
-    margin-top: 0.35rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-family: var(--font-label);
-  }
-
-  /* ── BESTE BEDINGUNGEN ── */
-  .beste-bed {
-    background: var(--color-surface);
-    border-left: 4px solid var(--color-primary);
-    border-radius: 0 var(--radius-card) var(--radius-card) 0;
-    padding: 1.5rem;
-    margin-bottom: 2.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .beste-bed-label {
-    font-family: var(--font-label);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--color-primary);
-    width: 100%;
-  }
-
-  .beste-bed-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .beste-bed-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    flex: 1;
-  }
-
-  .condition-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.3rem 0.85rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-surface-variant);
-    font-size: 0.85rem;
-    color: var(--color-on-surface);
-    white-space: nowrap;
-    font-weight: 500;
-    font-family: var(--font-body);
-  }
-
-  .beste-bed-result {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
-  .beste-bed-count {
-    font-size: 1.25rem;
-    font-weight: 700;
-    font-family: var(--font-headline);
-    color: var(--color-primary-container);
-  }
-
-  .beste-bed-avg {
-    color: var(--color-on-surface);
-    opacity: 0.6;
-    font-size: 0.9rem;
-    font-family: var(--font-body);
-  }
-
-  /* ── CARDS ── */
-  .card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .card h3 {
-    font-family: var(--font-headline);
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin: 0 0 1.25rem;
-    color: var(--color-primary);
-    letter-spacing: -0.01em;
-  }
-
-  /* ── CHARTS ROW ── */
-  .charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .charts-row > .card {
-    margin-bottom: 0;
-  }
-
-  .conditions-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .condition-row h4 {
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-bottom: 0.4rem;
-    color: var(--color-primary-container);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-family: var(--font-label);
-  }
-
-  .condition-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .condition-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-  }
-
-  .condition-bar-label {
-    width: 140px;
-    text-align: right;
-    color: var(--color-on-surface);
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-family: var(--font-body);
-  }
-
-  .condition-bar-track {
-    flex: 1;
-    height: 22px;
-    background: var(--color-surface-variant);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .condition-bar-fill {
-    height: 100%;
-    border-radius: 6px;
-    min-width: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .condition-bar-value {
-    font-weight: 700;
-    color: var(--color-on-surface);
-    min-width: 30px;
-    text-align: right;
-    font-family: var(--font-body);
-  }
-
-  .condition-bar-avg {
-    color: var(--color-on-surface);
-    opacity: 0.5;
-    font-size: 0.75rem;
-    min-width: 70px;
-    font-family: var(--font-body);
-  }
-
-  /* ── GEWÄSSER ── */
-  .gewaesser-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .gewaesser-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-  }
-
-  .gewaesser-bar-label {
-    width: 180px;
-    text-align: right;
-    color: var(--color-on-surface);
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-family: var(--font-body);
-  }
-
-  .gewaesser-bar-track {
-    flex: 1;
-    height: 24px;
-    background: var(--color-surface-variant);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .gewaesser-bar-fill {
-    height: 100%;
-    border-radius: 6px;
-    min-width: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .gewaesser-bar-value {
-    width: 40px;
-    font-weight: 700;
-    color: var(--color-on-surface);
-    text-align: right;
-    font-family: var(--font-body);
-  }
-
-  .gewaesser-more {
-    margin-top: 0.5rem;
-  }
-
-  .gewaesser-more summary {
-    cursor: pointer;
-    font-size: 0.8rem;
-    color: var(--color-primary-container);
-    padding: 0.3rem 0;
-    font-weight: 600;
-    font-family: var(--font-body);
-  }
-
-  /* ── KOMBI CARDS ── */
-  .kombi-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-  }
-
-  .kombi-card {
-    background: var(--color-surface-variant);
-    border-radius: var(--radius-card);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    position: relative;
-    border: 2px solid var(--color-outline-variant);
-    transition: border-color 0.2s;
-  }
-
-  .kombi-card.rank-1 {
-    border-color: #d4a843;
-    background: #fdf8ef;
-  }
-
-  .kombi-card.rank-2 {
-    border-color: #b8b8b8;
-    background: #f7f7f7;
-  }
-
-  .kombi-card.rank-3 {
-    border-color: #c4956a;
-    background: #fbf4ee;
-  }
-
-  .kombi-rank {
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--color-primary-container);
-    color: var(--color-bg);
-    font-size: 0.7rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-label);
-  }
-
-  .kombi-card.rank-1 .kombi-rank {
-    background: #d4a843;
-    color: #fff;
-  }
-
-  .kombi-card.rank-2 .kombi-rank {
-    background: #b8b8b8;
-    color: #fff;
-  }
-
-  .kombi-card.rank-3 .kombi-rank {
-    background: #c4956a;
-    color: #fff;
-  }
-
-  .kombi-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .kombi-card-count {
-    font-size: 1.1rem;
-    font-weight: 700;
-    font-family: var(--font-headline);
-    color: var(--color-primary-container);
-  }
-
-  .kombi-card-weight {
-    font-size: 0.8rem;
-    color: var(--color-on-surface);
-    opacity: 0.6;
-    font-family: var(--font-body);
-  }
-
-  .kombi-card-label {
-    font-size: 0.85rem;
-    color: var(--color-on-surface);
-    opacity: 0.8;
-    line-height: 1.4;
-    font-family: var(--font-body);
-  }
-
-  /* ── DETAIL TABLE ── */
-  .detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    display: block;
-    overflow-x: auto;
-  }
-
-  .detail-table th,
-  .detail-table td {
-    text-align: left;
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid var(--color-outline-variant);
-  }
-
-  .detail-table th {
-    font-weight: 700;
-    color: var(--color-primary-container);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    background: var(--color-surface-variant);
-    font-family: var(--font-label);
-  }
-
-  .detail-table tr:nth-child(even) {
-    background: var(--color-surface-variant);
-    opacity: 0.5;
-  }
-
-  .detail-table tbody tr:hover {
-    background: var(--color-surface-variant);
-  }
-
-  .detail-cards-mobile {
-    display: none;
-  }
-
-  .detail-card {
-    background: var(--color-surface-variant);
-    border-radius: var(--radius-input);
-    padding: 0.85rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid var(--color-outline-variant);
-  }
-
-  .detail-card-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.25rem 0;
-    font-size: 0.85rem;
-    font-family: var(--font-body);
-  }
-
-  .detail-card-label {
-    color: var(--color-on-surface);
-    opacity: 0.6;
-    font-weight: 600;
-    font-family: var(--font-label);
-  }
-
-  @media (max-width: 900px) {
-    .kpi-row {
-      grid-template-columns: repeat(2, 1fr);
+<script>
+  import { supabase } from '../lib/supabase-client';
+  import uPlot from 'uplot';
+  import 'uplot/dist/uPlot.min.css';
+
+  function n(val: unknown): number {
+    const v = Number(val);
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  function nf(val: unknown, digits = 1): string {
+    const v = Number(val);
+    return Number.isFinite(v) ? v.toFixed(digits) : '–';
+  }
+
+  function speciesName(s: string): string {
+    const map: Record<string, string> = {
+      SPIEGEL: 'Spiegelkarpfen', LEDER: 'Lederkarpfen', SCHUPPEN: 'Schuppenkarpfen',
+      AMUR: 'Amurkarpfen', ANDERE: 'Andere',
+      karpfen: 'Karpfen', schlei: 'Schlei', barsch: 'Barsch',
+      hecht: 'Hecht', zander: 'Zander', wels: 'Wels',
+      amur: 'Amur', karausche: 'Karausche', rotfeder: 'Rotfeder',
+      brasse: 'Brasse', aland: 'Aland', laube: 'Laube',
+    };
+    return map[s?.toUpperCase()] ?? map[s?.toLowerCase()] ?? s ?? '–';
+  }
+
+  function getCSS(): Record<string, string> {
+    const s = getComputedStyle(document.documentElement);
+    return {
+      primary: s.getPropertyValue('--color-primary-container').trim() || '#6c7a57',
+      primaryDim: s.getPropertyValue('--color-primary-fixed-dim').trim() || '#a3b18a',
+      surface: s.getPropertyValue('--color-surface-container-lowest').trim() || '#fff',
+      outline: s.getPropertyValue('--color-outline-variant').trim() || '#c6c8bc',
+      onSurface: s.getPropertyValue('--color-on-surface').trim() || '#181d14',
+      onSurfaceVar: s.getPropertyValue('--color-on-surface-variant').trim() || '#45483f',
+    };
+  }
+
+  let CSS = getCSS();
+
+  const MOND_EMOJI: Record<string, string> = {
+    'Neumond': '🌑', 'Zunehmend': '🌒', 'Erstes Viertel': '🌓',
+    'Zunehmender Gibbus': '🌔', 'Vollmond': '🌕', 'Abnehmender Gibbus': '🌖',
+    'Letztes Viertel': '🌗', 'Abnehmend': '🌘'
+  };
+
+  const WETTER_EMOJI: Record<string, string> = {
+    'Sonnig': '☀️', 'Bewölkt': '☁️', 'Regen': '🌧️', 'Windig': '💨', 'Neblig': '🌫️',
+    'sonnig': '☀️', 'bewölkt': '☁️', 'regen': '🌧️', 'windig': '💨', 'neblig': '🌫️',
+  };
+
+  function uhrzeitEmoji(label: string): string {
+    const l = label.toLowerCase();
+    if (l.includes('nacht') || l.includes('0-6') || l.includes('0–6')) return '🌙';
+    if (l.includes('morgen') || l.includes('6-12') || l.includes('6–12')) return '🌅';
+    if (l.includes('mittag') || l.includes('12-18') || l.includes('12–18')) return '☀️';
+    if (l.includes('abend') || l.includes('18-24') || l.includes('18–24') || l.includes('18-0')) return '🌇';
+    return '🌅';
+  }
+
+  function druckEmoji(label: string): string {
+    const l = label.toLowerCase();
+    if (l.includes('fall') || l.includes('niedrig') || l.includes('<') || l.includes('↘')) return '↘️';
+    if (l.includes('steig') || l.includes('hoch') || l.includes('>') || l.includes('↗')) return '↗️';
+    return '➡️';
+  }
+
+  function getFilters(): Record<string, any> {
+    const f: Record<string, any> = {};
+    const z = document.querySelector('#zeitraumPills .pill.active') as HTMLElement;
+    if (z) {
+      const val = z.dataset.value;
+      const now = new Date();
+      if (val && val !== 'all') {
+        const d = new Date(now);
+        if (val === '1y') d.setFullYear(d.getFullYear() - 1);
+        else d.setDate(d.getDate() - parseInt(val));
+        f.zeitraum = { von: d.toISOString().slice(0, 10), bis: now.toISOString().slice(0, 10) };
+      }
     }
-    .charts-row {
-      grid-template-columns: 1fr;
+    const g = (document.getElementById('gewaesser') as HTMLSelectElement)?.value;
+    if (g) f.gewaesser = g;
+    const k = (document.getElementById('koeder') as HTMLSelectElement)?.value;
+    if (k) f.koeder = k;
+    const m = (document.getElementById('mondphase') as HTMLSelectElement)?.value;
+    if (m) f.mond = m;
+    const w = (document.getElementById('wetter') as HTMLSelectElement)?.value;
+    if (w) f.wetter = w;
+    const dt = (document.getElementById('druckTrend') as HTMLSelectElement)?.value;
+    if (dt) f.druck_trend = dt;
+    const wi = (document.getElementById('wind') as HTMLSelectElement)?.value;
+    if (wi) f.wind = wi;
+    return f;
+  }
+
+  function renderConditionBars(containerId: string, data: any[], labelKey: string, valueKey: string, avgKey: string, dimension: string, emojiFn?: (label: string) => string) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md">Keine Daten</p>'; return; }
+    const maxVal = Math.max(...data.map(d => n(d[valueKey])));
+    const color = CSS.primary;
+    el.innerHTML = data.map(d => {
+      const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
+      const label = d[labelKey] ?? '–';
+      const emoji = emojiFn ? emojiFn(label) : '';
+      return `<div class="flex items-center gap-sm text-body-md">
+        <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${emoji ? emoji + ' ' : ''}${label}</span>
+        <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
+        <span class="font-bold text-on-surface min-w-[30px] text-right">${n(d[valueKey])}</span>
+        <span class="text-on-surface-variant opacity-50 text-xs min-w-[70px]">Ø ${nf(d[avgKey])} kg</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderBestConditions(best: any) {
+    const el = document.getElementById('bestConditions');
+    if (!el) return;
+    if (!best) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic">Keine Daten</p>'; return; }
+
+    const parts: string[] = [];
+    if (best.mond) parts.push(`${MOND_EMOJI[best.mond] || '🌙'} ${best.mond}`);
+    if (best.wetter) parts.push(`${WETTER_EMOJI[best.wetter] || '🌤️'} ${best.wetter}`);
+    if (best.uhrzeit) parts.push(`${uhrzeitEmoji(best.uhrzeit)} ${best.uhrzeit}`);
+    if (best.druck) parts.push(`${druckEmoji(best.druck)} ${best.druck}`);
+    if (best.wind) parts.push(`💨 ${best.wind}`);
+    if (best.wassertemp) parts.push(`🌡️ ${best.wassertemp}`);
+
+    el.innerHTML = `
+      <div class="flex flex-wrap gap-sm flex-1">
+        ${parts.map(p => `<span class="inline-flex items-center py-1 px-3 rounded-full bg-surface-variant text-body-md text-on-surface whitespace-nowrap font-medium">${p}</span>`).join('')}
+      </div>
+      <div class="flex items-baseline gap-sm">
+        <span class="text-headline-md text-primary-container font-bold">${n(best.fangzahl)} Fänge</span>
+        <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(best.avg_gewicht)} kg</span>
+      </div>
+    `;
+  }
+
+  function renderGewaesser(data: any[]) {
+    const el = document.getElementById('gewaesserChart');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md">Keine Daten</p>'; return; }
+
+    const sorted = [...data].sort((a, b) => n(b.catch_count) - n(a.catch_count));
+    const top8 = sorted.slice(0, 8);
+    const rest = sorted.slice(8);
+    const maxVal = n(top8[0]?.catch_count) || 1;
+
+    const heatColor = (val: number): string => {
+      const pct = val / maxVal;
+      if (pct > 0.66) return CSS.primary;
+      if (pct > 0.33) return CSS.primaryDim;
+      return CSS.outline;
+    };
+
+    let html = top8.map(d => {
+      const count = n(d.catch_count);
+      const pct = (count / maxVal * 100);
+      return `<div class="flex items-center gap-sm text-body-md">
+        <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
+        <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
+        <span class="w-10 font-bold text-on-surface text-right">${count}</span>
+      </div>`;
+    }).join('');
+
+    if (rest.length) {
+      html += `<details class="mt-sm"><summary class="cursor-pointer text-body-md text-primary-container font-semibold py-sm">Weitere anzeigen (${rest.length})</summary>`;
+      html += rest.map(d => {
+        const count = n(d.catch_count);
+        const pct = (count / maxVal * 100);
+        return `<div class="flex items-center gap-sm text-body-md mt-sm">
+          <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
+          <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
+          <span class="w-10 font-bold text-on-surface text-right">${count}</span>
+        </div>`;
+      }).join('');
+      html += '</details>';
     }
-    .kombi-cards {
-      grid-template-columns: repeat(2, 1fr);
+
+    el.innerHTML = html;
+  }
+
+  function renderVerlauf(data: any[]) {
+    const el = document.getElementById('verlaufChart');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md">Keine Daten</p>'; return; }
+    el.innerHTML = '';
+    const months = data.map((d: any) => {
+      const [y, m] = d.month.split('-');
+      return Math.floor(new Date(+y, +m - 1, 15).getTime() / 1000);
+    });
+    const avgW = data.map((d: any) => n(d.avg_weight));
+    const maxW = data.map((d: any) => n(d.max_weight));
+
+    const opts: uPlot.Options = {
+      width: el.clientWidth || 600,
+      height: 320,
+      cursor: { show: true },
+      legend: { show: true },
+      axes: [
+        { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif',
+          values: (_u: any, vals: any) => vals.map((v: number) => {
+            const d = new Date(v * 1000);
+            return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
+          }),
+        },
+        { stroke: CSS.onSurfaceVar, grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+      ],
+      series: [
+        {},
+        { label: 'Ø Gewicht', stroke: CSS.primary, fill: 'rgba(108,122,87,0.18)', width: 2, points: { show: true, size: 4 } },
+        { label: 'Max Gewicht', stroke: CSS.primaryDim, width: 2, dash: [6, 3] },
+      ],
+    };
+    new uPlot(opts, [months, avgW, maxW], el);
+  }
+
+  function renderKombis(data: any[]) {
+    const el = document.getElementById('kombiCards');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic text-center py-md col-span-full">Keine Daten</p>'; return; }
+
+    const kombiLabels: Record<string, string> = {
+      mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
+      uhrzeit: '🌅', wassertemp: '🌡️', lufttemp: '🌡️', wind: '💨'
+    };
+
+    const sorted = [...data].sort((a, b) => n(b.fangzahl) - n(a.fangzahl));
+
+    el.innerHTML = sorted.slice(0, 8).map((k: any, i: number) => {
+      const rank = i + 1;
+      const rankBorder = rank === 1 ? 'border-[#d4a843]' : rank === 2 ? 'border-[#b8b8b8]' : rank === 3 ? 'border-[#c4956a]' : 'border-outline-variant/20';
+      const rankBg = rank === 1 ? 'bg-[#fdf8ef]' : rank === 2 ? 'bg-[#f7f7f7]' : rank === 3 ? 'bg-[#fbf4ee]' : 'bg-surface-variant';
+      const rankBadge = rank === 1 ? 'bg-[#d4a843] text-white' : rank === 2 ? 'bg-[#b8b8b8] text-white' : rank === 3 ? 'bg-[#c4956a] text-white' : 'bg-primary-container text-on-primary-container';
+      const parts = (k.kombi ?? '').split(' + ').map((p: string) => {
+        const [key, val] = p.split('=');
+        return `${kombiLabels[key] || key} ${val}`;
+      });
+      return `<div class="${rankBg} ${rankBorder} border-2 rounded-[16px] p-lg flex flex-col gap-sm relative">
+        <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${rankBadge} text-xs font-bold flex items-center justify-center">${rank}</div>
+        <div class="flex justify-between items-center">
+          <span class="text-headline-md text-primary-container font-bold">${n(k.fangzahl)} Fänge</span>
+          <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(k.avg_gewicht)} kg</span>
+        </div>
+        <div class="text-body-md text-on-surface opacity-80 leading-relaxed">${parts.join(' · ')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderDrilldown(data: any[]) {
+    const tbody = document.getElementById('drilldownBody');
+    const cardsContainer = document.getElementById('drilldownCards');
+    if (!tbody) return;
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-lg text-on-surface-variant italic text-body-md">Keine Daten</td></tr>';
+      if (cardsContainer) cardsContainer.innerHTML = '<p class="text-center py-lg text-on-surface-variant italic text-body-md">Keine Daten</p>';
+      return;
+    }
+
+    const rows = data.map((d: any) => `
+      <tr class="border-b border-outline-variant/20 hover:bg-surface-variant transition-colors">
+        <td class="py-3 px-4 text-body-md text-on-surface">${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface font-bold">${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface">${speciesName(d.species)}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.water_name ?? '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.bait ?? '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</td>
+      </tr>
+    `).join('');
+    tbody.innerHTML = rows;
+
+    if (cardsContainer) {
+      const cards = data.map((d: any) => `
+        <div class="bg-surface-variant rounded-lg p-md border border-outline-variant/20">
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Datum</span><span class="text-on-surface">${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewicht</span><span class="text-on-surface font-bold">${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Fischart</span><span class="text-on-surface">${speciesName(d.species)}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewässer</span><span class="text-on-surface-variant">${d.water_name ?? '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Köder</span><span class="text-on-surface-variant">${d.bait ?? '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Länge</span><span class="text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</span></div>
+        </div>
+      `).join('');
+      cardsContainer.innerHTML = cards;
     }
   }
 
-  @media (max-width: 600px) {
-    .stats-page {
-      padding: 1rem 0.5rem;
+  function populateSelects(cond: any) {
+    if (!cond?.buckets) return;
+    const b = cond.buckets;
+    function fillSelect(id: string, obj: Record<string, any> | undefined) {
+      const sel = document.getElementById(id);
+      if (!sel || !obj) return;
+      const firstOpt = sel.options[0];
+      sel.innerHTML = '';
+      sel.appendChild(firstOpt);
+      Object.keys(obj).forEach(k => {
+        if (k && k !== 'Unbekannt') {
+          const opt = document.createElement('option');
+          opt.value = k; opt.textContent = k;
+          sel.appendChild(opt);
+        }
+      });
     }
-    .stats-page h1 {
-      font-size: 1.4rem;
-    }
-    .filter-bar {
-      gap: 0.35rem;
-      padding: 1rem;
-    }
-    .card {
-      padding: 1rem;
-    }
-    .condition-bar-label {
-      width: 100px;
-      font-size: 0.75rem;
-    }
-    .gewaesser-bar-label {
-      width: 120px;
-      font-size: 0.75rem;
-    }
-    .kombi-cards {
-      grid-template-columns: 1fr;
-    }
-    .detail-table {
-      display: none;
-    }
-    .detail-cards-mobile {
-      display: block;
-    }
+    fillSelect('gewaesser', b.gewaesser);
+    fillSelect('koeder', b.koeder);
+    fillSelect('mondphase', b.mond);
+    fillSelect('wetter', b.wetter);
   }
-</style>
+
+  let refreshSeq = 0;
+
+  async function refresh() {
+    const mySeq = ++refreshSeq;
+    const loadingEl = document.getElementById('loading-indicator');
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    const filters = getFilters();
+
+    const [
+      { data: cond },
+      { data: bestCond },
+      { data: verl },
+      { data: gewData },
+      { data: mondData },
+      { data: wetterData },
+      { data: druckData },
+      { data: windData },
+      { data: tempData },
+      { data: kombis },
+      { data: drill },
+    ] = await Promise.all([
+      supabase.rpc('stats_conditions', { p_filters: filters }),
+      supabase.rpc('stats_best_conditions', { p_filters: filters }),
+      supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
+      supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
+      supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
+      supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
+      supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
+      supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
+      supabase.rpc('stats_wassertemp_korrelation', { p_filters: filters }),
+      supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 8 }),
+      supabase.rpc('stats_drilldown', { p_filters: filters }),
+    ]);
+
+    if (mySeq !== refreshSeq) return;
+
+    const kpiFang = document.getElementById('kpiFang');
+    const kpiAvg = document.getElementById('kpiAvg');
+    const kpiMax = document.getElementById('kpiMax');
+    const kpiWater = document.getElementById('kpiWater');
+    if (kpiFang) kpiFang.textContent = String(n(cond?.total?.fangzahl));
+    if (kpiAvg) kpiAvg.textContent = nf(cond?.total?.avg_gewicht) + ' kg';
+    if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
+    if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
+
+    renderBestConditions(bestCond);
+
+    const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
+      mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
+    }));
+    renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', 'mond', (l) => MOND_EMOJI[l] || '🌙');
+    renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', 'wetter', (l) => WETTER_EMOJI[l] || '🌤️');
+    const uhrzeitBarsData = Object.entries(cond?.buckets?.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
+    renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', 'uhrzeit', uhrzeitEmoji);
+    renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', 'druck', druckEmoji);
+    renderConditionBars('tempBars', tempData ?? [], 'temp_bereich', 'catch_count', 'avg_weight', 'temp', () => '🌡️');
+    renderConditionBars('windBars', windData ?? [], 'wind_bereich', 'catch_count', 'avg_weight', 'wind', () => '💨');
+
+    renderVerlauf(verl ?? []);
+    renderGewaesser(gewData ?? []);
+    renderKombis(kombis ?? []);
+    renderDrilldown(drill ?? []);
+    populateSelects(cond);
+
+    if (loadingEl) loadingEl.classList.add('hidden');
+  }
+
+  document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.pill') as HTMLElement;
+    if (!btn) return;
+    document.querySelectorAll('#zeitraumPills .pill').forEach(b => {
+      b.classList.remove('active', 'bg-primary-container', 'text-on-primary-container');
+      b.classList.add('text-on-surface-variant');
+    });
+    btn.classList.add('active', 'bg-primary-container', 'text-on-primary-container');
+    btn.classList.remove('text-on-surface-variant');
+    refresh();
+  });
+
+  document.getElementById('btnApply')?.addEventListener('click', () => refresh());
+
+  const observer = new MutationObserver(() => {
+    CSS = getCSS();
+    refresh();
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  refresh();
+</script>
