@@ -1,42 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { createSSRClient } from '../lib/ssr-client';
-
-const supabase = createSSRClient(Astro);
-
-const { data: { user } } = await supabase.auth.getUser();
-
-const filters: Record<string, any> = {};
-
-const [
-  { data: conditions },
-  { data: kombis },
-  { data: insights },
-  { data: verlauf },
-  { data: wetter },
-  { data: badges },
-  { data: trips },
-  { data: drilldown },
-] = await Promise.all([
-  supabase.rpc('stats_conditions', { p_filters: filters }),
-  supabase.rpc('stats_beste_kombis', { p_filters: filters, p_limit: 5 }),
-  supabase.rpc('stats_insights', { p_filters: filters }),
-  supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
-  supabase.rpc('stats_wetter_korrelation', { p_filters: filters }),
-  supabase.rpc('stats_badges', { p_user_id: user?.id }),
-  supabase.rpc('stats_trips', { p_user_id: user?.id }),
-  supabase.rpc('stats_drilldown', { p_filters: filters }),
-]);
-
-const total = conditions?.total ?? 0;
-const buckets = conditions?.buckets ?? {};
-const bestKombis = kombis ?? [];
-const ins = insights ?? {};
-const verlaufData = verlauf ?? [];
-const wetterData = wetter ?? [];
-const badgesData = badges ?? [];
-const tripsData = trips ?? { trips: [], summary: {} };
-const drilldownData = drilldown ?? [];
 ---
 
 <Layout title="Statistik">
@@ -109,19 +72,19 @@ const drilldownData = drilldown ?? [];
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <span class="kpi-value">{total.fangzahl ?? 0}</span>
+          <span class="kpi-value">0</span>
           <span class="kpi-label">GESAMTE FÄNGE</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">{(total.max_gewicht ?? '–') + ' KG'}</span>
+          <span class="kpi-value">– KG</span>
           <span class="kpi-label">SCHWERSTER FANG</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">{(total.avg_gewicht ?? '–') + ' KG'}</span>
+          <span class="kpi-value">– KG</span>
           <span class="kpi-label">Ø GEWICHT</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">{Object.keys(buckets.gewaesser ?? {}).length}</span>
+          <span class="kpi-value">0</span>
           <span class="kpi-label">AKTIVE GEWÄSSER</span>
         </div>
       </div>
@@ -169,15 +132,7 @@ const drilldownData = drilldown ?? [];
             <thead>
               <tr><th>Kombi</th><th>Fänge</th><th>Ø Gewicht</th></tr>
             </thead>
-            <tbody id="kombiBody">
-              {bestKombis.map((k: any) => (
-                <tr>
-                  <td>{k.kombi}</td>
-                  <td>{k.fangzahl}</td>
-                  <td>{Number(k.avg_gewicht).toFixed(1)} kg</td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody id="kombiBody"></tbody>
           </table>
         </section>
       </div>
@@ -186,9 +141,9 @@ const drilldownData = drilldown ?? [];
         <section class="chart-card">
           <h3>🤖 KI-Analyse</h3>
           <div class="insight-cards">
-            <div class="insight-card"><span class="insight-icon">⏰</span><span class="insight-text">Deine beste Fangzeit: <strong>{ins.beste_fangzeit?.wert ?? '–'}</strong> (Ø {ins.beste_fangzeit?.avg_gewicht ?? '–'} kg)</span></div>
-            <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>{ins.beste_wetterlage?.wert ?? '–'}</strong> (Ø {ins.beste_wetterlage?.avg_gewicht ?? '–'} kg)</span></div>
-            <div class="insight-card"><span class="insight-icon">🎣</span><span class="insight-text">Bestes Köder: <strong>{ins.beste_koeder_kombi?.wert ?? '–'}</strong> (Ø {ins.beste_koeder_kombi?.avg_gewicht ?? '–'} kg)</span></div>
+            <div class="insight-card"><span class="insight-icon">⏰</span><span class="insight-text">Deine beste Fangzeit: <strong>–</strong> (Ø – kg)</span></div>
+            <div class="insight-card"><span class="insight-icon">🌤️</span><span class="insight-text">Beste Wetterlage: <strong>–</strong> (Ø – kg)</span></div>
+            <div class="insight-card"><span class="insight-icon">🎣</span><span class="insight-text">Bestes Köder: <strong>–</strong> (Ø – kg)</span></div>
           </div>
         </section>
       </div>
@@ -197,18 +152,10 @@ const drilldownData = drilldown ?? [];
         <section class="chart-card wide">
           <h3>🏆 Badges</h3>
           <div class="badges-progress">
-            <span class="badges-count">{badgesData.filter((b: any) => b.erreicht).length} / {badgesData.length}</span>
-            <div class="badges-bar"><div class="badges-bar-fill" style={`width: ${badgesData.length ? Math.round(badgesData.filter((b: any) => b.erreicht).length / badgesData.length * 100) : 0}%`}></div></div>
+            <span class="badges-count">0 / 0</span>
+            <div class="badges-bar"><div class="badges-bar-fill" style="width: 0%"></div></div>
           </div>
-          <div class="badges-grid" id="badgesGrid">
-            {badgesData.map((b: any) => (
-              <div class={`badge-item ${b.erreicht ? 'badge-earned' : 'badge-locked'}`}>
-                <span class="badge-icon">{b.icon ?? '🏅'}</span>
-                <span class="badge-name">{b.name}</span>
-                {b.erreicht && <span class="badge-date">{b.erreicht_am ? new Date(b.erreicht_am).toLocaleDateString('de-DE') : ''}</span>}
-              </div>
-            ))}
-          </div>
+          <div class="badges-grid" id="badgesGrid"></div>
         </section>
       </div>
 
@@ -217,15 +164,15 @@ const drilldownData = drilldown ?? [];
           <h3>🗺️ Trips</h3>
           <div class="kpi-row">
             <div class="kpi-card">
-              <span class="kpi-value">{tripsData.summary?.trip_anzahl ?? 0}</span>
+              <span class="kpi-value">0</span>
               <span class="kpi-label">TRIPS</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-value">{(tripsData.summary?.avg_gewicht ?? '–') + ' KG'}</span>
+              <span class="kpi-value">– KG</span>
               <span class="kpi-label">Ø GEWICHT / TRIP</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-value">{tripsData.summary?.bestes_gewaesser ?? '–'}</span>
+              <span class="kpi-value">–</span>
               <span class="kpi-label">BESTES GEWÄSSER</span>
             </div>
           </div>
@@ -233,17 +180,7 @@ const drilldownData = drilldown ?? [];
             <thead>
               <tr><th>Datum</th><th>Gewässer</th><th>Fänge</th><th>Ø Gewicht</th><th>Max Gewicht</th></tr>
             </thead>
-            <tbody id="tripsBody">
-              {(tripsData.trips ?? []).map((t: any) => (
-                <tr>
-                  <td>{t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '–'}</td>
-                  <td>{t.gewaesser ?? '–'}</td>
-                  <td>{t.fangzahl ?? 0}</td>
-                  <td>{t.avg_gewicht ? Number(t.avg_gewicht).toFixed(1) + ' kg' : '–'}</td>
-                  <td>{t.max_gewicht ? Number(t.max_gewicht).toFixed(1) + ' kg' : '–'}</td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody id="tripsBody"></tbody>
           </table>
         </section>
       </div>
@@ -255,17 +192,7 @@ const drilldownData = drilldown ?? [];
             <thead>
               <tr><th>Datum</th><th>Gewicht</th><th>Fischart</th><th>Gewässer</th><th>Köder</th></tr>
             </thead>
-            <tbody id="drilldownBody">
-              {drilldownData.map((d: any) => (
-                <tr>
-                  <td>{d.datum ? new Date(d.datum).toLocaleDateString('de-DE') : '–'}</td>
-                  <td>{d.gewicht ? Number(d.gewicht).toFixed(1) + ' kg' : '–'}</td>
-                  <td>{d.fischart ?? '–'}</td>
-                  <td>{d.gewaesser ?? '–'}</td>
-                  <td>{d.koeder ?? '–'}</td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody id="drilldownBody"></tbody>
           </table>
         </section>
       </div>
@@ -962,19 +889,19 @@ const drilldownData = drilldown ?? [];
   }
 
   @media (max-width: 900px) {
-    .stats-page {
-      flex-direction: column-reverse;
-    }
-    .filter-sidebar {
-      width: 100%;
-      position: static;
-      max-height: none;
-    }
-    .chart-grid {
-      grid-template-columns: 1fr;
-    }
-    .chart-card.wide {
-      grid-column: auto;
-    }
+    .stats-page { flex-direction: column; }
+    .filter-sidebar { width: 100%; position: static; max-height: none; }
+    .chart-grid { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: 1; }
+    .kpi-row { flex-direction: column; }
+    .kpi-card { min-width: 100%; }
+    .insight-cards { flex-direction: column; }
+  }
+
+  @media (max-width: 600px) {
+    .stats-page { padding: 1rem 0.5rem; }
+    .filter-sidebar { padding: 1rem; }
+    .chart-card { padding: 1rem; }
+    h1 { font-size: 1.4rem; }
   }
 </style>
