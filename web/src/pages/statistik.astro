@@ -57,7 +57,9 @@ if (!session) {
     <main class="stats-content">
       <h1>Fang-Statistiken</h1>
 
-      <div class="kpi-row">
+      <div id="loading-indicator" style="display:none;text-align:center;padding:2rem;color:var(--color-on-surface-variant)">⏳ Daten laden...</div>
+
+      <div class="kpi-row main-kpi">
         <div class="kpi-card">
           <span class="kpi-value">0</span>
           <span class="kpi-label">GESAMTE FÄNGE</span>
@@ -149,7 +151,7 @@ if (!session) {
       <div class="chart-grid">
         <section class="chart-card wide">
           <h3>🗺️ Trips</h3>
-          <div class="kpi-row">
+          <div class="kpi-row trip-kpi">
             <div class="kpi-card">
               <span class="kpi-value">0</span>
               <span class="kpi-label">TRIPS</span>
@@ -252,6 +254,10 @@ if (!session) {
       const total = data.reduce((s, d) => s + d.value, 0);
       if (total === 0) {
         ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = CSS.onSurface;
+        ctx.font = '14px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
         return;
       }
       const palette = [CSS.primary, CSS.primaryDim, CSS.primaryFixed, '#bfc0c0', '#588157', '#3a5a40', '#344e41'];
@@ -300,7 +306,13 @@ if (!session) {
       canvas.style.height = H + 'px';
       ctx.clearRect(0, 0, W, H);
 
-      if (!data.length) return;
+      if (!data.length) {
+        ctx.fillStyle = CSS.onSurface;
+        ctx.font = '14px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
+        return;
+      }
       const maxVal = Math.max(...data.map(d => d.value), 1);
       const barH = Math.min(28, (H - 20) / data.length - 4);
       const marginLeft = 120, marginRight = 50;
@@ -333,7 +345,13 @@ if (!session) {
       canvas.style.height = H + 'px';
       ctx.clearRect(0, 0, W, H);
 
-      if (!data.length) return;
+      if (!data.length) {
+        ctx.fillStyle = CSS.onSurface;
+        ctx.font = '14px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
+        return;
+      }
       const maxVal = Math.max(...data.map(d => d.value), 1);
       const marginLeft = 50, marginBottom = 40, marginTop = 20;
       const chartW = W - marginLeft - 20;
@@ -366,7 +384,13 @@ if (!session) {
       canvas.style.height = H + 'px';
       ctx.clearRect(0, 0, W, H);
 
-      if (!data.length) return;
+      if (!data.length) {
+        ctx.fillStyle = CSS.onSurface;
+        ctx.font = '14px "Source Sans 3", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
+        return;
+      }
       const maxVal = Math.max(...data.map(d => d.value), 1);
       const marginLeft = 50, marginBottom = 40, marginTop = 20;
       const chartW = W - marginLeft - 20;
@@ -453,10 +477,10 @@ if (!session) {
     function renderTrips(data: any) {
       const trips = data?.trips ?? [];
       const summary = data?.summary ?? {};
-      const kpis = document.querySelectorAll('.stats-content .kpi-row:last-of-type .kpi-value');
-      if (kpis[0]) kpis[0].textContent = String(summary.trip_anzahl ?? 0);
-      if (kpis[1]) kpis[1].textContent = (summary.avg_gewicht ?? '–') + ' KG';
-      if (kpis[2]) kpis[2].textContent = summary.bestes_gewaesser ?? '–';
+      const tripKpis = document.querySelectorAll('.trip-kpi .kpi-value');
+      if (tripKpis[0]) tripKpis[0].textContent = String(summary.trip_anzahl ?? 0);
+      if (tripKpis[1]) tripKpis[1].textContent = (summary.avg_gewicht ?? '–') + ' KG';
+      if (tripKpis[2]) tripKpis[2].textContent = summary.bestes_gewaesser ?? '–';
       const tbody = document.getElementById('tripsBody');
       if (tbody) {
         tbody.innerHTML = trips.map((t: any) => `
@@ -507,6 +531,8 @@ if (!session) {
     }
 
     async function refresh() {
+      const loadingEl = document.getElementById('loading-indicator');
+      if (loadingEl) loadingEl.style.display = 'block';
       const { data: { user } } = await supabase.auth.getUser();
       const filters = getFilters();
       const [
@@ -532,11 +558,11 @@ if (!session) {
       renderBadges(badgeData);
       renderTrips(tripData);
 
-      const kpis = document.querySelectorAll('.kpi-value');
-      if (kpis[0]) kpis[0].textContent = String(cond?.total?.fangzahl ?? 0);
-      if (kpis[1]) kpis[1].textContent = (cond?.total?.max_gewicht ?? '–') + ' KG';
-      if (kpis[2]) kpis[2].textContent = (cond?.total?.avg_gewicht ?? '–') + ' KG';
-      if (kpis[3]) kpis[3].textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
+      const mainKpis = document.querySelectorAll('.main-kpi .kpi-value');
+      if (mainKpis[0]) mainKpis[0].textContent = String(cond?.total?.fangzahl ?? 0);
+      if (mainKpis[1]) mainKpis[1].textContent = (cond?.total?.max_gewicht ?? '–') + ' KG';
+      if (mainKpis[2]) mainKpis[2].textContent = (cond?.total?.avg_gewicht ?? '–') + ' KG';
+      if (mainKpis[3]) mainKpis[3].textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
 
       const buckets = cond?.buckets ?? {};
       drawDonut(Object.entries(buckets.art ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
@@ -562,6 +588,7 @@ if (!session) {
 
       renderDrilldown(drill ?? []);
       populateSelects(cond);
+      if (loadingEl) loadingEl.style.display = 'none';
     }
 
     document.getElementById('zeitraumPills')?.addEventListener('click', (e) => {
@@ -956,5 +983,6 @@ if (!session) {
     .filter-sidebar { padding: 1rem; }
     .chart-card { padding: 1rem; }
     h1 { font-size: 1.4rem; }
+    canvas { max-width: 100% !important; height: auto !important; }
   }
 </style>
