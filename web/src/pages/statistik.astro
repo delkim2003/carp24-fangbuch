@@ -456,8 +456,8 @@ if (!session) {
       const mondBarsData = Object.entries(cond?.buckets?.mond ?? {}).map(([label, v]: any) => ({
         mond_phase: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht)
       }));
-      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', MOND_EMOJI);
-      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', WETTER_EMOJI);
+      renderConditionBars('mondBars', mondBarsData, 'mond_phase', 'catch_count', 'avg_weight', (l) => MOND_EMOJI[l] || '🌙');
+      renderConditionBars('wetterBars', wetterData ?? [], 'weather_type', 'catch_count', 'avg_weight', (l) => WETTER_EMOJI[l] || '🌤️');
       const uhrzeitBarsData = Object.entries(buckets.uhrzeit ?? {}).map(([label, v]: any) => ({ uhrzeit_bereich: label, catch_count: n(v?.fangzahl), avg_weight: n(v?.avg_gewicht) }));
       renderConditionBars('uhrzeitBars', uhrzeitBarsData, 'uhrzeit_bereich', 'catch_count', 'avg_weight', uhrzeitEmoji);
       renderConditionBars('druckBars', druckData ?? [], 'druck_bereich', 'catch_count', 'avg_weight', druckEmoji);
