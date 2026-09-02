@@ -135,7 +135,7 @@ if (!session) {
       <div class="chart-grid">
         <section class="chart-card wide">
           <h3>Fänge pro Monat</h3>
-          <canvas id="monatChart" width="800" height="260"></canvas>
+          <div id="monatChart"></div>
         </section>
       </div>
 
@@ -348,43 +348,28 @@ if (!session) {
       new uPlot(opts, [indices, counts, avgW], el);
     }
 
-    function drawMonat(data: { label: string; value: number }[]) {
-      const canvas = document.getElementById('monatChart') as HTMLCanvasElement;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d')!;
-      const dpr = window.devicePixelRatio || 1;
-      const W = 800, H = 260;
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = W + 'px';
-      canvas.style.height = H + 'px';
-      ctx.clearRect(0, 0, W, H);
+    function renderMonat(data: { label: string; value: number }[]) {
+      const el = document.getElementById('monatChart');
+      if (!el || !data.length) { if (el) el.innerHTML = '<p style="text-align:center;color:#999;padding:2rem;">Keine Daten</p>'; return; }
+      el.innerHTML = '';
+      const labels = data.map(d => d.label);
+      const values = data.map(d => d.value);
+      const indices = data.map((_, i) => i);
 
-      if (!data.length) {
-        ctx.fillStyle = CSS.onSurface;
-        ctx.font = '14px "Source Sans 3", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Keine Daten', canvas.width/2, canvas.height/2);
-        return;
-      }
-      const maxVal = Math.max(...data.map(d => d.value), 1);
-      const marginLeft = 50, marginBottom = 40, marginTop = 20;
-      const chartW = W - marginLeft - 20;
-      const chartH = H - marginTop - marginBottom;
-      const barW = Math.min(50, chartW / data.length - 8);
-
-      data.forEach((d, i) => {
-        const x = marginLeft + i * (chartW / data.length) + (chartW / data.length - barW) / 2;
-        const barH = (chartH * d.value) / maxVal;
-        ctx.fillStyle = CSS.primary;
-        ctx.fillRect(x, marginTop + chartH - barH, barW, barH);
-        ctx.fillStyle = CSS.onSurface;
-        ctx.font = '11px "Source Sans 3", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.label, x + barW / 2, H - marginBottom + 16);
-        ctx.fillText(String(d.value), x + barW / 2, marginTop + chartH - barH - 6);
-      });
+      const opts: uPlot.Options = {
+        width: el.clientWidth || 500,
+        height: 260,
+        axes: [
+          { stroke: '#888', grid: { show: false }, font: '12px "Source Sans 3", sans-serif',
+            values: () => labels },
+          { stroke: '#888', grid: { stroke: CSS.outline }, font: '12px "Source Sans 3", sans-serif' },
+        ],
+        series: [
+          {},
+          { label: 'Fänge', stroke: CSS.primary, fill: CSS.primary + '40', width: 1 },
+        ],
+      };
+      new uPlot(opts, [indices, values], el);
     }
 
     function renderVerlauf(data: any[]) {
@@ -554,8 +539,8 @@ if (!session) {
         supabase.rpc('stats_luftdruck_korrelation', { p_filters: filters }),
         supabase.rpc('stats_wind_korrelation', { p_filters: filters }),
         supabase.rpc('stats_drilldown', { p_filters: filters }),
-        supabase.rpc('stats_drilldown', { p_filters: filters, p_dimension: 'water_name' }),
-        supabase.rpc('stats_drilldown', { p_filters: filters, p_dimension: 'mond' }),
+        supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
+        supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
       ]);
 
       const [{ data: badgeData }, { data: tripData }] = await Promise.all([
@@ -574,10 +559,10 @@ if (!session) {
       const buckets = cond?.buckets ?? {};
       renderGewaesser(gewData ?? []);
       renderMond(mondData ?? []);
-      drawMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
+      renderMonat(Object.entries(buckets.monat ?? {}).sort(([a],[b]) => +a - +b).map(([label, v]: any) => ({ label: monatName(+label), value: +(v?.fangzahl ?? v ?? 0) })));
       renderVerlauf(verl ?? []);
       const mondBarsData = Object.entries(buckets.mond ?? {}).map(([label, v]: any) => ({ mond_phase: label, catch_count: +(v?.fangzahl ?? v ?? 0), avg_weight: +(v?.avg_gewicht ?? 0) }));
-      renderConditions(mondBarsData, wet ?? [], druck ?? [], wind ?? []);
+      renderConditions(mondBarsData, wet ?? [], ldruck ?? [], wind ?? []);
 
       const kombiLabels: Record<string, string> = {
         mond: '🌙', druck: '📊', wetter: '🌤️', koeder: '🎣',
