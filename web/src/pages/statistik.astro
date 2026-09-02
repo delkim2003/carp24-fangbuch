@@ -98,16 +98,20 @@ const wetterData = wetter ?? [];
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <span class="kpi-value">{total}</span>
-          <span class="kpi-label">Fänge gesamt</span>
+          <span class="kpi-value">{total.fangzahl ?? 0}</span>
+          <span class="kpi-label">GESAMTE FÄNGE</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">{ins.beste_fangzeit ?? '–'}</span>
-          <span class="kpi-label">Beste Fangzeit</span>
+          <span class="kpi-value">{(total.max_gewicht ?? '–') + ' KG'}</span>
+          <span class="kpi-label">SCHWERSTER FANG</span>
         </div>
         <div class="kpi-card">
-          <span class="kpi-value">{ins.beste_wetterlage ?? '–'}</span>
-          <span class="kpi-label">Beste Wetterlage</span>
+          <span class="kpi-value">{(total.avg_gewicht ?? '–') + ' KG'}</span>
+          <span class="kpi-label">Ø GEWICHT</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{Object.keys(buckets.gewaesser ?? {}).length}</span>
+          <span class="kpi-label">AKTIVE GEWÄSSER</span>
         </div>
       </div>
 
@@ -297,12 +301,13 @@ const wetterData = wetter ?? [];
       ]);
 
       const kpis = document.querySelectorAll('.kpi-value');
-      if (kpis[0]) kpis[0].textContent = String(cond?.total ?? 0);
-      if (kpis[1]) kpis[1].textContent = ins?.beste_fangzeit ?? '–';
-      if (kpis[2]) kpis[2].textContent = ins?.beste_wetterlage ?? '–';
+      if (kpis[0]) kpis[0].textContent = String(cond?.total?.fangzahl ?? 0);
+      if (kpis[1]) kpis[1].textContent = (cond?.total?.max_gewicht ?? '–') + ' KG';
+      if (kpis[2]) kpis[2].textContent = (cond?.total?.avg_gewicht ?? '–') + ' KG';
+      if (kpis[3]) kpis[3].textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
 
       const buckets = cond?.buckets ?? {};
-      drawDonut(Object.entries(buckets).map(([label, value]) => ({ label, value: +(value ?? 0) })));
+      drawDonut(Object.entries(buckets.art ?? {}).map(([label, v]: any) => ({ label, value: +(v?.fangzahl ?? v ?? 0) })));
       renderVerlauf(verl ?? []);
       renderWetter(wet ?? []);
 
