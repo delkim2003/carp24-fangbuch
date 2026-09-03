@@ -1,7 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
 
-// Browser-Client: Requests gehen über den Astro-Proxy (/supabase/*)
-// um CORS-Probleme mit der internen Supabase-URL zu vermeiden.
 const supabaseUrl = typeof window !== 'undefined'
   ? `${window.location.origin}/supabase`
   : (import.meta.env.PUBLIC_SUPABASE_URL as string);
@@ -19,7 +17,12 @@ export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'sb-carp24-auth-token', // Explizit gleicher Key für SSR + Client
+    storageKey: 'sb-carp24-auth-token',
+  },
+  cookieOptions: {
+    path: '/',
+    sameSite: 'lax',
+    secure: false,
   },
 });
 

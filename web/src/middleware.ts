@@ -36,6 +36,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
           });
         },
       },
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
     }
   );
 

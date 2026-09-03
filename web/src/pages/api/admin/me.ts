@@ -3,11 +3,10 @@ import { createServerClient } from "@supabase/ssr";
 export const prerender = false;
 
 export const GET = async ({ request }: { request: Request }) => {
-  // Debug: Log cookies
   const cookieHeader = request.headers.get("cookie") || "";
   const cookies = cookieHeader.split(";").map(c => c.trim()).filter(Boolean);
   const cookieNames = cookies.map(c => c.split("=")[0]);
-  
+
   console.log("[ADMIN/ME] Cookie header length:", cookieHeader.length);
   console.log("[ADMIN/ME] Cookie names:", cookieNames);
   console.log("[ADMIN/ME] Has sb-carp24-auth-token:", cookieNames.includes("sb-carp24-auth-token"));
@@ -31,6 +30,14 @@ export const GET = async ({ request }: { request: Request }) => {
         },
         setAll() {},
       },
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
     }
   );
 
@@ -44,7 +51,7 @@ export const GET = async ({ request }: { request: Request }) => {
   }
 
   if (!session) {
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: "Nicht angemeldet.",
       debug: {
         cookieHeaderLength: cookieHeader.length,

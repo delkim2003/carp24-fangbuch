@@ -1,12 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
 
-/**
- * Erstellt einen Supabase-Server-Client mit korrektem Cookie-Name.
- * Der storageKey MUSS mit dem Browser-Client (supabase-client.ts) übereinstimmen,
- * sonst findet der SSR die Session-Cookies nicht.
- *
- * Usage: const supabase = createSSRClient(Astro);
- */
 export function createSSRClient(astro: { request: Request; cookies: { set: (name: string, value: string, options?: any) => void } }) {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -36,6 +29,11 @@ export function createSSRClient(astro: { request: Request; cookies: { set: (name
     },
     auth: {
       storageKey: 'sb-carp24-auth-token',
+    },
+    cookieOptions: {
+      path: '/',
+      sameSite: 'lax',
+      secure: false,
     },
   });
 }
