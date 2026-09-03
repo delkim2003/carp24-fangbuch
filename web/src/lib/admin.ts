@@ -25,6 +25,14 @@ export async function getSessionAndProfile(Astro: AstroGlobal) {
           });
         },
       },
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
     }
   );
 
