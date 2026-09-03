@@ -214,13 +214,21 @@ const navItems = [
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
 
-    fetch('/api/admin/me').then(function (r) { return r.json(); }).then(function (d) {
+    fetch('/api/admin/me').then(function (r) {
+      console.log('[ADMIN] response status:', r.status);
+      return r.json();
+    }).then(function (d) {
+      console.log('[ADMIN] response data:', JSON.stringify(d));
       if (d.isAdmin) {
         var dl = document.getElementById('admin-link-desktop');
         var ml = document.getElementById('admin-link-mobile');
+        console.log('[ADMIN] desktop link:', dl, 'mobile link:', ml);
         if (dl) dl.removeAttribute('hidden');
         if (ml) ml.removeAttribute('hidden');
+        console.log('[ADMIN] hidden removed');
+      } else {
+        console.log('[ADMIN] isAdmin is false, role:', d.role);
       }
-    }).catch(function () {});
+    }).catch(function (e) { console.error('[ADMIN] fetch error:', e); });
   }
 </script>
