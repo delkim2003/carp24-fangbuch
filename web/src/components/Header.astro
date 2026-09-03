@@ -214,7 +214,7 @@ const navItems = [
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
 
-    fetch('/api/admin/me').then(function (r) {
+    fetch('/api/admin/me', { credentials: 'same-origin' }).then(function (r) {
       console.log('[ADMIN] response status:', r.status);
       return r.json();
     }).then(function (d) {
