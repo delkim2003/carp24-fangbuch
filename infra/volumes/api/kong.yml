@@ -286,6 +286,11 @@ services:
           allow:
             - admin
             - anon
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: local
+          fault_tolerant: true
 
   ## Secure GraphQL routes
   - name: graphql-v1
@@ -486,6 +491,11 @@ services:
             - "http://100.93.250.103:8055"
           credentials: true
           max_age: 3600
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: local
+          fault_tolerant: true
 
   ## OAuth 2.0 Authorization Server Metadata (RFC 8414)
   - name: well-known-oauth
