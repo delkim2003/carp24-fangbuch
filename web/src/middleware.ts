@@ -2,6 +2,13 @@ import { defineMiddleware } from "astro:middleware";
 import { createServerClient } from "@supabase/ssr";
 import { getMaintenance } from "./lib/settings";
 
+const securityHeaders: Record<string, string> = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
+};
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -55,7 +62,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (path.startsWith("/api/")) {
       return new Response(JSON.stringify({ error: "Wartungsarbeiten" }), {
         status: 503,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...securityHeaders },
       });
     }
     const isAllowed =
@@ -70,5 +77,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  return next();
+  const response = await next();
+
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value);
+  }
+
+  return response;
 });
