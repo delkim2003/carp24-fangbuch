@@ -71,6 +71,13 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
+  // GoTrue-User löschen (Art. 17 DSGVO)
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(session.user.id);
+  if (authError) {
+    console.error('GoTrue deleteUser failed:', authError.message);
+    // Soft-Delete wurde bereits durchgeführt — nicht rollbacken
+  }
+
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
