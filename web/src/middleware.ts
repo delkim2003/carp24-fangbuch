@@ -6,7 +6,7 @@ const securityHeaders: Record<string, string> = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
+  "Permissions-Policy": "geolocation=(self), camera=(), microphone=(), notifications=(), payment=(), usb=(), screen-wake-lock=()",
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
