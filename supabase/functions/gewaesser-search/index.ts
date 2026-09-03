@@ -20,7 +20,7 @@ const cache = new Map<string, CacheEntry>();
 const WATER_OSM_VALUES = new Set(["water", "lake", "river", "reservoir", "pond", "stream"]);
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "http://100.93.250.103:8094",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
 };

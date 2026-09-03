@@ -40,7 +40,7 @@ const CACHE_TTL_MS = 60 * 60 * 1000; // 1 Stunde
 const cache = new Map<string, CacheEntry>();
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "http://100.93.250.103:8094",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
 };
