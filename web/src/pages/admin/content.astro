@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import Pagination from "../../components/admin/Pagination.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
 if (!session) return Astro.redirect("/login/");
@@ -37,10 +38,14 @@ if (!isAdmin) return Astro.redirect("/");
     <div id="content-container" class="w-full space-y-3">
       <p class="text-body-md text-on-surface-variant">Lade…</p>
     </div>
+
+    <div id="pagination-wrapper" class="mt-lg">{/* JS fills this */}</div>
   </main>
 
   <script>
     var currentType = "catch";
+    var currentPage = 1;
+    var totalPages = 1;
     var searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function showToast(msg: string, type: "success" | "error") {
@@ -135,6 +140,35 @@ if (!isAdmin) return Astro.redirect("/");
       marketplace: renderMarketplace,
     };
 
+    function renderPagination() {
+      if (totalPages <= 1) {
+        document.getElementById("pagination-wrapper")!.innerHTML = "";
+        return;
+      }
+      var html = '<div class="pagination-wrapper flex items-center justify-between gap-4 mt-lg pt-lg border-t border-outline/20">';
+      html += '<span class="text-body-sm text-on-surface-variant">Seite ' + currentPage + ' von ' + totalPages + '</span>';
+      html += '<nav class="flex items-center gap-2" aria-label="Pagination">';
+      if (currentPage > 1) {
+        html += '<button type="button" class="page-link font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer" data-page="' + (currentPage - 1) + '">← Zurück</button>';
+      }
+      html += '<div class="hidden sm:flex items-center gap-1">';
+      var start = Math.max(1, currentPage - 2);
+      var end = Math.min(totalPages, currentPage + 2);
+      for (var p = start; p <= end; p++) {
+        if (p === currentPage) {
+          html += '<span class="font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-primary text-on-primary min-h-9 flex items-center">' + p + '</span>';
+        } else {
+          html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-9 flex items-center cursor-pointer" data-page="' + p + '">' + p + '</button>';
+        }
+      }
+      html += '</div>';
+      if (currentPage < totalPages) {
+        html += '<button type="button" class="page-link font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer" data-page="' + (currentPage + 1) + '">Weiter →</button>';
+      }
+      html += '</nav></div>';
+      document.getElementById("pagination-wrapper")!.innerHTML = html;
+    }
+
     async function loadContent() {
       var container = document.getElementById("content-container");
       var searchInput = document.getElementById("search-input") as HTMLInputElement | null;
@@ -143,12 +177,18 @@ if (!isAdmin) return Astro.redirect("/");
 
       var q = searchInput?.value?.trim() || "";
       try {
-        var res = await fetch("/api/admin/content?type=" + currentType + (q ? "&q=" + encodeURIComponent(q) : ""));
+        var res = await fetch("/api/admin/content?type=" + currentType + "&page=" + currentPage + "&limit=25" + (q ? "&q=" + encodeURIComponent(q) : ""));
         if (!res.ok) throw new Error();
         var data = await res.json();
 
+        if (data.pagination) {
+          currentPage = data.pagination.page;
+          totalPages = data.pagination.totalPages;
+        }
+
         if (!data.items || data.items.length === 0) {
           container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Inhalte gefunden.</p>';
+          renderPagination();
           return;
         }
 
@@ -181,8 +221,11 @@ if (!isAdmin) return Astro.redirect("/");
             loadContent();
           });
         });
+
+        renderPagination();
       } catch {
         container.innerHTML = '<p class="text-body-md text-error">Fehler beim Laden.</p>';
+        renderPagination();
       }
     }
 
@@ -192,6 +235,8 @@ if (!isAdmin) return Astro.redirect("/");
 
       function setActive(type: string) {
         currentType = type;
+        currentPage = 1;
+        totalPages = 1;
         tabs.forEach(function(item) {
           var tabType = item.getAttribute("data-type");
           if (tabType === type) {
@@ -213,7 +258,21 @@ if (!isAdmin) return Astro.redirect("/");
 
       searchInput?.addEventListener("input", function() {
         if (searchTimeout) clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(loadContent, 300);
+        searchTimeout = setTimeout(function() {
+          currentPage = 1;
+          loadContent();
+        }, 300);
+      });
+
+      document.getElementById("pagination-wrapper")?.addEventListener("click", function(e) {
+        var target = e.target as HTMLElement;
+        var pageLink = target.closest(".page-link") as HTMLElement | null;
+        if (!pageLink) return;
+        var page = parseInt(pageLink.getAttribute("data-page") || "0", 10);
+        if (page > 0 && page !== currentPage) {
+          currentPage = page;
+          loadContent();
+        }
       });
 
       loadContent();
