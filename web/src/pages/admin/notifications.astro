@@ -110,6 +110,20 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
+    import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
+
+    AdminKeyboardShortcuts.init({
+      shortcuts: [
+        { key: 'g 0', desc: 'Zur Übersicht', handler: function () { window.location.href = '/admin/'; } },
+        { key: 'g r', desc: 'Zu Reports', handler: function () { window.location.href = '/admin/reports/'; } },
+        { key: 'g u', desc: 'Zu Nutzer', handler: function () { window.location.href = '/admin/users/'; } },
+        { key: 'g c', desc: 'Zu Inhalten', handler: function () { window.location.href = '/admin/content/'; } },
+        { key: 'g v', desc: 'Zu Revenue', handler: function () { window.location.href = '/admin/revenue/'; } },
+        { key: 'g a', desc: 'Zu Audit', handler: function () { window.location.href = '/admin/audit/'; } },
+        { key: 'g s', desc: 'Zu Einstellungen', handler: function () { window.location.href = '/admin/settings/'; } },
+      ]
+    });
+
     document.addEventListener("DOMContentLoaded", async () => {
       const form = document.getElementById("notify-form")!;
       const titleInput = document.getElementById("title") as HTMLInputElement;
