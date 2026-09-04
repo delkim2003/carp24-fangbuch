@@ -404,13 +404,7 @@ if (!isAdmin) return Astro.redirect("/");
               });
               var result = await res2.json();
               if (result.success) {
-                if (result.password) {
-                  var pwMsg = "Neues Passwort für " + escapeHtml(result.email || "User") + ":\n\n" + result.password + "\n\n" + (result.warning || "");
-                  alert(pwMsg);
-                  showToast("Passwort zurückgesetzt. " + (result.warning || ""), "success");
-                } else {
-                  showToast(result.message || "Passwort zurückgesetzt.", "success");
-                }
+                showToast(result.message || "Passwort zurückgesetzt.", "success");
               } else {
                 showToast("Fehler: " + (result.error || "Unbekannt"), "error");
               }

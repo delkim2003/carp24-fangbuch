@@ -524,9 +524,7 @@ export const POST = async ({ request }: { request: Request }) => {
       }
     }
 
-    console.error(`[SECURITY] Password reset for user ${body.id} (${targetEmail}) — Email delivery failed. Generated password: ${newPassword}. Error: ${emailError}`);
-
-    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent, email_error: emailError, password_logged: !emailSent });
+    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent, email_error: emailError });
 
     if (emailSent) {
       return new Response(JSON.stringify({ success: true, message: `Neues Passwort wurde an ${targetEmail} gesendet.` }), {
