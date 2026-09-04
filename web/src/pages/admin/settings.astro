@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -13,6 +14,8 @@ if (!isAdmin) return Astro.redirect("/");
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
       <h1 class="text-headline-lg text-on-surface">ADMIN-EINSTELLUNGEN</h1>
     </div>
+
+    <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Einstellungen'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
       <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
