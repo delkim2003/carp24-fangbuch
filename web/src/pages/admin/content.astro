@@ -46,13 +46,36 @@ if (!isAdmin) return Astro.redirect("/");
     <div id="pagination-wrapper" class="mt-lg">{/* JS fills this */}</div>
   </main>
 
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
+    <div class="bg-surface-container-lowest rounded-xl p-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 class="text-headline-sm text-on-surface" id="edit-modal-title">Inhalt bearbeiten</h2>
+        <button type="button" id="edit-modal-close" class="text-on-surface-variant hover:text-on-surface cursor-pointer p-1" aria-label="Schliessen">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="edit-modal-body">
+        <!-- Dynamic form fields rendered by JS -->
+      </div>
+      <div class="flex justify-end gap-3 mt-lg">
+        <button type="button" id="edit-modal-cancel" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-container-high transition-colors min-h-12 flex items-center cursor-pointer">Abbrechen</button>
+        <button type="button" id="edit-modal-save" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-primary text-on-primary hover:opacity-90 transition-colors min-h-12 flex items-center cursor-pointer gap-2">
+          <span id="edit-modal-save-text">Speichern</span>
+          <svg id="edit-modal-spinner" class="w-4 h-4 hidden animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     var currentType = "catch";
     var currentPage = 1;
     var totalPages = 1;
-    var searchTimeout: ReturnType<typeof setTimeout> | null = null;
+    var searchTimeout = null;
+    var currentItems = [];
 
-    function showToast(msg: string, type: "success" | "error") {
+    function showToast(msg, type) {
       var toast = document.createElement("div");
       toast.textContent = msg;
       toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
@@ -60,7 +83,24 @@ if (!isAdmin) return Astro.redirect("/");
       setTimeout(function() { toast.remove(); }, 3000);
     }
 
-    function renderCatch(item: any) {
+    function escapeHtml(str) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str || ""));
+      return div.innerHTML;
+    }
+
+    // ── Render helpers ──────────────────────────────────
+
+    function renderActionButtons(item, contentType) {
+      var canEdit = contentType === "catch" || contentType === "forum" || contentType === "chat";
+      var editBtn = canEdit
+        ? '<button type="button" class="edit-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container hover:opacity-90 transition-colors min-h-11 flex items-center cursor-pointer">Bearbeiten</button>'
+        : "";
+      var deleteBtn = '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>';
+      return editBtn + deleteBtn;
+    }
+
+    function renderCatch(item) {
       var date = new Date(item.created_at).toLocaleDateString("de-DE");
       var deleted = item.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
       return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="catch">' +
@@ -71,13 +111,13 @@ if (!isAdmin) return Astro.redirect("/");
           '</div>' +
           '<div class="flex items-center gap-3">' +
             '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
-            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+            renderActionButtons(item, "catch") +
           '</div>' +
         '</div>' +
       '</div>';
     }
 
-    function renderForum(item: any) {
+    function renderForum(item) {
       var date = new Date(item.created_at).toLocaleDateString("de-DE");
       var isThread = item._type === "thread";
       var label = isThread ? "THREAD" : "BEITRAG";
@@ -93,13 +133,13 @@ if (!isAdmin) return Astro.redirect("/");
           '</div>' +
           '<div class="flex items-center gap-3">' +
             '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
-            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+            renderActionButtons(item, "forum") +
           '</div>' +
         '</div>' +
       '</div>';
     }
 
-    function renderChat(item: any) {
+    function renderChat(item) {
       var date = new Date(item.created_at).toLocaleDateString("de-DE");
       return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="chat">' +
         '<div class="flex justify-between items-start gap-4">' +
@@ -109,13 +149,13 @@ if (!isAdmin) return Astro.redirect("/");
           '</div>' +
           '<div class="flex items-center gap-3">' +
             '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
-            '<button type="button" class="delete-content-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Löschen</button>' +
+            renderActionButtons(item, "chat") +
           '</div>' +
         '</div>' +
       '</div>';
     }
 
-    function renderMarketplace(item: any) {
+    function renderMarketplace(item) {
       var date = new Date(item.created_at).toLocaleDateString("de-DE");
       return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + item.id + '" data-type="marketplace">' +
         '<div class="flex justify-between items-start gap-4">' +
@@ -131,22 +171,144 @@ if (!isAdmin) return Astro.redirect("/");
       '</div>';
     }
 
-    function escapeHtml(str: string) {
-      var div = document.createElement("div");
-      div.appendChild(document.createTextNode(str || ""));
-      return div.innerHTML;
+    // ── Edit Modal ──────────────────────────────────────
+
+    var editState = { id: null, contentType: null, item: null };
+
+    var EDIT_FIELD_CONFIG = {
+      catch: [
+        { name: "notes",  label: "Notizen",    type: "textarea" },
+        { name: "bait",   label: "Köder",      type: "text"     },
+        { name: "method", label: "Methode",    type: "text"     },
+        { name: "water_name", label: "Gewässer", type: "text"  },
+        { name: "species_custom", label: "Fischart (benutzerdef.)", type: "text" },
+      ],
+      thread: [
+        { name: "title",  label: "Titel", type: "text"     },
+        { name: "body",   label: "Inhalt", type: "textarea" },
+      ],
+      post: [
+        { name: "body",   label: "Inhalt", type: "textarea" },
+      ],
+      comment: [
+        { name: "body",   label: "Inhalt", type: "textarea" },
+      ],
+    };
+
+    function getEditFields(contentType, item) {
+      if (contentType === "catch") return EDIT_FIELD_CONFIG.catch;
+      if (contentType === "forum") {
+        return item._type === "thread" ? EDIT_FIELD_CONFIG.thread : EDIT_FIELD_CONFIG.post;
+      }
+      if (contentType === "chat") return EDIT_FIELD_CONFIG.comment;
+      return [];
     }
 
-    var renderers: Record<string, (item: any) => string> = {
-      catch: renderCatch,
-      forum: renderForum,
-      chat: renderChat,
-      marketplace: renderMarketplace,
-    };
+    function getPatchContentType(contentType, item) {
+      if (contentType === "catch") return "catch";
+      if (contentType === "forum") return "post";
+      if (contentType === "chat") return "comment";
+      return null;
+    }
+
+    function openEditModal(id, contentType, item) {
+      editState = { id: id, contentType: contentType, item: item };
+      var fields = getEditFields(contentType, item);
+      if (fields.length === 0) return;
+
+      var titleEl = document.getElementById("edit-modal-title");
+      var typeLabel = contentType === "catch" ? "Fang" : contentType === "forum" ? "Forum-Beitrag" : "Chat-Nachricht";
+      titleEl.textContent = typeLabel + " bearbeiten";
+
+      var bodyEl = document.getElementById("edit-modal-body");
+      var html = "";
+      for (var i = 0; i < fields.length; i++) {
+        var f = fields[i];
+        var val = item[f.name] || "";
+        if (f.type === "textarea") {
+          html += '<div class="mb-md">' +
+            '<label class="block text-body-sm text-on-surface-variant mb-sm font-medium" for="edit-field-' + f.name + '">' + escapeHtml(f.label) + '</label>' +
+            '<textarea id="edit-field-' + f.name + '" class="w-full bg-surface-container-highest text-on-surface rounded-lg px-4 py-3 text-body-md border border-outline/20 min-h-[100px] resize-y">' + escapeHtml(val) + '</textarea>' +
+          '</div>';
+        } else {
+          html += '<div class="mb-md">' +
+            '<label class="block text-body-sm text-on-surface-variant mb-sm font-medium" for="edit-field-' + f.name + '">' + escapeHtml(f.label) + '</label>' +
+            '<input type="text" id="edit-field-' + f.name + '" value="' + escapeHtml(val) + '" class="w-full bg-surface-container-highest text-on-surface rounded-lg px-4 py-3 text-body-md border border-outline/20" />' +
+          '</div>';
+        }
+      }
+      bodyEl.innerHTML = html;
+
+      var modal = document.getElementById("edit-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+
+      // Focus first field
+      var firstInput = bodyEl.querySelector("input, textarea");
+      if (firstInput) setTimeout(function() { firstInput.focus(); }, 100);
+    }
+
+    function closeEditModal() {
+      var modal = document.getElementById("edit-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      editState = { id: null, contentType: null, item: null };
+    }
+
+    async function saveEdit() {
+      if (!editState.id) return;
+
+      var patchContentType = getPatchContentType(editState.contentType, editState.item);
+      if (!patchContentType) return;
+
+      var fields = getEditFields(editState.contentType, editState.item);
+      var updates = {};
+      for (var i = 0; i < fields.length; i++) {
+        var f = fields[i];
+        var el = document.getElementById("edit-field-" + f.name);
+        if (el) updates[f.name] = el.value;
+      }
+
+      var saveBtn = document.getElementById("edit-modal-save");
+      var saveText = document.getElementById("edit-modal-save-text");
+      var spinner = document.getElementById("edit-modal-spinner");
+      saveBtn.disabled = true;
+      saveText.textContent = "Speichert…";
+      spinner.classList.remove("hidden");
+
+      try {
+        var res = await fetch("/api/admin/content", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contentId: editState.id,
+            contentType: patchContentType,
+            updates: updates,
+          }),
+        });
+        if (res.ok) {
+          showToast("Inhalt gespeichert", "success");
+          closeEditModal();
+          loadContent();
+        } else {
+          var errData;
+          try { errData = await res.json(); } catch (e) {}
+          showToast(errData?.error || "Fehler beim Speichern", "error");
+        }
+      } catch (e) {
+        showToast("Netzwerk-Fehler", "error");
+      } finally {
+        saveBtn.disabled = false;
+        saveText.textContent = "Speichern";
+        spinner.classList.add("hidden");
+      }
+    }
+
+    // ── Pagination ──────────────────────────────────────
 
     function renderPagination() {
       if (totalPages <= 1) {
-        document.getElementById("pagination-wrapper")!.innerHTML = "";
+        document.getElementById("pagination-wrapper").innerHTML = "";
         return;
       }
       var html = '<div class="pagination-wrapper flex items-center justify-between gap-4 mt-lg pt-lg border-t border-outline/20">';
@@ -170,12 +332,14 @@ if (!isAdmin) return Astro.redirect("/");
         html += '<button type="button" class="page-link font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer" data-page="' + (currentPage + 1) + '">Weiter →</button>';
       }
       html += '</nav></div>';
-      document.getElementById("pagination-wrapper")!.innerHTML = html;
+      document.getElementById("pagination-wrapper").innerHTML = html;
     }
+
+    // ── Content Loading ─────────────────────────────────
 
     async function loadContent() {
       var container = document.getElementById("content-container");
-      var searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+      var searchInput = document.getElementById("search-input");
       if (!container) return;
       container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
 
@@ -191,23 +355,32 @@ if (!isAdmin) return Astro.redirect("/");
         }
 
         if (!data.items || data.items.length === 0) {
+          currentItems = [];
           container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Inhalte gefunden.</p>';
           renderPagination();
           return;
         }
 
+        currentItems = data.items;
+        var renderers = {
+          catch: renderCatch,
+          forum: renderForum,
+          chat: renderChat,
+          marketplace: renderMarketplace,
+        };
         var renderer = renderers[currentType] || renderCatch;
         container.innerHTML = data.items.map(renderer).join("");
 
+        // Bind delete buttons
         container.querySelectorAll(".delete-content-btn").forEach(function(btn) {
           btn.addEventListener("click", async function() {
-            var card = (btn as HTMLElement).closest("[data-id]");
+            var card = btn.closest("[data-id]");
             if (!card) return;
             var id = card.getAttribute("data-id") || "";
             var type = card.getAttribute("data-type") || currentType;
             if (!confirm("Inhalt wirklich löschen?")) return;
-            (btn as HTMLButtonElement).disabled = true;
-            (btn as HTMLElement).textContent = "…";
+            btn.disabled = true;
+            btn.textContent = "…";
             try {
               var res = await fetch("/api/admin/content", {
                 method: "DELETE",
@@ -219,25 +392,44 @@ if (!isAdmin) return Astro.redirect("/");
               } else {
                 showToast("Fehler beim Löschen", "error");
               }
-            } catch {
+            } catch (e) {
               showToast("Netzwerk-Fehler", "error");
             }
             loadContent();
           });
         });
 
+        // Bind edit buttons
+        container.querySelectorAll(".edit-content-btn").forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var card = btn.closest("[data-id]");
+            if (!card) return;
+            var id = card.getAttribute("data-id") || "";
+            var type = card.getAttribute("data-type") || currentType;
+            var item = currentItems.find(function(i) { return i.id === id; });
+            if (!item) {
+              showToast("Item-Daten nicht gefunden", "error");
+              return;
+            }
+            openEditModal(id, type, item);
+          });
+        });
+
         renderPagination();
-      } catch {
+      } catch (e) {
+        currentItems = [];
         container.innerHTML = '<p class="text-body-md text-error">Fehler beim Laden.</p>';
         renderPagination();
       }
     }
 
+    // ── Event Binding ───────────────────────────────────
+
     document.addEventListener("DOMContentLoaded", function() {
       var tabs = document.querySelectorAll(".content-tab");
-      var searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+      var searchInput = document.getElementById("search-input");
 
-      function setActive(type: string) {
+      function setActive(type) {
         currentType = type;
         currentPage = 1;
         totalPages = 1;
@@ -249,6 +441,9 @@ if (!isAdmin) return Astro.redirect("/");
             item.className = "content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer";
           }
         });
+        // Update export link
+        var exportBtn = document.getElementById("export-csv-btn");
+        if (exportBtn) exportBtn.href = "/api/admin/content?type=" + type + "&action=export";
         if (searchInput) searchInput.value = "";
         loadContent();
       }
@@ -269,14 +464,29 @@ if (!isAdmin) return Astro.redirect("/");
       });
 
       document.getElementById("pagination-wrapper")?.addEventListener("click", function(e) {
-        var target = e.target as HTMLElement;
-        var pageLink = target.closest(".page-link") as HTMLElement | null;
+        var target = e.target;
+        var pageLink = target.closest(".page-link");
         if (!pageLink) return;
         var page = parseInt(pageLink.getAttribute("data-page") || "0", 10);
         if (page > 0 && page !== currentPage) {
           currentPage = page;
           loadContent();
         }
+      });
+
+      // Modal event binding
+      document.getElementById("edit-modal-close")?.addEventListener("click", closeEditModal);
+      document.getElementById("edit-modal-cancel")?.addEventListener("click", closeEditModal);
+      document.getElementById("edit-modal-save")?.addEventListener("click", saveEdit);
+
+      // Close modal on backdrop click
+      document.getElementById("edit-modal")?.addEventListener("click", function(e) {
+        if (e.target === this) closeEditModal();
+      });
+
+      // Close on Escape
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closeEditModal();
       });
 
       loadContent();
