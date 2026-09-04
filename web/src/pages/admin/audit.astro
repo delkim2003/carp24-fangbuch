@@ -24,7 +24,7 @@ if (!isAdmin) return Astro.redirect("/");
       <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Audit</a>
     </nav>
 
-    <div class="w-full flex flex-wrap gap-3 mb-lg">
+    <div class="w-full flex flex-wrap items-center gap-3 mb-lg">
       <select id="filter-action" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
         <option value="">Alle Aktionen</option>
         <option value="user.role">user.role</option>
@@ -36,7 +36,11 @@ if (!isAdmin) return Astro.redirect("/");
         <option value="report.resolve">report.resolve</option>
         <option value="report.delete_content">report.delete_content</option>
       </select>
-      <button id="refresh-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer">Aktualisieren</button>
+      <input type="date" id="filter-date-from" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
+      <span class="text-on-surface-variant text-body-md">–</span>
+      <input type="date" id="filter-date-to" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
+      <button id="filter-apply-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer">Anwenden</button>
+      <button id="filter-clear-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors min-h-12 flex items-center cursor-pointer">Zurücksetzen</button>
     </div>
 
     <div class="w-full overflow-x-auto">
@@ -63,13 +67,13 @@ if (!isAdmin) return Astro.redirect("/");
     var currentPage = 1;
     var totalPages = 1;
 
-    function escapeHtml(str: string) {
+    function escapeHtml(str) {
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
       return div.innerHTML;
     }
 
-    function formatDetails(details: any) {
+    function formatDetails(details) {
       if (!details) return "–";
       try {
         if (typeof details === "string") details = JSON.parse(details);
@@ -77,6 +81,25 @@ if (!isAdmin) return Astro.redirect("/");
       } catch {
         return escapeHtml(String(details));
       }
+    }
+
+    function getFilterParams() {
+      var params = new URLSearchParams();
+      var action = document.getElementById("filter-action").value;
+      var dateFrom = document.getElementById("filter-date-from").value;
+      var dateTo = document.getElementById("filter-date-to").value;
+      if (action) params.set("action", action);
+      if (dateFrom) params.set("date_from", dateFrom);
+      if (dateTo) params.set("date_to", dateTo);
+      return params;
+    }
+
+    function updateUrlParams() {
+      var params = getFilterParams();
+      params.set("page", String(currentPage));
+      params.set("limit", "25");
+      var newUrl = window.location.pathname + "?" + params.toString();
+      window.history.replaceState(null, "", params.toString() ? newUrl : window.location.pathname);
     }
 
     function buildPaginationControls() {
@@ -110,7 +133,6 @@ if (!isAdmin) return Astro.redirect("/");
       html += '</nav></div>';
       wrapper.innerHTML = html;
 
-      // Add click handlers to all pagination buttons
       var buttons = wrapper.querySelectorAll(".paginate-btn");
       for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener("click", function() {
@@ -127,14 +149,12 @@ if (!isAdmin) return Astro.redirect("/");
       var tbody = document.getElementById("audit-body");
       if (!tbody) return;
 
-      var actionFilter = (document.getElementById("filter-action") as HTMLSelectElement)?.value || "";
-
       try {
-        var url = "/api/admin/audit?limit=25&page=" + currentPage;
-        if (actionFilter) {
-          url += "&action=" + encodeURIComponent(actionFilter);
-        }
-        var res = await fetch(url);
+        var params = getFilterParams();
+        params.set("limit", "25");
+        params.set("page", String(currentPage));
+
+        var res = await fetch("/api/admin/audit?" + params.toString());
         if (!res.ok) throw new Error();
         var data = await res.json();
 
@@ -144,15 +164,12 @@ if (!isAdmin) return Astro.redirect("/");
         }
 
         var logs = data.logs || [];
-        if (actionFilter) {
-          logs = logs.filter(function(l: any) { return l.action === actionFilter; });
-        }
 
         if (logs.length === 0) {
           tbody.innerHTML = '<tr><td colspan="5" class="text-body-md text-on-surface-variant py-4 px-4">Keine Einträge gefunden.</td></tr>';
         } else {
           tbody.innerHTML = logs
-            .map(function(l: any) {
+            .map(function(l) {
               var date = new Date(l.created_at).toLocaleString("de-DE");
               return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors">' +
                 '<td class="text-body-sm text-on-surface-variant py-3 px-4 whitespace-nowrap">' + date + '</td>' +
@@ -165,20 +182,44 @@ if (!isAdmin) return Astro.redirect("/");
             .join("");
         }
 
+        updateUrlParams();
         buildPaginationControls();
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
       }
     }
 
+    function applyFilters() {
+      currentPage = 1;
+      loadAudit();
+    }
+
+    function clearFilters() {
+      document.getElementById("filter-action").value = "";
+      document.getElementById("filter-date-from").value = "";
+      document.getElementById("filter-date-to").value = "";
+      currentPage = 1;
+      loadAudit();
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById("filter-action")?.addEventListener("change", function() {
-        currentPage = 1;
-        loadAudit();
-      });
-      document.getElementById("refresh-btn")?.addEventListener("click", function() {
-        loadAudit();
-      });
+      // Restore filters from URL params on load
+      var urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("action")) {
+        document.getElementById("filter-action").value = urlParams.get("action");
+      }
+      if (urlParams.has("date_from")) {
+        document.getElementById("filter-date-from").value = urlParams.get("date_from");
+      }
+      if (urlParams.has("date_to")) {
+        document.getElementById("filter-date-to").value = urlParams.get("date_to");
+      }
+      if (urlParams.has("page")) {
+        currentPage = parseInt(urlParams.get("page"), 10) || 1;
+      }
+
+      document.getElementById("filter-apply-btn").addEventListener("click", applyFilters);
+      document.getElementById("filter-clear-btn").addEventListener("click", clearFilters);
       loadAudit();
     });
   </script>
