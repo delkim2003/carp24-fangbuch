@@ -353,37 +353,43 @@ export const GET = async ({ request }: { request: Request }) => {
 
     total = (threadCount ?? 0) + (postCount ?? 0);
 
+    // Fetch all matching threads and posts, merge, sort, then paginate in memory
+    const combinedLimit = Math.min(total, 2000);
     let threadQuery = supabaseAdmin
       .from("forum_threads")
       .select("id, user_id, title, body, created_at")
       .order("created_at", { ascending: false })
-      .range(from, to);
+      .limit(combinedLimit);
     if (q) threadQuery = threadQuery.or(`title.ilike.%${q}%,body.ilike.%${q}%`);
-    const { data: threads } = await threadQuery;
 
     let postQuery = supabaseAdmin
       .from("forum_posts")
       .select("id, user_id, thread_id, body, created_at")
       .order("created_at", { ascending: false })
-      .range(from, to);
+      .limit(combinedLimit);
     if (q) postQuery = postQuery.ilike("body", `%${q}%`);
-    const { data: posts } = await postQuery;
+
+    const [threadRes, postRes] = await Promise.all([
+      threadQuery,
+      postQuery,
+    ]);
 
     const allItems = [
-      ...(threads ?? []).map((t: any) => ({ ...t, _type: "thread" })),
-      ...(posts ?? []).map((p: any) => ({ ...p, _type: "post" })),
+      ...(threadRes.data ?? []).map((t: any) => ({ ...t, _type: "thread" })),
+      ...(postRes.data ?? []).map((p: any) => ({ ...p, _type: "post" })),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    const userIds = [...new Set(allItems.map((i) => i.user_id).filter(Boolean))];
+    // Apply real pagination on the merged, sorted result
+    items = allItems.slice(from, from + limit);
+
+    const userIds = [...new Set(items.map((i) => i.user_id).filter(Boolean))];
     if (userIds.length > 0) {
       const { data: profiles } = await supabaseAdmin
         .from("profiles")
         .select("id, display_name")
         .in("id", userIds);
       const nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
-      items = allItems.map((i) => ({ ...i, display_name: nameMap.get(i.user_id) ?? "Unbekannt" }));
-    } else {
-      items = allItems;
+      items = items.map((i) => ({ ...i, display_name: nameMap.get(i.user_id) ?? "Unbekannt" }));
     }
   } else if (type === "chat") {
     let countQuery = supabaseAdmin
