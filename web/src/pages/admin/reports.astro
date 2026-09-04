@@ -26,7 +26,7 @@ if (!isAdmin) return Astro.redirect("/");
 
     <div class="flex gap-3 mb-lg">
       <button id="tab-open" type="button" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer">Offen</button>
-      <button id="tab-resolved" type="button" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Erledigt</button>
+      <button id="tab-resolved" type="button" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Abgeschlossen</button>
       <a href="/api/admin/reports?status=open&action=export" id="export-csv-btn" download class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors gap-2 ml-auto">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         Export CSV
@@ -73,6 +73,26 @@ if (!isAdmin) return Astro.redirect("/");
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
       return div.innerHTML;
+    }
+
+    function statusBadge(status: string) {
+      var colorMap: Record<string, string> = {
+        open: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        dismissed: "bg-green-100 text-green-800 border-green-300",
+        escalated: "bg-red-100 text-red-800 border-red-300",
+        resolved: "bg-blue-100 text-blue-800 border-blue-300",
+      };
+      var labelMap: Record<string, string> = {
+        open: "Offen",
+        pending: "Ausstehend",
+        dismissed: "Abgewiesen",
+        escalated: "Eskaliert",
+        resolved: "Erledigt",
+      };
+      var colors = colorMap[status] || "bg-gray-100 text-gray-800 border-gray-300";
+      var label = labelMap[status] || status;
+      return '<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm border ' + colors + '">' + label + '</span>';
     }
 
     function buildPagination() {
@@ -165,8 +185,15 @@ if (!isAdmin) return Astro.redirect("/");
           .map(function(r: any) {
             var date = new Date(r.created_at).toLocaleDateString("de-DE");
             var preview = previewText(r.target_type, r.preview);
+            var badge = statusBadge(r.status);
             var resolvedInfo = r.resolved_at
               ? '<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ' + new Date(r.resolved_at).toLocaleDateString("de-DE") + '</p>'
+              : "";
+            var dismissedInfo = r.dismissed_at
+              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Abgewiesen: ' + new Date(r.dismissed_at).toLocaleDateString("de-DE") + '</p>'
+              : "";
+            var escalatedInfo = r.escalated_at
+              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Eskaliert: ' + new Date(r.escalated_at).toLocaleDateString("de-DE") + '</p>'
               : "";
             var ownerHtml = r.owner
               ? '<p class="text-body-sm text-on-surface-variant">Gemeldeter Nutzer: <a href="/admin/users/?id=' + r.owner.id + '" class="text-primary underline">' + escapeHtml(r.owner.display_name) + '</a></p>'
@@ -175,27 +202,97 @@ if (!isAdmin) return Astro.redirect("/");
             if (r.status === "open" && r.owner) {
               banShortcut = '<button type="button" class="ban-user-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-owner-id="' + r.owner.id + '">User bannen</button>';
             }
+
+            var actionButtons = "";
+            if (r.status === "open") {
+              actionButtons = '<div class="flex gap-3 mt-md flex-wrap">' +
+                '<button type="button" class="dismiss-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-80 transition-colors">Abweisen</button>' +
+                '<button type="button" class="escalate-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-orange-600 text-white min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Eskalieren</button>' +
+                '<button type="button" class="resolve-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:bg-primary-container transition-colors">Erledigt</button>' +
+                '<button type="button" class="delete-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Inhalt löschen</button>' +
+                banShortcut +
+                '</div>';
+            }
+
             return '<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline/20" data-id="' + r.id + '" data-target-id="' + (r.target_id || "") + '" data-target-type="' + (r.target_type || "") + '">' +
               '<div class="flex justify-between items-start gap-4 mb-sm">' +
-              '<div>' +
+              '<div class="flex-1">' +
               '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">' + escapeHtml(r.target_type) + '</p>' +
               '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(r.reason || "Kein Grund angegeben") + '</p>' +
               '</div>' +
+              '<div class="flex items-center gap-3 flex-shrink-0">' +
+              badge +
               '<span class="text-body-sm text-on-surface-variant whitespace-nowrap">' + date + '</span>' +
+              '</div>' +
               '</div>' +
               '<p class="text-body-sm text-on-surface-variant mb-sm">Gemeldet von: ' + escapeHtml(r.reporter_name || "Unbekannt") + '</p>' +
               ownerHtml +
               (preview ? '<p class="text-body-sm text-on-surface bg-surface-container-high rounded-lg px-3 py-2 mb-md">' + escapeHtml(preview) + '</p>' : "") +
               resolvedInfo +
-              (r.status === "open" ? '<div class="flex gap-3 mt-md flex-wrap">' +
-                '<button type="button" class="resolve-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:bg-primary-container transition-colors">Erledigt</button>' +
-                '<button type="button" class="delete-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Inhalt löschen</button>' +
-                banShortcut +
-                '</div>' : "") +
+              dismissedInfo +
+              escalatedInfo +
+              actionButtons +
               '</div>';
           })
           .join("");
 
+        // Dismiss buttons
+        container.querySelectorAll(".dismiss-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
+            if (!card) return;
+            var id = card.getAttribute("data-id");
+            if (!confirm("Report wirklich abweisen?")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "dismiss", reportId: id }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Report abgewiesen", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
+            loadReports();
+          });
+        });
+
+        // Escalate buttons
+        container.querySelectorAll(".escalate-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
+            if (!card) return;
+            var id = card.getAttribute("data-id");
+            if (!confirm("Report wirklich eskalieren?")) return;
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "escalate", reportId: id }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Report eskaliert", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
+            loadReports();
+          });
+        });
+
+        // Resolve buttons (existing)
         container.querySelectorAll(".resolve-btn").forEach(function(btn) {
           btn.addEventListener("click", async function() {
             var card = (btn as HTMLElement).closest("[data-id]");
@@ -222,6 +319,7 @@ if (!isAdmin) return Astro.redirect("/");
           });
         });
 
+        // Delete buttons (existing)
         container.querySelectorAll(".delete-btn").forEach(function(btn) {
           btn.addEventListener("click", async function() {
             var card = (btn as HTMLElement).closest("[data-id]");
@@ -250,6 +348,7 @@ if (!isAdmin) return Astro.redirect("/");
           });
         });
 
+        // Ban buttons (existing)
         container.querySelectorAll(".ban-user-btn").forEach(function(btn) {
           btn.addEventListener("click", async function() {
             var ownerId = (btn as HTMLElement).getAttribute("data-owner-id");
