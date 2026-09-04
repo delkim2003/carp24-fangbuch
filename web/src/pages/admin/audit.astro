@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import Pagination from "../../components/admin/Pagination.astro";
+import Skeleton from "../../components/admin/Skeleton.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -60,7 +61,7 @@ if (!isAdmin) return Astro.redirect("/");
           </tr>
         </thead>
         <tbody id="audit-body">
-          <tr><td colspan="5" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          <Skeleton variant="table-row" count={5} cols={5} />
         </tbody>
       </table>
     </div>
@@ -242,4 +243,11 @@ if (!isAdmin) return Astro.redirect("/");
       loadAudit();
     });
   </script>
+
+  <style>
+    @keyframes skeleton-shimmer {
+      0% { background-position: -468px 0; }
+      100% { background-position: 468px 0; }
+    }
+  </style>
 </Layout>
