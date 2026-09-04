@@ -122,30 +122,37 @@ if (!isAdmin) return Astro.redirect("/");
         wrapper.innerHTML = "";
         return;
       }
-      var html = '<nav class="flex items-center justify-center gap-2" aria-label="Seiten-Navigation">';
+      var html = '<div class="flex items-center justify-center gap-4">';
+      html += '<span class="text-body-sm text-on-surface-variant">Seite ' + currentPage + ' von ' + totalPages + '</span>';
+      html += '<nav class="flex items-center gap-2" aria-label="Pagination">';
       // Previous button
-      html += '<button type="button" class="page-prev font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer' + (currentPage <= 1 ? ' opacity-40 cursor-not-allowed' : '') + '"' + (currentPage <= 1 ? ' disabled' : '') + '>‹</button>';
+      if (currentPage > 1) {
+        html += '<button type="button" class="page-prev font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer" data-page="' + (currentPage - 1) + '">← Zurück</button>';
+      }
       // Page numbers
       var startPage = Math.max(1, currentPage - 2);
       var endPage = Math.min(totalPages, currentPage + 2);
       if (startPage > 1) {
-        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="1">1</button>';
-        if (startPage > 2) html += '<span class="px-2 text-on-surface-variant text-label-sm">…</span>';
+        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-9 flex items-center cursor-pointer" data-page="1">1</button>';
+        if (startPage > 2) html += '<span class="px-1 text-on-surface-variant text-label-sm">…</span>';
       }
       for (var p = startPage; p <= endPage; p++) {
         if (p === currentPage) {
-          html += '<button type="button" class="font-label-sm text-label-sm px-3 py-2 rounded-lg bg-primary text-on-primary min-w-10 flex items-center justify-center cursor-pointer font-bold">' + p + '</button>';
+          html += '<span class="font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-primary text-on-primary min-h-9 flex items-center">' + p + '</span>';
         } else {
-          html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="' + p + '">' + p + '</button>';
+          html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-9 flex items-center cursor-pointer" data-page="' + p + '">' + p + '</button>';
         }
       }
       if (endPage < totalPages) {
-        if (endPage < totalPages - 1) html += '<span class="px-2 text-on-surface-variant text-label-sm">…</span>';
-        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="' + totalPages + '">' + totalPages + '</button>';
+        if (endPage < totalPages - 1) html += '<span class="px-1 text-on-surface-variant text-label-sm">…</span>';
+        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-9 flex items-center cursor-pointer" data-page="' + totalPages + '">' + totalPages + '</button>';
       }
       // Next button
-      html += '<button type="button" class="page-next font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer' + (currentPage >= totalPages ? ' opacity-40 cursor-not-allowed' : '') + '"' + (currentPage >= totalPages ? ' disabled' : '') + '>›</button>';
+      if (currentPage < totalPages) {
+        html += '<button type="button" class="page-next font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer" data-page="' + (currentPage + 1) + '">Weiter →</button>';
+      }
       html += '</nav>';
+      html += '</div>';
       wrapper.innerHTML = html;
 
       // Click handlers for page links
@@ -160,7 +167,7 @@ if (!isAdmin) return Astro.redirect("/");
       });
       // Previous button
       var prev = wrapper.querySelector(".page-prev") as HTMLButtonElement;
-      if (prev && !prev.disabled) {
+      if (prev) {
         prev.addEventListener("click", function() {
           if (currentPage > 1) {
             currentPage--;
@@ -170,7 +177,7 @@ if (!isAdmin) return Astro.redirect("/");
       }
       // Next button
       var next = wrapper.querySelector(".page-next") as HTMLButtonElement;
-      if (next && !next.disabled) {
+      if (next) {
         next.addEventListener("click", function() {
           if (currentPage < totalPages) {
             currentPage++;

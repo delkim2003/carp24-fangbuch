@@ -126,8 +126,8 @@ if (!isAdmin) return Astro.redirect("/");
       var wrapper = document.getElementById("pagination-wrapper");
       if (!wrapper) return;
 
-      var html = '<div class="flex items-center justify-between gap-4 pt-lg border-t border-outline/20">';
-      html += '<span class="text-body-sm text-on-surface-variant">Seite ' + currentPage + ' von ' + totalPages + '</span>';
+      var html = '<div class="pagination-wrapper flex items-center justify-between gap-4 mt-lg pt-lg border-t border-outline/20">';
+      html += '<span class="text-body-sm text-on-surface-variant" id="pagination-info">Seite ' + currentPage + ' von ' + totalPages + '</span>';
       html += '<nav class="flex items-center gap-2" aria-label="Pagination">';
 
       if (currentPage > 1) {
