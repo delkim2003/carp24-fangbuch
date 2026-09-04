@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import Skeleton from "../../components/admin/Skeleton.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
 if (!session) return Astro.redirect("/login/");
@@ -46,14 +47,14 @@ if (!isAdmin) return Astro.redirect("/");
     <div class="w-full mb-xl">
       <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Events</h2>
       <div id="stripe-section" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="text-body-md text-on-surface-variant">Lade…</p>
+        <Skeleton variant="card" count={1} />
       </div>
     </div>
 
     <div class="w-full mb-xl">
       <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Status</h2>
       <div id="stripe-events-table" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="text-body-md text-on-surface-variant">Lade…</p>
+        <Skeleton variant="card" count={1} />
       </div>
     </div>
 
@@ -69,7 +70,7 @@ if (!isAdmin) return Astro.redirect("/");
             </tr>
           </thead>
           <tbody id="pro-users-body">
-            <tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+            <Skeleton variant="table-row" count={5} cols={3} />
           </tbody>
         </table>
       </div>
@@ -77,6 +78,20 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
+    import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
+
+    AdminKeyboardShortcuts.init({
+      shortcuts: [
+        { key: 'g 0', desc: 'Zur Übersicht', handler: function () { window.location.href = '/admin/'; } },
+        { key: 'g r', desc: 'Zu Reports', handler: function () { window.location.href = '/admin/reports/'; } },
+        { key: 'g u', desc: 'Zu Nutzer', handler: function () { window.location.href = '/admin/users/'; } },
+        { key: 'g c', desc: 'Zu Inhalten', handler: function () { window.location.href = '/admin/content/'; } },
+        { key: 'g v', desc: 'Zu Revenue', handler: function () { window.location.href = '/admin/revenue/'; } },
+        { key: 'g a', desc: 'Zu Audit', handler: function () { window.location.href = '/admin/audit/'; } },
+        { key: 'g s', desc: 'Zu Einstellungen', handler: function () { window.location.href = '/admin/settings/'; } },
+      ]
+    });
+
     function showToast(msg: string, type: "success" | "error") {
       var toast = document.createElement("div");
       toast.textContent = msg;
@@ -173,4 +188,10 @@ if (!isAdmin) return Astro.redirect("/");
       }
     });
   </script>
+  <style>
+    @keyframes skeleton-shimmer {
+      0% { background-position: -468px 0; }
+      100% { background-position: 468px 0; }
+    }
+  </style>
 </Layout>
