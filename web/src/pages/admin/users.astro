@@ -44,6 +44,9 @@ if (!isAdmin) return Astro.redirect("/");
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-outline/20">
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4 w-12">
+              <input type="checkbox" id="select-all" class="w-5 h-5 accent-primary cursor-pointer" />
+            </th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Name</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Rolle</th>
@@ -56,9 +59,22 @@ if (!isAdmin) return Astro.redirect("/");
           </tr>
         </thead>
         <tbody id="users-body">
-          <tr><td colspan="9" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          <tr><td colspan="10" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <div id="bulk-bar" class="fixed bottom-0 left-0 right-0 z-40 hidden transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="bg-surface-container-highest border border-outline/20 rounded-t-xl shadow-2xl p-4 flex items-center justify-between gap-4">
+          <span id="bulk-count" class="font-label-sm text-label-sm text-on-surface"></span>
+          <div class="flex items-center gap-3">
+            <button id="bulk-ban" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl Bannen</button>
+            <button id="bulk-delete" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl Löschen</button>
+            <button id="bulk-deselect" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-high text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl aufheben</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="pagination-wrapper">
@@ -196,7 +212,7 @@ if (!isAdmin) return Astro.redirect("/");
         }
 
         if (!data.users || data.users.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
           updatePagination();
           return;
         }
@@ -213,6 +229,7 @@ if (!isAdmin) return Astro.redirect("/");
               reportsHtml = String(u.open_reports_count ?? 0);
             }
             return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors" data-id="' + u.id + '">' +
+              '<td class="py-3 px-4"><input type="checkbox" class="user-checkbox" value="' + u.id + '" /></td>' +
               '<td class="text-body-md text-on-surface py-3 px-4">' + escapeHtml(u.display_name || "–") + deleted + '</td>' +
               '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escapeHtml(u.email || "–") + '</td>' +
               '<td class="py-3 px-4">' +
@@ -415,9 +432,19 @@ if (!isAdmin) return Astro.redirect("/");
           });
         });
 
+        tbody.querySelectorAll(".user-checkbox").forEach(function(chk) {
+          chk.addEventListener("change", function() {
+            var allChecked = document.querySelectorAll("#users-body .user-checkbox:checked").length;
+            var total = document.querySelectorAll("#users-body .user-checkbox").length;
+            var selectAll = document.getElementById("select-all") as HTMLInputElement | null;
+            if (selectAll) selectAll.checked = allChecked === total;
+            updateBulkBar();
+          });
+        });
+
         updatePagination();
       } catch {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
         updatePagination();
       }
     }
@@ -589,6 +616,94 @@ if (!isAdmin) return Astro.redirect("/");
       if (overlay) overlay.classList.add("hidden");
     }
 
+    function getSelectedIds() {
+      var checks = document.querySelectorAll("#users-body .user-checkbox:checked");
+      return Array.from(checks).map(function(c) { return (c as HTMLInputElement).value; });
+    }
+
+    function updateBulkBar() {
+      var bar = document.getElementById("bulk-bar");
+      var countEl = document.getElementById("bulk-count");
+      if (!bar || !countEl) return;
+      var selected = getSelectedIds();
+      if (selected.length === 0) {
+        bar.classList.add("hidden");
+      } else {
+        bar.classList.remove("hidden");
+        countEl.textContent = selected.length + " User ausgewählt";
+      }
+    }
+
+    function handleSelectAll() {
+      var selectAll = document.getElementById("select-all") as HTMLInputElement | null;
+      if (!selectAll) return;
+      var checks = document.querySelectorAll("#users-body .user-checkbox") as NodeListOf<HTMLInputElement>;
+      checks.forEach(function(c) { c.checked = selectAll.checked; });
+      updateBulkBar();
+    }
+
+    function handleBulkBan() {
+      var selected = getSelectedIds();
+      if (selected.length === 0) return;
+      var reason = prompt("Bann-Grund für " + selected.length + " User:");
+      if (reason === null) return;
+      if (!confirm(selected.length + " User wirklich bannen? Grund: " + (reason || "Kein Grund angegeben"))) return;
+      var btn = document.getElementById("bulk-ban") as HTMLButtonElement | null;
+      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bulk_ban", userIds: selected, reason: reason || "Kein Grund angegeben" }),
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) {
+          var succeeded = d.results.filter(function(r: any) { return r.success; }).length;
+          var failed = d.results.filter(function(r: any) { return !r.success; }).length;
+          showToast(succeeded + " User gebannt" + (failed ? ", " + failed + " fehlgeschlagen" : ""), failed ? "error" : "success");
+        } else {
+          showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+        }
+        if (btn) { btn.disabled = false; btn.textContent = "Auswahl Bannen"; }
+        loadUsers();
+      }).catch(function() {
+        showToast("Netzwerk-Fehler", "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Auswahl Bannen"; }
+      });
+    }
+
+    function handleBulkDelete() {
+      var selected = getSelectedIds();
+      if (selected.length === 0) return;
+      if (!confirm(selected.length + " User wirklich löschen? (Soft Delete)")) return;
+      var btn = document.getElementById("bulk-delete") as HTMLButtonElement | null;
+      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bulk_delete", userIds: selected }),
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) {
+          var succeeded = d.results.filter(function(r: any) { return r.success; }).length;
+          var failed = d.results.filter(function(r: any) { return !r.success; }).length;
+          showToast(succeeded + " User gelöscht" + (failed ? ", " + failed + " fehlgeschlagen" : ""), failed ? "error" : "success");
+        } else {
+          showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+        }
+        if (btn) { btn.disabled = false; btn.textContent = "Auswahl Löschen"; }
+        loadUsers();
+      }).catch(function() {
+        showToast("Netzwerk-Fehler", "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Auswahl Löschen"; }
+      });
+    }
+
+    function handleBulkDeselect() {
+      document.querySelectorAll("#users-body .user-checkbox").forEach(function(c) {
+        (c as HTMLInputElement).checked = false;
+      });
+      (document.getElementById("select-all") as HTMLInputElement | null)!.checked = false;
+      updateBulkBar();
+    }
+
     function goToPage(page: number) {
       if (page < 1) page = 1;
       if (page > totalPages) page = totalPages;
@@ -601,6 +716,11 @@ if (!isAdmin) return Astro.redirect("/");
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("close-drawer")?.addEventListener("click", closeDrawer);
       document.getElementById("drawer-overlay")?.addEventListener("click", closeDrawer);
+
+      document.getElementById("select-all")?.addEventListener("change", handleSelectAll);
+      document.getElementById("bulk-ban")?.addEventListener("click", handleBulkBan);
+      document.getElementById("bulk-delete")?.addEventListener("click", handleBulkDelete);
+      document.getElementById("bulk-deselect")?.addEventListener("click", handleBulkDeselect);
 
       var searchInput = document.getElementById("search-input");
       var filterRole = document.getElementById("filter-role");
