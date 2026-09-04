@@ -77,17 +77,52 @@ export const GET = async ({ request }: { request: Request }) => {
   const proFilter = url.searchParams.get("pro") || "";
   const bannedFilter = url.searchParams.get("banned") || "";
 
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "25", 10) || 25));
+  const from = (page - 1) * limit;
+  const to = page * limit - 1;
+
   const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
   const emailMap = new Map<string, string>();
   for (const t of authUsers.users) {
     if (t.id && t.email) emailMap.set(t.id, t.email);
   }
 
+  // Count query with identical filters
+  let countQuery = supabaseAdmin
+    .from("profiles")
+    .select("id", { count: "exact", head: true });
+
+  if (q) {
+    countQuery = countQuery.or(`display_name.ilike.%${q}%,id.in.(${[...emailMap.entries()].filter(([, e]) => e.toLowerCase().includes(q.toLowerCase())).map(([id]) => id).join(",") || "00000000-0000-0000-0000-000000000000"})`);
+  }
+  if (roleFilter && ["USER", "MODERATOR", "ADMIN"].includes(roleFilter)) {
+    countQuery = countQuery.eq("role", roleFilter);
+  }
+  if (proFilter === "true") {
+    countQuery = countQuery.eq("is_pro", true);
+  }
+  if (bannedFilter === "true") {
+    countQuery = countQuery.not("banned_at", "is", null);
+  } else if (bannedFilter === "false") {
+    countQuery = countQuery.is("banned_at", null);
+  }
+
+  const { count: total, error: countError } = await countQuery;
+
+  if (countError) {
+    return new Response(JSON.stringify({ error: countError.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Data query with pagination range
   let query = supabaseAdmin
     .from("profiles")
     .select("id, display_name, role, is_pro, created_at, deleted_at, banned_at, ban_reason")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .range(from, to);
 
   if (q) {
     query = query.or(`display_name.ilike.%${q}%,id.in.(${[...emailMap.entries()].filter(([, e]) => e.toLowerCase().includes(q.toLowerCase())).map(([id]) => id).join(",") || "00000000-0000-0000-0000-000000000000"})`);
@@ -141,7 +176,9 @@ export const GET = async ({ request }: { request: Request }) => {
     open_reports_count: reportsMap.get(p.id) ?? 0,
   }));
 
-  return new Response(JSON.stringify({ users }), {
+  const totalPages = Math.ceil((total ?? 0) / limit);
+
+  return new Response(JSON.stringify({ users, pagination: { page, limit, total: total ?? 0, totalPages } }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
