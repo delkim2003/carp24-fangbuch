@@ -1,0 +1,213 @@
+---
+export interface Props {
+  /** Layout type: table-row, card, text-line, kpi-card, drawer-card */
+  variant: "table-row" | "card" | "text-line" | "kpi-card" | "drawer-card";
+  /** Number of skeleton items to render */
+  count?: number;
+  /** Column count (for table-row variant) */
+  cols?: number;
+  /** Row height in px (for table-row variant) */
+  rowHeight?: number;
+}
+
+const { variant, count = 1, cols = 5, rowHeight = 48 } = Astro.props;
+
+const shimmer = `
+@keyframes skeleton-shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.08) 50%, transparent 75%);
+  background-size: 936px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+.skeleton-row {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(128,128,128,0.1);
+}
+.skeleton-cell {
+  height: 20px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.1) 25%, rgba(128,128,128,0.18) 50%, rgba(128,128,128,0.1) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+.skeleton-card {
+  padding: 16px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 12px;
+  min-height: 80px;
+}
+.skeleton-drawer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+.skeleton-kpi {
+  height: 36px;
+  width: 60%;
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+.skeleton-label {
+  height: 12px;
+  width: 40%;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+.skeleton-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.skeleton-select {
+  height: 28px;
+  width: 80px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+.skeleton-btn {
+  height: 28px;
+  width: 60px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 14px;
+}
+.skeleton-report-card {
+  padding: 20px;
+  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skeleton-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.skeleton-content-card {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+`
+---
+
+{variant === "table-row" && (
+  <div class="skeleton-shimmer" style="border-radius:8px;overflow:hidden;">
+    {Array.from({ length: count }, (_, rowIdx) => (
+      <div key={rowIdx} class="skeleton-row" style={rowIdx === 0 ? "" : ""}>
+        <div class="skeleton-checkbox" />
+        <div class="skeleton-cell" style="flex:1.5" />
+        <div class="skeleton-cell" style="flex:2" />
+        <div class="skeleton-cell" style="flex:0.8" />
+        <div class="skeleton-cell" style="flex:0.5" />
+        <div class="skeleton-cell" style="flex:0.6" />
+        <div class="skeleton-cell" style="flex:0.5" />
+        <div class="skeleton-cell" style="flex:0.8" />
+        <div class="skeleton-cell" style="flex:0.8" />
+        <div class="skeleton-btn" style="flex-shrink:0" />
+      </div>
+    ))}
+  </div>
+)}
+
+{variant === "card" && (
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    {Array.from({ length: count }, (_, idx) => (
+      <div key={idx} class="skeleton-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+            <div style="height:16px;width:70%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;" />
+            <div style="height:14px;width:50%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="height:14px;width:60px;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;" />
+            <div class="skeleton-btn" />
+            <div class="skeleton-btn" style="background:rgba(239,68,68,0.15);" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+{variant === "drawer-card" && (
+  <div class="skeleton-drawer-card">
+    <div class="skeleton-line" style="width:40%;height:12px;margin-bottom:4px;" />
+    <div class="skeleton-line" style="width:75%;height:16px;" />
+    <div class="skeleton-line" style="width:60%;" />
+    <div style="margin-top:8px;padding-top:12px;border-top:1px solid rgba(128,128,128,0.1);">
+      <div class="skeleton-line" style="width:30%;height:12px;margin-bottom:8px;" />
+      <div class="skeleton-line" style="width:90%;" />
+      <div class="skeleton-line" style="width:70%;" />
+      <div class="skeleton-line" style="width:50%;" />
+    </div>
+    <div style="margin-top:8px;padding-top:12px;border-top:1px solid rgba(128,128,128,0.1);">
+      <div class="skeleton-line" style="width:35%;height:12px;margin-bottom:8px;" />
+      <div class="skeleton-line" style="width:85%;" />
+      <div class="skeleton-line" style="width:65%;" />
+    </div>
+    <div style="margin-top:8px;">
+      <div class="skeleton-line" style="width:25%;height:12px;margin-bottom:8px;" />
+      <div class="skeleton-line" style="width:95%;" />
+    </div>
+  </div>
+)}
+
+{variant === "kpi-card" && (
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;">
+    {Array.from({ length: count }, (_, idx) => (
+      <div key={idx} style="padding:16px;border:1px solid rgba(128,128,128,0.1);border-radius:16px;background:inherit;">
+        <div class="skeleton-label" />
+        <div class="skeleton-kpi" />
+      </div>
+    ))}
+  </div>
+)}
+
+{variant === "text-line" && (
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    {Array.from({ length: count }, (_, idx) => (
+      <div
+        key={idx}
+        class="skeleton-line"
+        style={`width:${idx === 0 ? 80 : idx === count - 1 ? 40 : 65}%`}
+      />
+    ))}
+  </div>
+)}
