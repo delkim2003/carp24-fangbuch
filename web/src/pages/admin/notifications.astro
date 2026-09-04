@@ -102,12 +102,14 @@ if (!isAdmin) return Astro.redirect("/");
       <!-- History -->
       <div class="mt-xl">
         <h2 class="text-headline-md text-on-surface mb-lg">Verlauf</h2>
-        <div id="history-loading" class="text-body-md text-on-surface-variant">Lade…</div>
+        <div id="history-loading"><div style="padding:16px;background:linear-gradient(90deg,rgba(128,128,128,0.06) 25%,rgba(128,128,128,0.12) 50%,rgba(128,128,128,0.06) 75%);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:12px;display:flex;flex-direction:column;gap:10px"><div style="height:12px;width:30%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-bottom:4px"></div><div style="height:16px;width:60%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:14px;width:40%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-top:8px"></div></div><div style="padding:16px;background:linear-gradient(90deg,rgba(128,128,128,0.06) 25%,rgba(128,128,128,0.12) 50%,rgba(128,128,128,0.06) 75%);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:12px;display:flex;flex-direction:column;gap:10px;margin-top:12px"><div style="height:12px;width:25%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-bottom:4px"></div><div style="height:16px;width:70%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:14px;width:50%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-top:8px"></div></div></div>
         <div id="history-list" class="hidden space-y-md"></div>
         <div id="history-empty" class="hidden text-body-md text-on-surface-variant">Noch keine Benachrichtigungen gesendet.</div>
       </div>
     </div>
   </main>
+
+  <style>@keyframes skeleton-shimmer{0%{background-position:-468px 0}100%{background-position:468px 0}}</style>
 
   <script>
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
