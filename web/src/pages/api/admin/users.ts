@@ -72,10 +72,78 @@ export const GET = async ({ request }: { request: Request }) => {
 
   const { supabaseAdmin } = g;
   const url = new URL(request.url);
+  const action = url.searchParams.get("action") || "";
   const q = url.searchParams.get("q") || "";
   const roleFilter = url.searchParams.get("role") || "";
   const proFilter = url.searchParams.get("pro") || "";
   const bannedFilter = url.searchParams.get("banned") || "";
+
+  // ── CSV Export ──────────────────────────────────────
+  if (action === "export") {
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
+    const emailMap = new Map<string, string>();
+    for (const t of authUsers.users) {
+      if (t.id && t.email) emailMap.set(t.id, t.email);
+    }
+
+    let query = supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, role, is_pro, created_at, deleted_at, banned_at, ban_reason")
+      .order("created_at", { ascending: false })
+      .limit(10000);
+
+    if (q) {
+      query = query.or(`display_name.ilike.%${q}%,id.in.(${[...emailMap.entries()].filter(([, e]) => e.toLowerCase().includes(q.toLowerCase())).map(([id]) => id).join(",") || "00000000-0000-0000-0000-000000000000"})`);
+    }
+    if (roleFilter && ["USER", "MODERATOR", "ADMIN"].includes(roleFilter)) {
+      query = query.eq("role", roleFilter);
+    }
+    if (proFilter === "true") {
+      query = query.eq("is_pro", true);
+    }
+    if (bannedFilter === "true") {
+      query = query.not("banned_at", "is", null);
+    } else if (bannedFilter === "false") {
+      query = query.is("banned_at", null);
+    }
+
+    const { data: profiles } = await query;
+
+    const rows = (profiles ?? []).map((p: any) => ({
+      id: p.id,
+      email: emailMap.get(p.id) ?? "",
+      display_name: p.display_name ?? "",
+      role: p.role ?? "USER",
+      is_pro: p.is_pro ? "Ja" : "Nein",
+      created_at: p.created_at ?? "",
+      deleted_at: p.deleted_at ?? "",
+      banned_at: p.banned_at ?? "",
+      ban_reason: p.ban_reason ?? "",
+    }));
+
+    const esc = (v: any): string => {
+      const s = v == null ? "" : String(v);
+      if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+
+    const cols = ["id", "email", "display_name", "role", "is_pro", "created_at", "deleted_at", "banned_at", "ban_reason"];
+    const bom = "\uFEFF";
+    const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+      rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+    return new Response(csv, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="users.csv"',
+      },
+    });
+  }
+
+  // ── Regular paginated JSON ──────────────────────────
 
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "25", 10) || 25));
