@@ -46,20 +46,9 @@ if (!isAdmin) return Astro.redirect("/");
     </div>
 
     <div class="w-full mb-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Events (letzte 50)</h2>
-      <div class="w-full overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-outline/20">
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Type</th>
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Status</th>
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Zeit</th>
-            </tr>
-          </thead>
-          <tbody id="stripe-events-body">
-            <tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
-          </tbody>
-        </table>
+      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Status</h2>
+      <div id="stripe-events-table" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="text-body-md text-on-surface-variant">Lade…</p>
       </div>
     </div>
 
@@ -83,6 +72,14 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
+    function showToast(msg: string, type: "success" | "error") {
+      var toast = document.createElement("div");
+      toast.textContent = msg;
+      toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     function escapeHtml(str: string) {
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
@@ -129,18 +126,18 @@ if (!isAdmin) return Astro.redirect("/");
           }
           stripeSection.innerHTML = html || '<p class="text-body-md text-on-surface-variant">Keine Stripe-Events gefunden.</p>';
         }
-      } catch {}
 
-      try {
-        var eventsRes = await fetch("/api/admin/stats");
-        if (eventsRes.ok) {
-          var evData = await eventsRes.json();
-          var evBody = document.getElementById("stripe-events-body");
-          if (evBody && evData.stripeEvents) {
-            evBody.innerHTML = '<tr><td colspan="3" class="text-body-md text-on-surface-variant py-4 px-4">Stripe-Events werden über die Stats-API geladen.</td></tr>';
+        var eventsTable = document.getElementById("stripe-events-table");
+        if (eventsTable) {
+          if (stripe && stripe.topTypes && stripe.topTypes.length > 0) {
+            eventsTable.innerHTML = '<p class="text-body-md text-on-surface-variant">Einzelne Stripe-Events werden nicht über die Stats-API geladen. Die aggregierten Daten werden oben angezeigt.</p>';
+          } else {
+            eventsTable.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Stripe-Events verfügbar. Stripe ist möglicherweise nicht konfiguriert.</p>';
           }
         }
-      } catch {}
+      } catch {
+        showToast("Fehler beim Laden der Stripe-Daten", "error");
+      }
 
       try {
         var usersRes = await fetch("/api/admin/users?pro=true");
@@ -165,6 +162,7 @@ if (!isAdmin) return Astro.redirect("/");
           })
           .join("");
       } catch {
+        showToast("Fehler beim Laden der Pro-User", "error");
         var proBody2 = document.getElementById("pro-users-body");
         if (proBody2) proBody2.innerHTML = '<tr><td colspan="3" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
       }

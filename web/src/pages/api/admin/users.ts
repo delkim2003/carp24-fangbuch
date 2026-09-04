@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import { csrfGuard } from "./_csrf";
+import { parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
@@ -12,20 +13,19 @@ async function guard(request: Request) {
     {
       cookies: {
         getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return { name: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
+          return parseCookieHeader(request.headers.get("Cookie") ?? "");
         },
         setAll() {},
       },
-    }
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
+    },
   );
 
   const {
@@ -48,7 +48,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session };
+  return { supabaseAdmin, session, actorRole: role };
 }
 
 async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
@@ -158,7 +158,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, session, actorRole } = g;
   let body: { id?: string; role?: string; is_pro?: boolean; ban?: boolean; ban_reason?: string; unban?: boolean };
   try {
     body = await request.json();
@@ -172,6 +172,13 @@ export const PATCH = async ({ request }: { request: Request }) => {
   if (!body.id) {
     return new Response(JSON.stringify({ error: "ID erforderlich." }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (body.role && actorRole === "MODERATOR" && body.role !== "USER") {
+    return new Response(JSON.stringify({ error: "MODERATOR darf nur die USER-Rolle vergeben." }), {
+      status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -209,6 +216,13 @@ export const PATCH = async ({ request }: { request: Request }) => {
       });
     }
     await writeAudit(supabaseAdmin, session.user.id, "user.pro", "user", body.id, { field: "is_pro", from: currentProfile.is_pro, to: body.is_pro });
+  }
+
+  if ((body.ban === true || body.unban === true) && actorRole === "MODERATOR" && (currentProfile.role === "ADMIN" || currentProfile.role === "MODERATOR")) {
+    return new Response(JSON.stringify({ error: "MODERATOR darf ADMIN/MODERATOR nicht bannen oder entbannen." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   if (body.ban === true) {
@@ -279,8 +293,54 @@ export const POST = async ({ request }: { request: Request }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, {});
-    return new Response(JSON.stringify({ success: true, password: newPassword }), {
+
+    const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(body.id);
+    const targetEmail = targetUser?.user?.email ?? "";
+
+    const smtpConfigured = !!(import.meta.env.SMTP_HOST || import.meta.env.RESEND_API_KEY || import.meta.env.SENDGRID_API_KEY);
+
+    let emailSent = false;
+    let emailError: string | null = null;
+
+    if (smtpConfigured && import.meta.env.RESEND_API_KEY) {
+      try {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${import.meta.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: import.meta.env.EMAIL_FROM || "noreply@carp24.de",
+            to: targetEmail,
+            subject: "Ihr neues Passwort – Carp24 Fangbuch",
+            html: `<p>Ihr Passwort wurde zurückgesetzt.</p><p><b>Neues Passwort:</b> <code>${newPassword}</code></p><p>Bitte ändern Sie das Passwort nach dem Login.</p>`,
+          }),
+        });
+        emailSent = res.ok;
+        if (!res.ok) emailError = `Resend API ${res.status}`;
+      } catch (e: any) {
+        emailError = e?.message ?? "Unbekannter Fehler";
+      }
+    }
+
+    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent });
+
+    if (emailSent) {
+      return new Response(JSON.stringify({ success: true, message: `Neues Passwort wurde an ${targetEmail} gesendet.` }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      password: newPassword,
+      email: targetEmail,
+      warning: smtpConfigured
+        ? `E-Mail-Versand fehlgeschlagen (${emailError}). Bitte Passwort manuell an den User übermitteln.`
+        : "Kein E-Mail-Service konfiguriert. Bitte Passwort manuell an den User übermitteln.",
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -303,7 +363,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, session, actorRole } = g;
   let body: { id?: string };
   try {
     body = await request.json();
@@ -317,6 +377,26 @@ export const DELETE = async ({ request }: { request: Request }) => {
   if (!body.id) {
     return new Response(JSON.stringify({ error: "ID erforderlich." }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { data: targetProfile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", body.id)
+    .single();
+
+  if (!targetProfile) {
+    return new Response(JSON.stringify({ error: "Nutzer nicht gefunden." }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (actorRole === "MODERATOR" && (targetProfile.role === "ADMIN" || targetProfile.role === "MODERATOR")) {
+    return new Response(JSON.stringify({ error: "MODERATOR darf ADMIN/MODERATOR nicht löschen." }), {
+      status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }

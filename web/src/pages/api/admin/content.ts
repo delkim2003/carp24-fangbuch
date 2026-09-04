@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { csrfGuard } from "./_csrf";
+import { parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
@@ -11,20 +12,19 @@ async function guard(request: Request) {
     {
       cookies: {
         getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return { name: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
+          return parseCookieHeader(request.headers.get("Cookie") ?? "");
         },
         setAll() {},
       },
-    }
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
+    },
   );
 
   const {
@@ -51,6 +51,16 @@ async function guard(request: Request) {
 }
 
 const ALLOWED_TYPES = ["catch", "forum", "chat", "marketplace"] as const;
+
+async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
+  await supabaseAdmin.from("admin_audit_log").insert({
+    actor_id: actorId,
+    action,
+    target_type: targetType,
+    target_id: targetId,
+    details,
+  });
+}
 
 export const GET = async ({ request }: { request: Request }) => {
   const g = await guard(request);
@@ -194,7 +204,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin } = g;
+  const { supabaseAdmin, session } = g;
   let body: { type?: string; id?: string };
   try {
     body = await request.json();
@@ -230,6 +240,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    await writeAudit(supabaseAdmin, session.user.id, "content.delete", body.type, body.id, {});
   } else {
     const tableMap: Record<string, string> = {
       forum: "forum_threads",
@@ -240,11 +251,13 @@ export const DELETE = async ({ request }: { request: Request }) => {
     if (table) {
       const { error } = await supabaseAdmin.from(table).delete().eq("id", body.id);
       if (error) {
-        if (body.type === "forum") {
-          await supabaseAdmin.from("forum_posts").delete().eq("id", body.id);
-        }
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
       }
     }
+    await writeAudit(supabaseAdmin, session.user.id, "content.delete", body.type, body.id, {});
   }
 
   return new Response(JSON.stringify({ success: true }), {

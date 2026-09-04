@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
@@ -9,20 +10,19 @@ export const GET = async ({ request }: { request: Request }) => {
     {
       cookies: {
         getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return { name: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
+          return parseCookieHeader(request.headers.get("Cookie") ?? "");
         },
         setAll() {},
       },
-    }
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+      },
+    },
   );
 
   const {

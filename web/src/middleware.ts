@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import { getMaintenance } from "./lib/settings";
 
 const securityHeaders: Record<string, string> = {
@@ -16,19 +16,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     {
       cookies: {
         getAll() {
-          const header = context.request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return {
-                name: pair.slice(0, idx).trim(),
-                value: pair.slice(idx + 1).trim(),
-              };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
+          return parseCookieHeader(context.request.headers.get("Cookie") ?? "");
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
@@ -57,6 +45,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       .single();
     role = profile?.role ?? "USER";
   }
+
+  console.log("[MIDDLEWARE] Path:", context.url.pathname, "Session:", session ? "found" : "null", "Role:", role);
 
   context.locals.session = session;
   context.locals.role = role;

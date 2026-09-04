@@ -76,6 +76,14 @@ if (!isAdmin) return Astro.redirect("/");
   <script>
     var searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    function showToast(msg: string, type: "success" | "error") {
+      var toast = document.createElement("div");
+      toast.textContent = msg;
+      toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     function escapeHtml(str: string) {
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
@@ -153,11 +161,21 @@ if (!isAdmin) return Astro.redirect("/");
             if (!row) return;
             var id = row.getAttribute("data-id");
             var newRole = (sel as HTMLSelectElement).value;
-            await fetch("/api/admin/users", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id, role: newRole }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id, role: newRole }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Rolle geändert", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
           });
         });
 
@@ -167,11 +185,21 @@ if (!isAdmin) return Astro.redirect("/");
             if (!row) return;
             var id = row.getAttribute("data-id");
             var isPro = (chk as HTMLInputElement).checked;
-            await fetch("/api/admin/users", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id, is_pro: isPro }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id, is_pro: isPro }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast(isPro ? "PRO aktiviert" : "PRO deaktiviert", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
           });
         });
 
@@ -184,11 +212,21 @@ if (!isAdmin) return Astro.redirect("/");
             if (reason === null) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/users", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Nutzer gebannt", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadUsers();
           });
         });
@@ -200,11 +238,21 @@ if (!isAdmin) return Astro.redirect("/");
             var id = row.getAttribute("data-id");
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/users", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id, unban: true }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id, unban: true }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Nutzer entbannt", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadUsers();
           });
         });
@@ -217,14 +265,26 @@ if (!isAdmin) return Astro.redirect("/");
             if (!confirm("Passwort wirklich zurücksetzen?")) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            var res2 = await fetch("/api/admin/users", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "reset_password", id: id }),
-            });
-            var result = await res2.json();
-            if (result.password) {
-              alert("Neues Passwort: " + result.password + "\n\nBitte sofort notieren — es wird nur einmal angezeigt!");
+            try {
+              var res2 = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "reset_password", id: id }),
+              });
+              var result = await res2.json();
+              if (result.success) {
+                if (result.password) {
+                  var pwMsg = "Neues Passwort für " + escapeHtml(result.email || "User") + ":\n\n" + result.password + "\n\n" + (result.warning || "");
+                  alert(pwMsg);
+                  showToast("Passwort zurückgesetzt. " + (result.warning || ""), "success");
+                } else {
+                  showToast(result.message || "Passwort zurückgesetzt.", "success");
+                }
+              } else {
+                showToast("Fehler: " + (result.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
             }
             (btn as HTMLButtonElement).disabled = false;
             (btn as HTMLElement).textContent = "PW Reset";
@@ -239,11 +299,21 @@ if (!isAdmin) return Astro.redirect("/");
             if (!confirm("Nutzer wirklich löschen? (Soft Delete)")) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/users", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id }),
+              });
+              var d = await res.json();
+              if (d.success || res.ok) {
+                showToast("Nutzer gelöscht", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadUsers();
           });
         });
@@ -399,11 +469,20 @@ if (!isAdmin) return Astro.redirect("/");
             var id = (btn as HTMLElement).getAttribute("data-id") || "";
             if (!confirm("Inhalt wirklich löschen?")) return;
             (btn as HTMLButtonElement).disabled = true;
-            await fetch("/api/admin/content", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: type, id: id }),
-            });
+            try {
+              var res = await fetch("/api/admin/content", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: type, id: id }),
+              });
+              if (res.ok) {
+                showToast("Inhalt gelöscht", "success");
+              } else {
+                showToast("Fehler beim Löschen", "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             openDrawer(userId);
           });
         });

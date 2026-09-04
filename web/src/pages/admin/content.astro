@@ -43,6 +43,14 @@ if (!isAdmin) return Astro.redirect("/");
     var currentType = "catch";
     var searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    function showToast(msg: string, type: "success" | "error") {
+      var toast = document.createElement("div");
+      toast.textContent = msg;
+      toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     function renderCatch(item: any) {
       var date = new Date(item.created_at).toLocaleDateString("de-DE");
       var deleted = item.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
@@ -156,11 +164,20 @@ if (!isAdmin) return Astro.redirect("/");
             if (!confirm("Inhalt wirklich löschen?")) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/content", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: type, id: id }),
-            });
+            try {
+              var res = await fetch("/api/admin/content", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: type, id: id }),
+              });
+              if (res.ok) {
+                showToast("Inhalt gelöscht", "success");
+              } else {
+                showToast("Fehler beim Löschen", "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadContent();
           });
         });

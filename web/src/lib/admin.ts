@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import type { AstroGlobal } from "astro";
 
 export async function getSessionAndProfile(Astro: AstroGlobal) {
@@ -8,16 +8,7 @@ export async function getSessionAndProfile(Astro: AstroGlobal) {
     {
       cookies: {
         getAll() {
-          const h = Astro.request.headers.get("cookie");
-          if (!h) return [];
-          return h
-            .split(";")
-            .map((p) => {
-              const i = p.indexOf("=");
-              if (i === -1) return null;
-              return { name: p.slice(0, i).trim(), value: p.slice(i + 1).trim() };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
+          return parseCookieHeader(Astro.request.headers.get("Cookie") ?? "");
         },
         setAll(cs) {
           cs.forEach(({ name, value, options }) => {

@@ -36,6 +36,14 @@ if (!isAdmin) return Astro.redirect("/");
   <script>
     var currentStatus = "open";
 
+    function showToast(msg: string, type: "success" | "error") {
+      var toast = document.createElement("div");
+      toast.textContent = msg;
+      toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
     function previewText(type: string, preview: any) {
       if (!preview) return "";
       if (type === "catch") {
@@ -114,11 +122,21 @@ if (!isAdmin) return Astro.redirect("/");
             var id = card.getAttribute("data-id");
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/reports", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id }),
-            });
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id }),
+              });
+              var d = await res.json();
+              if (d.success || res.ok) {
+                showToast("Report erledigt", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadReports();
           });
         });
@@ -133,11 +151,20 @@ if (!isAdmin) return Astro.redirect("/");
             if (!confirm("Inhalt wirklich löschen?")) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/reports", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: id, target_id: targetId, target_type: targetType }),
-            });
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id, target_id: targetId, target_type: targetType }),
+              });
+              if (res.ok) {
+                showToast("Inhalt gelöscht", "success");
+              } else {
+                showToast("Fehler beim Löschen", "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadReports();
           });
         });
@@ -151,11 +178,21 @@ if (!isAdmin) return Astro.redirect("/");
             if (!confirm("User wirklich bannen?")) return;
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
-            await fetch("/api/admin/users", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: ownerId, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
-            });
+            try {
+              var res = await fetch("/api/admin/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: ownerId, ban: true, ban_reason: reason || "Kein Grund angegeben" }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("User gebannt", "success");
+              } else {
+                showToast("Fehler: " + (d.error || "Unbekannt"), "error");
+              }
+            } catch {
+              showToast("Netzwerk-Fehler", "error");
+            }
             loadReports();
           });
         });
