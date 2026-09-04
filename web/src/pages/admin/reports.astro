@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Pagination from "../../components/admin/Pagination.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -31,10 +32,15 @@ if (!isAdmin) return Astro.redirect("/");
     <div id="reports-container" class="w-full space-y-4">
       <p class="text-body-md text-on-surface-variant">Lade…</p>
     </div>
+
+    <div id="pagination-wrapper" class="mt-lg">{/* JS fills this */}</div>
   </main>
 
   <script>
     var currentStatus = "open";
+    var currentPage = 1;
+    var totalPages = 1;
+    var paginationLimit = 25;
 
     function showToast(msg: string, type: "success" | "error") {
       var toast = document.createElement("div");
@@ -65,18 +71,89 @@ if (!isAdmin) return Astro.redirect("/");
       return div.innerHTML;
     }
 
+    function buildPagination() {
+      var wrapper = document.getElementById("pagination-wrapper");
+      if (!wrapper) return;
+      if (totalPages <= 1) {
+        wrapper.innerHTML = "";
+        return;
+      }
+      var html = '<nav class="flex items-center justify-center gap-2" aria-label="Seiten-Navigation">';
+      // Previous button
+      html += '<button type="button" class="page-prev font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer' + (currentPage <= 1 ? ' opacity-40 cursor-not-allowed' : '') + '"' + (currentPage <= 1 ? ' disabled' : '') + '>‹</button>';
+      // Page numbers
+      var startPage = Math.max(1, currentPage - 2);
+      var endPage = Math.min(totalPages, currentPage + 2);
+      if (startPage > 1) {
+        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="1">1</button>';
+        if (startPage > 2) html += '<span class="px-2 text-on-surface-variant text-label-sm">…</span>';
+      }
+      for (var p = startPage; p <= endPage; p++) {
+        if (p === currentPage) {
+          html += '<button type="button" class="font-label-sm text-label-sm px-3 py-2 rounded-lg bg-primary text-on-primary min-w-10 flex items-center justify-center cursor-pointer font-bold">' + p + '</button>';
+        } else {
+          html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="' + p + '">' + p + '</button>';
+        }
+      }
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += '<span class="px-2 text-on-surface-variant text-label-sm">…</span>';
+        html += '<button type="button" class="page-link font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer" data-page="' + totalPages + '">' + totalPages + '</button>';
+      }
+      // Next button
+      html += '<button type="button" class="page-next font-label-sm text-label-sm px-3 py-2 rounded-lg border border-outline/20 text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-high transition-colors min-w-10 flex items-center justify-center cursor-pointer' + (currentPage >= totalPages ? ' opacity-40 cursor-not-allowed' : '') + '"' + (currentPage >= totalPages ? ' disabled' : '') + '>›</button>';
+      html += '</nav>';
+      wrapper.innerHTML = html;
+
+      // Click handlers for page links
+      wrapper.querySelectorAll(".page-link").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var page = parseInt((btn as HTMLElement).getAttribute("data-page") || "1");
+          if (page !== currentPage) {
+            currentPage = page;
+            loadReports();
+          }
+        });
+      });
+      // Previous button
+      var prev = wrapper.querySelector(".page-prev") as HTMLButtonElement;
+      if (prev && !prev.disabled) {
+        prev.addEventListener("click", function() {
+          if (currentPage > 1) {
+            currentPage--;
+            loadReports();
+          }
+        });
+      }
+      // Next button
+      var next = wrapper.querySelector(".page-next") as HTMLButtonElement;
+      if (next && !next.disabled) {
+        next.addEventListener("click", function() {
+          if (currentPage < totalPages) {
+            currentPage++;
+            loadReports();
+          }
+        });
+      }
+    }
+
     async function loadReports() {
       var container = document.getElementById("reports-container");
       if (!container) return;
       container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
 
       try {
-        var res = await fetch("/api/admin/reports?status=" + currentStatus);
+        var res = await fetch("/api/admin/reports?status=" + currentStatus + "&page=" + currentPage + "&limit=" + paginationLimit);
         if (!res.ok) throw new Error();
         var data = await res.json();
 
+        if (data.pagination) {
+          currentPage = data.pagination.page || 1;
+          totalPages = data.pagination.totalPages || 1;
+        }
+
         if (!data.reports || data.reports.length === 0) {
           container.innerHTML = '<p class="text-body-md text-on-surface-variant">Keine Reports gefunden.</p>';
+          buildPagination();
           return;
         }
 
@@ -196,8 +273,11 @@ if (!isAdmin) return Astro.redirect("/");
             loadReports();
           });
         });
+
+        buildPagination();
       } catch {
         container.innerHTML = '<p class="text-body-md text-error">Fehler beim Laden.</p>';
+        buildPagination();
       }
     }
 
@@ -207,6 +287,7 @@ if (!isAdmin) return Astro.redirect("/");
 
       function setActive(status: string) {
         currentStatus = status;
+        currentPage = 1;
         if (tabOpen && tabResolved) {
           if (status === "open") {
             tabOpen.className = "font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer";
