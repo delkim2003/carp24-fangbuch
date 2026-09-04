@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import Skeleton from "../../components/admin/Skeleton.astro";
 import Pagination from "../../components/admin/Pagination.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -45,11 +46,18 @@ if (!isAdmin) return Astro.redirect("/");
     </div>
 
     <div id="content-container" class="w-full space-y-3">
-      <p class="text-body-md text-on-surface-variant">Lade…</p>
+      <Skeleton variant="card" count={5} />
     </div>
 
     <div id="pagination-wrapper" class="mt-lg">{/* JS fills this */}</div>
   </main>
+
+  <style>
+    @keyframes skeleton-shimmer {
+      0% { background-position: -468px 0; }
+      100% { background-position: 468px 0; }
+    }
+  </style>
 
   <!-- Edit Modal -->
   <div id="edit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
@@ -74,6 +82,22 @@ if (!isAdmin) return Astro.redirect("/");
   </div>
 
   <script>
+    import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
+
+    AdminKeyboardShortcuts.init({
+      searchSelector: '#search-input',
+      onEscape: function () { closeEditModal(); },
+      shortcuts: [
+        { key: 'g 0', desc: 'Zur Übersicht', handler: function () { window.location.href = '/admin/'; } },
+        { key: 'g r', desc: 'Zu Reports', handler: function () { window.location.href = '/admin/reports/'; } },
+        { key: 'g u', desc: 'Zu Nutzer', handler: function () { window.location.href = '/admin/users/'; } },
+        { key: 'g c', desc: 'Zu Inhalten', handler: function () { window.location.href = '/admin/content/'; } },
+        { key: 'g v', desc: 'Zu Revenue', handler: function () { window.location.href = '/admin/revenue/'; } },
+        { key: 'g a', desc: 'Zu Audit', handler: function () { window.location.href = '/admin/audit/'; } },
+        { key: 'g s', desc: 'Zu Einstellungen', handler: function () { window.location.href = '/admin/settings/'; } },
+      ]
+    });
+
     var currentType = "catch";
     var currentPage = 1;
     var totalPages = 1;
@@ -346,7 +370,7 @@ if (!isAdmin) return Astro.redirect("/");
       var container = document.getElementById("content-container");
       var searchInput = document.getElementById("search-input");
       if (!container) return;
-      container.innerHTML = '<p class="text-body-md text-on-surface-variant">Lade…</p>';
+      container.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px;">' + new Array(5).fill('<div class="skeleton-card" style="padding:16px;background:linear-gradient(90deg,rgba(128,128,128,0.06) 25%,rgba(128,128,128,0.12) 50%,rgba(128,128,128,0.06) 75%);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:12px;min-height:80px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px"><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="height:16px;width:70%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:14px;width:50%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div></div><div style="display:flex;align-items:center;gap:8px"><div style="height:14px;width:60px;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:28px;width:60px;border-radius:14px;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite"></div><div style="height:28px;width:60px;border-radius:14px;background:rgba(239,68,68,0.15);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite"></div></div></div></div>').join('') + '</div>';
 
       var q = searchInput?.value?.trim() || "";
       try {
