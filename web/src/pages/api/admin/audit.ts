@@ -49,6 +49,14 @@ async function guard(request: Request) {
   return { supabaseAdmin, session };
 }
 
+function buildQuery(query: any, filters: { action?: string; dateFrom?: string; dateTo?: string }) {
+  const { action, dateFrom, dateTo } = filters;
+  if (action) query = query.eq("action", action);
+  if (dateFrom) query = query.gte("created_at", dateFrom);
+  if (dateTo) query = query.lte("created_at", dateTo);
+  return query;
+}
+
 export const GET = async ({ request }: { request: Request }) => {
   const g = await guard(request);
   if ("error" in g) {
@@ -63,13 +71,20 @@ export const GET = async ({ request }: { request: Request }) => {
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10), 500);
   const page = Math.max(parseInt(url.searchParams.get("page") || "1", 10), 1);
 
+  const action = url.searchParams.get("action") || undefined;
+  const dateFrom = url.searchParams.get("date_from") || undefined;
+  const dateTo = url.searchParams.get("date_to") || undefined;
+
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  // Count total rows first
-  const { count: total, error: countError } = await supabaseAdmin
+  // Count total rows first (with filters)
+  let countQuery = supabaseAdmin
     .from("admin_audit_log")
     .select("*", { count: "exact", head: true });
+  countQuery = buildQuery(countQuery, { action, dateFrom, dateTo });
+
+  const { count: total, error: countError } = await countQuery;
 
   if (countError) {
     return new Response(JSON.stringify({ error: countError.message }), {
@@ -78,12 +93,16 @@ export const GET = async ({ request }: { request: Request }) => {
     });
   }
 
-  // Fetch paginated data
-  const { data: logs, error } = await supabaseAdmin
+  // Fetch paginated data (with filters)
+  let dataQuery = supabaseAdmin
     .from("admin_audit_log")
     .select("id, actor_id, action, target_type, target_id, details, created_at")
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .order("created_at", { ascending: false });
+
+  dataQuery = buildQuery(dataQuery, { action, dateFrom, dateTo });
+  dataQuery = dataQuery.range(from, to);
+
+  const { data: logs, error } = await dataQuery;
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
