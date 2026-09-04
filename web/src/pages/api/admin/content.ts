@@ -522,3 +522,92 @@ export const DELETE = async ({ request }: { request: Request }) => {
     headers: { "Content-Type": "application/json" },
   });
 };
+
+export const PATCH = async ({ request }: { request: Request }) => {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+  const g = await guard(request);
+  if ("error" in g) {
+    return new Response(JSON.stringify({ error: g.error }), {
+      status: g.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { supabaseAdmin, session } = g;
+
+  let body: { contentId?: string; contentType?: string; updates?: Record<string, any> };
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!body.contentId || !body.contentType || !body.updates) {
+    return new Response(JSON.stringify({ error: "contentId, contentType und updates erforderlich." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const ALLOWED_CONTENT_TYPES = ["catch", "post", "comment"];
+  if (!ALLOWED_CONTENT_TYPES.includes(body.contentType)) {
+    return new Response(JSON.stringify({ error: "Ungültiger contentType. Erlaubt: catch, post, comment." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const ALLOWED_UPDATES: Record<string, string[]> = {
+    catch: ["notes", "bait", "method", "water_name", "species_custom"],
+    post: ["title", "body"],
+    comment: ["body"],
+  };
+
+  const allowed = ALLOWED_UPDATES[body.contentType];
+  const cleaned: Record<string, any> = {};
+  for (const key of Object.keys(body.updates)) {
+    if (allowed.includes(key)) {
+      cleaned[key] = body.updates[key];
+    }
+  }
+
+  if (Object.keys(cleaned).length === 0) {
+    return new Response(JSON.stringify({ error: "Keine gültigen Felder zum Aktualisieren." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  cleaned.updated_at = new Date().toISOString();
+
+  const TABLE_MAP: Record<string, string> = {
+    catch: "catches",
+    post: "forum_posts",
+    comment: "chat_messages",
+  };
+
+  const table = TABLE_MAP[body.contentType];
+
+  const { error } = await supabaseAdmin
+    .from(table)
+    .update(cleaned)
+    .eq("id", body.contentId);
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  await writeAudit(supabaseAdmin, session.user.id, "content.update", body.contentType, body.contentId, { updates: cleaned });
+
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+};
