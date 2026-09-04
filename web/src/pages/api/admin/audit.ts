@@ -61,12 +61,29 @@ export const GET = async ({ request }: { request: Request }) => {
   const { supabaseAdmin } = g;
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10), 500);
+  const page = Math.max(parseInt(url.searchParams.get("page") || "1", 10), 1);
 
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  // Count total rows first
+  const { count: total, error: countError } = await supabaseAdmin
+    .from("admin_audit_log")
+    .select("*", { count: "exact", head: true });
+
+  if (countError) {
+    return new Response(JSON.stringify({ error: countError.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Fetch paginated data
   const { data: logs, error } = await supabaseAdmin
     .from("admin_audit_log")
     .select("id, actor_id, action, target_type, target_id, details, created_at")
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .range(from, to);
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
@@ -74,6 +91,8 @@ export const GET = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  const totalPages = Math.ceil((total ?? 0) / limit);
 
   const actorIds = [...new Set((logs ?? []).map((l: any) => l.actor_id).filter(Boolean))];
   let actorMap = new Map<string, string>();
@@ -90,7 +109,7 @@ export const GET = async ({ request }: { request: Request }) => {
     actor_name: actorMap.get(l.actor_id) ?? "Unbekannt",
   }));
 
-  return new Response(JSON.stringify({ logs: enriched }), {
+  return new Response(JSON.stringify({ logs: enriched, pagination: { page, limit, total: total ?? 0, totalPages } }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
