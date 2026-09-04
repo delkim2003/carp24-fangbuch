@@ -1,0 +1,64 @@
+---
+export interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+function buildUrl(page: number): string {
+  const url = new URL(baseUrl, "http://x");
+  url.searchParams.set("page", String(page));
+  return url.pathname + url.search;
+}
+---
+
+<div class="pagination-wrapper flex items-center justify-between gap-4 mt-lg pt-lg border-t border-outline/20">
+  <span class="text-body-sm text-on-surface-variant" id="pagination-info">
+    Seite {currentPage} von {totalPages}
+  </span>
+  <nav class="flex items-center gap-2" aria-label="Pagination">
+    {currentPage > 1 && (
+      <a
+        href={buildUrl(currentPage - 1)}
+        class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer"
+        data-page={currentPage - 1}
+      >
+        ← Zurück
+      </a>
+    )}
+    <div class="hidden sm:flex items-center gap-1">
+      {
+        Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter((p) => {
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, currentPage + 2);
+            return p >= start && p <= end;
+          })
+          .map((p) => (
+            p === currentPage ? (
+              <span class="font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-primary text-on-primary min-h-9 flex items-center">{p}</span>
+            ) : (
+              <a
+                href={buildUrl(p)}
+                class="font-label-sm text-label-sm px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-9 flex items-center cursor-pointer"
+                data-page={p}
+              >
+                {p}
+              </a>
+            )
+          ))
+      }
+    </div>
+    {currentPage < totalPages && (
+      <a
+        href={buildUrl(currentPage + 1)}
+        class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 flex items-center cursor-pointer"
+        data-page={currentPage + 1}
+      >
+        Weiter →
+      </a>
+    )}
+  </nav>
+</div>
