@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import Skeleton from "../../components/admin/Skeleton.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
 if (!session) return Astro.redirect("/login/");
@@ -31,7 +32,7 @@ if (!isAdmin) return Astro.redirect("/");
     <div class="w-full">
       <h2 class="text-headline-md text-on-surface mb-lg">Feature-Flags</h2>
       <div id="feature-flags-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <div id="flags-loading" class="text-body-md text-on-surface-variant">Lade…</div>
+        <div id="flags-loading"><Skeleton variant="card" count={1} /></div>
         <div id="flags-list" class="space-y-lg hidden"></div>
         <div id="save-row" class="hidden mt-lg pt-lg border-t border-outline/20">
           <button id="save-flags" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90">SPEICHERN</button>
@@ -41,7 +42,25 @@ if (!isAdmin) return Astro.redirect("/");
     </div>
   </main>
 
+  <style>
+    @keyframes skeleton-shimmer{0%{background-position:-468px 0}100%{background-position:468px 0}}
+  </style>
+
   <script>
+    import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
+
+    AdminKeyboardShortcuts.init({
+      shortcuts: [
+        { key: 'g 0', desc: 'Zur Übersicht', handler: function () { window.location.href = '/admin/'; } },
+        { key: 'g r', desc: 'Zu Reports', handler: function () { window.location.href = '/admin/reports/'; } },
+        { key: 'g u', desc: 'Zu Nutzer', handler: function () { window.location.href = '/admin/users/'; } },
+        { key: 'g c', desc: 'Zu Inhalten', handler: function () { window.location.href = '/admin/content/'; } },
+        { key: 'g v', desc: 'Zu Revenue', handler: function () { window.location.href = '/admin/revenue/'; } },
+        { key: 'g a', desc: 'Zu Audit', handler: function () { window.location.href = '/admin/audit/'; } },
+        { key: 'g s', desc: 'Zu Einstellungen', handler: function () { window.location.href = '/admin/settings/'; } },
+      ]
+    });
+
     document.addEventListener("DOMContentLoaded", async () => {
       const FLAG_DEFS = [
         { key: "registration_enabled", label: "Registrierung", desc: "Neue Benutzer können sich registrieren." },
