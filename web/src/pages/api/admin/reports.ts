@@ -71,7 +71,156 @@ export const GET = async ({ request }: { request: Request }) => {
 
   const { supabaseAdmin } = g;
   const url = new URL(request.url);
-  const status = url.searchParams.get("status") || "open";
+  const action = url.searchParams.get("action") || "";
+  const statusFilter = url.searchParams.get("status") || "open";
+
+  const tableMap: Record<string, { table: string; fields: string }> = {
+    catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
+    forum_thread: { table: "forum_threads", fields: "id,user_id,title,body,created_at" },
+    forum_post: { table: "forum_posts", fields: "id,user_id,body,created_at" },
+    chat_message: { table: "chat_messages", fields: "id,user_id,body,created_at" },
+    marketplace_item: { table: "marketplace_items", fields: "id,user_id,title,price,status,created_at" },
+  };
+
+  // ── CSV Export ──────────────────────────────────────
+  if (action === "export") {
+    let query = supabaseAdmin
+      .from("content_reports")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10000);
+
+    if (statusFilter === "open") {
+      query = query.eq("status", "open");
+    } else if (statusFilter === "resolved") {
+      query = query.eq("status", "resolved");
+    }
+
+    const { data: reports } = await query;
+
+    const reporterIds = [...new Set((reports ?? []).map((r: any) => r.reporter_id).filter(Boolean))];
+    const targetsByType = new Map<string, string[]>();
+    for (const r of reports ?? []) {
+      if (r.target_type && r.target_id && tableMap[r.target_type]) {
+        const arr = targetsByType.get(r.target_type) ?? [];
+        arr.push(r.target_id);
+        targetsByType.set(r.target_type, arr);
+      }
+    }
+
+    const [reporterProfiles, ...contentResults] = await Promise.all([
+      reporterIds.length > 0
+        ? supabaseAdmin.from("profiles").select("id, display_name").in("id", reporterIds)
+        : Promise.resolve({ data: [] }),
+      ...[...targetsByType.entries()].map(([type, ids]) =>
+        supabaseAdmin.from(tableMap[type].table).select(tableMap[type].fields).in("id", ids)
+      ),
+    ]);
+
+    const reporterMap = new Map<string, string>();
+    for (const p of reporterProfiles.data ?? []) {
+      reporterMap.set(p.id, p.display_name);
+    }
+
+    const contentMap = new Map<string, any>();
+    const ownerIds = new Set<string>();
+    const waterIds = new Set<string>();
+    const typeKeys = [...targetsByType.keys()];
+
+    for (let i = 0; i < contentResults.length; i++) {
+      const t = typeKeys[i];
+      for (const item of contentResults[i].data ?? []) {
+        contentMap.set(`${t}:${item.id}`, item);
+        if (item.user_id) ownerIds.add(item.user_id);
+        if (t === "catch" && item.water_id) waterIds.add(item.water_id);
+      }
+    }
+
+    const [ownerProfiles, watersResult] = await Promise.all([
+      ownerIds.size > 0
+        ? supabaseAdmin.from("profiles").select("id, display_name").in("id", [...ownerIds])
+        : Promise.resolve({ data: [] }),
+      waterIds.size > 0
+        ? supabaseAdmin.from("waters").select("id, name").in("id", [...waterIds])
+        : Promise.resolve({ data: [] }),
+    ]);
+
+    const ownerMap = new Map<string, string>();
+    for (const p of ownerProfiles.data ?? []) {
+      ownerMap.set(p.id, p.display_name);
+    }
+    const waterMap = new Map<string, string>();
+    for (const w of watersResult.data ?? []) {
+      waterMap.set(w.id, w.name);
+    }
+
+    const esc = (v: any): string => {
+      const s = v == null ? "" : String(v);
+      if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+
+    const rows = (reports ?? []).map((r: any) => {
+      const reporterName = r.reporter_id ? (reporterMap.get(r.reporter_id) ?? "Unbekannt") : "Unbekannt";
+      let preview: any = null;
+      let ownerName = "Unbekannt";
+      const mapping = tableMap[r.target_type];
+      if (mapping) {
+        const content = contentMap.get(`${r.target_type}:${r.target_id}`);
+        if (content) {
+          preview = content;
+          if (r.target_type === "catch" && content.water_id) {
+            const wName = waterMap.get(content.water_id);
+            if (wName) preview = { ...preview, water_name: wName };
+          }
+          if (content.user_id) {
+            ownerName = ownerMap.get(content.user_id) ?? "Unbekannt";
+          }
+        }
+      }
+      return {
+        id: r.id,
+        reporter_id: r.reporter_id ?? "",
+        reporter_name: reporterName,
+        target_type: r.target_type ?? "",
+        target_id: r.target_id ?? "",
+        reason: r.reason ?? "",
+        status: r.status ?? "",
+        created_at: r.created_at ?? "",
+        resolved_at: r.resolved_at ?? "",
+        owner_name: ownerName,
+        preview_species: preview?.species ?? "",
+        preview_weight_kg: preview?.weight_kg ?? "",
+        preview_water_name: preview?.water_name ?? "",
+        preview_title: preview?.title ?? "",
+        preview_body: (preview?.body ?? "").slice(0, 200),
+        preview_price: preview?.price ?? "",
+      };
+    });
+
+    const cols = [
+      "id", "reporter_id", "reporter_name", "target_type", "target_id",
+      "reason", "status", "created_at", "resolved_at", "owner_name",
+      "preview_species", "preview_weight_kg", "preview_water_name",
+      "preview_title", "preview_body", "preview_price",
+    ];
+    const bom = "\uFEFF";
+    const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+      rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+    return new Response(csv, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="reports.csv"',
+      },
+    });
+  }
+
+  // ── Regular paginated JSON ──────────────────────────
+
   const page = Math.max(parseInt(url.searchParams.get("page") || "1", 10), 1);
   const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "25", 10) || 25, 1), 100);
   const from = (page - 1) * limit;
@@ -81,9 +230,9 @@ export const GET = async ({ request }: { request: Request }) => {
     .from("content_reports")
     .select("*", { count: "exact", head: true });
 
-  if (status === "open") {
+  if (statusFilter === "open") {
     countQuery = countQuery.eq("status", "open");
-  } else if (status === "resolved") {
+  } else if (statusFilter === "resolved") {
     countQuery = countQuery.eq("status", "resolved");
   }
 
@@ -95,19 +244,19 @@ export const GET = async ({ request }: { request: Request }) => {
     });
   }
 
-  let query = supabaseAdmin
+  let dataQuery = supabaseAdmin
     .from("content_reports")
     .select("*")
     .order("created_at", { ascending: false })
     .range(from, to);
 
-  if (status === "open") {
-    query = query.eq("status", "open");
-  } else if (status === "resolved") {
-    query = query.eq("status", "resolved");
+  if (statusFilter === "open") {
+    dataQuery = dataQuery.eq("status", "open");
+  } else if (statusFilter === "resolved") {
+    dataQuery = dataQuery.eq("status", "resolved");
   }
 
-  const { data: reports, error } = await query;
+  const { data: reports, error } = await dataQuery;
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
@@ -116,14 +265,6 @@ export const GET = async ({ request }: { request: Request }) => {
   }
 
   const totalPages = Math.ceil((count ?? 0) / limit);
-
-  const tableMap: Record<string, { table: string; fields: string }> = {
-    catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
-    forum_thread: { table: "forum_threads", fields: "id,user_id,title,body,created_at" },
-    forum_post: { table: "forum_posts", fields: "id,user_id,body,created_at" },
-    chat_message: { table: "chat_messages", fields: "id,user_id,body,created_at" },
-    marketplace_item: { table: "marketplace_items", fields: "id,user_id,title,price,status,created_at" },
-  };
 
   const reporterIds = [...new Set((reports ?? []).map((r: any) => r.reporter_id).filter(Boolean))];
 
@@ -156,11 +297,11 @@ export const GET = async ({ request }: { request: Request }) => {
   const typeKeys = [...targetsByType.keys()];
 
   for (let i = 0; i < contentResults.length; i++) {
-    const type = typeKeys[i];
+    const t = typeKeys[i];
     for (const item of contentResults[i].data ?? []) {
-      contentMap.set(`${type}:${item.id}`, item);
+      contentMap.set(`${t}:${item.id}`, item);
       if (item.user_id) ownerIds.add(item.user_id);
-      if (type === "catch" && item.water_id) waterIds.add(item.water_id);
+      if (t === "catch" && item.water_id) waterIds.add(item.water_id);
     }
   }
 
