@@ -524,7 +524,9 @@ export const POST = async ({ request }: { request: Request }) => {
       }
     }
 
-    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent });
+    console.error(`[SECURITY] Password reset for user ${body.id} (${targetEmail}) — Email delivery failed. Generated password: ${newPassword}. Error: ${emailError}`);
+
+    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent, email_error: emailError, password_logged: !emailSent });
 
     if (emailSent) {
       return new Response(JSON.stringify({ success: true, message: `Neues Passwort wurde an ${targetEmail} gesendet.` }), {
@@ -535,11 +537,7 @@ export const POST = async ({ request }: { request: Request }) => {
 
     return new Response(JSON.stringify({
       success: true,
-      password: newPassword,
-      email: targetEmail,
-      warning: smtpConfigured
-        ? `E-Mail-Versand fehlgeschlagen (${emailError}). Bitte Passwort manuell an den User übermitteln.`
-        : "Kein E-Mail-Service konfiguriert. Bitte Passwort manuell an den User übermitteln.",
+      message: "Passwort wurde zurückgesetzt. Bitte kontaktieren Sie den Support, um das neue Passwort zu erhalten.",
     }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
