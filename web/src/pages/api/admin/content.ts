@@ -75,6 +75,10 @@ export const GET = async ({ request }: { request: Request }) => {
   const url = new URL(request.url);
   const type = url.searchParams.get("type") || "catch";
   const q = url.searchParams.get("q") || "";
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "25", 10) || 25));
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
   if (!ALLOWED_TYPES.includes(type as any)) {
     return new Response(JSON.stringify({ error: "Ungültiger Typ." }), {
@@ -84,13 +88,21 @@ export const GET = async ({ request }: { request: Request }) => {
   }
 
   let items: any[] = [];
+  let total = 0;
 
   if (type === "catch") {
+    let countQuery = supabaseAdmin
+      .from("catches")
+      .select("*", { count: "exact", head: true });
+    if (q) countQuery = countQuery.ilike("species", `%${q}%`);
+    const { count } = await countQuery;
+    total = count ?? 0;
+
     let query = supabaseAdmin
       .from("catches")
       .select("id, user_id, species, weight_kg, water_id, created_at, deleted_at")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (q) query = query.ilike("species", `%${q}%`);
     const { data } = await query;
     items = data ?? [];
@@ -115,11 +127,25 @@ export const GET = async ({ request }: { request: Request }) => {
       items = items.map((i) => ({ ...i, water_name: waterMap.get(i.water_id) ?? "" }));
     }
   } else if (type === "forum") {
+    let threadCountQuery = supabaseAdmin
+      .from("forum_threads")
+      .select("*", { count: "exact", head: true });
+    if (q) threadCountQuery = threadCountQuery.or(`title.ilike.%${q}%,body.ilike.%${q}%`);
+    const { count: threadCount } = await threadCountQuery;
+
+    let postCountQuery = supabaseAdmin
+      .from("forum_posts")
+      .select("*", { count: "exact", head: true });
+    if (q) postCountQuery = postCountQuery.ilike("body", `%${q}%`);
+    const { count: postCount } = await postCountQuery;
+
+    total = (threadCount ?? 0) + (postCount ?? 0);
+
     let threadQuery = supabaseAdmin
       .from("forum_threads")
       .select("id, user_id, title, body, created_at")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (q) threadQuery = threadQuery.or(`title.ilike.%${q}%,body.ilike.%${q}%`);
     const { data: threads } = await threadQuery;
 
@@ -127,14 +153,14 @@ export const GET = async ({ request }: { request: Request }) => {
       .from("forum_posts")
       .select("id, user_id, thread_id, body, created_at")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (q) postQuery = postQuery.ilike("body", `%${q}%`);
     const { data: posts } = await postQuery;
 
     const allItems = [
       ...(threads ?? []).map((t: any) => ({ ...t, _type: "thread" })),
       ...(posts ?? []).map((p: any) => ({ ...p, _type: "post" })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 50);
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     const userIds = [...new Set(allItems.map((i) => i.user_id).filter(Boolean))];
     if (userIds.length > 0) {
@@ -148,11 +174,18 @@ export const GET = async ({ request }: { request: Request }) => {
       items = allItems;
     }
   } else if (type === "chat") {
+    let countQuery = supabaseAdmin
+      .from("chat_messages")
+      .select("*", { count: "exact", head: true });
+    if (q) countQuery = countQuery.ilike("body", `%${q}%`);
+    const { count } = await countQuery;
+    total = count ?? 0;
+
     let query = supabaseAdmin
       .from("chat_messages")
       .select("id, user_id, body, created_at")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (q) query = query.ilike("body", `%${q}%`);
     const { data } = await query;
     items = data ?? [];
@@ -167,11 +200,18 @@ export const GET = async ({ request }: { request: Request }) => {
       items = items.map((i) => ({ ...i, display_name: nameMap.get(i.user_id) ?? "Unbekannt" }));
     }
   } else if (type === "marketplace") {
+    let countQuery = supabaseAdmin
+      .from("marketplace_items")
+      .select("*", { count: "exact", head: true });
+    if (q) countQuery = countQuery.ilike("title", `%${q}%`);
+    const { count } = await countQuery;
+    total = count ?? 0;
+
     let query = supabaseAdmin
       .from("marketplace_items")
       .select("id, user_id, title, price, status, created_at")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (q) query = query.ilike("title", `%${q}%`);
     const { data } = await query;
     items = data ?? [];
@@ -187,7 +227,12 @@ export const GET = async ({ request }: { request: Request }) => {
     }
   }
 
-  return new Response(JSON.stringify({ items }), {
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  return new Response(JSON.stringify({
+    items,
+    pagination: { page, limit, total, totalPages },
+  }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
