@@ -31,8 +31,12 @@ if (!isAdmin) return Astro.redirect("/");
       <button id="tab-marketplace" type="button" data-type="marketplace" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Marktplatz</button>
     </div>
 
-    <div class="w-full mb-md">
-      <input id="search-input" type="text" placeholder="Suche…" class="w-full max-w-md bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 placeholder:text-on-surface-variant/60 min-h-12" />
+    <div class="w-full mb-md flex gap-3 items-center">
+      <input id="search-input" type="text" placeholder="Suche…" class="flex-1 max-w-md bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 placeholder:text-on-surface-variant/60 min-h-12" />
+      <a href="/api/admin/content?type=catch&action=export" id="export-csv-btn" download class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer hover:opacity-90 transition-colors gap-2 whitespace-nowrap">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Export CSV
+      </a>
     </div>
 
     <div id="content-container" class="w-full space-y-3">
