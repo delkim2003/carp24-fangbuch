@@ -73,12 +73,9 @@ export const GET = async ({ request }: { request: Request }) => {
 
   const { supabaseAdmin } = g;
   const url = new URL(request.url);
+  const action = url.searchParams.get("action") || "";
   const type = url.searchParams.get("type") || "catch";
   const q = url.searchParams.get("q") || "";
-  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "25", 10) || 25));
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
 
   if (!ALLOWED_TYPES.includes(type as any)) {
     return new Response(JSON.stringify({ error: "Ungültiger Typ." }), {
@@ -86,6 +83,221 @@ export const GET = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  // ── CSV Export ──────────────────────────────────────
+  if (action === "export") {
+    const esc = (v: any): string => {
+      const s = v == null ? "" : String(v);
+      if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+
+    if (type === "catch") {
+      let query = supabaseAdmin
+        .from("catches")
+        .select("id, user_id, species, weight_kg, water_id, created_at, deleted_at")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (q) query = query.ilike("species", `%${q}%`);
+      const { data } = await query;
+      let items = (data ?? []) as any[];
+
+      const userIds = [...new Set(items.map((i) => i.user_id).filter(Boolean))];
+      let nameMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", userIds);
+        nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+      }
+
+      const waterIds = [...new Set(items.map((i) => i.water_id).filter(Boolean))];
+      let waterMap = new Map<string, string>();
+      if (waterIds.length > 0) {
+        const { data: waters } = await supabaseAdmin
+          .from("waters")
+          .select("id, name")
+          .in("id", waterIds);
+        waterMap = new Map((waters ?? []).map((w: any) => [w.id, w.name]));
+      }
+
+      const rows = items.map((i) => ({
+        id: i.id,
+        user_id: i.user_id,
+        display_name: nameMap.get(i.user_id) ?? "Unbekannt",
+        species: i.species ?? "",
+        weight_kg: i.weight_kg ?? "",
+        water_name: waterMap.get(i.water_id) ?? "",
+        created_at: i.created_at ?? "",
+        deleted_at: i.deleted_at ?? "",
+      }));
+
+      const cols = ["id", "user_id", "display_name", "species", "weight_kg", "water_name", "created_at", "deleted_at"];
+      const bom = "\uFEFF";
+      const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+        rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": 'attachment; filename="catches.csv"',
+        },
+      });
+    }
+
+    if (type === "forum") {
+      let threadQuery = supabaseAdmin
+        .from("forum_threads")
+        .select("id, user_id, title, body, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (q) threadQuery = threadQuery.or(`title.ilike.%${q}%,body.ilike.%${q}%`);
+      const { data: threads } = await threadQuery;
+
+      let postQuery = supabaseAdmin
+        .from("forum_posts")
+        .select("id, user_id, thread_id, body, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (q) postQuery = postQuery.ilike("body", `%${q}%`);
+      const { data: posts } = await postQuery;
+
+      const allItems = [
+        ...(threads ?? []).map((t: any) => ({ ...t, _type: "thread" })),
+        ...(posts ?? []).map((p: any) => ({ ...p, _type: "post" })),
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      const userIds = [...new Set(allItems.map((i) => i.user_id).filter(Boolean))];
+      let nameMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", userIds);
+        nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+      }
+
+      const rows = allItems.map((i) => ({
+        id: i.id,
+        user_id: i.user_id,
+        display_name: nameMap.get(i.user_id) ?? "Unbekannt",
+        type: i._type,
+        title: i.title ?? "",
+        body: (i.body ?? "").slice(0, 500),
+        created_at: i.created_at ?? "",
+      }));
+
+      const cols = ["id", "user_id", "display_name", "type", "title", "body", "created_at"];
+      const bom = "\uFEFF";
+      const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+        rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": 'attachment; filename="forum.csv"',
+        },
+      });
+    }
+
+    if (type === "chat") {
+      let query = supabaseAdmin
+        .from("chat_messages")
+        .select("id, user_id, body, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (q) query = query.ilike("body", `%${q}%`);
+      const { data } = await query;
+      let items = (data ?? []) as any[];
+
+      const userIds = [...new Set(items.map((i) => i.user_id).filter(Boolean))];
+      let nameMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", userIds);
+        nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+      }
+
+      const rows = items.map((i) => ({
+        id: i.id,
+        user_id: i.user_id,
+        display_name: nameMap.get(i.user_id) ?? "Unbekannt",
+        body: (i.body ?? "").slice(0, 500),
+        created_at: i.created_at ?? "",
+      }));
+
+      const cols = ["id", "user_id", "display_name", "body", "created_at"];
+      const bom = "\uFEFF";
+      const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+        rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": 'attachment; filename="chat.csv"',
+        },
+      });
+    }
+
+    if (type === "marketplace") {
+      let query = supabaseAdmin
+        .from("marketplace_items")
+        .select("id, user_id, title, price, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (q) query = query.ilike("title", `%${q}%`);
+      const { data } = await query;
+      let items = (data ?? []) as any[];
+
+      const userIds = [...new Set(items.map((i) => i.user_id).filter(Boolean))];
+      let nameMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", userIds);
+        nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+      }
+
+      const rows = items.map((i) => ({
+        id: i.id,
+        user_id: i.user_id,
+        display_name: nameMap.get(i.user_id) ?? "Unbekannt",
+        title: i.title ?? "",
+        price: i.price ?? "",
+        status: i.status ?? "",
+        created_at: i.created_at ?? "",
+      }));
+
+      const cols = ["id", "user_id", "display_name", "title", "price", "status", "created_at"];
+      const bom = "\uFEFF";
+      const csv = bom + cols.map((c) => esc(c)).join(",") + "\r\n" +
+        rows.map((r) => cols.map((c) => esc((r as any)[c])).join(",")).join("\r\n") + "\r\n";
+
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": 'attachment; filename="marketplace.csv"',
+        },
+      });
+    }
+  }
+
+  // ── Regular paginated JSON ──────────────────────────
+
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "25", 10) || 25));
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
   let items: any[] = [];
   let total = 0;
