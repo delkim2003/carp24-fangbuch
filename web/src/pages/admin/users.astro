@@ -51,11 +51,12 @@ if (!isAdmin) return Astro.redirect("/");
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Status</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Meldungen</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Letzter Login</th>
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
           </tr>
         </thead>
         <tbody id="users-body">
-          <tr><td colspan="8" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
+          <tr><td colspan="9" class="text-body-md text-on-surface-variant py-4 px-4">Lade…</td></tr>
         </tbody>
       </table>
     </div>
@@ -95,6 +96,26 @@ if (!isAdmin) return Astro.redirect("/");
       var div = document.createElement("div");
       div.appendChild(document.createTextNode(str || ""));
       return div.innerHTML;
+    }
+
+    function timeAgo(dateStr: string | null) {
+      if (!dateStr) return '<span class="text-on-surface-variant/60">Nie</span>';
+      var now = new Date();
+      var then = new Date(dateStr);
+      var diffMs = now.getTime() - then.getTime();
+      var diffSec = Math.floor(diffMs / 1000);
+      var diffMin = Math.floor(diffSec / 60);
+      var diffHr = Math.floor(diffMin / 60);
+      var diffDay = Math.floor(diffHr / 24);
+      var diffWeek = Math.floor(diffDay / 7);
+      var diffMonth = Math.floor(diffDay / 30);
+      if (diffMin < 1) return "Gerade eben";
+      if (diffMin < 60) return diffMin + " Min. zuvor";
+      if (diffHr < 24) return diffHr + " Std. zuvor";
+      if (diffDay < 7) return diffDay + " Tage zuvor";
+      if (diffWeek < 5) return diffWeek + " Wochen zuvor";
+      if (diffMonth < 12) return diffMonth + " Mon. zuvor";
+      return "Vor " + Math.floor(diffDay / 365) + " Jahren";
     }
 
     function updatePagination() {
@@ -175,7 +196,7 @@ if (!isAdmin) return Astro.redirect("/");
         }
 
         if (!data.users || data.users.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9" class="text-body-md text-on-surface-variant py-4 px-4">Keine Nutzer gefunden.</td></tr>';
           updatePagination();
           return;
         }
@@ -207,6 +228,7 @@ if (!isAdmin) return Astro.redirect("/");
               '<td class="text-body-sm py-3 px-4">' + banned + '</td>' +
               '<td class="text-body-md text-on-surface py-3 px-4">' + reportsHtml + '</td>' +
               '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + date + '</td>' +
+              '<td class="text-body-sm py-3 px-4">' + timeAgo(u.last_sign_in_at) + '</td>' +
               '<td class="py-3 px-4">' +
                 '<div class="flex gap-2 flex-wrap">' +
                   '<button type="button" class="detail-btn font-label-sm text-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Detail</button>' +
@@ -395,7 +417,7 @@ if (!isAdmin) return Astro.redirect("/");
 
         updatePagination();
       } catch {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-body-md text-error py-4 px-4">Fehler beim Laden.</td></tr>';
         updatePagination();
       }
     }
