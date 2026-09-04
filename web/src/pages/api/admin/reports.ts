@@ -72,12 +72,34 @@ export const GET = async ({ request }: { request: Request }) => {
   const { supabaseAdmin } = g;
   const url = new URL(request.url);
   const status = url.searchParams.get("status") || "open";
+  const page = Math.max(parseInt(url.searchParams.get("page") || "1", 10), 1);
+  const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "25", 10) || 25, 1), 100);
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let countQuery = supabaseAdmin
+    .from("content_reports")
+    .select("*", { count: "exact", head: true });
+
+  if (status === "open") {
+    countQuery = countQuery.eq("status", "open");
+  } else if (status === "resolved") {
+    countQuery = countQuery.eq("status", "resolved");
+  }
+
+  const { count, error: countError } = await countQuery;
+  if (countError) {
+    return new Response(JSON.stringify({ error: countError.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   let query = supabaseAdmin
     .from("content_reports")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range(from, to);
 
   if (status === "open") {
     query = query.eq("status", "open");
@@ -92,6 +114,8 @@ export const GET = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  const totalPages = Math.ceil((count ?? 0) / limit);
 
   const tableMap: Record<string, { table: string; fields: string }> = {
     catch: { table: "catches", fields: "id,user_id,species,weight_kg,water_id,created_at" },
@@ -188,7 +212,7 @@ export const GET = async ({ request }: { request: Request }) => {
     return { ...r, reporter_name: reporterName, preview, owner: ownerDisplay, owner_name: ownerName };
   });
 
-  return new Response(JSON.stringify({ reports: enriched }), {
+  return new Response(JSON.stringify({ reports: enriched, pagination: { page, limit, total: count ?? 0, totalPages } }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
