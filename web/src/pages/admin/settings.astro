@@ -1,0 +1,138 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSessionAndProfile } from "../../lib/admin";
+
+const { session, isAdmin } = await getSessionAndProfile(Astro);
+if (!session) return Astro.redirect("/login/");
+if (!isAdmin) return Astro.redirect("/");
+---
+
+<Layout title="Carp24 – Admin – Einstellungen" noindex>
+  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+    <div class="w-full mb-xl">
+      <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
+      <h1 class="text-headline-lg text-on-surface">ADMIN-EINSTELLUNGEN</h1>
+    </div>
+
+    <nav class="flex gap-4 mb-xl flex-wrap">
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Einstellungen</a>
+    </nav>
+
+    <div class="w-full">
+      <h2 class="text-headline-md text-on-surface mb-lg">Feature-Flags</h2>
+      <div id="feature-flags-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <div id="flags-loading" class="text-body-md text-on-surface-variant">Lade…</div>
+        <div id="flags-list" class="space-y-lg hidden"></div>
+        <div id="save-row" class="hidden mt-lg pt-lg border-t border-outline/20">
+          <button id="save-flags" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90">SPEICHERN</button>
+          <span id="save-feedback" class="text-body-sm text-on-surface-variant ml-md hidden"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const FLAG_DEFS = [
+        { key: "registration_enabled", label: "Registrierung", desc: "Neue Benutzer können sich registrieren." },
+        { key: "chat_enabled", label: "Chat", desc: "Chat-Funktion für alle Benutzer." },
+        { key: "marketplace_enabled", label: "Marktplatz", desc: "Marktplatz-Anzeigen für alle Benutzer." },
+      ];
+
+      const loadingEl = document.getElementById("flags-loading")!;
+      const listEl = document.getElementById("flags-list")!;
+      const saveRow = document.getElementById("save-row")!;
+      const saveBtn = document.getElementById("save-flags")!;
+      const feedbackEl = document.getElementById("save-feedback")!;
+
+      let currentFlags: Record<string, boolean> = {};
+
+      async function loadFlags() {
+        try {
+          const res = await fetch("/api/admin/feature-flags");
+          if (!res.ok) {
+            loadingEl.textContent = "Fehler beim Laden der Flags.";
+            return;
+          }
+          currentFlags = await res.json();
+          renderFlags();
+        } catch {
+          loadingEl.textContent = "Fehler beim Laden der Flags.";
+        }
+      }
+
+      function renderFlags() {
+        loadingEl.classList.add("hidden");
+        listEl.classList.remove("hidden");
+        saveRow.classList.remove("hidden");
+
+        listEl.innerHTML = FLAG_DEFS.map((def) => {
+          const value = currentFlags[def.key] ?? true;
+          return (
+            '<div class="flex items-center justify-between" data-flag-key="' + def.key + '">' +
+              '<div>' +
+                '<p class="font-label-sm text-label-sm text-on-surface">' + def.label + '</p>' +
+                '<p class="text-body-sm text-on-surface-variant">' + def.desc + '</p>' +
+              '</div>' +
+              '<label class="relative inline-flex items-center cursor-pointer">' +
+                '<input type="checkbox" class="sr-only peer flag-toggle" data-key="' + def.key + '"' + (value ? ' checked' : '') + ' />' +
+                '<div class="w-11 h-6 rounded-full peer bg-surface-container-highest border border-outline/20 peer-checked:bg-primary peer-checked:border-primary transition-colors after:content-[\'\'] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:border-outline/20 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>' +
+              '</label>' +
+            '</div>'
+          );
+        }).join("");
+
+        // Attach change listeners to mark dirty
+        document.querySelectorAll(".flag-toggle").forEach((cb) => {
+          cb.addEventListener("change", () => {
+            feedbackEl.classList.add("hidden");
+          });
+        });
+      }
+
+      saveBtn.addEventListener("click", async () => {
+        const payload: Record<string, boolean> = {};
+        document.querySelectorAll(".flag-toggle").forEach((cb) => {
+          const key = (cb as HTMLInputElement).dataset.key!;
+          payload[key] = (cb as HTMLInputElement).checked;
+        });
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "SPEICHERE…";
+        feedbackEl.classList.add("hidden");
+
+        try {
+          const res = await fetch("/api/admin/feature-flags", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            currentFlags = payload;
+            feedbackEl.textContent = "Gespeichert.";
+            feedbackEl.className = "text-body-sm text-green-600 ml-md";
+          } else {
+            const err = await res.json();
+            feedbackEl.textContent = "Fehler: " + (err.error || "Unbekannt");
+            feedbackEl.className = "text-body-sm text-error ml-md";
+          }
+        } catch {
+          feedbackEl.textContent = "Fehler beim Speichern.";
+          feedbackEl.className = "text-body-sm text-error ml-md";
+        }
+
+        feedbackEl.classList.remove("hidden");
+        saveBtn.disabled = false;
+        saveBtn.textContent = "SPEICHERN";
+      });
+
+      loadFlags();
+    });
+  </script>
+</Layout>
