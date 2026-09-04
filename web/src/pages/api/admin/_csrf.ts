@@ -6,10 +6,16 @@ const ALLOWED_ORIGINS = [
 
 export function csrfGuard(request: Request): Response | null {
   const origin = request.headers.get("origin") || request.headers.get("referer");
+  if (!origin) {
+    return new Response(JSON.stringify({ error: "CSRF check failed" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const normalizedOrigin = origin.replace(/\/+$/, "");
   if (
-    !origin ||
     !ALLOWED_ORIGINS.some(
-      (a) => origin === a || origin.startsWith(a + "/")
+      (a) => normalizedOrigin === a || normalizedOrigin === a + "/"
     )
   ) {
     return new Response(JSON.stringify({ error: "CSRF check failed" }), {
