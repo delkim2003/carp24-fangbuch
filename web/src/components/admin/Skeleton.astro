@@ -12,121 +12,10 @@ export interface Props {
 
 const { variant, count = 1, cols = 5, rowHeight = 48 } = Astro.props;
 
-const shimmer = `
-@keyframes skeleton-shimmer {
-  0% { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
-}
-.skeleton-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.08) 50%, transparent 75%);
-  background-size: 936px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 4px;
-  pointer-events: none;
-  user-select: none;
-}
-.skeleton-row {
-  display: flex;
-  gap: 16px;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(128,128,128,0.1);
-}
-.skeleton-cell {
-  height: 20px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.1) 25%, rgba(128,128,128,0.18) 50%, rgba(128,128,128,0.1) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 4px;
-}
-.skeleton-card {
-  padding: 16px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 12px;
-  min-height: 80px;
-}
-.skeleton-drawer-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.skeleton-line {
-  height: 14px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 4px;
-}
-.skeleton-kpi {
-  height: 36px;
-  width: 60%;
-  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 6px;
-}
-.skeleton-label {
-  height: 12px;
-  width: 40%;
-  margin-bottom: 8px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 4px;
-}
-.skeleton-checkbox {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-.skeleton-select {
-  height: 28px;
-  width: 80px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.16) 50%, rgba(128,128,128,0.08) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 6px;
-}
-.skeleton-btn {
-  height: 28px;
-  width: 60px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 14px;
-}
-.skeleton-report-card {
-  padding: 20px;
-  background: linear-gradient(90deg, rgba(128,128,128,0.06) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.06) 75%);
-  background-size: 468px 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.skeleton-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-.skeleton-content-card {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-`
+
 ---
 
+<div aria-hidden="true">
 {variant === "table-row" && (
   <div class="skeleton-shimmer" style="border-radius:8px;overflow:hidden;">
     {Array.from({ length: count }, (_, rowIdx) => (
@@ -211,3 +100,4 @@ const shimmer = `
     ))}
   </div>
 )}
+</div>
