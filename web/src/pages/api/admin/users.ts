@@ -313,13 +313,105 @@ export const POST = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
-  let body: { action?: string; id?: string };
+  const { supabaseAdmin, session, actorRole } = g;
+  let body: { action?: string; id?: string; userIds?: string[]; reason?: string; actorRole?: string };
   try {
     body = await request.json();
   } catch {
     return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (body.action === "bulk_ban" && Array.isArray(body.userIds) && body.userIds.length > 0) {
+    const reason = body.reason || "Kein Grund angegeben";
+    const results: { userId: string; success: boolean; error?: string }[] = [];
+
+    for (const userId of body.userIds) {
+      try {
+        const { data: currentProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("role, banned_at")
+          .eq("id", userId)
+          .single();
+
+        if (!currentProfile) {
+          results.push({ userId, success: false, error: "Nutzer nicht gefunden." });
+          continue;
+        }
+
+        if (actorRole === "MODERATOR" && (currentProfile.role === "ADMIN" || currentProfile.role === "MODERATOR")) {
+          results.push({ userId, success: false, error: "MODERATOR darf ADMIN/MODERATOR nicht bannen." });
+          continue;
+        }
+
+        const { error } = await supabaseAdmin
+          .from("profiles")
+          .update({ banned_at: new Date().toISOString(), ban_reason: reason })
+          .eq("id", userId);
+
+        if (error) {
+          results.push({ userId, success: false, error: error.message });
+          continue;
+        }
+
+        await supabaseAdmin.auth.admin.updateUserById(userId, { ban_duration: "876000h" });
+        await writeAudit(supabaseAdmin, session.user.id, "user.ban", "user", userId, { field: "banned_at", from: currentProfile.banned_at, to: "banned", reason });
+
+        results.push({ userId, success: true });
+      } catch (e: any) {
+        results.push({ userId, success: false, error: e?.message ?? "Unbekannter Fehler" });
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true, results }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (body.action === "bulk_delete" && Array.isArray(body.userIds) && body.userIds.length > 0) {
+    const results: { userId: string; success: boolean; error?: string }[] = [];
+
+    for (const userId of body.userIds) {
+      try {
+        const { data: targetProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("role")
+          .eq("id", userId)
+          .single();
+
+        if (!targetProfile) {
+          results.push({ userId, success: false, error: "Nutzer nicht gefunden." });
+          continue;
+        }
+
+        if (actorRole === "MODERATOR" && (targetProfile.role === "ADMIN" || targetProfile.role === "MODERATOR")) {
+          results.push({ userId, success: false, error: "MODERATOR darf ADMIN/MODERATOR nicht löschen." });
+          continue;
+        }
+
+        const { error } = await supabaseAdmin
+          .from("profiles")
+          .update({ deleted_at: new Date().toISOString() })
+          .eq("id", userId);
+
+        if (error) {
+          results.push({ userId, success: false, error: error.message });
+          continue;
+        }
+
+        await writeAudit(supabaseAdmin, session.user.id, "user.delete", "user", userId, {});
+
+        results.push({ userId, success: true });
+      } catch (e: any) {
+        results.push({ userId, success: false, error: e?.message ?? "Unbekannter Fehler" });
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true, results }), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
