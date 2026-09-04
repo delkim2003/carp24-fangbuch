@@ -93,7 +93,7 @@ export const GET = async ({ request }: { request: Request }) => {
     if (statusFilter === "open") {
       query = query.eq("status", "open");
     } else if (statusFilter === "resolved") {
-      query = query.eq("status", "resolved");
+      query = query.in("status", ["resolved", "dismissed", "escalated"]);
     }
 
     const { data: reports } = await query;
@@ -157,7 +157,7 @@ export const GET = async ({ request }: { request: Request }) => {
     const esc = (v: any): string => {
       const s = v == null ? "" : String(v);
       if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
-        return '"' + s.replace(/"/g, '""') + '"';
+        return '"' + s.replace(/\"/g, '""') + '"';
       }
       return s;
     };
@@ -233,7 +233,7 @@ export const GET = async ({ request }: { request: Request }) => {
   if (statusFilter === "open") {
     countQuery = countQuery.eq("status", "open");
   } else if (statusFilter === "resolved") {
-    countQuery = countQuery.eq("status", "resolved");
+    countQuery = countQuery.in("status", ["resolved", "dismissed", "escalated"]);
   }
 
   const { count, error: countError } = await countQuery;
@@ -253,7 +253,7 @@ export const GET = async ({ request }: { request: Request }) => {
   if (statusFilter === "open") {
     dataQuery = dataQuery.eq("status", "open");
   } else if (statusFilter === "resolved") {
-    dataQuery = dataQuery.eq("status", "resolved");
+    dataQuery = dataQuery.in("status", ["resolved", "dismissed", "escalated"]);
   }
 
   const { data: reports, error } = await dataQuery;
@@ -355,6 +355,91 @@ export const GET = async ({ request }: { request: Request }) => {
 
   return new Response(JSON.stringify({ reports: enriched, pagination: { page, limit, total: count ?? 0, totalPages } }), {
     status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+};
+
+export const POST = async ({ request }: { request: Request }) => {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+  const g = await guard(request);
+  if ("error" in g) {
+    return new Response(JSON.stringify({ error: g.error }), {
+      status: g.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { supabaseAdmin, session } = g;
+  let body: { action?: string; reportId?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!body.action || !body.reportId) {
+    return new Response(JSON.stringify({ error: "action und reportId erforderlich." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { action, reportId } = body;
+
+  if (action === "dismiss") {
+    const { error } = await supabaseAdmin
+      .from("content_reports")
+      .update({
+        status: "dismissed",
+        dismissed_at: new Date().toISOString(),
+        dismissed_by: session.user.id,
+      })
+      .eq("id", reportId);
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    await writeAudit(supabaseAdmin, session.user.id, "report.dismiss", "report", reportId, {});
+    return new Response(JSON.stringify({ success: true, status: "dismissed" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "escalate") {
+    const { error } = await supabaseAdmin
+      .from("content_reports")
+      .update({
+        status: "escalated",
+        escalated_at: new Date().toISOString(),
+        escalated_by: session.user.id,
+      })
+      .eq("id", reportId);
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    await writeAudit(supabaseAdmin, session.user.id, "report.escalate", "report", reportId, {});
+    return new Response(JSON.stringify({ success: true, status: "escalated" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify({ error: "Unbekannte Aktion: " + action }), {
+    status: 400,
     headers: { "Content-Type": "application/json" },
   });
 };
