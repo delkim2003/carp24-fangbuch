@@ -84,8 +84,10 @@ export const GET = async ({ request }: { request: Request }) => {
 
   const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
   const emailMap = new Map<string, string>();
+  const lastSignInMap = new Map<string, string | null>();
   for (const t of authUsers.users) {
     if (t.id && t.email) emailMap.set(t.id, t.email);
+    if (t.id) lastSignInMap.set(t.id, t.last_sign_in_at ?? null);
   }
 
   // Count query with identical filters
@@ -172,6 +174,7 @@ export const GET = async ({ request }: { request: Request }) => {
   const users = (profiles ?? []).map((p: any) => ({
     ...p,
     email: emailMap.get(p.id) ?? "",
+    last_sign_in_at: lastSignInMap.get(p.id) ?? null,
     catches_count: catchesMap.get(p.id) ?? 0,
     open_reports_count: reportsMap.get(p.id) ?? 0,
   }));
