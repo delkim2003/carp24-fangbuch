@@ -60,7 +60,7 @@ if (!isAdmin) return Astro.redirect("/");
   </style>
 
   <!-- Edit Modal -->
-  <div id="edit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
+  <div id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
     <div class="bg-surface-container-lowest rounded-xl p-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-lg">
         <h2 class="text-headline-sm text-on-surface" id="edit-modal-title">Inhalt bearbeiten</h2>
@@ -275,10 +275,40 @@ if (!isAdmin) return Astro.redirect("/");
       // Focus first field
       var firstInput = bodyEl.querySelector("input, textarea");
       if (firstInput) setTimeout(function() { firstInput.focus(); }, 100);
+
+      // Focus trap — cycle Tab/Shift+Tab within the modal
+      var _focusTrapHandler = function(e) {
+        if (e.key !== 'Tab') return;
+        var focusable = modal.querySelectorAll('input, textarea, button, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+      modal.addEventListener('keydown', _focusTrapHandler);
+      modal._focusTrapHandler = _focusTrapHandler;
     }
 
     function closeEditModal() {
       var modal = document.getElementById("edit-modal");
+      // Remove focus trap
+      if (modal._focusTrapHandler) {
+        modal.removeEventListener('keydown', modal._focusTrapHandler);
+        delete modal._focusTrapHandler;
+      }
+      // Return focus to the trigger button
+      var triggerBtn = document.querySelector('.edit-content-btn');
+      if (triggerBtn) triggerBtn.focus();
       modal.classList.add("hidden");
       modal.classList.remove("flex");
       editState = { id: null, contentType: null, item: null };
