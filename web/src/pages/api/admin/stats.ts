@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { parseCookieHeader } from "@supabase/ssr";
+import Stripe from "stripe";
 
 export const prerender = false;
 
@@ -86,8 +87,9 @@ export const GET = async ({ request }: { request: Request }) => {
 
   const now = new Date();
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [signupsByDay, catchesByDay, stripeEvents] = await Promise.all([
+  const [signupsByDay, catchesByDay, stripeEvents, activeSubs, totalSubs, conversionUsers, recentCancellations] = await Promise.all([
     supabaseAdmin
       .from("profiles")
       .select("created_at")
@@ -102,7 +104,43 @@ export const GET = async ({ request }: { request: Request }) => {
     supabaseAdmin
       .from("stripe_events")
       .select("type, status"),
+    supabaseAdmin
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "ACTIVE"),
+    supabaseAdmin
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true }),
+    supabaseAdmin
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("is_pro", true),
+    supabaseAdmin
+      .from("stripe_events")
+      .select("id", { count: "exact", head: true })
+      .eq("type", "customer.subscription.deleted")
+      .gte("created_at", thirtyDaysAgo),
   ]);
+
+  const activeSubCount = activeSubs.count ?? 0;
+  const churnCount = recentCancellations.count ?? 0;
+  const conversionUserCount = conversionUsers.count ?? 0;
+  const totalUserCount = users.count ?? 0;
+
+  // MRR via Stripe
+  let mrr = 0;
+  try {
+    const secretKey = import.meta.env.STRIPE_SECRET_KEY;
+    const priceId = import.meta.env.STRIPE_PRICE_ID;
+    if (secretKey && priceId) {
+      const stripe = new Stripe(secretKey, { apiVersion: "2025-02-24.acacia" });
+      const price = await stripe.prices.retrieve(priceId);
+      const unitAmount = price.unit_amount ?? 0;
+      mrr = (activeSubCount * unitAmount) / 100;
+    }
+  } catch {
+    // Stripe not configured
+  }
 
   function groupByDay(rows: any[]): Record<string, number> {
     const result: Record<string, number> = {};
@@ -132,6 +170,9 @@ export const GET = async ({ request }: { request: Request }) => {
     .slice(0, 5)
     .map(([type, count]) => ({ type, count }));
 
+  const churnRate = activeSubCount > 0 ? (churnCount / activeSubCount) * 100 : 0;
+  const conversionRate = totalUserCount > 0 ? (conversionUserCount / totalUserCount) * 100 : 0;
+
   return new Response(
     JSON.stringify({
       stats: {
@@ -154,6 +195,13 @@ export const GET = async ({ request }: { request: Request }) => {
       stripeEvents: {
         topTypes,
         statusDistribution: statusCount,
+      },
+      revenue: {
+        mrr,
+        activeSubscribers: activeSubCount,
+        churnRate,
+        conversionRate,
+        conversionUsers: conversionUserCount,
       },
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }

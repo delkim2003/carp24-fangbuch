@@ -29,18 +29,22 @@ if (!isAdmin) return Astro.redirect("/");
       <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
     </nav>
 
-    <div id="kpi-grid" class="grid grid-cols-3 gap-gutter w-full mb-xl">
+    <div id="kpi-grid" class="grid grid-cols-2 md:grid-cols-4 gap-gutter w-full mb-xl">
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktive Pro-User</p>
-        <p class="text-headline-lg text-on-surface" data-kpi="proUsers">–</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">MRR (Monatlicher Umsatz)</p>
+        <p class="text-headline-lg text-on-surface font-mono" data-kpi="mrr">–</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Free-User</p>
-        <p class="text-headline-lg text-on-surface" data-kpi="freeUsers">–</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktive Abonnenten</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="activeSubscribers">–</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Pro-Quote</p>
-        <p class="text-headline-lg text-on-surface" data-kpi="proRate">–</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Abwanderung (30 Tage)</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="churnRate">–</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Conversion zu Pro</p>
+        <p class="text-headline-lg text-on-surface" data-kpi="conversionRate">–</p>
       </div>
     </div>
 
@@ -112,16 +116,22 @@ if (!isAdmin) return Astro.redirect("/");
         if (!statsRes.ok) throw new Error();
         var statsData = await statsRes.json();
         var stats = statsData.stats;
-        var proUsers = stats.proUsers ?? 0;
-        var freeUsers = (stats.users ?? 0) - proUsers;
-        var proRate = stats.users > 0 ? ((proUsers / stats.users) * 100).toFixed(1) + "%" : "0%";
+        var revenue = statsData.revenue;
 
-        var proEl = document.querySelector('[data-kpi="proUsers"]');
-        var freeEl = document.querySelector('[data-kpi="freeUsers"]');
-        var rateEl = document.querySelector('[data-kpi="proRate"]');
-        if (proEl) proEl.textContent = String(proUsers);
-        if (freeEl) freeEl.textContent = String(freeUsers);
-        if (rateEl) rateEl.textContent = proRate;
+        // Revenue KPIs
+        if (revenue) {
+          var mrrEl = document.querySelector('[data-kpi="mrr"]');
+          if (mrrEl) mrrEl.textContent = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(revenue.mrr);
+
+          var subsEl = document.querySelector('[data-kpi="activeSubscribers"]');
+          if (subsEl) subsEl.textContent = String(revenue.activeSubscribers);
+
+          var churnEl = document.querySelector('[data-kpi="churnRate"]');
+          if (churnEl) churnEl.textContent = revenue.churnRate.toFixed(1) + "%";
+
+          var convEl = document.querySelector('[data-kpi="conversionRate"]');
+          if (convEl) convEl.textContent = revenue.conversionRate.toFixed(1) + "%";
+        }
 
         var stripe = statsData.stripeEvents;
         var stripeSection = document.getElementById("stripe-section");
