@@ -225,6 +225,31 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     }
   }
 
+  // Calculate confidence percentage based on data quality
+  const totalCatches = catches?.length || 0;
+  const withWeather = catchesWithWeather.length;
+  
+  // Base confidence from catch count
+  let confidence = 0;
+  if (withWeather >= 50) confidence = 90;
+  else if (withWeather >= 30) confidence = 75;
+  else if (withWeather >= 15) confidence = 55;
+  else if (withWeather >= 6) confidence = 35;
+  else if (withWeather >= 3) confidence = 20;
+  else confidence = 10;
+  
+  // Bonus for diversity
+  const weatherTypes = new Set(catchesWithWeather.map(c => c.weather?.weather_text).filter(Boolean));
+  const moonPhases = new Set(catchesWithWeather.map(c => c.weather?.moon_text).filter(Boolean));
+  const waters = new Set(catches?.map(c => c.water_name).filter(Boolean));
+  
+  if (weatherTypes.size >= 3) confidence += 5;
+  if (moonPhases.size >= 3) confidence += 5;
+  if (waters.size >= 2) confidence += 3;
+  
+  // Cap at 95
+  confidence = Math.min(confidence, 95);
+
   let systemPrompt = "";
   let userPrompt = "";
 
@@ -461,7 +486,7 @@ Erstelle eine Angelprognose basierend auf diesen Daten.`;
       supabaseAdmin.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
     }
 
-    return new Response(JSON.stringify({ answer }), {
+    return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

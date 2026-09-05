@@ -185,6 +185,26 @@ const isPaid = isPro || isAdmin;
     return wrapper;
   }
 
+  function addConfidenceBubble(confidence, catchesTotal, catchesWithWeather) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'flex items-start';
+    var bubble = document.createElement('div');
+    bubble.className = 'max-w-[80%] rounded-xl px-4 py-3 text-body-md bg-surface-container-low border border-primary/20';
+    var color = confidence >= 70 ? 'text-primary' : confidence >= 40 ? 'text-yellow-600' : 'text-error';
+    var icon = confidence >= 70 ? '🎯' : confidence >= 40 ? '⚠️' : '❗';
+    var html = '<div class="flex items-center gap-2 mb-1">' +
+      '<span class="text-display-md ' + color + '">' + confidence + '%</span>' +
+      '<span class="text-body-sm text-on-surface-variant">Genauigkeit</span></div>' +
+      '<div class="text-body-sm text-on-surface-variant">Basierend auf ' + catchesWithWeather + ' Fängen mit Wetterdaten (' + catchesTotal + ' gesamt)</div>';
+    if (confidence < 40) {
+      html += '<div class="text-body-sm text-error mt-1">💡 Gib mehr Fänge mit Wetterdaten ein für eine genauere Analyse.</div>';
+    }
+    bubble.innerHTML = html;
+    wrapper.appendChild(bubble);
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+  }
+
   function showError(msg) {
     errorDiv.textContent = msg;
     errorDiv.classList.remove('hidden');
@@ -251,6 +271,7 @@ const isPaid = isPro || isAdmin;
           } else if (res.status === 429) {
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
           } else if (res.ok && data.answer) {
+            if (data.confidence !== undefined) addConfidenceBubble(data.confidence, data.catchesTotal || 0, data.catchesWithWeather || 0);
             addBubble(data.answer, false);
           } else {
             showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
@@ -298,6 +319,7 @@ const isPaid = isPro || isAdmin;
           } else if (res.status === 429) {
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
           } else if (res.ok && data.answer) {
+            if (data.confidence !== undefined) addConfidenceBubble(data.confidence, data.catchesTotal || 0, data.catchesWithWeather || 0);
             addBubble(data.answer, false);
           } else {
             showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
