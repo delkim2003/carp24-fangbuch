@@ -78,6 +78,31 @@ export const POST = async ({ request }) => {
             .from("profiles")
             .update({ is_pro: true })
             .eq("id", user.id);
+
+          if (session.subscription) {
+            const subscriptionId =
+              typeof session.subscription === "string"
+                ? session.subscription
+                : session.subscription.id;
+            const stripeSubscription =
+              await stripe.subscriptions.retrieve(subscriptionId);
+
+            await supabaseAdmin.from("subscriptions").upsert(
+              {
+                user_id: user.id,
+                stripe_customer:
+                  typeof stripeSubscription.customer === "string"
+                    ? stripeSubscription.customer
+                    : stripeSubscription.customer.id,
+                plan: "PRO",
+                status: "ACTIVE",
+                active_until: stripeSubscription.current_period_end
+                  ? new Date(stripeSubscription.current_period_end * 1000).toISOString()
+                  : null,
+              },
+              { onConflict: "user_id" }
+            );
+          }
         }
       }
     }
@@ -89,6 +114,18 @@ export const POST = async ({ request }) => {
     ) {
       const subscription = event.data.object as Stripe.Subscription;
 
+      const statusMap: Record<string, string> = {
+        active: "ACTIVE",
+        canceled: "CANCELED",
+        past_due: "PAST_DUE",
+        unpaid: "CANCELED",
+        trialing: "ACTIVE",
+        incomplete: "ACTIVE",
+        incomplete_expired: "CANCELED",
+        paused: "CANCELED",
+      };
+      const mappedStatus = statusMap[subscription.status] ?? "CANCELED";
+
       let shouldRevoke = false;
       if (event.type === "customer.subscription.deleted") {
         shouldRevoke = true;
@@ -99,30 +136,47 @@ export const POST = async ({ request }) => {
         }
       }
 
-      if (shouldRevoke) {
-        let customerEmail: string | null = null;
+      let customerEmail: string | null = null;
+      let customerId: string | null = null;
 
-        try {
-          if (typeof subscription.customer === "string") {
-            const customer = await stripe.customers.retrieve(subscription.customer);
-            if (!("deleted" in customer)) {
-              customerEmail = customer.email ?? null;
-            }
+      try {
+        if (typeof subscription.customer === "string") {
+          customerId = subscription.customer;
+          const customer = await stripe.customers.retrieve(subscription.customer);
+          if (!("deleted" in customer)) {
+            customerEmail = customer.email ?? null;
           }
-        } catch {
-          // Kundenabruf fehlgeschlagen — keine E-Mail verfügbar
+        } else {
+          customerId = subscription.customer.id;
+          customerEmail = subscription.customer.email ?? null;
         }
+      } catch {
+        // Kundenabruf fehlgeschlagen — keine E-Mail verfügbar
+      }
 
-        if (customerEmail) {
-          const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-          const user = userData.users.find((u) => u.email === customerEmail);
+      if (customerEmail) {
+        const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
+        const user = userData.users.find((u) => u.email === customerEmail);
 
-          if (user) {
+        if (user) {
+          if (shouldRevoke) {
             await supabaseAdmin
               .from("profiles")
               .update({ is_pro: false })
               .eq("id", user.id);
           }
+
+          await supabaseAdmin.from("subscriptions").upsert(
+            {
+              user_id: user.id,
+              stripe_customer: customerId,
+              status: mappedStatus,
+              active_until: subscription.current_period_end
+                ? new Date(subscription.current_period_end * 1000).toISOString()
+                : null,
+            },
+            { onConflict: "user_id" }
+          );
         }
       }
     }
