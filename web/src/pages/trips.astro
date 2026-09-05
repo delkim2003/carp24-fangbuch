@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
+import PremiumLock from "../components/PremiumLock.astro";
 import { t } from "../lib/i18n";
 
 export const prerender = false;
@@ -13,8 +14,19 @@ let trips: any[] = [];
 let catchesForTrips: any[] = [];
 let waters: any[] = [];
 let loadError: string | null = null;
+let isPro = false;
+let isAdmin = false;
 
 if (session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro, role")
+    .eq("id", session.user.id)
+    .single();
+
+  isPro = profile?.is_pro ?? false;
+  isAdmin = (profile?.role ?? "") == "ADMIN";
+
   const [tripsRes, catchesRes, watersRes] = await Promise.all([
     supabase
       .from("trips")
@@ -39,11 +51,21 @@ if (session) {
   if (tripsRes.error) loadError = tripsRes.error.message;
 }
 
+const isPaid = isPro || isAdmin;
+
 const tripsJson = JSON.stringify(trips);
 const catchesJson = JSON.stringify(catchesForTrips);
 const watersJson = JSON.stringify(waters);
 ---
 
+{!isPaid ? (
+  <PremiumLock
+    kicker="CARP24"
+    title="TRIPS"
+    description="Die Trips-Funktion ist ein Premium-Feature."
+    active="trips"
+  />
+) : (
 <Layout title="Carp24 – Trips" active="trips" noindex>
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
@@ -127,6 +149,7 @@ const watersJson = JSON.stringify(waters);
     )}
   </main>
 </Layout>
+)}
 
 <script is:inline define:vars={{ tripsJson, catchesJson, watersJson }}>
 (function () {

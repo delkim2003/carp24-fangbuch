@@ -1,0 +1,24 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+interface Props {
+  kicker: string;
+  title?: string;
+  description: string;
+  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz" | "ueber";
+}
+
+const { kicker, title, description, active } = Astro.props;
+---
+
+<Layout title={`Carp24 – ${title ?? ""}`} active={active}>
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col items-center justify-center text-center gap-lg">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <p class="font-mono text-sm text-secondary tracking-widest uppercase mb-2">{kicker}</p>
+    {title && <h1 class="text-display-lg text-primary mb-2">{title}</h1>}
+    <p class="text-body-lg text-on-surface-variant max-w-xl">{description}</p>
+    <a href="/premium/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">ZUM PREMIUM</a>
+  </main>
+</Layout>

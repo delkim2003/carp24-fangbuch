@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
+import PremiumLock from "../components/PremiumLock.astro";
 import { t } from "../lib/i18n";
 
 export const prerender = false;
@@ -12,6 +13,22 @@ const { data: { session } } = await supabase.auth.getSession();
 if (!session) {
   return Astro.redirect("/login/");
 }
+
+let isPro = false;
+let isAdmin = false;
+
+if (session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro, role")
+    .eq("id", session.user.id)
+    .single();
+
+  isPro = profile?.is_pro ?? false;
+  isAdmin = (profile?.role ?? "") == "ADMIN";
+}
+
+const isPaid = isPro || isAdmin;
 
 let messages: any[] = [];
 let loadError: string | null = null;
@@ -26,6 +43,14 @@ if (error) loadError = error.message;
 const messagesJson = JSON.stringify(messages);
 const userId = session.user.id;
 ---
+{!isPaid ? (
+  <PremiumLock
+    kicker="CARP24"
+    title="CHAT"
+    description="Der Chat ist ein Premium-Feature."
+    active="chat"
+  />
+) : (
 <Layout title="Carp24 – Chat" active="chat">
   <main class="flex-grow w-full max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     <div>
@@ -67,6 +92,7 @@ const userId = session.user.id;
     <div id="chat-flood" class="hidden text-body-md text-secondary">Bitte kurz warten…</div>
   </main>
 </Layout>
+)}
 
 <script is:inline define:vars={{ messagesJson, userId }}>
 (function () {

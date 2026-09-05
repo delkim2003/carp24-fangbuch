@@ -1,12 +1,37 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { createSSRClient } from '../lib/ssr-client';
+import PremiumLock from '../components/PremiumLock.astro';
 
 const supabase = createSSRClient(Astro);
 const { data: { session } } = await supabase.auth.getSession();
 if (!session) return Astro.redirect('/login');
+
+let isPro = false;
+let isAdmin = false;
+
+if (session) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_pro, role')
+    .eq('id', session.user.id)
+    .single();
+
+  isPro = profile?.is_pro ?? false;
+  isAdmin = (profile?.role ?? '') == 'ADMIN';
+}
+
+const isPaid = isPro || isAdmin;
 ---
 
+{!isPaid ? (
+  <PremiumLock
+    kicker="CARP24"
+    title="STATISTIK"
+    description="Die Statistik ist ein Premium-Feature."
+    active="statistik"
+  />
+) : (
 <Layout title="Carp24 – Statistik" active="statistik" noindex>
   <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
 
@@ -196,6 +221,7 @@ if (!session) return Astro.redirect('/login');
 
   </main>
 </Layout>
+)}
 
 <script>
   import { supabase } from '../lib/supabase-client';

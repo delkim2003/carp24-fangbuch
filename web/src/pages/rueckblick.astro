@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
+import PremiumLock from "../components/PremiumLock.astro";
 import { t } from "../lib/i18n";
 
 export const prerender = false;
@@ -10,7 +11,18 @@ const supabase = createSSRClient(Astro);
 const { data: { session } } = await supabase.auth.getSession();
 
 let catches: any[] = [];
+let isPro = false;
+let isAdmin = false;
 if (session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro, role")
+    .eq("id", session.user.id)
+    .single();
+
+  isPro = profile?.is_pro ?? false;
+  isAdmin = (profile?.role ?? "") == "ADMIN";
+
   const { data } = await supabase
     .from("catches")
     .select("*")
@@ -32,9 +44,19 @@ if (session) {
   }
 }
 
+const isPaid = isPro || isAdmin;
+
 const catchesJson = JSON.stringify(catches);
 ---
 
+{!isPaid ? (
+  <PremiumLock
+    kicker="CARP24"
+    title="JAHRES-RÜCKBLICK"
+    description="Der Jahresrückblick ist ein Premium-Feature."
+    active="rueckblick"
+  />
+) : (
 <Layout title="Carp24 – Jahres-Rückblick" active="rueckblick" noindex>
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
@@ -71,6 +93,7 @@ const catchesJson = JSON.stringify(catches);
     )}
   </main>
 </Layout>
+)}
 
 <script is:inline define:vars={{ catchesJson }}>
 (function () {
