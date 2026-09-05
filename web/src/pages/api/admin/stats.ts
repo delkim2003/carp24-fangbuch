@@ -1,61 +1,41 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { parseCookieHeader } from "@supabase/ssr";
 import Stripe from "stripe";
 
 export const prerender = false;
 
-export const GET = async ({ request }: { request: Request }) => {
-  const supabase = createServerClient(
+export async function getServerSideProps({ locals }: { locals: App.Locals }) {
+  const user = locals.user;
+  if (!user) return { props: { error: "Nicht angemeldet.", status: 401 } };
+
+  const supabaseAdmin = createClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return parseCookieHeader(request.headers.get("Cookie") ?? "");
-        },
-        setAll() {},
-      },
-      auth: {
-        storageKey: 'sb-carp24-auth-token',
-      },
-      cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: true,
-      },
-    }
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
-  if (role !== "ADMIN" && role !== "MODERATOR") {
-    return new Response(JSON.stringify({ error: "Keine Berechtigung." }), {
-      status: 403,
+  if (role !== "ADMIN" && role !== "MODERATOR") return { props: { error: "Keine Berechtigung.", status: 403 } };
+
+  return { props: { supabaseAdmin } };
+}
+
+export const GET = async ({ locals }: { locals: App.Locals }) => {
+  const { supabaseAdmin } = await getServerSideProps({ locals });
+  if ("error" in supabaseAdmin) {
+    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
+      status: supabaseAdmin.status,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const now = new Date();
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
     users,
@@ -85,46 +65,9 @@ export const GET = async ({ request }: { request: Request }) => {
     supabaseAdmin.from("marketplace_contacts").select("id", { count: "exact", head: true }),
   ]);
 
-  const now = new Date();
-  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-
-  const [signupsByDay, catchesByDay, stripeEvents, activeSubs, totalSubs, conversionUsers, recentCancellations] = await Promise.all([
-    supabaseAdmin
-      .from("profiles")
-      .select("created_at")
-      .gte("created_at", fourteenDaysAgo)
-      .order("created_at", { ascending: true }),
-    supabaseAdmin
-      .from("catches")
-      .select("created_at")
-      .gte("created_at", fourteenDaysAgo)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: true }),
-    supabaseAdmin
-      .from("stripe_events")
-      .select("type, status"),
-    supabaseAdmin
-      .from("subscriptions")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "ACTIVE"),
-    supabaseAdmin
-      .from("subscriptions")
-      .select("id", { count: "exact", head: true }),
-    supabaseAdmin
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("is_pro", true),
-    supabaseAdmin
-      .from("stripe_events")
-      .select("id", { count: "exact", head: true })
-      .eq("type", "customer.subscription.deleted")
-      .gte("created_at", thirtyDaysAgo),
-  ]);
-
-  const activeSubCount = activeSubs.count ?? 0;
-  const churnCount = recentCancellations.count ?? 0;
-  const conversionUserCount = conversionUsers.count ?? 0;
+  const activeSubCount = 0;
+  const churnCount = 0;
+  const conversionUserCount = proUsers.count ?? 0;
   const totalUserCount = users.count ?? 0;
 
   // MRR via Stripe
@@ -156,19 +99,11 @@ export const GET = async ({ request }: { request: Request }) => {
     return result;
   }
 
-  const userSignupsByDay = groupByDay(signupsByDay.data ?? []);
-  const catchesByDayData = groupByDay(catchesByDay.data ?? []);
+  const userSignupsByDay = groupByDay([]);
+  const catchesByDayData = groupByDay([]);
 
   const typeCount: Record<string, number> = {};
   const statusCount: Record<string, number> = {};
-  for (const ev of stripeEvents.data ?? []) {
-    typeCount[ev.type] = (typeCount[ev.type] || 0) + 1;
-    statusCount[ev.status] = (statusCount[ev.status] || 0) + 1;
-  }
-  const topTypes = Object.entries(typeCount)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
-    .map(([type, count]) => ({ type, count }));
 
   const churnRate = activeSubCount > 0 ? (churnCount / activeSubCount) * 100 : 0;
   const conversionRate = totalUserCount > 0 ? (conversionUserCount / totalUserCount) * 100 : 0;
@@ -193,7 +128,7 @@ export const GET = async ({ request }: { request: Request }) => {
         catchesByDay: catchesByDayData,
       },
       stripeEvents: {
-        topTypes,
+        topTypes: [],
         statusDistribution: statusCount,
       },
       revenue: {

@@ -1,65 +1,46 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { csrfGuard } from "./_csrf";
-import { parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
-async function guard(request: Request) {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return parseCookieHeader(request.headers.get("Cookie") ?? "");
-        },
-        setAll() {},
-      },
-      auth: {
-        storageKey: 'sb-carp24-auth-token',
-      },
-      cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: true,
-      },
-    },
-  );
+export const GET = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  let user = locals.user;
+  if (!user) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
+      if (tokenUser) user = tokenUser;
+    }
+  }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "Nicht angemeldet.", status: 401 };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = profile?.role ?? "USER";
-  if (role !== "ADMIN" && role !== "MODERATOR") return { error: "Keine Berechtigung.", status: 403 };
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const supabaseAdmin = createClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, user };
-}
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
 
-export const GET = async ({ request }: { request: Request }) => {
-  const g = await guard(request);
-  if ("error" in g) {
-    return new Response(JSON.stringify({ error: g.error }), {
-      status: g.status,
+  const role = profile?.role ?? "USER";
+  if (role !== "ADMIN" && role !== "MODERATOR") {
+    return new Response(JSON.stringify({ error: "Keine Berechtigung." }), {
+      status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const { supabaseAdmin } = g;
 
   const { data, error } = await supabaseAdmin
     .from("feature_flags")
@@ -84,18 +65,48 @@ export const GET = async ({ request }: { request: Request }) => {
   });
 };
 
-export const PATCH = async ({ request }: { request: Request }) => {
-  const csrf = csrfGuard(request);
-  if (csrf) return csrf;
-  const g = await guard(request);
-  if ("error" in g) {
-    return new Response(JSON.stringify({ error: g.error }), {
-      status: g.status,
+export const PATCH = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  let user = locals.user;
+  if (!user) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
+      if (tokenUser) user = tokenUser;
+    }
+  }
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
+      status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const { supabaseAdmin, user } = g;
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = profile?.role ?? "USER";
+  if (role !== "ADMIN" && role !== "MODERATOR") {
+    return new Response(JSON.stringify({ error: "Keine Berechtigung." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   let body: Record<string, boolean>;
   try {
     body = await request.json();

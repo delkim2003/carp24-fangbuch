@@ -1,34 +1,19 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
-export async function POST({ request }: { request: Request }) {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return { name: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
-        },
-        setAll() {},
-      },
+export async function POST({ request, locals }: { request: Request; locals: App.Locals }) {
+  let user = locals.user;
+  if (!user) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
+      if (tokenUser) user = tokenUser;
     }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  }
 
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {

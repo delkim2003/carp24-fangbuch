@@ -1,43 +1,22 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import webPush from "web-push";
 import { getVapidKeys } from "../../../lib/settings";
 
 export const prerender = false;
 
-export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return {
-                name: pair.slice(0, idx).trim(),
-                value: pair.slice(idx + 1).trim(),
-              };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }: any) => {
-            cookies.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
+export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  let user = locals.user;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  if (!user) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
+      if (tokenUser) user = tokenUser;
+    }
+  }
 
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
@@ -77,7 +56,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     });
   }
 
-  const { data: thread, error: threadError } = await supabase
+  const { data: thread, error: threadError } = await supabaseAdmin
     .from("forum_threads")
     .select("user_id")
     .eq("id", thread_id)
@@ -139,7 +118,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
       sent++;
     } catch (err: any) {
       if (err?.statusCode === 410) {
-        await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+      await supabaseAdmin.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
       }
     }
   }

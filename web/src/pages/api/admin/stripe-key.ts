@@ -1,65 +1,37 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { csrfGuard } from "./_csrf";
-import { parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
-async function guard(request: Request) {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return parseCookieHeader(request.headers.get("Cookie") ?? "");
-        },
-        setAll() {},
-      },
-      auth: {
-        storageKey: 'sb-carp24-auth-token',
-      },
-      cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: true,
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "Nicht angemeldet.", status: 401 };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = profile?.role ?? "USER";
-  if (role !== "ADMIN" && role !== "MODERATOR") return { error: "Keine Berechtigung.", status: 403 };
+export async function getServerSideProps({ locals }: { locals: App.Locals }) {
+  const user = locals.user;
+  if (!user) return { props: { error: "Nicht angemeldet.", status: 401 } };
 
   const supabaseAdmin = createClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, user };
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = profile?.role ?? "USER";
+  if (role !== "ADMIN" && role !== "MODERATOR") return { props: { error: "Keine Berechtigung.", status: 403 } };
+
+  return { props: { supabaseAdmin, user } };
 }
 
-export const GET = async ({ request }: { request: Request }) => {
-  const g = await guard(request);
-  if ("error" in g) {
-    return new Response(JSON.stringify({ error: g.error }), {
-      status: g.status,
+export const GET = async ({ locals }: { locals: App.Locals }) => {
+  const { supabaseAdmin } = await getServerSideProps({ locals });
+  if ("error" in supabaseAdmin) {
+    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
+      status: supabaseAdmin.status,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const { supabaseAdmin } = g;
 
   // Check env first, then DB
   const envSecretKey = import.meta.env.STRIPE_SECRET_KEY;
@@ -104,18 +76,16 @@ export const GET = async ({ request }: { request: Request }) => {
   );
 };
 
-export const PATCH = async ({ request }: { request: Request }) => {
+export const PATCH = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
   const csrf = csrfGuard(request);
   if (csrf) return csrf;
-  const g = await guard(request);
-  if ("error" in g) {
-    return new Response(JSON.stringify({ error: g.error }), {
-      status: g.status,
+  const { supabaseAdmin, user } = await getServerSideProps({ locals });
+  if ("error" in supabaseAdmin) {
+    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
+      status: supabaseAdmin.status,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const { supabaseAdmin, user } = g;
   let body: { secret_key?: string; webhook_secret?: string; price_id?: string };
   try {
     body = await request.json();
