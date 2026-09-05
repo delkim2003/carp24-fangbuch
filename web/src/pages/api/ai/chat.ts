@@ -54,9 +54,21 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     }
   );
 
-  const {
+  let {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!user) {
+    // Fallback: try Bearer token from Authorization header
+    const authHeader = request.headers.get("authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      const { data: { user: tokenUser }, error: tokenErr } = await supabase.auth.getUser(token);
+      if (tokenUser) {
+        user = tokenUser;
+      }
+    }
+  }
 
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
@@ -67,7 +79,12 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   const userId = user.id;
 
-  const { data: profile } = await supabase
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("is_pro, role")
     .eq("id", userId)
@@ -82,10 +99,6 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   // Daily usage limit: 20/day for Pro, admin bypasses
   const isAdmin = profile?.role === "ADMIN";
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
 
   if (!isAdmin) {
     const today = new Date().toISOString().slice(0, 10);
@@ -185,7 +198,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-small-3.2-24b-instruct",
+        model: "mistralai/mistral-small-2603",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },

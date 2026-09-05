@@ -148,9 +148,18 @@ const isPaid = isPro || isAdmin;
     sendBtn.disabled = true;
     errorDiv.classList.add('hidden');
 
+    var authHeaders = { 'Content-Type': 'application/json' };
+    try {
+      var raw = localStorage.getItem('sb-carp24-auth-token');
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        var token = parsed && parsed.access_token;
+        if (token) authHeaders['Authorization'] = 'Bearer ' + token;
+      }
+    } catch(e) {}
     fetch('/api/ai/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify({ message: msg }),
     })
       .then(function (res) {
