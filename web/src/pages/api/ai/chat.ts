@@ -67,6 +67,19 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   const userId = user.id;
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro")
+    .eq("id", userId)
+    .single();
+
+  if (!profile?.is_pro) {
+    return new Response(
+      JSON.stringify({ error: "Nur für Premium-Mitglieder verfügbar. Jetzt upgraden: /premium" }),
+      { status: 403, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   // Rate-Limit: 10s pro User
   const now = Date.now();
   const lastRequest = rateLimitMap.get(userId);

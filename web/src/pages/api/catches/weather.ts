@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 export const prerender = false;
 
 const OPEN_METEO_BASE = "https://api.open-meteo.com/v1/forecast";
+const freeRateLimitMap = new Map<string, number>();
 
 /**
  * Fetch current weather from Open-Meteo for given coordinates.
@@ -93,6 +94,24 @@ export const POST = async ({
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.is_pro) {
+    const now = Date.now();
+    const lastRequest = freeRateLimitMap.get(user.id);
+    if (lastRequest && now - lastRequest < 60_000) {
+      return new Response(
+        JSON.stringify({ error: "Bitte kurz warten (Free-Limit)." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    freeRateLimitMap.set(user.id, now);
   }
 
   let body: { catch_id?: string; lat?: number; lng?: number; catch_ts?: string };
