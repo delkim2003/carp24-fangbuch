@@ -311,7 +311,7 @@ const isPaid = isPro || isAdmin;
     bestConditionsBtn.disabled = false;
     errorDiv.classList.add('hidden');
 
-    var requestBody: { mode: string; location: string; lat?: number; lon?: number } = {
+    var requestBody = {
       mode: 'forecast',
       location: location
     };
