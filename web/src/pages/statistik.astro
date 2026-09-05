@@ -137,6 +137,7 @@ const isPaid = isPro || isAdmin;
       <div id="bestConditions" class="flex flex-wrap items-center gap-md">
         <p class="text-body-md text-on-surface-variant italic">Wird berechnet…</p>
       </div>
+      <p class="text-body-sm text-on-surface-variant mt-3 opacity-70">Basierend auf deinen Carp24-Fangdaten. Für eine detailliertere Beratung findest du eine Auswertung beim <a href="/assistent" class="text-primary underline">KI-Assistenten</a>.</p>
     </section>
 
     <!-- CHARTS -->
@@ -350,7 +351,6 @@ const isPaid = isPro || isAdmin;
       </div>
       <div class="flex items-baseline gap-sm">
         <span class="text-headline-md text-primary-container font-bold">${n(row.catch_count)} Fänge</span>
-        <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(row.avg_weight)} kg</span>
       </div>
     `;
   }
@@ -589,7 +589,7 @@ const isPaid = isPro || isAdmin;
       { data: drill },
     ] = await Promise.all([
       supabase.rpc('stats_conditions', { p_filters: filters }),
-      supabase.rpc('stats_best_conditions', { p_filters: filters }),
+      supabase.rpc('stats_best_conditions', { p_filters: {} }),
       supabase.rpc('stats_gewichtsverlauf', { p_filters: filters }),
       supabase.rpc('stats_drilldown_by_water', { p_filters: filters }),
       supabase.rpc('stats_drilldown_by_mond', { p_filters: filters }),
