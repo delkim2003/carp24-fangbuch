@@ -127,20 +127,17 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     );
   }
 
-  // Daily usage limit: 20/day for Pro, admin bypasses
+  // Monthly usage limit: 50/month for Pro, admin bypasses
   const isAdmin = profile?.role === "ADMIN";
+  let remaining = 999;
 
   if (!isAdmin) {
-    const today = new Date().toISOString().slice(0, 10);
-    const { data: usage } = await supabaseAdmin
-      .from("ai_usage")
-      .select("count")
-      .eq("user_id", userId)
-      .eq("request_date", today)
-      .single();
-    if (usage && usage.count >= 20) {
+    const { data: monthlyUsage } = await supabaseAdmin.rpc("get_ai_usage_monthly", { p_user_id: userId });
+    const used = monthlyUsage || 0;
+    remaining = Math.max(0, 50 - used);
+    if (used >= 50) {
       return new Response(
-        JSON.stringify({ error: "Tageslimit erreicht (20/Tag). Morgen geht es weiter." }),
+        JSON.stringify({ error: "Monatslimit erreicht (50/Monat). Nächster Monat geht es weiter." }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -184,6 +181,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const mode = body.mode;
   const location = body.location?.trim();
+  const lat = body.lat;
+  const lon = body.lon;
 
   if (!mode || (mode === 'forecast' && !location)) {
     return new Response(JSON.stringify({ error: "Modus oder Standort erforderlich." }), {
@@ -286,33 +285,38 @@ Analysiere diese Daten und gib die besten Angelbedingungen für den Nutzer an.`;
   } else if (mode === 'forecast' && location) {
     // Forecast mode - need to fetch weather data first
     
-    // Geocode location using Open-Meteo
     let lat = 0;
     let lon = 0;
     
-    try {
-      const geoResponse = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=de`
-      );
-      
-      if (!geoResponse.ok) {
-        throw new Error('Geocoding failed');
+    // Use provided lat/lon if available, otherwise geocode
+    if (body.lat && body.lon) {
+      lat = body.lat;
+      lon = body.lon;
+    } else {
+      try {
+        const geoResponse = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=de`
+        );
+        
+        if (!geoResponse.ok) {
+          throw new Error('Geocoding failed');
+        }
+        
+        const geoData = await geoResponse.json();
+        
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error('Location not found');
+        }
+        
+        lat = geoData.results[0].latitude;
+        lon = geoData.results[0].longitude;
+        
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ error: `Standort konnte nicht gefunden werden: ${location}` }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
       }
-      
-      const geoData = await geoResponse.json();
-      
-      if (!geoData.results || geoData.results.length === 0) {
-        throw new Error('Location not found');
-      }
-      
-      lat = geoData.results[0].latitude;
-      lon = geoData.results[0].longitude;
-      
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ error: `Standort konnte nicht gefunden werden: ${location}` }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
     }
     
     // Get 3-day forecast
@@ -440,7 +444,7 @@ ${contextStr}
 ${forecastText}
 
 Erstelle eine Angelprognose basierend auf diesen Daten.`;
-  }
+   }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30_000);
@@ -486,7 +490,7 @@ Erstelle eine Angelprognose basierend auf diesen Daten.`;
       supabaseAdmin.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
     }
 
-    return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather }), {
+    return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather, remaining }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

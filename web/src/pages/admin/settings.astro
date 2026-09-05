@@ -75,6 +75,27 @@ if (!isAdmin) return Astro.redirect("/");
       </div>
     </div>
 
+    <!-- AI-Nutzung Reset -->
+    <div class="w-full mt-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">KI-Nutzung zurücksetzen</h2>
+      <div id="ai-usage-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <p class="text-body-md text-on-surface-variant mb-md">Monatliche KI-Anfragen für einen Nutzer zurücksetzen (aktuell 50/Monat).</p>
+        <div class="flex gap-sm items-end">
+          <div class="flex-1">
+            <label for="ai-reset-email" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">E-Mail des Nutzers</label>
+            <input id="ai-reset-email" type="email" placeholder="nutzer@email.de"
+              class="w-full bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md" />
+          </div>
+          <button id="ai-reset-btn" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 cursor-pointer">RESET</button>
+        </div>
+        <div id="ai-reset-feedback" class="text-body-sm mt-sm hidden"></div>
+        <div id="ai-usage-list" class="mt-lg pt-lg border-t border-outline/20 hidden">
+          <h3 class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktuelle Nutzung</h3>
+          <div id="ai-usage-table"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Stripe-Zahlungen -->
     <div class="w-full mt-xl">
       <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Zahlungen</h2>
@@ -856,6 +877,96 @@ if (!isAdmin) return Astro.redirect("/");
 
       loadStripeStatus();
       loadVapidStatus();
+
+      // AI Usage Reset UI
+      const aiResetBtn = document.getElementById("ai-reset-btn");
+      const aiResetEmail = document.getElementById("ai-reset-email") as HTMLInputElement;
+      const aiResetFeedback = document.getElementById("ai-reset-feedback");
+      const aiUsageList = document.getElementById("ai-usage-list");
+      const aiUsageTable = document.getElementById("ai-usage-table");
+
+      async function loadAIUsage() {
+        try {
+          const res = await fetch("/api/admin/ai-usage");
+          if (res.ok) {
+            const data = await res.json();
+            renderAIUsageTable(data.users);
+            if (aiUsageList) aiUsageList.classList.remove("hidden");
+          }
+        } catch {
+          if (aiResetFeedback) {
+            aiResetFeedback.textContent = "Fehler beim Laden der Nutzung.";
+            aiResetFeedback.className = "text-body-sm text-error mt-sm";
+            aiResetFeedback.classList.remove("hidden");
+          }
+        }
+      }
+
+      function renderAIUsageTable(users: Array<{ email: string; count: number }>) {
+        if (!aiUsageTable) return;
+
+        if (users.length === 0) {
+          aiUsageTable.innerHTML = '<p class="text-body-sm text-on-surface-variant">Keine Nutzung in diesem Monat.</p>';
+          return;
+        }
+
+        const html = users.map(user => `
+          <div class="grid grid-cols-2 gap-md py-2 border-b border-outline/20 last:border-b-0">
+            <div class="text-body-sm text-on-surface-variant">${user.email}</div>
+            <div class="text-body-sm text-on-surface font-medium">${user.count}/50</div>
+          </div>
+        `).join('');
+
+        aiUsageTable.innerHTML = html;
+      }
+
+      if (aiResetBtn && aiResetEmail && aiResetFeedback) {
+        aiResetBtn.addEventListener("click", async function () {
+          const email = aiResetEmail.value.trim();
+          if (!email) {
+            aiResetFeedback.textContent = "Bitte eine E-Mail eingeben.";
+            aiResetFeedback.className = "text-body-sm text-error mt-sm";
+            aiResetFeedback.classList.remove("hidden");
+            return;
+          }
+
+          aiResetBtn.disabled = true;
+          aiResetBtn.textContent = "RESETTE…";
+          aiResetFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/ai-usage", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              aiResetFeedback.textContent = data.message || `KI-Nutzung für ${email} zurückgesetzt.`;
+              aiResetFeedback.className = "text-body-sm text-green-600 mt-sm";
+              aiResetFeedback.classList.remove("hidden");
+              aiResetEmail.value = "";
+              await loadAIUsage();
+            } else {
+              const err = await res.json();
+              aiResetFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+              aiResetFeedback.className = "text-body-sm text-error mt-sm";
+              aiResetFeedback.classList.remove("hidden");
+            }
+          } catch {
+            aiResetFeedback.textContent = "Fehler beim Zurücksetzen.";
+            aiResetFeedback.className = "text-body-sm text-error mt-sm";
+            aiResetFeedback.classList.remove("hidden");
+          }
+
+          aiResetBtn.disabled = false;
+          aiResetBtn.textContent = "RESET";
+        });
+      }
+
+      loadAIUsage();
+
     });
   </script>
 </Layout>

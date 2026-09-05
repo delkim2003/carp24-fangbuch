@@ -68,20 +68,17 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     );
   }
 
-  // Daily usage limit: 20/day for Pro, admin bypasses
+  // Monthly usage limit: 50/month for Pro, admin bypasses
   const isAdmin = profile?.role === "ADMIN";
+  let remaining = 999;
 
   if (!isAdmin) {
-    const today = new Date().toISOString().slice(0, 10);
-    const { data: usage } = await supabaseAdmin
-      .from("ai_usage")
-      .select("count")
-      .eq("user_id", userId)
-      .eq("request_date", today)
-      .single();
-    if (usage && usage.count >= 20) {
+    const { data: monthlyUsage } = await supabaseAdmin.rpc("get_ai_usage_monthly", { p_user_id: userId });
+    const used = monthlyUsage || 0;
+    remaining = Math.max(0, 50 - used);
+    if (used >= 50) {
       return new Response(
-        JSON.stringify({ error: "Tageslimit erreicht (20/Tag). Morgen geht es weiter." }),
+        JSON.stringify({ error: "Monatslimit erreicht (50/Monat). Nächster Monat geht es weiter." }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -113,12 +110,20 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     );
   }
 
-  let body: { message?: string };
+  let body: { message?: string; _check?: boolean };
   try {
     body = await request.json();
   } catch {
     return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Usage check request (just return remaining count)
+  if (body._check) {
+    return new Response(JSON.stringify({ remaining }), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -204,7 +209,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       supabaseAdmin.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
     }
 
-    return new Response(JSON.stringify({ answer }), {
+    return new Response(JSON.stringify({ answer, remaining }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

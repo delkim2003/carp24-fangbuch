@@ -217,6 +217,9 @@ const isPaid = isPro || isAdmin;
                 <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Gewässer</th>
                 <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Köder</th>
                 <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Länge</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Wetter</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Mond</th>
+                <th class="text-left py-3 px-4 font-label-sm text-label-sm text-primary-container uppercase tracking-widest">Druck</th>
               </tr>
             </thead>
             <tbody id="drilldownBody"></tbody>
@@ -483,7 +486,7 @@ const isPaid = isPro || isAdmin;
     const cardsContainer = document.getElementById('drilldownCards');
     if (!tbody) return;
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-lg text-on-surface-variant italic text-body-md">Keine Daten</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-lg text-on-surface-variant italic text-body-md">Keine Daten</td></tr>';
       if (cardsContainer) cardsContainer.innerHTML = '<p class="text-center py-lg text-on-surface-variant italic text-body-md">Keine Daten</p>';
       return;
     }
@@ -496,6 +499,9 @@ const isPaid = isPro || isAdmin;
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.water_name ?? '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.bait ?? '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.moon_text ?? '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.pressure_hpa ? d.weather.pressure_hpa + ' hPa' : '–'}</td>
       </tr>
     `).join('');
     tbody.innerHTML = rows;
@@ -509,6 +515,9 @@ const isPaid = isPro || isAdmin;
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewässer</span><span class="text-on-surface-variant">${d.water_name ?? '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Köder</span><span class="text-on-surface-variant">${d.bait ?? '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Länge</span><span class="text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Wetter</span><span class="text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Mond</span><span class="text-on-surface-variant">${d.weather?.moon_text ?? '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Luftdruck</span><span class="text-on-surface-variant">${d.weather?.pressure_hpa ? d.weather.pressure_hpa + ' hPa' : '–'}</span></div>
         </div>
       `).join('');
       cardsContainer.innerHTML = cards;

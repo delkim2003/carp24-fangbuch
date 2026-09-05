@@ -71,15 +71,18 @@ const isPaid = isPro || isAdmin;
         </button>
       </div>
       
+      <div id="ai-usage-counter" class="text-body-sm text-on-surface-variant opacity-70 text-center"></div>
+
       <div id="location-input-container" class="hidden">
-        <div class="flex gap-sm items-center">
+        <div class="flex gap-sm items-center relative">
           <input
             id="location-input"
             type="text"
-            placeholder="Standort eingeben (z.B. Berlin, Rhein, Bodensee)"
+            placeholder="Standort eingeben (z.B. Budapest, Siófok, Balaton)"
             class="flex-1 bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-11"
             autocomplete="off"
           />
+          <div id="location-suggestions" class="absolute top-full left-0 right-0 z-50 bg-surface-container-high border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto hidden"></div>
           <button
             id="forecast-send-btn"
             type="button"
@@ -293,6 +296,9 @@ const isPaid = isPro || isAdmin;
 
   function sendForecast() {
     var location = locationInput.value.trim();
+    var lat = locationInput.dataset.lat;
+    var lon = locationInput.dataset.lon;
+    
     if (!location) {
       showError(i18nErrors.location_required[getLang()] || i18nErrors.location_required.de);
       return;
@@ -305,11 +311,21 @@ const isPaid = isPro || isAdmin;
     bestConditionsBtn.disabled = false;
     errorDiv.classList.add('hidden');
 
+    var requestBody: { mode: string; location: string; lat?: number; lon?: number } = {
+      mode: 'forecast',
+      location: location
+    };
+    
+    if (lat && lon) {
+      requestBody.lat = parseFloat(lat);
+      requestBody.lon = parseFloat(lon);
+    }
+
     fetch('/api/ai/analyze', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'forecast', location: location }),
+      body: JSON.stringify(requestBody),
     })
       .then(function (res) {
         return res.json().then(function (data) {
@@ -349,5 +365,53 @@ const isPaid = isPro || isAdmin;
       sendForecast();
     }
   });
+
+  // Location autocomplete
+  var suggestionsEl = document.getElementById('location-suggestions');
+  var debounceTimer = null;
+  if (locationInput && suggestionsEl) {
+    locationInput.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      var q = locationInput.value.trim();
+      if (q.length < 2) { suggestionsEl.classList.add('hidden'); return; }
+      debounceTimer = setTimeout(function () {
+        fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=5&language=de')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.results || !data.results.length) { suggestionsEl.classList.add('hidden'); return; }
+            suggestionsEl.innerHTML = data.results.map(function(r) {
+              var label = r.name + (r.admin1 ? ', ' + r.admin1 : '') + (r.country ? ' (' + r.country + ')' : '');
+              return '<div class="px-4 py-2 hover:bg-surface-variant cursor-pointer text-body-md" data-lat="' + r.latitude + '" data-lon="' + r.longitude + '" data-name="' + r.name + '">' + label + '</div>';
+            }).join('');
+            suggestionsEl.classList.remove('hidden');
+            suggestionsEl.querySelectorAll('div').forEach(function(item) {
+              item.addEventListener('click', function() {
+                locationInput.value = item.dataset.name;
+                locationInput.dataset.lat = item.dataset.lat;
+                locationInput.dataset.lon = item.dataset.lon;
+                suggestionsEl.classList.add('hidden');
+              });
+            });
+          })
+          .catch(function() { suggestionsEl.classList.add('hidden'); });
+      }, 300);
+    });
+    document.addEventListener('click', function(e) {
+      if (!locationInput.contains(e.target) && !suggestionsEl.contains(e.target)) suggestionsEl.classList.add('hidden');
+    });
+  }
+
+  // AI usage counter
+  var counterEl = document.getElementById('ai-usage-counter');
+  if (counterEl) {
+    fetch('/api/ai/chat', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _check: true }) })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.remaining !== undefined && data.remaining < 999) {
+          counterEl.textContent = data.remaining + ' von 50 Anfragen diesen Monat verbleibend';
+        }
+      })
+      .catch(function() {});
+  }
 })();
 </script>
