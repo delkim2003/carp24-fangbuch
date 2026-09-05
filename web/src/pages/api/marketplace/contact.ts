@@ -33,10 +33,10 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     });
   }
 
-  if (item.user_id === session.user.id) {
+  if (item.user_id === user.id) {
     return new Response(
       JSON.stringify({ error: "Du kannst nicht deine eigene Anzeige kontaktieren." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
@@ -95,7 +95,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   const { error: insertError } = await supabase.from("marketplace_contacts").insert({
     item_id,
-    from_user: session.user.id,
+    from_user: user.id,
     to_user: item.user_id,
     message,
   });

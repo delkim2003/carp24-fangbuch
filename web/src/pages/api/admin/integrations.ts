@@ -20,16 +20,16 @@ export const GET = async ({ request }: { request: Request }) => {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -39,7 +39,7 @@ export const GET = async ({ request }: { request: Request }) => {
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";

@@ -23,21 +23,21 @@ async function guard(request: Request) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) return { error: "Nicht angemeldet.", status: 401 };
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
@@ -48,7 +48,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session, actorRole: role };
+  return { supabaseAdmin, user, actorRole: role };
 }
 
 async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
@@ -266,7 +266,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session, actorRole } = g;
+  const { supabaseAdmin, user, actorRole } = g;
   let body: { id?: string; role?: string; is_pro?: boolean; ban?: boolean; ban_reason?: string; unban?: boolean };
   try {
     body = await request.json();
@@ -312,7 +312,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-    await writeAudit(supabaseAdmin, session.user.id, "user.role", "user", body.id, { field: "role", from: currentProfile.role, to: body.role });
+    await writeAudit(supabaseAdmin, user.id, "user.role", "user", body.id, { field: "role", from: currentProfile.role, to: body.role });
   }
 
   if (typeof body.is_pro === "boolean") {
@@ -323,7 +323,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-    await writeAudit(supabaseAdmin, session.user.id, "user.pro", "user", body.id, { field: "is_pro", from: currentProfile.is_pro, to: body.is_pro });
+    await writeAudit(supabaseAdmin, user.id, "user.pro", "user", body.id, { field: "is_pro", from: currentProfile.is_pro, to: body.is_pro });
   }
 
   if ((body.ban === true || body.unban === true) && actorRole === "MODERATOR" && (currentProfile.role === "ADMIN" || currentProfile.role === "MODERATOR")) {
@@ -346,7 +346,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
       });
     }
     await supabaseAdmin.auth.admin.updateUserById(body.id, { ban_duration: "876000h" });
-    await writeAudit(supabaseAdmin, session.user.id, "user.ban", "user", body.id, { field: "banned_at", from: currentProfile.banned_at, to: "banned", reason });
+    await writeAudit(supabaseAdmin, user.id, "user.ban", "user", body.id, { field: "banned_at", from: currentProfile.banned_at, to: "banned", reason });
   }
 
   if (body.unban === true) {
@@ -361,7 +361,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
       });
     }
     await supabaseAdmin.auth.admin.updateUserById(body.id, { ban_duration: "none" });
-    await writeAudit(supabaseAdmin, session.user.id, "user.unban", "user", body.id, { field: "banned_at", from: currentProfile.banned_at, to: null });
+    await writeAudit(supabaseAdmin, user.id, "user.unban", "user", body.id, { field: "banned_at", from: currentProfile.banned_at, to: null });
   }
 
   return new Response(JSON.stringify({ success: true }), {
@@ -381,7 +381,7 @@ export const POST = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session, actorRole } = g;
+  const { supabaseAdmin, user, actorRole } = g;
   let body: { action?: string; id?: string; userIds?: string[]; reason?: string; actorRole?: string };
   try {
     body = await request.json();
@@ -425,7 +425,7 @@ export const POST = async ({ request }: { request: Request }) => {
         }
 
         await supabaseAdmin.auth.admin.updateUserById(userId, { ban_duration: "876000h" });
-        await writeAudit(supabaseAdmin, session.user.id, "user.ban", "user", userId, { field: "banned_at", from: currentProfile.banned_at, to: "banned", reason });
+        await writeAudit(supabaseAdmin, user.id, "user.ban", "user", userId, { field: "banned_at", from: currentProfile.banned_at, to: "banned", reason });
 
         results.push({ userId, success: true });
       } catch (e: any) {
@@ -470,7 +470,7 @@ export const POST = async ({ request }: { request: Request }) => {
           continue;
         }
 
-        await writeAudit(supabaseAdmin, session.user.id, "user.delete", "user", userId, {});
+        await writeAudit(supabaseAdmin, user.id, "user.delete", "user", userId, {});
 
         results.push({ userId, success: true });
       } catch (e: any) {
@@ -524,7 +524,7 @@ export const POST = async ({ request }: { request: Request }) => {
       }
     }
 
-    await writeAudit(supabaseAdmin, session.user.id, "user.reset_password", "user", body.id, { email_sent: emailSent, email_error: emailError });
+    await writeAudit(supabaseAdmin, user.id, "user.reset_password", "user", body.id, { email_sent: emailSent, email_error: emailError });
 
     if (emailSent) {
       return new Response(JSON.stringify({ success: true, message: `Neues Passwort wurde an ${targetEmail} gesendet.` }), {
@@ -559,7 +559,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session, actorRole } = g;
+  const { supabaseAdmin, user, actorRole } = g;
   let body: { id?: string };
   try {
     body = await request.json();
@@ -609,7 +609,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  await writeAudit(supabaseAdmin, session.user.id, "user.delete", "user", body.id, {});
+  await writeAudit(supabaseAdmin, user.id, "user.delete", "user", body.id, {});
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,

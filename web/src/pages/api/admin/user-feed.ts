@@ -21,21 +21,21 @@ async function guard(request: Request) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) return { error: "Nicht angemeldet.", status: 401 };
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
@@ -46,7 +46,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session };
+  return { supabaseAdmin, user };
 }
 
 export const GET = async ({ request }: { request: Request }) => {

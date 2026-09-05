@@ -28,21 +28,21 @@ export const GET = async ({ request }: { request: Request }) => {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     }
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  console.log("[ADMIN/ME] Session:", session ? "found" : "null");
-  if (session) {
-    console.log("[ADMIN/ME] User ID:", session.user.id);
+  console.log("[ADMIN/ME] User:", user ? "found" : "null");
+  if (user) {
+    console.log("[ADMIN/ME] User ID:", user.id);
   }
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({
       error: "Nicht angemeldet.",
       debug: {
@@ -59,7 +59,7 @@ export const GET = async ({ request }: { request: Request }) => {
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";

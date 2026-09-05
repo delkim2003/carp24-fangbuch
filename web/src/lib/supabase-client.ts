@@ -22,7 +22,7 @@ export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
   cookieOptions: {
     path: '/',
     sameSite: 'lax',
-    secure: false,
+    secure: typeof window !== 'undefined' ? window.location.protocol === 'https:' : false,
   },
 });
 

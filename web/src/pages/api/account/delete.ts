@@ -27,10 +27,10 @@ export async function POST({ request }: { request: Request }) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -47,7 +47,7 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
-  if (!body.user_id || body.user_id !== session.user.id) {
+  if (!body.user_id || body.user_id !== user.id) {
     return new Response(JSON.stringify({ error: "Nicht autorisiert." }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
@@ -62,7 +62,7 @@ export async function POST({ request }: { request: Request }) {
   const { error } = await supabaseAdmin
     .from("profiles")
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", session.user.id);
+    .eq("id", user.id);
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
@@ -72,7 +72,7 @@ export async function POST({ request }: { request: Request }) {
   }
 
   // GoTrue-User löschen (Art. 17 DSGVO)
-  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(session.user.id);
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   if (authError) {
     console.error('GoTrue deleteUser failed:', authError.message);
     // Soft-Delete wurde bereits durchgeführt — nicht rollbacken

@@ -23,21 +23,21 @@ async function guard(request: Request) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) return { error: "Nicht angemeldet.", status: 401 };
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
@@ -48,7 +48,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session, actorRole: role };
+  return { supabaseAdmin, user, actorRole: role };
 }
 
 async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
@@ -106,7 +106,7 @@ export const POST = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session, actorRole } = g;
+  const { supabaseAdmin, user, actorRole } = g;
 
   // Only ADMIN may send broadcasts (MODERATOR cannot)
   if (actorRole !== "ADMIN") {
@@ -147,7 +147,7 @@ export const POST = async ({ request }: { request: Request }) => {
       title: body.title.trim(),
       body: body.body.trim(),
       filter: body.filter ?? null,
-      created_by: session.user.id,
+      created_by: user.id,
     })
     .select("id")
     .single();
@@ -191,7 +191,7 @@ export const POST = async ({ request }: { request: Request }) => {
         .update({ sent_at: new Date().toISOString() })
         .eq("id", notificationId);
 
-      await writeAudit(supabaseAdmin, session.user.id, "notification.broadcast", "notification", notificationId, {
+      await writeAudit(supabaseAdmin, user.id, "notification.broadcast", "notification", notificationId, {
         title: body.title,
         filter: body.filter,
         sent: 0,
@@ -212,7 +212,7 @@ export const POST = async ({ request }: { request: Request }) => {
       .update({ sent_at: new Date().toISOString() })
       .eq("id", notificationId);
 
-    await writeAudit(supabaseAdmin, session.user.id, "notification.broadcast", "notification", notificationId, {
+    await writeAudit(supabaseAdmin, user.id, "notification.broadcast", "notification", notificationId, {
       title: body.title,
       filter: body.filter,
       sent: 0,
@@ -278,7 +278,7 @@ export const POST = async ({ request }: { request: Request }) => {
     .update({ sent_at: new Date().toISOString() })
     .eq("id", notificationId);
 
-  await writeAudit(supabaseAdmin, session.user.id, "notification.broadcast", "notification", notificationId, {
+  await writeAudit(supabaseAdmin, user.id, "notification.broadcast", "notification", notificationId, {
     title: body.title,
     filter: body.filter,
     sent,

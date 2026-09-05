@@ -22,21 +22,21 @@ async function guard(request: Request) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) return { error: "Nicht angemeldet.", status: 401 };
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
@@ -47,7 +47,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session };
+  return { supabaseAdmin, user };
 }
 
 export const GET = async ({ request }: { request: Request }) => {
@@ -95,7 +95,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, user } = g;
   let body: Record<string, boolean>;
   try {
     body = await request.json();
@@ -131,7 +131,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
         key: update.key,
         value: update.value,
         updated_at: now,
-        updated_by: session.user.id,
+        updated_by: user.id,
       }, { onConflict: "key" });
 
     if (error) {
@@ -142,7 +142,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     }
 
     await supabaseAdmin.from("admin_audit_log").insert({
-      actor_id: session.user.id,
+      actor_id: user.id,
       action: "feature_flags.update",
       target_type: "feature_flags",
       target_id: update.key,

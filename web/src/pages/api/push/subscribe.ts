@@ -33,10 +33,10 @@ export const POST = async ({ request, cookies }) => {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ export const POST = async ({ request, cookies }) => {
 
   const { error } = await supabase
     .from("push_subscriptions")
-    .upsert({ user_id: session.user.id, endpoint, keys }, { onConflict: "endpoint" });
+    .upsert({ user_id: user.id, endpoint, keys }, { onConflict: "endpoint" });
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {

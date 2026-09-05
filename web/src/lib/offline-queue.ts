@@ -79,7 +79,8 @@ export async function syncDrafts(): Promise<{ synced: number; failed: number }> 
     if ((window as any).__supabase) return (window as any).__supabase;
     if (typeof (window as any).supabase !== 'undefined' && (window as any).supabase.createClient) {
       (window as any).__supabase = (window as any).supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+        cookieOptions: { path: '/', sameSite: 'lax', secure: window.location.protocol === 'https:' }
       });
       return (window as any).__supabase;
     }

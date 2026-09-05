@@ -38,6 +38,7 @@ const navItems = [
             active === item.key
               ? "text-primary font-bold border-b border-primary pb-1"
               : "text-on-surface-variant hover:text-primary",
+            item.auth ? "hidden" : "",
           ]}
         >
           {item.de}
@@ -82,6 +83,7 @@ const navItems = [
           class:list={[
             "nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
             active === item.key ? "text-primary" : "text-on-surface-variant hover:text-primary",
+            item.auth ? "hidden" : "",
           ]}
         >
           {item.de}
@@ -167,7 +169,8 @@ const navItems = [
 
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     var sb = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" },
+      cookieOptions: { path: '/', sameSite: 'lax', secure: window.location.protocol === 'https:' }
     });
     window.__supabase = sb;
 

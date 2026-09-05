@@ -22,7 +22,7 @@ export async function getSessionAndProfile(Astro: AstroGlobal) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     }
   );

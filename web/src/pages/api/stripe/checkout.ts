@@ -42,10 +42,10 @@ export const POST = async ({ request, cookies }) => {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -66,7 +66,7 @@ export const POST = async ({ request, cookies }) => {
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "subscription",
-    customer_email: session.user.email,
+    customer_email: user.email,
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/premium/?status=success`,
     cancel_url: `${origin}/premium/?status=cancel`,

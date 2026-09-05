@@ -45,10 +45,10 @@ export const POST = async ({ request, cookies }) => {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -58,7 +58,7 @@ export const POST = async ({ request, cookies }) => {
   const { data: subs, error: fetchError } = await supabase
     .from("push_subscriptions")
     .select("endpoint, keys")
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 
   if (fetchError || !subs || subs.length === 0) {
     return new Response(JSON.stringify({ error: "Keine Push-Subscriptions gefunden." }), {

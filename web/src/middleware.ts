@@ -28,27 +28,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
         storageKey: 'sb-carp24-auth-token',
       },
       cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: false,
-      },
+              path: '/',
+              sameSite: 'lax',
+              secure: context.url.protocol === 'https:',
+            },
     }
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
   let role = "USER";
-  if (session) {
+  if (user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
     role = profile?.role ?? "USER";
   }
 
-  console.log("[MIDDLEWARE] Path:", context.url.pathname, "Session:", session ? "found" : "null", "Role:", role);
+  console.log("[MIDDLEWARE] Path:", context.url.pathname, "User:", user ? "found" : "null", "Role:", role);
 
-  context.locals.session = session;
+  context.locals.session = user;
   context.locals.role = role;
   context.locals.isAdmin = role === "ADMIN" || role === "MODERATOR";
 

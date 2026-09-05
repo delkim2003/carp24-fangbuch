@@ -45,10 +45,10 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -96,7 +96,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   const ownerId = thread.user_id;
 
-  if (ownerId === session.user.id) {
+  if (ownerId === user.id) {
     return new Response(JSON.stringify({ sent: 0 }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

@@ -22,21 +22,21 @@ async function guard(request: Request) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: false,
+        secure: true,
       },
     },
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) return { error: "Nicht angemeldet.", status: 401 };
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   const role = profile?.role ?? "USER";
@@ -47,7 +47,7 @@ async function guard(request: Request) {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  return { supabaseAdmin, session };
+  return { supabaseAdmin, user };
 }
 
 async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
@@ -370,7 +370,7 @@ export const POST = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, user } = g;
   let body: { action?: string; reportId?: string };
   try {
     body = await request.json();
@@ -396,7 +396,7 @@ export const POST = async ({ request }: { request: Request }) => {
       .update({
         status: "dismissed",
         dismissed_at: new Date().toISOString(),
-        dismissed_by: session.user.id,
+        dismissed_by: user.id,
       })
       .eq("id", reportId);
 
@@ -407,7 +407,7 @@ export const POST = async ({ request }: { request: Request }) => {
       });
     }
 
-    await writeAudit(supabaseAdmin, session.user.id, "report.dismiss", "report", reportId, {});
+    await writeAudit(supabaseAdmin, user.id, "report.dismiss", "report", reportId, {});
     return new Response(JSON.stringify({ success: true, status: "dismissed" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -420,7 +420,7 @@ export const POST = async ({ request }: { request: Request }) => {
       .update({
         status: "escalated",
         escalated_at: new Date().toISOString(),
-        escalated_by: session.user.id,
+        escalated_by: user.id,
       })
       .eq("id", reportId);
 
@@ -431,7 +431,7 @@ export const POST = async ({ request }: { request: Request }) => {
       });
     }
 
-    await writeAudit(supabaseAdmin, session.user.id, "report.escalate", "report", reportId, {});
+    await writeAudit(supabaseAdmin, user.id, "report.escalate", "report", reportId, {});
     return new Response(JSON.stringify({ success: true, status: "escalated" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -455,7 +455,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, user } = g;
   let body: { id?: string };
   try {
     body = await request.json();
@@ -475,7 +475,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
 
   const { error } = await supabaseAdmin
     .from("content_reports")
-    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: session.user.id })
+    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id })
     .eq("id", body.id);
 
   if (error) {
@@ -485,7 +485,7 @@ export const PATCH = async ({ request }: { request: Request }) => {
     });
   }
 
-  await writeAudit(supabaseAdmin, session.user.id, "report.resolve", "report", body.id, {});
+  await writeAudit(supabaseAdmin, user.id, "report.resolve", "report", body.id, {});
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
@@ -504,7 +504,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  const { supabaseAdmin, session } = g;
+  const { supabaseAdmin, user } = g;
   let body: { id?: string; target_id?: string; target_type?: string };
   try {
     body = await request.json();
@@ -547,7 +547,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
 
   const { error } = await supabaseAdmin
     .from("content_reports")
-    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: session.user.id })
+    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id })
     .eq("id", body.id);
 
   if (error) {
@@ -557,7 +557,7 @@ export const DELETE = async ({ request }: { request: Request }) => {
     });
   }
 
-  await writeAudit(supabaseAdmin, session.user.id, "report.delete_content", "report", body.id, {
+  await writeAudit(supabaseAdmin, user.id, "report.delete_content", "report", body.id, {
     target_type: body.target_type,
     target_id: body.target_id,
   });

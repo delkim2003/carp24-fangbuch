@@ -44,17 +44,17 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   // Rate-Limit: 10s pro User
   const now = Date.now();
