@@ -40,6 +40,40 @@ if (!isAdmin) return Astro.redirect("/");
         </div>
       </div>
     </div>
+
+    <div class="w-full mt-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">KI-Assistent</h2>
+      <div id="openrouter-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <div class="flex items-center gap-md mb-md">
+          <span id="openrouter-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
+          <span id="openrouter-hint" class="text-body-sm text-on-surface-variant"></span>
+        </div>
+        <div class="mb-md">
+          <label for="openrouter-key-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">OpenRouter API-Key</label>
+          <div class="flex gap-sm items-stretch">
+            <input
+              id="openrouter-key-input"
+              type="password"
+              class="flex-1 bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+              placeholder="sk-or-..."
+              autocomplete="off"
+            />
+            <button id="openrouter-toggle-visibility" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <p class="text-body-sm text-on-surface-variant mt-xs">Der Key wird verschlüsselt in der Datenbank gespeichert. Überschreibt den Wert aus der .env-Datei.</p>
+        </div>
+        <div class="flex items-center gap-md">
+          <button id="openrouter-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
+          <button id="openrouter-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <span id="openrouter-feedback" class="text-body-sm ml-md hidden"></span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <style>
@@ -156,6 +190,166 @@ if (!isAdmin) return Astro.redirect("/");
       });
 
       loadFlags();
+
+      // OpenRouter Key UI
+      const orCard = document.getElementById("openrouter-card");
+      const orBadge = document.getElementById("openrouter-badge");
+      const orHint = document.getElementById("openrouter-hint");
+      const orInput = document.getElementById("openrouter-key-input") as HTMLInputElement;
+      const orToggleVis = document.getElementById("openrouter-toggle-visibility");
+      const orSave = document.getElementById("openrouter-save");
+      const orClear = document.getElementById("openrouter-clear");
+      const orFeedback = document.getElementById("openrouter-feedback");
+
+      async function loadOpenRouterStatus() {
+        try {
+          const res = await fetch("/api/admin/openrouter-key");
+          if (res.ok) {
+            const data = await res.json();
+            updateOpenRouterUI(data);
+          }
+        } catch {}
+      }
+
+      function updateOpenRouterUI(data: { configured: boolean; source?: string | null; masked_key?: string | null }) {
+        if (orBadge) {
+          if (data.configured) {
+            orBadge.textContent = "KEY HINTERLEGT";
+            orBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-primary-container text-on-primary-container";
+          } else {
+            orBadge.textContent = "KEY FEHLT";
+            orBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-error-container text-on-error-container";
+          }
+        }
+        if (orHint) {
+          if (data.configured) {
+            const source = data.source === "env" ? "aus .env" : "aus Datenbank";
+            orHint.textContent = "KI-Assistent einsatzbereit (" + source + ").";
+          } else {
+            orHint.textContent = "Bitte OpenRouter API-Key hinterlegen, um den KI-Assistenten zu aktivieren.";
+          }
+        }
+        if (orInput) {
+          orInput.value = "";
+          orInput.placeholder = data.configured ? (data.masked_key || "********") : "sk-or-...";
+        }
+      }
+
+      if (orSave) {
+        orSave.addEventListener("click", async function () {
+          const key = orInput ? orInput.value.trim() : "";
+          if (!key) {
+            if (orFeedback) {
+              orFeedback.textContent = "Bitte einen Key eingeben.";
+              orFeedback.className = "text-body-sm text-error ml-md";
+              orFeedback.classList.remove("hidden");
+            }
+            return;
+          }
+          if (!key.startsWith("sk-or-")) {
+            if (orFeedback) {
+              orFeedback.textContent = "Ungültiges Format. OpenRouter-Keys beginnen mit 'sk-or-'.";
+              orFeedback.className = "text-body-sm text-error ml-md";
+              orFeedback.classList.remove("hidden");
+            }
+            return;
+          }
+
+          orSave.disabled = true;
+          orSave.textContent = "SPEICHERE…";
+          if (orFeedback) orFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/openrouter-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ key }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (orFeedback) {
+                orFeedback.textContent = "Key gespeichert.";
+                orFeedback.className = "text-body-sm text-green-600 ml-md";
+                orFeedback.classList.remove("hidden");
+              }
+              updateOpenRouterUI({ configured: true, source: "db", masked_key: key.slice(0, 8) + "…" });
+              if (orInput) orInput.value = "";
+            } else {
+              const err = await res.json();
+              if (orFeedback) {
+                orFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                orFeedback.className = "text-body-sm text-error ml-md";
+                orFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (orFeedback) {
+              orFeedback.textContent = "Fehler beim Speichern.";
+              orFeedback.className = "text-body-sm text-error ml-md";
+              orFeedback.classList.remove("hidden");
+            }
+          }
+
+          orSave.disabled = false;
+          orSave.textContent = "SPEICHERN";
+        });
+      }
+
+      if (orClear) {
+        orClear.addEventListener("click", async function () {
+          if (!confirm("OpenRouter API-Key wirklich löschen?")) return;
+
+          orClear.disabled = true;
+          orClear.textContent = "LÖSCHE…";
+          if (orFeedback) orFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/openrouter-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ key: "" }),
+            });
+            if (res.ok) {
+              if (orFeedback) {
+                orFeedback.textContent = "Key gelöscht.";
+                orFeedback.className = "text-body-sm text-green-600 ml-md";
+                orFeedback.classList.remove("hidden");
+              }
+              updateOpenRouterUI({ configured: false, source: null, masked_key: null });
+              if (orInput) orInput.value = "";
+            } else {
+              const err = await res.json();
+              if (orFeedback) {
+                orFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                orFeedback.className = "text-body-sm text-error ml-md";
+                orFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (orFeedback) {
+              orFeedback.textContent = "Fehler beim Löschen.";
+              orFeedback.className = "text-body-sm text-error ml-md";
+              orFeedback.classList.remove("hidden");
+            }
+          }
+
+          orClear.disabled = false;
+          orClear.textContent = "LÖSCHEN";
+        });
+      }
+
+      if (orToggleVis) {
+        orToggleVis.addEventListener("click", function () {
+          if (!orInput) return;
+          const isPassword = orInput.type === "password";
+          orInput.type = isPassword ? "text" : "password";
+          orToggleVis.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+      }
+
+      loadOpenRouterStatus();
     });
   </script>
 </Layout>

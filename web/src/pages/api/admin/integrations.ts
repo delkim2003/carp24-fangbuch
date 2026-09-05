@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { parseCookieHeader } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
@@ -50,10 +51,30 @@ export const GET = async ({ request }: { request: Request }) => {
     });
   }
 
+  // Check OpenRouter key: env first, then DB
+  let openrouter = !!import.meta.env.OPENROUTER_API_KEY;
+
+  if (!openrouter) {
+    try {
+      const supabaseAdmin = createClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+      const { data } = await supabaseAdmin
+        .from("app_settings")
+        .select("value")
+        .eq("key", "openrouter_key")
+        .single();
+      openrouter = !!(data?.value?.key);
+    } catch {
+      openrouter = false;
+    }
+  }
+
   return new Response(
     JSON.stringify({
       stripe_keys: !!(import.meta.env.STRIPE_SECRET_KEY && import.meta.env.STRIPE_WEBHOOK_SECRET),
-      openrouter: !!import.meta.env.OPENROUTER_API_KEY,
+      openrouter,
       vapid: !!(import.meta.env.VAPID_PUBLIC_KEY && import.meta.env.VAPID_PRIVATE_KEY),
       service_role: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
       smtp: true,

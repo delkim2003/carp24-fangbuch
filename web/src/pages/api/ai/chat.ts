@@ -1,19 +1,30 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
 // DSGVO: transiente Verarbeitung, keine Speicherung, kein Logging.
 const rateLimitMap = new Map<string, number>();
 
-export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
-  const apiKey = import.meta.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: "KI ist noch nicht konfiguriert." }), {
-      status: 503,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+async function getApiKey(supabaseAdmin: any): Promise<string | null> {
+  // 1. Check env var first (fast path)
+  const envKey = import.meta.env.OPENROUTER_API_KEY;
+  if (envKey) return envKey;
 
+  // 2. Fall back to DB-stored key
+  try {
+    const { data } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "openrouter_key")
+      .single();
+    return data?.value?.key || null;
+  } catch {
+    return null;
+  }
+}
+
+export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -66,6 +77,25 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     });
   }
   rateLimitMap.set(userId, now);
+
+  // Look up API key (env → DB)
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const apiKey = await getApiKey(supabaseAdmin);
+  if (!apiKey) {
+    return new Response(
+      JSON.stringify({
+        error:
+          "KI-Assistent ist nicht konfiguriert. Bitte den API-Key im Admin-Bereich unter Einstellungen hinterlegen.",
+      }),
+      {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 
   let body: { message?: string };
   try {
@@ -135,10 +165,17 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     clearTimeout(timeout);
 
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: "KI-Dienst nicht erreichbar." }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
+      const errorBody = await res.text().catch(() => "");
+      return new Response(
+        JSON.stringify({
+          error: `KI-Dienst nicht erreichbar (${res.status}).`,
+          detail: errorBody.slice(0, 200),
+        }),
+        {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     const data = await res.json();
