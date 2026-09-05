@@ -10,10 +10,13 @@ const navItems = [
   { key: "forum", de: "Forum", en: "Forum", href: "/forum", auth: true },
   { key: "chat", de: "Chat", en: "Chat", href: "/chat", auth: true },
   { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik", auth: true },
+  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: true },
+];
+
+const moreItems = [
   { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick", auth: true },
   { key: "trips", de: "Trips", en: "Trips", href: "/trips", auth: true },
   { key: "assistent", de: "Assistent", en: "Assistant", href: "/assistent", auth: true },
-  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: true },
   { key: "ueber", de: "Über", en: "About", href: "/ueber", auth: false },
   { key: "preis", de: "Premium", en: "Premium", href: "/premium", auth: false },
 ];
@@ -26,7 +29,7 @@ const navItems = [
       <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Carp24</span>
     </a>
 
-    <nav class="hidden md:flex gap-6 items-center flex-1 min-w-0 overflow-x-auto flex-nowrap snap-x snap-mandatory scroll-px-4 no-scrollbar ml-12" aria-label="Hauptnavigation">
+    <nav class="hidden md:flex gap-6 items-center flex-1 min-w-0 ml-12" aria-label="Hauptnavigation">
       {navItems.map((item) => (
         <a
           href={item.href}
@@ -34,7 +37,7 @@ const navItems = [
           data-en={item.en}
           data-auth={item.auth ? "true" : "false"}
           class:list={[
-            "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 whitespace-nowrap shrink-0 snap-start",
+            "nav-label font-nav-item text-nav-item uppercase tracking-widest transition-colors duration-200 whitespace-nowrap shrink-0",
             active === item.key
               ? "text-primary font-bold border-b border-primary pb-1"
               : "text-on-surface-variant hover:text-primary",
@@ -44,6 +47,32 @@ const navItems = [
           {item.de}
         </a>
       ))}
+      <!-- "More" Dropdown -->
+      <div class="relative group">
+        <button type="button" class="nav-label font-nav-item text-nav-item uppercase tracking-widest whitespace-nowrap shrink-0 text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer flex items-center gap-1">
+          <span data-de="Mehr" data-en="More" class="nav-label">Mehr</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="absolute right-0 top-full mt-2 w-56 rounded-xl bg-surface-container shadow-xl border border-outline/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
+          {moreItems.map((item) => (
+            <a
+              href={item.href}
+              data-de={item.de}
+              data-en={item.en}
+              data-auth={item.auth ? "true" : "false"}
+              class:list={[
+                "nav-label font-nav-item text-nav-item uppercase tracking-widest block px-4 py-3 transition-colors duration-200",
+                active === item.key
+                  ? "text-primary font-bold bg-primary/10"
+                  : "text-on-surface-variant hover:text-primary hover:bg-surface-container-higher",
+                item.auth ? "hidden" : "",
+              ]}
+            >
+              {item.de}
+            </a>
+          ))}
+        </div>
+      </div>
     </nav>
 
     <div class="flex items-center gap-4">
@@ -89,6 +118,21 @@ const navItems = [
           {item.de}
         </a>
       ))}
+      {moreItems.map((item) => (
+        <a
+          href={item.href}
+          data-de={item.de}
+          data-en={item.en}
+          data-auth={item.auth ? "true" : "false"}
+          class:list={[
+            "nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center transition-colors",
+            active === item.key ? "text-primary" : "text-on-surface-variant hover:text-primary",
+            item.auth ? "hidden" : "",
+          ]}
+        >
+          {item.de}
+        </a>
+      ))}
       <div class="flex items-center gap-2 border-t border-outline/20 mt-2 pt-4">
         <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
         <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
@@ -111,8 +155,6 @@ const navItems = [
 </header>
 
 <style>
-  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
 
 <script is:inline>
