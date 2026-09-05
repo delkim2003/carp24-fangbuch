@@ -69,7 +69,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_pro")
+    .select("is_pro, role")
     .eq("id", userId)
     .single();
 
@@ -78,6 +78,29 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
       JSON.stringify({ error: "Nur für Premium-Mitglieder verfügbar. Jetzt upgraden: /premium" }),
       { status: 403, headers: { "Content-Type": "application/json" } }
     );
+  }
+
+  // Daily usage limit: 20/day for Pro, admin bypasses
+  const isAdmin = profile?.role === "ADMIN";
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  if (!isAdmin) {
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: usage } = await supabaseAdmin
+      .from("ai_usage")
+      .select("count")
+      .eq("user_id", userId)
+      .eq("request_date", today)
+      .single();
+    if (usage && usage.count >= 20) {
+      return new Response(
+        JSON.stringify({ error: "Tageslimit erreicht (20/Tag). Morgen geht es weiter." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
   }
 
   // Rate-Limit: 10s pro User
@@ -92,10 +115,6 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   rateLimitMap.set(userId, now);
 
   // Look up API key (env → DB)
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
   const apiKey = await getApiKey(supabaseAdmin);
   if (!apiKey) {
     return new Response(
@@ -166,7 +185,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3-0324",
+        model: "mistralai/mistral-small-3.2-24b-instruct",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -193,6 +212,11 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
 
     const data = await res.json();
     const answer = data.choices?.[0]?.message?.content || "Keine Antwort erhalten.";
+
+    // Track usage (fire-and-forget, non-blocking)
+    if (!isAdmin) {
+      supabaseAdmin.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
+    }
 
     return new Response(JSON.stringify({ answer }), {
       status: 200,
