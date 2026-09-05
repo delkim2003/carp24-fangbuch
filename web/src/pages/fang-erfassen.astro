@@ -738,6 +738,26 @@ const userTripsJson = JSON.stringify(userTrips);
     });
   });
 
+  function fetchWeatherForCatch(catchId, lat, lng, catchTs, cb) {
+    if (!lat || !lng) { cb(null); return; }
+    fetch('/api/catches/weather', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catch_id: catchId, lat: lat, lng: lng, catch_ts: catchTs }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) {
+          console.warn('[WEATHER] Fetch failed:', data.error);
+        }
+        cb(null);
+      })
+      .catch(function (err) {
+        console.warn('[WEATHER] Network error:', err);
+        cb(null);
+      });
+  }
+
   function saveCatchViaRpc(input, cb) {
     var sb = getSupabase();
     if (!sb) {
@@ -763,7 +783,10 @@ const userTripsJson = JSON.stringify(userTrips);
         if (pubRes.error) {
           cb({ id: catch_id, error: pubRes.error.message });
         } else {
-          cb({ id: catch_id });
+          // Wetter automatisch abrufen (nur bei Koordinaten + innerhalb 24h)
+          fetchWeatherForCatch(catch_id, input.lat, input.lng, input.catch_ts, function () {
+            cb({ id: catch_id });
+          });
         }
       });
     });
