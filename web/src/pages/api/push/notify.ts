@@ -1,20 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import webPush from "web-push";
+import { getVapidKeys } from "../../../lib/settings";
 
 export const prerender = false;
 
 export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
-  const vapidPublicKey = import.meta.env.VAPID_PUBLIC_KEY;
-  const vapidPrivateKey = import.meta.env.VAPID_PRIVATE_KEY;
-  const vapidSubject = import.meta.env.VAPID_SUBJECT || "mailto:info@carp24.at";
-
-  if (!vapidPrivateKey || !vapidPublicKey) {
-    return new Response(JSON.stringify({ error: "Push ist noch nicht konfiguriert." }), {
-      status: 503,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -54,6 +45,11 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
   let body: any;
   try {
@@ -111,6 +107,15 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   if (!subs || subs.length === 0) {
     return new Response(JSON.stringify({ sent: 0 }), {
       status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { publicKey: vapidPublicKey, privateKey: vapidPrivateKey, subject: vapidSubject } = await getVapidKeys(supabaseAdmin);
+
+  if (!vapidPrivateKey || !vapidPublicKey) {
+    return new Response(JSON.stringify({ error: "Push ist noch nicht konfiguriert." }), {
+      status: 503,
       headers: { "Content-Type": "application/json" },
     });
   }

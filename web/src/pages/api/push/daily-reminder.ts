@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import webPush from "web-push";
+import { getVapidKeys } from "../../../lib/settings";
 
 export const prerender = false;
 
@@ -20,9 +21,12 @@ export const POST = async ({ request }: { request: Request }) => {
     });
   }
 
-  const vapidPublicKey = import.meta.env.VAPID_PUBLIC_KEY;
-  const vapidPrivateKey = import.meta.env.VAPID_PRIVATE_KEY;
-  const vapidSubject = import.meta.env.VAPID_SUBJECT || "mailto:info@carp24.at";
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  const { publicKey: vapidPublicKey, privateKey: vapidPrivateKey, subject: vapidSubject } = await getVapidKeys(supabaseAdmin);
 
   if (!vapidPrivateKey || !vapidPublicKey) {
     return new Response(JSON.stringify({ error: "Push ist noch nicht konfiguriert." }), {
@@ -30,11 +34,6 @@ export const POST = async ({ request }: { request: Request }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
 
   const { data: subs } = await supabaseAdmin
     .from("push_subscriptions")

@@ -2,8 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
+import { getVapidKeys } from "../lib/settings";
 
 const supabase = createSSRClient(Astro);
+const vapidKeys = await getVapidKeys(supabase);
 
 const { data: { session } } = await supabase.auth.getSession();
 if (!session) return Astro.redirect("/login/");
@@ -60,7 +62,7 @@ if (createdAt) {
 ---
 
 <Layout title="Carp24 – Profil" active="profil" noindex>
-  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl" data-vapid-key={import.meta.env.VAPID_PUBLIC_KEY || ""}>
+  <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl" data-vapid-key={vapidKeys.publicKey || ""}>
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("profil.titel", "de")} data-en={t("profil.titel", "en")}>{t("profil.titel")}</h1>
