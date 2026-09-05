@@ -228,23 +228,6 @@ const isPaid = isPro || isAdmin;
 <script>
   import { supabase } from '../lib/supabase-client';
 
-  // Refresh session from SSR-embedded tokens if localStorage is expired
-  (async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        var accMeta = document.querySelector('meta[name="ssr-access"]');
-        var refMeta = document.querySelector('meta[name="ssr-refresh"]');
-        if (accMeta && refMeta) {
-          await supabase.auth.setSession({
-            access_token: accMeta.getAttribute('content'),
-            refresh_token: refMeta.getAttribute('content')
-          });
-        }
-      }
-    } catch(e) { console.warn('Session refresh failed:', e); }
-  })();
-
   let CSS = getCSS();
 
   function n(val: unknown): number {
@@ -738,5 +721,21 @@ const isPaid = isPro || isAdmin;
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  refresh();
+  // Wait for session refresh before loading data
+  (async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        var accMeta = document.querySelector('meta[name="ssr-access"]');
+        var refMeta = document.querySelector('meta[name="ssr-refresh"]');
+        if (accMeta && refMeta) {
+          await supabase.auth.setSession({
+            access_token: accMeta.getAttribute('content'),
+            refresh_token: refMeta.getAttribute('content')
+          });
+        }
+      }
+    } catch(e) { console.warn('Session refresh failed:', e); }
+    refresh();
+  })();
 </script>
