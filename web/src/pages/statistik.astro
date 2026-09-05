@@ -340,10 +340,9 @@ const isPaid = isPro || isAdmin;
     const parts: string[] = [];
     if (row.best_mond) parts.push('🌙 ' + row.best_mond);
     if (row.best_wetter) parts.push('🌤️ ' + row.best_wetter);
-    if (row.best_uhrzeit) parts.push('🕐 ' + row.best_uhrzeit);
     if (row.best_druck) parts.push('📊 ' + row.best_druck);
+    if (row.best_temp) parts.push('🌡️ ' + row.best_temp);
     if (row.best_wind) parts.push('💨 ' + row.best_wind);
-    if (row.best_wassertemp) parts.push('🌡️ ' + row.best_wassertemp);
 
     el.innerHTML = `
       <div class="flex flex-wrap gap-sm flex-1">
