@@ -5,9 +5,6 @@ import PremiumLock from '../components/PremiumLock.astro';
 const session = Astro.locals.session;
 if (!session) return Astro.redirect('/login');
 
-let isPro = false;
-let isAdmin = false;
-
 import { createClient } from '@supabase/supabase-js';
 
 let isPro = false;
