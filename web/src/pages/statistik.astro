@@ -234,7 +234,12 @@ const isPaid = isPro || isAdmin;
 
   let CSS = getCSS();
 
-  function n(val: unknown): number {
+  function n(val: unknown, digits: number = 1): any {
+    const v = Number(val);
+    return Number.isFinite(v) ? v.toFixed(digits) : '–';
+  }
+
+  function nf(val: unknown, digits: number = 1): string {
     const v = Number(val);
     return Number.isFinite(v) ? v.toFixed(digits) : '–';
   }
@@ -725,13 +730,15 @@ const isPaid = isPro || isAdmin;
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  // Wait for session refresh before loading data
+  // Ensure session is available, then load data
   (async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Wait for createBrowserClient to initialize from cookies
+      await new Promise(r => setTimeout(r, 100));
+      let { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        var accMeta = document.querySelector('meta[name="ssr-access"]');
-        var refMeta = document.querySelector('meta[name="ssr-refresh"]');
+        const accMeta = document.querySelector('meta[name="ssr-access"]');
+        const refMeta = document.querySelector('meta[name="ssr-refresh"]');
         if (accMeta && refMeta) {
           await supabase.auth.setSession({
             access_token: accMeta.getAttribute('content'),
@@ -739,7 +746,7 @@ const isPaid = isPro || isAdmin;
           });
         }
       }
-    } catch(e) { console.warn('Session refresh failed:', e); }
-    refresh();
+      await refresh();
+    } catch(e) { console.warn('Init error:', e); }
   })();
 </script>
