@@ -47,6 +47,53 @@ const isPaid = isPro || isAdmin;
       <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de="KI-ANGELASSISTENT" data-en="AI FISHING ASSISTANT">KI-ANGELASSISTENT</h1>
     </div>
 
+    <div class="flex flex-col gap-md mb-xl">
+      <div class="flex gap-sm">
+        <button
+          id="best-conditions-btn"
+          type="button"
+          class="flex-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center justify-center gap-sm cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>Beste Bedingungen</span>
+        </button>
+        <button
+          id="forecast-btn"
+          type="button"
+          class="flex-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center justify-center gap-sm cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>Fangprognose</span>
+        </button>
+      </div>
+      
+      <div id="location-input-container" class="hidden">
+        <div class="flex gap-sm items-center">
+          <input
+            id="location-input"
+            type="text"
+            placeholder="Standort eingeben (z.B. Berlin, Rhein, Bodensee)"
+            class="flex-1 bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-11"
+            autocomplete="off"
+          />
+          <button
+            id="forecast-send-btn"
+            type="button"
+            class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm h-[52px] flex items-center gap-sm cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
+              <path d="M5.5 16.5 7.5 11 17.5 5 20 8 15 5 11 14.5Z M5.5 15.5 18.5 5.5"></path>
+            </svg>
+            <span>Prognose</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="chat-messages" class="flex flex-col gap-sm max-h-[60vh] overflow-y-auto bg-surface-container-high rounded-xl border border-primary/40 p-lg">
       <div class="flex items-start gap-4">
         <div class="w-8 h-8 rounded-lg bg-surface-variant border border-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -99,6 +146,11 @@ const isPaid = isPro || isAdmin;
   var input = document.getElementById('ai-input');
   var sendBtn = document.getElementById('ai-send');
   var errorDiv = document.getElementById('ai-error');
+  var bestConditionsBtn = document.getElementById('best-conditions-btn');
+  var forecastBtn = document.getElementById('forecast-btn');
+  var locationInputContainer = document.getElementById('location-input-container');
+  var locationInput = document.getElementById('location-input');
+  var forecastSendBtn = document.getElementById('forecast-send-btn');
 
   function getLang() {
     return localStorage.getItem('carp24-lang') || 'de';
@@ -109,7 +161,8 @@ const isPaid = isPro || isAdmin;
     not_configured: { de: 'KI-Assistent ist nicht konfiguriert. Bitte den Admin kontaktieren.', en: 'AI assistant is not configured. Please contact the admin.' },
     rate_limit: { de: 'Bitte kurz warten.', en: 'Please wait a moment.' },
     request_error: { de: 'Fehler bei der Anfrage.', en: 'Request error.' },
-    unreachable: { de: 'KI-Dienst nicht erreichbar.', en: 'AI service unreachable.' }
+    unreachable: { de: 'KI-Dienst nicht erreichbar.', en: 'AI service unreachable.' },
+    location_required: { de: 'Bitte Standort eingeben.', en: 'Please enter a location.' }
   };
 
   function addBubble(text, isUser) {
@@ -180,11 +233,98 @@ const isPaid = isPro || isAdmin;
       });
   }
 
+  function showBestConditions() {
+    addBubble('Analysiere deine besten Angelbedingungen...', true);
+    errorDiv.classList.add('hidden');
+
+    fetch('/api/ai/analyze', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'best-conditions' }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          var lang = getLang();
+          if (res.status === 503) {
+            showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
+          } else if (res.status === 429) {
+            showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
+          } else if (res.ok && data.answer) {
+            addBubble(data.answer, false);
+          } else {
+            showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
+          }
+        });
+      })
+      .catch(function () {
+        var lang = getLang();
+        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
+      });
+  }
+
+  function showForecast() {
+    locationInputContainer.classList.remove('hidden');
+    locationInput.focus();
+    forecastBtn.disabled = true;
+    bestConditionsBtn.disabled = true;
+  }
+
+  function sendForecast() {
+    var location = locationInput.value.trim();
+    if (!location) {
+      showError(i18nErrors.location_required[getLang()] || i18nErrors.location_required.de);
+      return;
+    }
+
+    addBubble('Erstelle Fangprognose für: ' + location, true);
+    locationInput.value = '';
+    locationInputContainer.classList.add('hidden');
+    forecastBtn.disabled = false;
+    bestConditionsBtn.disabled = false;
+    errorDiv.classList.add('hidden');
+
+    fetch('/api/ai/analyze', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'forecast', location: location }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          var lang = getLang();
+          if (res.status === 503) {
+            showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
+          } else if (res.status === 429) {
+            showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
+          } else if (res.ok && data.answer) {
+            addBubble(data.answer, false);
+          } else {
+            showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
+          }
+        });
+      })
+      .catch(function () {
+        var lang = getLang();
+        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
+      });
+  }
+
   if (sendBtn) sendBtn.addEventListener('click', sendMessage);
   if (input) input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  });
+
+  if (bestConditionsBtn) bestConditionsBtn.addEventListener('click', showBestConditions);
+  if (forecastBtn) forecastBtn.addEventListener('click', showForecast);
+  if (forecastSendBtn) forecastSendBtn.addEventListener('click', sendForecast);
+  if (locationInput) locationInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendForecast();
     }
   });
 })();
