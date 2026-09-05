@@ -57,21 +57,24 @@ const speciesMap: Record<string, string> = { SPIEGEL: "Spiegelkarpfen", LEDER: "
               {catchData.method && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">METHODE</div><div class="font-headline-md text-headline-md text-on-surface">{catchData.method}</div></div>}
             </div>
             {catchData.notes && <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest mb-1">NOTIZEN</div><div class="text-body-md text-on-surface-variant">{catchData.notes}</div></div>}
-            {catchData.weather && (
-              <div class="bg-surface-container rounded-xl border border-primary/30 p-lg">
-                <div class="font-label-sm text-label-sm uppercase text-primary mb-md">WETTER-SNAPSHOT</div>
+            <div class="bg-surface-container rounded-xl border border-primary/30 p-lg">
+              <div class="font-label-sm text-label-sm uppercase text-primary mb-md">WETTER & BEDINGUNGEN</div>
+              {catchData.weather && Object.keys(catchData.weather).length > 0 ? (
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-md">
                   <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">TEMPERATUR</div><div class="font-mono text-body-lg">{catchData.weather.temp_c != null ? catchData.weather.temp_c + " °C" : "—"}</div></div>
                   <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">LUFTDRUCK</div><div class="font-mono text-body-lg">{catchData.weather.pressure_hpa != null ? catchData.weather.pressure_hpa + " hPa" : "—"}</div></div>
-                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_kmh != null ? catchData.weather.wind_kmh + " km/h" : "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WIND</div><div class="font-mono text-body-lg">{catchData.weather.wind_speed_kmh != null ? catchData.weather.wind_speed_kmh + " km/h" : "—"}</div></div>
+                  <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WETTER</div><div class="font-mono text-body-lg">{catchData.weather.weather_text ?? "—"}</div></div>
                   <div><div class="font-mono text-xs uppercase text-primary/70 tracking-widest">MOND</div><div class="font-mono text-body-lg">{catchData.weather.moon_text ?? "—"}</div></div>
                 </div>
-                <div class="border-t border-primary/20 mt-md pt-md" data-testid="water-temp-display">
-                  <div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WASSERTEMPERATUR</div>
-                  <div class="font-mono text-body-lg">{catchData.water_temp_c != null ? catchData.water_temp_c + " °C" : "—"}</div>
-                </div>
+              ) : (
+                <p class="text-body-md text-on-surface-variant italic">Wetterdaten für diesen Fang nicht verfügbar.</p>
+              )}
+              <div class="border-t border-primary/20 mt-md pt-md" data-testid="water-temp-display">
+                <div class="font-mono text-xs uppercase text-primary/70 tracking-widest">WASSERTEMPERATUR</div>
+                <div class="font-mono text-body-lg">{catchData.water_temp_c != null ? catchData.water_temp_c + " °C" : "—"}</div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </>
