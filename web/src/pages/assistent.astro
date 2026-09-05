@@ -37,9 +37,8 @@ const isPaid = isPro || isAdmin;
     active="assistent"
   />
 ) : (
-<Layout title="Carp24 – KI-Assistent" active="assistent">
-  <script is:inline>window.__SSR_ACCESS_TOKEN = "{session.access_token}";</script>
-  <main class="flex-grow w-full max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
+  <Layout title="Carp24 – KI-Assistent" active="assistent">
+    <main class="flex-grow w-full max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     <div>
       <p class="font-label-sm text-label-sm uppercase text-primary tracking-[0.2em] mb-2">CARP24</p>
       <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de="KI-ANGELASSISTENT" data-en="AI FISHING ASSISTANT">KI-ANGELASSISTENT</h1>
@@ -149,23 +148,10 @@ const isPaid = isPro || isAdmin;
     sendBtn.disabled = true;
     errorDiv.classList.add('hidden');
 
-    var authHeaders = { 'Content-Type': 'application/json' };
-    try {
-      var raw = localStorage.getItem('sb-carp24-auth-token');
-      var token = null;
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        token = parsed && parsed.access_token;
-      }
-      // SSR fallback: embedded fresh token if localStorage is expired/missing
-      if (!token) token = window.__SSR_ACCESS_TOKEN || null;
-      if (token) authHeaders['Authorization'] = 'Bearer ' + token;
-    } catch(e) {
-      if (window.__SSR_ACCESS_TOKEN) authHeaders['Authorization'] = 'Bearer ' + window.__SSR_ACCESS_TOKEN;
-    }
     fetch('/api/ai/chat', {
       method: 'POST',
-      headers: authHeaders,
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg }),
     })
       .then(function (res) {

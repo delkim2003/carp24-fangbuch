@@ -1,4 +1,3 @@
-import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
@@ -24,49 +23,21 @@ async function getApiKey(supabaseAdmin: any): Promise<string | null> {
   }
 }
 
-export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return {
-                name: pair.slice(0, idx).trim(),
-                value: pair.slice(idx + 1).trim(),
-              };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
-        },
-        setAll(cookiesToSet: { name: string; value: string; options: any }[]) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookies.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
+export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  let user = locals.user;
 
-  let {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // Fallback: Bearer token if cookies didn't reach (e.g. direct API calls)
   if (!user) {
-    // Fallback: try Bearer token from Authorization header
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
-      const { data: { user: tokenUser }, error: tokenErr } = await supabase.auth.getUser(token);
-      if (tokenUser) {
-        user = tokenUser;
-      }
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabaseAdmin = createClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
+      if (tokenUser) user = tokenUser;
     }
   }
 
@@ -161,7 +132,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
   }
 
   // Letzte 20 Fänge laden
-  const { data: catches } = await supabase
+  const { data: catches } = await supabaseAdmin
     .from("catches")
     .select("catch_ts, weight_kg, species, water_name")
     .eq("user_id", userId)

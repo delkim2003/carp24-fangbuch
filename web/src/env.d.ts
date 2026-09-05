@@ -1,10 +1,10 @@
-/// <reference path="../.astro/types.d.ts" />
-/// <reference types="astro/client" />
+import '@supabase/supabase-js';
 
 declare namespace App {
   interface Locals {
-    session: import("@supabase/supabase-js").Session | null;
-    role: string;
-    isAdmin: boolean;
+    user: import('@supabase/supabase-js').User | null;
+    session: import('@supabase/supabase-js').Session | null;
   }
 }
+
+export {};

@@ -1,47 +1,20 @@
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
-export const POST = async ({ request, cookies }: { request: Request; cookies: any }) => {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return {
-                name: pair.slice(0, idx).trim(),
-                value: pair.slice(idx + 1).trim(),
-              };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }: any) => {
-            cookies.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  const user = locals.user;
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  const supabaseAdmin = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
   let body: any;
   try {
@@ -73,7 +46,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     });
   }
 
-  const { data: item, error: itemError } = await supabase
+  const { data: item, error: itemError } = await supabaseAdmin
     .from("marketplace_items")
     .select("user_id")
     .eq("id", item_id)
@@ -93,7 +66,7 @@ export const POST = async ({ request, cookies }: { request: Request; cookies: an
     );
   }
 
-  const { error: insertError } = await supabase.from("marketplace_contacts").insert({
+  const { error: insertError } = await supabaseAdmin.from("marketplace_contacts").insert({
     item_id,
     from_user: user.id,
     to_user: item.user_id,

@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
@@ -51,43 +51,12 @@ async function fetchWeather(
 
 export const POST = async ({
   request,
-  cookies,
+  locals,
 }: {
   request: Request;
-  cookies: any;
+  locals: App.Locals;
 }) => {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          const header = request.headers.get("cookie");
-          if (!header) return [];
-          return header
-            .split(";")
-            .map((pair: string) => {
-              const idx = pair.indexOf("=");
-              if (idx === -1) return null;
-              return {
-                name: pair.slice(0, idx).trim(),
-                value: pair.slice(idx + 1).trim(),
-              };
-            })
-            .filter(Boolean) as { name: string; value: string }[];
-        },
-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookies.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = locals.user;
 
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
@@ -96,11 +65,28 @@ export const POST = async ({
     });
   }
 
+  const supabase = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("is_pro")
     .eq("id", user.id)
     .single();
+
+  if (!profile?.is_pro) {
+    const now = Date.now();
+    const lastRequest = freeRateLimitMap.get(user.id);
+    if (lastRequest && now - lastRequest < 60_000) {
+      return new Response(
+        JSON.stringify({ error: "Bitte kurz warten (Free-Limit)." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    freeRateLimitMap.set(user.id, now);
+  }
 
   if (!profile?.is_pro) {
     const now = Date.now();

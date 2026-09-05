@@ -32,14 +32,8 @@ const isPaid = isPro || isAdmin;
     active="statistik"
   />
 ) : (
-<Layout title="Carp24 – Statistik" active="statistik" noindex>
-  <script is:inline>
-    window.__SSR_SESSION = {
-      access_token: "{session.access_token}",
-      refresh_token: "{session.refresh_token}"
-    };
-  </script>
-  <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
+  <Layout title="Carp24 – Statistik" active="statistik" noindex>
+    <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
       <div>
@@ -232,25 +226,9 @@ const isPaid = isPro || isAdmin;
 <script>
   import { supabase } from '../lib/supabase-client';
 
-  // Refresh session from SSR-embedded tokens
-  (async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session && window.__SSR_SESSION && window.__SSR_SESSION.access_token) {
-        await supabase.auth.setSession({
-          access_token: window.__SSR_SESSION.access_token,
-          refresh_token: window.__SSR_SESSION.refresh_token
-        });
-      }
-    } catch(e) { console.warn('Session refresh failed:', e); }
-  })();
+  let CSS = getCSS();
 
   function n(val: unknown): number {
-    const v = Number(val);
-    return Number.isFinite(v) ? v : 0;
-  }
-
-  function nf(val: unknown, digits = 1): string {
     const v = Number(val);
     return Number.isFinite(v) ? v.toFixed(digits) : '–';
   }
@@ -278,8 +256,6 @@ const isPaid = isPro || isAdmin;
       onSurfaceVar: s.getPropertyValue('--color-on-surface-variant').trim() || '#45483f',
     };
   }
-
-  let CSS = getCSS();
 
   const MOND_EMOJI: Record<string, string> = {};
 

@@ -28,14 +28,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         storageKey: 'sb-carp24-auth-token',
       },
       cookieOptions: {
-              path: '/',
-              sameSite: 'lax',
-              secure: context.url.protocol === 'https:',
-            },
+        path: '/',
+        sameSite: 'lax',
+        secure: context.url.protocol === 'https:',
+      },
     }
   );
 
   const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
   let role = "USER";
   if (user) {
     const { data: profile } = await supabase
@@ -48,7 +49,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   console.log("[MIDDLEWARE] Path:", context.url.pathname, "User:", user ? "found" : "null", "Role:", role);
 
-  context.locals.session = user;
+  context.locals.user = user;
+  context.locals.session = session;
   context.locals.role = role;
   context.locals.isAdmin = role === "ADMIN" || role === "MODERATOR";
 
