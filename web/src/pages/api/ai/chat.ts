@@ -134,7 +134,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   // Letzte 20 Fänge laden
   const { data: catches } = await supabaseAdmin
     .from("catches")
-    .select("catch_ts, weight_kg, species, water_name")
+    .select("catch_ts, weight_kg, species, water_name, weather")
     .eq("user_id", userId)
     .is("deleted_at", null)
     .order("catch_ts", { ascending: false })
@@ -148,7 +148,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
         const kg = c.weight_kg ? c.weight_kg + " kg" : "?";
         const species = c.species || "unbekannt";
         const water = c.water_name || "unbekannt";
-        return `${date}, ${kg}, ${species}, ${water}`;
+        const w = c.weather || {};
+        const wInfo = w.pressure_hpa ? `, ${w.pressure_hpa}hPa, ${w.weather_text||'?'}, ${w.temp_c||'?'}°C, ${w.wind_speed_kmh||'?'}km/h` : '';
+        return `${date}, ${kg}, ${species}, ${water}${wInfo}`;
       })
       .join("\n");
   }
