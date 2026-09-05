@@ -74,6 +74,136 @@ if (!isAdmin) return Astro.redirect("/");
         </div>
       </div>
     </div>
+
+    <!-- Stripe-Zahlungen -->
+    <div class="w-full mt-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Zahlungen</h2>
+      <div id="stripe-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <div class="flex items-center gap-md mb-md">
+          <span id="stripe-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
+          <span id="stripe-hint" class="text-body-sm text-on-surface-variant"></span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-md">
+          <div>
+            <label for="stripe-secret-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Secret Key</label>
+            <div class="flex gap-sm items-stretch">
+              <input
+                id="stripe-secret-input"
+                type="password"
+                class="flex-1 bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+                placeholder="sk_test_..."
+                autocomplete="off"
+              />
+              <button id="stripe-toggle-secret" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="stripe-webhook-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Webhook Secret</label>
+            <div class="flex gap-sm items-stretch">
+              <input
+                id="stripe-webhook-input"
+                type="password"
+                class="flex-1 bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+                placeholder="whsec_..."
+                autocomplete="off"
+              />
+              <button id="stripe-toggle-webhook" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-md">
+          <label for="stripe-price-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Price ID (optional)</label>
+          <input
+            id="stripe-price-input"
+            type="text"
+            class="w-full bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+            placeholder="price_..."
+            autocomplete="off"
+          />
+          <p class="text-body-sm text-on-surface-variant mt-xs">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
+        </div>
+        <div class="flex items-center gap-md">
+          <button id="stripe-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
+          <button id="stripe-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <span id="stripe-feedback" class="text-body-sm ml-md hidden"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Push-Benachrichtigungen (VAPID) -->
+    <div class="w-full mt-xl">
+      <h2 class="text-headline-md text-on-surface mb-lg">Push-Benachrichtigungen (VAPID)</h2>
+      <div id="vapid-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
+        <div class="flex items-center gap-md mb-md">
+          <span id="vapid-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
+          <span id="vapid-hint" class="text-body-sm text-on-surface-variant"></span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-md">
+          <div>
+            <label for="vapid-public-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Public Key</label>
+            <div class="flex gap-sm items-stretch">
+              <input
+                id="vapid-public-input"
+                type="password"
+                class="flex-1 bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+                placeholder="BN..."
+                autocomplete="off"
+              />
+              <button id="vapid-toggle-public" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="vapid-private-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Private Key</label>
+            <div class="flex gap-sm items-stretch">
+              <input
+                id="vapid-private-input"
+                type="password"
+                class="flex-1 bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+                placeholder="..."
+                autocomplete="off"
+              />
+              <button id="vapid-toggle-private" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-md">
+          <label for="vapid-subject-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">Subject (optional)</label>
+          <input
+            id="vapid-subject-input"
+            type="text"
+            class="w-full bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md"
+            placeholder="mailto:info@..."
+            autocomplete="off"
+          />
+          <p class="text-body-sm text-on-surface-variant mt-xs">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
+        </div>
+        <div class="flex items-center gap-md">
+          <button id="vapid-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
+          <button id="vapid-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <span id="vapid-feedback" class="text-body-sm ml-md hidden"></span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <style>
@@ -350,6 +480,382 @@ if (!isAdmin) return Astro.redirect("/");
       }
 
       loadOpenRouterStatus();
+
+      // Stripe Key UI
+      const stripeBadge = document.getElementById("stripe-badge");
+      const stripeHint = document.getElementById("stripe-hint");
+      const stripeSecretInput = document.getElementById("stripe-secret-input") as HTMLInputElement;
+      const stripeWebhookInput = document.getElementById("stripe-webhook-input") as HTMLInputElement;
+      const stripePriceInput = document.getElementById("stripe-price-input") as HTMLInputElement;
+      const stripeToggleSecret = document.getElementById("stripe-toggle-secret");
+      const stripeToggleWebhook = document.getElementById("stripe-toggle-webhook");
+      const stripeSave = document.getElementById("stripe-save");
+      const stripeClear = document.getElementById("stripe-clear");
+      const stripeFeedback = document.getElementById("stripe-feedback");
+
+      async function loadStripeStatus() {
+        try {
+          const res = await fetch("/api/admin/stripe-key");
+          if (res.ok) {
+            const data = await res.json();
+            updateStripeUI(data);
+          }
+        } catch {}
+      }
+
+      function updateStripeUI(data: { configured: boolean; source?: string | null; has_secret_key?: boolean; has_webhook_secret?: boolean; has_price_id?: boolean; masked_secret_key?: string | null; masked_webhook_secret?: string | null; price_id?: string | null }) {
+        if (stripeBadge) {
+          if (data.configured) {
+            stripeBadge.textContent = "KEYS HINTERLEGT";
+            stripeBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-primary-container text-on-primary-container";
+          } else {
+            stripeBadge.textContent = "KEYS FEHLEN";
+            stripeBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-error-container text-on-error-container";
+          }
+        }
+        if (stripeHint) {
+          if (data.configured) {
+            const source = data.source === "env" ? "aus .env" : "aus Datenbank";
+            stripeHint.textContent = "Stripe-Zahlungen konfiguriert (" + source + ").";
+          } else {
+            stripeHint.textContent = "Bitte Stripe-Keys hinterlegen, um Zahlungen zu aktivieren.";
+          }
+        }
+        if (stripeSecretInput) {
+          stripeSecretInput.value = "";
+          stripeSecretInput.placeholder = data.has_secret_key ? (data.masked_secret_key || "********") : "sk_test_...";
+        }
+        if (stripeWebhookInput) {
+          stripeWebhookInput.value = "";
+          stripeWebhookInput.placeholder = data.has_webhook_secret ? (data.masked_webhook_secret || "********") : "whsec_...";
+        }
+        if (stripePriceInput) {
+          stripePriceInput.value = data.price_id || "";
+          stripePriceInput.placeholder = data.price_id ? data.price_id : "price_...";
+        }
+      }
+
+      if (stripeSave) {
+        stripeSave.addEventListener("click", async function () {
+          const secretKey = stripeSecretInput ? stripeSecretInput.value.trim() : "";
+          const webhookSecret = stripeWebhookInput ? stripeWebhookInput.value.trim() : "";
+          const priceId = stripePriceInput ? stripePriceInput.value.trim() : "";
+
+          if (!secretKey && !webhookSecret && !priceId) {
+            if (stripeFeedback) {
+              stripeFeedback.textContent = "Bitte mindestens einen Key eingeben.";
+              stripeFeedback.className = "text-body-sm text-error ml-md";
+              stripeFeedback.classList.remove("hidden");
+            }
+            return;
+          }
+
+          stripeSave.disabled = true;
+          stripeSave.textContent = "SPEICHERE…";
+          if (stripeFeedback) stripeFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/stripe-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ secret_key: secretKey, webhook_secret: webhookSecret, price_id: priceId }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (stripeFeedback) {
+                stripeFeedback.textContent = "Keys gespeichert.";
+                stripeFeedback.className = "text-body-sm text-green-600 ml-md";
+                stripeFeedback.classList.remove("hidden");
+              }
+              updateStripeUI({
+                configured: true,
+                source: "db",
+                has_secret_key: !!secretKey,
+                has_webhook_secret: !!webhookSecret,
+                has_price_id: !!priceId,
+                masked_secret_key: secretKey ? secretKey.slice(0, 8) + "…" : null,
+                masked_webhook_secret: webhookSecret ? webhookSecret.slice(0, 8) + "…" : null,
+                price_id: priceId || null,
+              });
+              if (stripeSecretInput) stripeSecretInput.value = "";
+              if (stripeWebhookInput) stripeWebhookInput.value = "";
+            } else {
+              const err = await res.json();
+              if (stripeFeedback) {
+                stripeFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                stripeFeedback.className = "text-body-sm text-error ml-md";
+                stripeFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (stripeFeedback) {
+              stripeFeedback.textContent = "Fehler beim Speichern.";
+              stripeFeedback.className = "text-body-sm text-error ml-md";
+              stripeFeedback.classList.remove("hidden");
+            }
+          }
+
+          stripeSave.disabled = false;
+          stripeSave.textContent = "SPEICHERN";
+        });
+      }
+
+      if (stripeClear) {
+        stripeClear.addEventListener("click", async function () {
+          if (!confirm("Stripe-Konfiguration wirklich löschen?")) return;
+
+          stripeClear.disabled = true;
+          stripeClear.textContent = "LÖSCHE…";
+          if (stripeFeedback) stripeFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/stripe-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ secret_key: "", webhook_secret: "", price_id: "" }),
+            });
+            if (res.ok) {
+              if (stripeFeedback) {
+                stripeFeedback.textContent = "Keys gelöscht.";
+                stripeFeedback.className = "text-body-sm text-green-600 ml-md";
+                stripeFeedback.classList.remove("hidden");
+              }
+              updateStripeUI({ configured: false, source: null, has_secret_key: false, has_webhook_secret: false, has_price_id: false, masked_secret_key: null, masked_webhook_secret: null, price_id: null });
+              if (stripeSecretInput) stripeSecretInput.value = "";
+              if (stripeWebhookInput) stripeWebhookInput.value = "";
+              if (stripePriceInput) stripePriceInput.value = "";
+            } else {
+              const err = await res.json();
+              if (stripeFeedback) {
+                stripeFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                stripeFeedback.className = "text-body-sm text-error ml-md";
+                stripeFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (stripeFeedback) {
+              stripeFeedback.textContent = "Fehler beim Löschen.";
+              stripeFeedback.className = "text-body-sm text-error ml-md";
+              stripeFeedback.classList.remove("hidden");
+            }
+          }
+
+          stripeClear.disabled = false;
+          stripeClear.textContent = "LÖSCHEN";
+        });
+      }
+
+      // Toggle visibility for Stripe inputs
+      if (stripeToggleSecret) {
+        stripeToggleSecret.addEventListener("click", function () {
+          if (!stripeSecretInput) return;
+          const isPassword = stripeSecretInput.type === "password";
+          stripeSecretInput.type = isPassword ? "text" : "password";
+          stripeToggleSecret.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+      }
+
+      if (stripeToggleWebhook) {
+        stripeToggleWebhook.addEventListener("click", function () {
+          if (!stripeWebhookInput) return;
+          const isPassword = stripeWebhookInput.type === "password";
+          stripeWebhookInput.type = isPassword ? "text" : "password";
+          stripeToggleWebhook.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+      }
+
+      // VAPID Key UI
+      const vapidBadge = document.getElementById("vapid-badge");
+      const vapidHint = document.getElementById("vapid-hint");
+      const vapidPublicInput = document.getElementById("vapid-public-input") as HTMLInputElement;
+      const vapidPrivateInput = document.getElementById("vapid-private-input") as HTMLInputElement;
+      const vapidSubjectInput = document.getElementById("vapid-subject-input") as HTMLInputElement;
+      const vapidTogglePublic = document.getElementById("vapid-toggle-public");
+      const vapidTogglePrivate = document.getElementById("vapid-toggle-private");
+      const vapidSave = document.getElementById("vapid-save");
+      const vapidClear = document.getElementById("vapid-clear");
+      const vapidFeedback = document.getElementById("vapid-feedback");
+
+      async function loadVapidStatus() {
+        try {
+          const res = await fetch("/api/admin/vapid-key");
+          if (res.ok) {
+            const data = await res.json();
+            updateVapidUI(data);
+          }
+        } catch {}
+      }
+
+      function updateVapidUI(data: { configured: boolean; source?: string | null; has_public_key?: boolean; has_private_key?: boolean; masked_public_key?: string | null; masked_private_key?: string | null; subject?: string | null }) {
+        if (vapidBadge) {
+          if (data.configured) {
+            vapidBadge.textContent = "KEYS HINTERLEGT";
+            vapidBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-primary-container text-on-primary-container";
+          } else {
+            vapidBadge.textContent = "KEYS FEHLEN";
+            vapidBadge.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-error-container text-on-error-container";
+          }
+        }
+        if (vapidHint) {
+          if (data.configured) {
+            const source = data.source === "env" ? "aus .env" : "aus Datenbank";
+            vapidHint.textContent = "Push-Benachrichtigungen konfiguriert (" + source + ").";
+          } else {
+            vapidHint.textContent = "Bitte VAPID-Keys hinterlegen, um Push-Benachrichtigungen zu aktivieren.";
+          }
+        }
+        if (vapidPublicInput) {
+          vapidPublicInput.value = "";
+          vapidPublicInput.placeholder = data.has_public_key ? (data.masked_public_key || "********") : "BN...";
+        }
+        if (vapidPrivateInput) {
+          vapidPrivateInput.value = "";
+          vapidPrivateInput.placeholder = data.has_private_key ? (data.masked_private_key || "********") : "...";
+        }
+        if (vapidSubjectInput) {
+          vapidSubjectInput.value = data.subject || "";
+          vapidSubjectInput.placeholder = data.subject ? data.subject : "mailto:info@...";
+        }
+      }
+
+      if (vapidSave) {
+        vapidSave.addEventListener("click", async function () {
+          const publicKey = vapidPublicInput ? vapidPublicInput.value.trim() : "";
+          const privateKey = vapidPrivateInput ? vapidPrivateInput.value.trim() : "";
+          const subject = vapidSubjectInput ? vapidSubjectInput.value.trim() : "";
+
+          if (!publicKey && !privateKey && !subject) {
+            if (vapidFeedback) {
+              vapidFeedback.textContent = "Bitte mindestens einen Key eingeben.";
+              vapidFeedback.className = "text-body-sm text-error ml-md";
+              vapidFeedback.classList.remove("hidden");
+            }
+            return;
+          }
+
+          vapidSave.disabled = true;
+          vapidSave.textContent = "SPEICHERE…";
+          if (vapidFeedback) vapidFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/vapid-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ public_key: publicKey, private_key: privateKey, subject: subject }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (vapidFeedback) {
+                vapidFeedback.textContent = "Keys gespeichert.";
+                vapidFeedback.className = "text-body-sm text-green-600 ml-md";
+                vapidFeedback.classList.remove("hidden");
+              }
+              updateVapidUI({
+                configured: true,
+                source: "db",
+                has_public_key: !!publicKey,
+                has_private_key: !!privateKey,
+                masked_public_key: publicKey ? publicKey.slice(0, 12) + "…" : null,
+                masked_private_key: privateKey ? privateKey.slice(0, 6) + "…" : null,
+                subject: subject || null,
+              });
+              if (vapidPublicInput) vapidPublicInput.value = "";
+              if (vapidPrivateInput) vapidPrivateInput.value = "";
+            } else {
+              const err = await res.json();
+              if (vapidFeedback) {
+                vapidFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                vapidFeedback.className = "text-body-sm text-error ml-md";
+                vapidFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (vapidFeedback) {
+              vapidFeedback.textContent = "Fehler beim Speichern.";
+              vapidFeedback.className = "text-body-sm text-error ml-md";
+              vapidFeedback.classList.remove("hidden");
+            }
+          }
+
+          vapidSave.disabled = false;
+          vapidSave.textContent = "SPEICHERN";
+        });
+      }
+
+      if (vapidClear) {
+        vapidClear.addEventListener("click", async function () {
+          if (!confirm("VAPID-Konfiguration wirklich löschen?")) return;
+
+          vapidClear.disabled = true;
+          vapidClear.textContent = "LÖSCHE…";
+          if (vapidFeedback) vapidFeedback.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/admin/vapid-key", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ public_key: "", private_key: "", subject: "" }),
+            });
+            if (res.ok) {
+              if (vapidFeedback) {
+                vapidFeedback.textContent = "Keys gelöscht.";
+                vapidFeedback.className = "text-body-sm text-green-600 ml-md";
+                vapidFeedback.classList.remove("hidden");
+              }
+              updateVapidUI({ configured: false, source: null, has_public_key: false, has_private_key: false, masked_public_key: null, masked_private_key: null, subject: null });
+              if (vapidPublicInput) vapidPublicInput.value = "";
+              if (vapidPrivateInput) vapidPrivateInput.value = "";
+              if (vapidSubjectInput) vapidSubjectInput.value = "";
+            } else {
+              const err = await res.json();
+              if (vapidFeedback) {
+                vapidFeedback.textContent = "Fehler: " + (err.error || "Unbekannt");
+                vapidFeedback.className = "text-body-sm text-error ml-md";
+                vapidFeedback.classList.remove("hidden");
+              }
+            }
+          } catch {
+            if (vapidFeedback) {
+              vapidFeedback.textContent = "Fehler beim Löschen.";
+              vapidFeedback.className = "text-body-sm text-error ml-md";
+              vapidFeedback.classList.remove("hidden");
+            }
+          }
+
+          vapidClear.disabled = false;
+          vapidClear.textContent = "LÖSCHEN";
+        });
+      }
+
+      // Toggle visibility for VAPID inputs
+      if (vapidTogglePublic) {
+        vapidTogglePublic.addEventListener("click", function () {
+          if (!vapidPublicInput) return;
+          const isPassword = vapidPublicInput.type === "password";
+          vapidPublicInput.type = isPassword ? "text" : "password";
+          vapidTogglePublic.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+      }
+
+      if (vapidTogglePrivate) {
+        vapidTogglePrivate.addEventListener("click", function () {
+          if (!vapidPrivateInput) return;
+          const isPassword = vapidPrivateInput.type === "password";
+          vapidPrivateInput.type = isPassword ? "text" : "password";
+          vapidTogglePrivate.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        });
+      }
+
+      loadStripeStatus();
+      loadVapidStatus();
     });
   </script>
 </Layout>
