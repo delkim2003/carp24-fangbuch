@@ -333,23 +333,25 @@ const isPaid = isPro || isAdmin;
   function renderBestConditions(best: any) {
     const el = document.getElementById('bestConditions');
     if (!el) return;
-    if (!best) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic">Keine Daten</p>'; return; }
+    // RPC returns array [{best_mond, best_wetter, avg_weight, catch_count}]
+    const row = Array.isArray(best) ? best[0] : best;
+    if (!row) { el.innerHTML = '<p class="text-body-md text-on-surface-variant italic">Keine Daten</p>'; return; }
 
     const parts: string[] = [];
-    if (best.mond) parts.push(best.mond);
-    if (best.wetter) parts.push(best.wetter);
-    if (best.uhrzeit) parts.push(best.uhrzeit);
-    if (best.druck) parts.push(best.druck);
-    if (best.wind) parts.push(best.wind);
-    if (best.wassertemp) parts.push(best.wassertemp);
+    if (row.best_mond) parts.push('🌙 ' + row.best_mond);
+    if (row.best_wetter) parts.push('🌤️ ' + row.best_wetter);
+    if (row.best_uhrzeit) parts.push('🕐 ' + row.best_uhrzeit);
+    if (row.best_druck) parts.push('📊 ' + row.best_druck);
+    if (row.best_wind) parts.push('💨 ' + row.best_wind);
+    if (row.best_wassertemp) parts.push('🌡️ ' + row.best_wassertemp);
 
     el.innerHTML = `
       <div class="flex flex-wrap gap-sm flex-1">
         ${parts.map(p => `<span class="inline-flex items-center py-1 px-3 rounded-full bg-surface-variant text-body-md text-on-surface whitespace-nowrap font-medium">${p}</span>`).join('')}
       </div>
       <div class="flex items-baseline gap-sm">
-        <span class="text-headline-md text-primary-container font-bold">${n(best.fangzahl)} Fänge</span>
-        <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(best.avg_gewicht)} kg</span>
+        <span class="text-headline-md text-primary-container font-bold">${n(row.catch_count)} Fänge</span>
+        <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(row.avg_weight)} kg</span>
       </div>
     `;
   }
