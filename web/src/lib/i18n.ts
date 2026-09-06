@@ -56,6 +56,13 @@ const dict: Record<string, Record<Lang, string>> = {
   "login.totp_bestaetigen": { de: "BESTÄTIGEN", en: "CONFIRM" },
   "login.totp_abbrechen": { de: "ABBRECHEN", en: "CANCEL" },
   "login.passwort_vergessen": { de: "Passwort vergessen?", en: "Forgot password?" },
+  "login.passwort_bestaetigen": { de: "Passwort bestätigen", en: "Confirm password" },
+  "login.passwort_stark": { de: "Stark", en: "Strong" },
+  "login.passwort_mittel": { de: "Mittel", en: "Medium" },
+  "login.passwort_schwach": { de: "Schwach", en: "Weak" },
+  "login.passwort_anzeigen": { de: "Passwort anzeigen", en: "Show password" },
+  "login.passwort_verbergen": { de: "Passwort verbergen", en: "Hide password" },
+  "login.passwort_match": { de: "Passwörter stimmen nicht überein", en: "Passwords do not match" },
 
   // passwort-vergessen
   "pwreset.titel": { de: "Passwort zurücksetzen", en: "Reset password" },

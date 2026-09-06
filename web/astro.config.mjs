@@ -11,6 +11,9 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  session: {
+    driver: 'memory',
+  },
   vite: {
     plugins: [tailwindcss()],
     css: {

@@ -4,27 +4,48 @@ import { t } from "../lib/i18n";
 ---
 
 <Layout title="Carp24 – Anmelden">
-  <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop py-xl">
-    <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full max-w-md p-lg md:p-xl mx-auto flex flex-col gap-lg">
+  <main class="flex-grow flex items-center justify-center px-4 md:p-margin-desktop py-xl">
+    <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full md:max-w-md px-4 md:p-lg xl:p-xl mx-auto flex flex-col gap-4 md:gap-lg">
       <div class="text-center mb-sm">
         <h1 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2 i18n" data-de={t("login.willkommen", "de")} data-en={t("login.willkommen", "en")}>{t("login.willkommen")}</h1>
         <p class="text-body-md text-on-surface-variant i18n" data-de={t("login.subtitle", "de")} data-en={t("login.subtitle", "en")}>{t("login.subtitle")}</p>
       </div>
 
-      <div id="login-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
-      <div id="login-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
+      <div id="login-error" class="hidden p-4 md:p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+      <div id="login-success" class="hidden p-4 md:p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
-      <form id="login-form" class="flex flex-col gap-md">
-        <div class="flex flex-col gap-xs">
-          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest i18n" for="email" data-de={t("login.email", "de")} data-en={t("login.email", "en")}>{t("login.email")}</label>
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="email" name="email" type="email" placeholder="angler@example.com" autocomplete="email" required />
+      <form id="login-form" class="flex flex-col gap-4 md:gap-md">
+        <!-- Email Field -->
+        <div class="relative">
+          <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="email">
+            <span class="i18n" data-de={t("login.email", "de")} data-en={t("login.email", "en")}>{t("login.email")}</span>
+          </label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="email" name="email" type="email" placeholder=" " autocomplete="email" required />
+          <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="email" data-de={t("login.email", "de")} data-en={t("login.email", "en")}>{t("login.email")}</label>
+          <div id="email-error" class="hidden text-body-sm text-error mt-xs"></div>
         </div>
-        <div class="flex flex-col gap-xs">
-          <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest i18n" for="password" data-de={t("login.passwort", "de")} data-en={t("login.passwort", "en")}>{t("login.passwort")}</label>
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+
+        <!-- Password Field -->
+        <div class="relative">
+          <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="password">
+            <span class="i18n" data-de={t("login.passwort", "de")} data-en={t("login.passwort", "en")}>{t("login.passwort")}</span>
+          </label>
+          <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 pr-12 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="password" name="password" type="password" placeholder=" " autocomplete="current-password" required />
+          <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="password" data-de={t("login.passwort", "de")} data-en={t("login.passwort", "en")}>{t("login.passwort")}</label>
+          <button type="button" id="password-toggle" class="absolute right-2 top-2 p-2 min-w-11 min-h-11 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" aria-label="Passwort anzeigen">
+            <svg id="password-eye-closed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.415 1.415m-1.415-1.415l1.415 1.415m-2.827-2.827L15.5 15.5m-3.536-3.536l-2.12-2.12"></path>
+            </svg>
+            <svg id="password-eye-open" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+          </button>
+          <div id="password-error" class="hidden text-body-sm text-error mt-xs"></div>
         </div>
+
         <div class="mt-sm mb-sm"></div>
-        <button type="submit" id="login-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.anmelden", "de")} data-en={t("login.anmelden", "en")}>
+        <button type="submit" id="login-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.anmelden", "de")} data-en={t("login.anmelden", "en")}>
           {t("login.anmelden")}
         </button>
       </form>
@@ -39,41 +60,168 @@ import { t } from "../lib/i18n";
         <div class="flex-grow border-t border-primary/20"></div>
       </div>
 
-      <div id="oauth-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+      <div id="oauth-error" class="hidden p-4 md:p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
 
       <div class="flex flex-col sm:flex-row gap-sm">
-        <button type="button" id="oauth-google-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" id="oauth-google-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
           <span class="font-bold text-lg">G</span> Google
         </button>
-        <button type="button" id="oauth-facebook-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" id="oauth-facebook-btn" class="flex-1 flex items-center justify-center gap-sm border border-primary/40 text-on-surface rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
           <span class="font-bold text-lg">f</span> Facebook
         </button>
       </div>
 
-      <div id="totp-screen" class="hidden flex flex-col gap-md">
+      <div id="totp-screen" class="hidden flex flex-col gap-4 md:gap-md">
         <div class="text-center mb-sm">
           <h2 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2 i18n" data-de={t("login.totp_titel", "de")} data-en={t("login.totp_titel", "en")}>{t("login.totp_titel")}</h2>
           <p class="text-body-md text-on-surface-variant i18n" data-de={t("login.totp_subtitle", "de")} data-en={t("login.totp_subtitle", "en")}>{t("login.totp_subtitle")}</p>
         </div>
-        <div id="totp-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+        <div id="totp-error" class="hidden p-4 md:p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
         <div class="flex flex-col gap-xs">
           <label class="font-label-sm text-label-sm text-secondary uppercase tracking-widest i18n" for="totp-code" data-de={t("login.totp_code", "de")} data-en={t("login.totp_code", "en")}>{t("login.totp_code")}</label>
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12 text-center tracking-[0.5em] font-mono text-lg" id="totp-code" name="totp-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required />
+          <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12 text-center tracking-[0.5em] font-mono md:text-lg" id="totp-code" name="totp-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required />
         </div>
-        <button type="button" id="totp-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.totp_bestaetigen", "de")} data-en={t("login.totp_bestaetigen", "en")}>
+        <button type="button" id="totp-btn" class="w-full bg-primary-container text-on-primary-container rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-all min-h-12 mt-sm disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.totp_bestaetigen", "de")} data-en={t("login.totp_bestaetigen", "en")}>
           {t("login.totp_bestaetigen")}
         </button>
-        <button type="button" id="totp-cancel-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 i18n" data-de={t("login.totp_abbrechen", "de")} data-en={t("login.totp_abbrechen", "en")}>
+        <button type="button" id="totp-cancel-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 i18n" data-de={t("login.totp_abbrechen", "de")} data-en={t("login.totp_abbrechen", "en")}>
           {t("login.totp_abbrechen")}
         </button>
       </div>
 
-      <div class="border-t border-primary/20 pt-md mt-sm">
-        <p class="text-body-md text-on-surface-variant text-center mb-md i18n" data-de={t("login.kein_konto", "de")} data-en={t("login.kein_konto", "en")}>{t("login.kein_konto")}</p>
-        <form id="register-form" class="flex flex-col gap-md">
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="reg-email" type="email" placeholder="E-Mail-Adresse" autocomplete="email" required />
-          <input class="w-full bg-surface-container-lowest rounded-lg px-md py-3 text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors min-h-12" id="reg-password" type="password" placeholder="Passwort (mind. 8 Zeichen)" autocomplete="new-password" minlength="8" required />
-          <button type="submit" id="register-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.registrieren", "de")} data-en={t("login.registrieren", "en")}>
+      <div class="border-t border-primary/20 pt-4 md:pt-md mt-sm">
+        <p class="text-body-md text-on-surface-variant text-center mb-4 md:mb-md i18n" data-de={t("login.kein_konto", "de")} data-en={t("login.kein_konto", "en")}>{t("login.kein_konto")}</p>
+        <form id="register-form" class="flex flex-col gap-4 md:gap-md">
+          
+          <!-- Email Field with Floating Label -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-email">
+              <span class="i18n" data-de={t("login.email", "de")} data-en={t("login.email", "en")}>{t("login.email")}</span>
+            </label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-email" type="email" placeholder=" " autocomplete="email" required />
+            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-email" data-de={t("login.email", "de")} data-en={t("login.email", "en")}>{t("login.email")}</label>
+            <div id="reg-email-error" class="hidden text-body-sm text-error mt-xs"></div>
+          </div>
+
+          <!-- Password Field with Show/Hide Toggle and Strength Indicator -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-password">
+              <span class="i18n" data-de={t("login.passwort", "de")} data-en={t("login.passwort", "en")}>{t("login.passwort")}</span>
+            </label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 pr-12 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-password" type="password" placeholder=" " autocomplete="new-password" minlength="8" required />
+            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-password" data-de={t("login.passwort", "de")} data-en={t("login.passwort", "en")}>{t("login.passwort")}</label>
+            <button type="button" id="reg-password-toggle" class="absolute right-2 top-2 p-2 min-w-11 min-h-11 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" aria-label="Passwort anzeigen">
+              <svg id="reg-password-eye-closed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.415 1.415m-1.415-1.415l1.415 1.415m-2.827-2.827L15.5 15.5m-3.536-3.536l-2.12-2.12"></path>
+              </svg>
+              <svg id="reg-password-eye-open" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+            <div id="reg-password-error" class="hidden text-body-sm text-error mt-xs"></div>
+            
+            <!-- Password Strength Indicator -->
+            <div id="password-strength-container" class="hidden mt-sm">
+              <div class="flex items-center gap-sm">
+                <div class="flex-grow min-h-1 h-1 bg-surface-container-high rounded-full overflow-hidden">
+                  <div id="password-strength-bar" class="h-full transition-all duration-300 rounded-full"></div>
+                </div>
+                <span id="password-strength-text" class="text-body-sm font-medium whitespace-nowrap"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm Password Field with Show/Hide Toggle -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-password-confirm">
+              <span class="i18n" data-de={t("login.passwort_bestaetigen", "de")} data-en={t("login.passwort_bestaetigen", "en")}>{t("login.passwort_bestaetigen")}</span>
+            </label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 pr-12 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-password-confirm" type="password" placeholder=" " autocomplete="new-password" required />
+            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-password-confirm" data-de={t("login.passwort_bestaetigen", "de")} data-en={t("login.passwort_bestaetigen", "en")}>{t("login.passwort_bestaetigen")}</label>
+            <button type="button" id="reg-password-confirm-toggle" class="absolute right-2 top-2 p-2 min-w-11 min-h-11 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" aria-label="Passwort anzeigen">
+              <svg id="reg-password-confirm-eye-closed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.415 1.415m-1.415-1.415l1.415 1.415m-2.827-2.827L15.5 15.5m-3.536-3.536l-2.12-2.12"></path>
+              </svg>
+              <svg id="reg-password-confirm-eye-open" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+            <div id="reg-password-confirm-error" class="hidden text-body-sm text-error mt-xs"></div>
+          </div>
+          
+          <!-- Date of Birth Field (optional) -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-dob">
+              <span class="i18n" data-de={t("login.geburtsdatum", "de")} data-en={t("login.geburtsdatum", "en")}>{t("login.geburtsdatum")}</span>
+            </label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-dob" type="date" placeholder=" " />
+            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-dob" data-de={t("login.geburtsdatum", "de")} data-en={t("login.geburtsdatum", "en")}>{t("login.geburtsdatum")}</label>
+            <p class="text-body-sm text-on-surface-variant mt-xs i18n" data-de={t("login.geburtsdatum_hint", "de")} data-en={t("login.geburtsdatum_hint", "en")}>{t("login.geburtsdatum_hint")}</p>
+          </div>
+
+          <!-- Country Dropdown with Typeahead/Search -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="country-search">
+              <span class="i18n" data-de={t("login.land", "de")} data-en={t("login.land", "en")}>{t("login.land")}</span>
+            </label>
+            <div id="country-dropdown" class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all min-h-12 cursor-pointer">
+              <input id="country-search" class="w-full bg-transparent outline-none cursor-pointer peer placeholder:text-transparent md:placeholder:text-on-surface-variant" placeholder=" " autocomplete="off" />
+              <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-highest peer-focus:px-xs pointer-events-none i18n" for="country-search" data-de={t("login.land", "de")} data-en={t("login.land", "en")}>{t("login.land")}</label>
+              <svg class="absolute right-3 top-4 w-4 h-4 text-on-surface-variant pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+            <div id="country-options" class="hidden absolute z-10 w-full bg-surface-container-lowest border border-primary/20 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
+              <div class="sticky top-0 bg-surface-container-lowest border-b border-primary/20 p-2">
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="">
+                  <span class="i18n" data-de={t("login.land_placeholder", "de")} data-en={t("login.land_placeholder", "en")}>{t("login.land_placeholder")}</span>
+                </div>
+              </div>
+              <div class="max-h-40 overflow-y-auto">
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="AT">Österreich</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="DE">Deutschland</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="CH">Schweiz</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="HU">Ungarn</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="CZ">Tschechien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="SK">Slowakei</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="PL">Polen</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="HR">Kroatien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="SI">Slowenien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="IT">Italien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="NL">Niederlande</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="BE">Belgien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="FR">Frankreich</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="GB">Großbritannien</div>
+                <div class="country-option p-3 hover:bg-surface-container-high cursor-pointer" data-value="OTHER">Sonstiges</div>
+              </div>
+            </div>
+            <input type="hidden" id="reg-country" name="country" />
+          </div>
+
+          <!-- Home Waters Field (optional) -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-waters">
+              <span class="i18n" data-de={t("login.heimatgewaesser", "de")} data-en={t("login.heimatgewaesser", "en")}>{t("login.heimatgewaesser")}</span>
+            </label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-waters" type="text" placeholder=" " />
+            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-waters" data-de={t("login.heimatgewaesser", "de")} data-en={t("login.heimatgewaesser", "en")}>{t("login.heimatgewaesser")}</label>
+          </div>
+
+          <!-- GDPR Checkbox (Required) -->
+          <div class="border-t border-primary/20 pt-4 md:pt-md mt-sm">
+            <div class="flex items-start gap-3">
+              <input type="checkbox" id="reg-dsgvo" required class="mt-1 min-w-5 min-h-5 w-5 h-5 accent-primary flex-shrink-0" />
+              <label for="reg-dsgvo" class="text-sm md:text-body-sm text-on-surface leading-relaxed">
+                <span class="i18n" data-de={t("login.datenschutz", "de")} data-en={t("login.datenschutz", "en")}>{t("login.datenschutz")}</span> <a href="/datenschutz" class="text-primary hover:underline break-words i18n" data-de={t("login.datenschutz_link", "de")} data-en={t("login.datenschutz_link", "en")}>{t("login.datenschutz_link")}</a>
+              </label>
+            </div>
+            <div id="reg-dsgvo-error" class="hidden text-body-sm text-error mt-xs"></div>
+          </div>
+
+          <div class="cf-turnstile mb-4 md:mb-md w-full flex justify-center" data-sitekey="0x4AAAAAAEp_xGiM5CaY8wvU" data-callback="onTurnstileSuccess" data-size="normal" data-theme="auto"></div>
+          <button type="submit" id="register-btn" class="w-full border border-primary/40 text-on-surface rounded-full py-3 px-4 md:px-lg font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("login.registrieren", "de")} data-en={t("login.registrieren", "en")}>
             {t("login.registrieren")}
           </button>
         </form>
@@ -82,6 +230,8 @@ import { t } from "../lib/i18n";
     </div>
   </main>
 </Layout>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
 
 <script is:inline>
 (function () {
@@ -114,6 +264,334 @@ import { t } from "../lib/i18n";
   var totpCodeInput = document.getElementById('totp-code');
 
   var pendingFactorId = null;
+  var formSubmitted = false;
+
+  // Turnstile callback function
+  window.onTurnstileSuccess = function(token) {
+    console.log('Turnstile verification successful');
+  };
+
+  // Password Show/Hide Toggle Functions
+  function setupPasswordToggle(inputId, toggleId, eyeClosedId, eyeOpenId) {
+    var input = document.getElementById(inputId);
+    var toggle = document.getElementById(toggleId);
+    var eyeClosed = document.getElementById(eyeClosedId);
+    var eyeOpen = document.getElementById(eyeOpenId);
+    
+    if (!input || !toggle || !eyeClosed || !eyeOpen) return;
+    
+    toggle.addEventListener('click', function() {
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      
+      if (isPassword) {
+        eyeClosed.classList.add('hidden');
+        eyeOpen.classList.remove('hidden');
+        toggle.setAttribute('aria-label', 'Passwort verbergen');
+      } else {
+        eyeClosed.classList.remove('hidden');
+        eyeOpen.classList.add('hidden');
+        toggle.setAttribute('aria-label', 'Passwort anzeigen');
+      }
+    });
+  }
+
+  // Password Strength Evaluation
+  function evaluatePasswordStrength(password) {
+    var score = 0;
+    var feedback = [];
+    
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    var strength, color, width;
+    if (score <= 1) {
+      strength = 'Schwach';
+      color = 'bg-red-500';
+      width = '25%';
+    } else if (score === 2) {
+      strength = 'Mittel';
+      color = 'bg-yellow-500';
+      width = '50%';
+    } else {
+      strength = 'Stark';
+      color = 'bg-green-500';
+      width = '100%';
+    }
+    
+    return { strength: strength, color: color, width: width, score: score };
+  }
+
+  // Password Strength Display
+  function updatePasswordStrength(password) {
+    var container = document.getElementById('password-strength-container');
+    var bar = document.getElementById('password-strength-bar');
+    var text = document.getElementById('password-strength-text');
+    
+    if (!password) {
+      container.classList.add('hidden');
+      return;
+    }
+    
+    container.classList.remove('hidden');
+    var result = evaluatePasswordStrength(password);
+    
+    bar.className = 'h-full transition-all duration-300 rounded-full ' + result.color;
+    bar.style.width = result.width;
+    text.textContent = result.strength;
+  }
+
+  // Country Dropdown Functions
+  var countryDropdown = document.getElementById('country-dropdown');
+  var countrySearch = document.getElementById('country-search');
+  var countryOptions = document.getElementById('country-options');
+  var countryHidden = document.getElementById('reg-country');
+  var selectedCountry = '';
+  var filteredOptions = [];
+  var selectedIndex = -1;
+
+  function showCountryOptions() {
+    countryOptions.classList.remove('hidden');
+    filterCountryOptions();
+  }
+
+  function hideCountryOptions() {
+    setTimeout(function() {
+      countryOptions.classList.add('hidden');
+      selectedIndex = -1;
+    }, 150);
+  }
+
+  function filterCountryOptions() {
+    var searchTerm = countrySearch.value.toLowerCase();
+    var options = countryOptions.querySelectorAll('.country-option:not(.sticky .country-option)');
+    filteredOptions = [];
+    
+    options.forEach(function(option) {
+      var text = option.textContent.toLowerCase();
+      if (text.includes(searchTerm)) {
+        option.style.display = 'block';
+        filteredOptions.push(option);
+      } else {
+        option.style.display = 'none';
+      }
+    });
+    selectedIndex = -1;
+  }
+
+  function selectCountryOption(option) {
+    var value = option.dataset.value;
+    var text = option.textContent;
+    
+    selectedCountry = value;
+    countryHidden.value = value;
+    countrySearch.value = text;
+    hideCountryOptions();
+  }
+
+  function navigateCountryOptions(direction) {
+    if (filteredOptions.length === 0) return;
+    
+    // Remove previous highlight
+    if (selectedIndex >= 0 && filteredOptions[selectedIndex]) {
+      filteredOptions[selectedIndex].classList.remove('bg-primary', 'text-on-primary');
+      filteredOptions[selectedIndex].classList.add('hover:bg-surface-container-high');
+    }
+    
+    // Update index
+    if (direction === 'down') {
+      selectedIndex = (selectedIndex + 1) % filteredOptions.length;
+    } else {
+      selectedIndex = selectedIndex <= 0 ? filteredOptions.length - 1 : selectedIndex - 1;
+    }
+    
+    // Highlight new option
+    if (filteredOptions[selectedIndex]) {
+      filteredOptions[selectedIndex].classList.add('bg-primary', 'text-on-primary');
+      filteredOptions[selectedIndex].classList.remove('hover:bg-surface-container-high');
+      filteredOptions[selectedIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // Field Validation Functions
+  function validateEmail(email) {
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function showFieldError(fieldId, message) {
+    var field = document.getElementById(fieldId);
+    var errorDiv = document.getElementById(fieldId + '-error');
+    
+    if (field) {
+      field.classList.add('border-error');
+      field.classList.remove('border-primary/20');
+    }
+    
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.classList.remove('hidden');
+    }
+  }
+
+  function hideFieldError(fieldId) {
+    var field = document.getElementById(fieldId);
+    var errorDiv = document.getElementById(fieldId + '-error');
+    
+    if (field) {
+      field.classList.remove('border-error');
+      field.classList.add('border-primary/20');
+    }
+    
+    if (errorDiv) {
+      errorDiv.classList.add('hidden');
+    }
+  }
+
+  function validateField(fieldId, value, type) {
+    hideFieldError(fieldId);
+    
+    if (type === 'email' && value && !validateEmail(value)) {
+      showFieldError(fieldId, 'Bitte gültige E-Mail eingeben.');
+      return false;
+    }
+    
+    if (type === 'password' && value && value.length < 8) {
+      showFieldError(fieldId, 'Passwort muss mindestens 8 Zeichen lang sein.');
+      return false;
+    }
+    
+    if (type === 'password-confirm') {
+      var password = document.getElementById('reg-password').value;
+      if (value && value !== password) {
+        showFieldError(fieldId, 'Passwörter stimmen nicht überein.');
+        return false;
+      }
+    }
+    
+    if (type === 'required' && !value) {
+      showFieldError(fieldId, 'Dieses Feld ist erforderlich.');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Event Listeners Setup
+  
+  // Password toggles
+  setupPasswordToggle('password', 'password-toggle', 'password-eye-closed', 'password-eye-open');
+  setupPasswordToggle('reg-password', 'reg-password-toggle', 'reg-password-eye-closed', 'reg-password-eye-open');
+  setupPasswordToggle('reg-password-confirm', 'reg-password-confirm-toggle', 'reg-password-confirm-eye-closed', 'reg-password-confirm-eye-open');
+
+  // Password strength indicator
+  var regPassword = document.getElementById('reg-password');
+  if (regPassword) {
+    regPassword.addEventListener('input', function() {
+      updatePasswordStrength(this.value);
+    });
+  }
+
+  // Country dropdown events
+  if (countryDropdown && countrySearch && countryOptions) {
+    countryDropdown.addEventListener('click', function() {
+      showCountryOptions();
+      countrySearch.focus();
+    });
+
+    countrySearch.addEventListener('focus', showCountryOptions);
+    countrySearch.addEventListener('blur', hideCountryOptions);
+    countrySearch.addEventListener('input', filterCountryOptions);
+
+    countrySearch.addEventListener('keydown', function(e) {
+      switch(e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (!countryOptions.classList.contains('hidden')) {
+            navigateCountryOptions('down');
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (!countryOptions.classList.contains('hidden')) {
+            navigateCountryOptions('up');
+          }
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (selectedIndex >= 0 && filteredOptions[selectedIndex]) {
+            selectCountryOption(filteredOptions[selectedIndex]);
+          }
+          break;
+        case 'Escape':
+          hideCountryOptions();
+          break;
+      }
+    });
+
+    // Country option clicks
+    countryOptions.addEventListener('click', function(e) {
+      var option = e.target.closest('.country-option');
+      if (option) {
+        selectCountryOption(option);
+      }
+    });
+  }
+
+  // Field validation on blur (only after first submit attempt)
+  function setupFieldValidation() {
+    var fields = [
+      { id: 'reg-email', type: 'email' },
+      { id: 'reg-password', type: 'password' },
+      { id: 'reg-password-confirm', type: 'password-confirm' }
+    ];
+
+    fields.forEach(function(field) {
+      var element = document.getElementById(field.id);
+      if (element) {
+        element.addEventListener('blur', function() {
+          if (formSubmitted) {
+            validateField(field.id, this.value, field.type);
+          }
+        });
+      }
+    });
+  }
+
+  setupFieldValidation();
+
+  // Floating labels - update labels when input has value
+  function updateFloatingLabels() {
+    var inputs = document.querySelectorAll('input[placeholder=" "]');
+    inputs.forEach(function(input) {
+      var label = document.querySelector('label.hidden.md\\:block[for="' + input.id + '"]');
+      if (label) {
+        if (input.value) {
+          label.classList.add('text-primary', 'text-label-sm', '-top-2', 'left-2', 'bg-surface-container-high', 'px-xs');
+          label.classList.remove('text-body-md', 'top-3', 'left-md', 'text-on-surface-variant');
+        } else {
+          label.classList.remove('text-primary', 'text-label-sm', '-top-2', 'left-2', 'bg-surface-container-high', 'px-xs');
+          label.classList.add('text-body-md', 'top-3', 'left-md', 'text-on-surface-variant');
+        }
+      }
+    });
+  }
+
+  // Setup floating label event listeners
+  function setupFloatingLabels() {
+    var inputs = document.querySelectorAll('input[placeholder=" "]');
+    inputs.forEach(function(input) {
+      input.addEventListener('input', updateFloatingLabels);
+      input.addEventListener('focus', updateFloatingLabels);
+      input.addEventListener('blur', updateFloatingLabels);
+    });
+  }
+
+  // Check for pre-filled values on page load and setup listeners
+  updateFloatingLabels();
+  setupFloatingLabels();
 
   loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -281,17 +759,73 @@ import { t } from "../lib/i18n";
 
   registerForm.addEventListener('submit', function (e) {
     e.preventDefault();
+    formSubmitted = true;
     hideMessages();
+    
     var email = document.getElementById('reg-email').value.trim();
     var password = document.getElementById('reg-password').value;
-    if (!email || !password) {
-      showError('Bitte E-Mail und Passwort eingeben.');
+    var passwordConfirm = document.getElementById('reg-password-confirm').value;
+    var dob = document.getElementById('reg-dob').value || null;
+    var country = document.getElementById('reg-country').value || null;
+    var waters = document.getElementById('reg-waters').value.trim() || null;
+    var dsgvoCheckbox = document.getElementById('reg-dsgvo');
+    
+    // Clear all previous errors
+    ['reg-email', 'reg-password', 'reg-password-confirm', 'reg-dsgvo'].forEach(function(id) {
+      hideFieldError(id);
+    });
+    
+    var hasErrors = false;
+    
+    // Validate all fields
+    if (!email) {
+      showFieldError('reg-email', 'E-Mail ist erforderlich.');
+      hasErrors = true;
+    } else if (!validateEmail(email)) {
+      showFieldError('reg-email', 'Bitte gültige E-Mail eingeben.');
+      hasErrors = true;
+    }
+    
+    if (!password) {
+      showFieldError('reg-password', 'Passwort ist erforderlich.');
+      hasErrors = true;
+    } else if (password.length < 8) {
+      showFieldError('reg-password', 'Passwort muss mindestens 8 Zeichen lang sein.');
+      hasErrors = true;
+    }
+    
+    if (!passwordConfirm) {
+      showFieldError('reg-password-confirm', 'Passwort bestätigen ist erforderlich.');
+      hasErrors = true;
+    } else if (password !== passwordConfirm) {
+      showFieldError('reg-password-confirm', 'Passwörter stimmen nicht überein.');
+      hasErrors = true;
+    }
+    
+    if (!dsgvoCheckbox.checked) {
+      showFieldError('reg-dsgvo', 'Bitte akzeptiere die Datenschutzerklärung.');
+      hasErrors = true;
+    }
+    
+    if (hasErrors) {
       return;
     }
-    if (password.length < 8) {
-      showError('Passwort muss mindestens 8 Zeichen lang sein.');
+    
+    // Get Turnstile token
+    var turnstileToken = null;
+    try {
+      if (window.turnstile) {
+        turnstileToken = window.turnstile.getResponse();
+      }
+    } catch (err) {
+      console.warn('Turnstile not available:', err);
+    }
+    
+    if (!turnstileToken) {
+      showError('Bitte bestätige, dass du kein Bot bist.');
       return;
     }
+    
     registerBtn.disabled = true;
     registerBtn.textContent = 'WIRD REGISTRIERT…';
     var sb = getSupabase();
@@ -301,17 +835,54 @@ import { t } from "../lib/i18n";
       registerBtn.textContent = 'REGISTRIEREN';
       return;
     }
-    sb.auth.signUp({ email: email, password: password }).then(function (res) {
+    
+    sb.auth.signUp({ 
+      email: email, 
+      password: password,
+      options: {
+        captchaToken: turnstileToken,
+        data: {
+          date_of_birth: dob,
+          country: country,
+          home_waters: waters
+        }
+      }
+    }).then(function (res) {
       registerBtn.disabled = false;
       registerBtn.textContent = 'REGISTRIEREN';
+      
       if (res.error) {
         showError('Registrierung fehlgeschlagen: ' + res.error.message);
+        // Reset Turnstile on error
+        try {
+          if (window.turnstile) {
+            window.turnstile.reset();
+          }
+        } catch (err) {
+          console.warn('Could not reset Turnstile:', err);
+        }
       } else if (res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
         showError('Diese E-Mail ist bereits registriert.');
+        // Reset Turnstile on error
+        try {
+          if (window.turnstile) {
+            window.turnstile.reset();
+          }
+        } catch (err) {
+          console.warn('Could not reset Turnstile:', err);
+        }
       } else {
         regHint.textContent = 'Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse, bevor du dich anmeldest.';
         regHint.classList.remove('hidden');
         regHint.classList.add('text-primary');
+        // Reset Turnstile after successful registration
+        try {
+          if (window.turnstile) {
+            window.turnstile.reset();
+          }
+        } catch (err) {
+          console.warn('Could not reset Turnstile:', err);
+        }
       }
     });
   });

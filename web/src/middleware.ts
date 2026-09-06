@@ -54,7 +54,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.role = role;
   context.locals.isAdmin = role === "ADMIN" || role === "MODERATOR";
 
-  const maintenance = await getMaintenance(supabase);
+  const maintenance = await getMaintenance();
   const path = context.url.pathname.replace(/\/+$/, "") || "/";
   const isAdmin = role === "ADMIN" || role === "MODERATOR";
 
