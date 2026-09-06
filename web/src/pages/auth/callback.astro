@@ -1,0 +1,116 @@
+---
+// Auth callback — handles email confirmation links
+// Supabase redirects here after user clicks confirmation link
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Carp24 — E-Mail bestätigt">
+  <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop py-xl">
+    <div class="max-w-md w-full bg-surface-container-high border border-primary/40 rounded-2xl p-xl text-center">
+      <div id="loading" class="flex flex-col items-center gap-4">
+        <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        <p class="text-body-md text-on-surface-variant">E-Mail wird bestätigt…</p>
+      </div>
+      <div id="success" class="hidden flex flex-col items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h1 class="text-headline-lg text-on-surface">E-Mail bestätigt!</h1>
+        <p class="text-body-md text-on-surface-variant">Deine E-Mail-Adresse wurde erfolgreich bestätigt. Du kannst dich jetzt anmelden.</p>
+        <a href="/login" class="bg-primary-container text-on-primary-container rounded-full py-3 px-8 font-nav-item uppercase tracking-widest hover:opacity-90 transition-opacity min-h-12 inline-flex items-center mt-4">
+          JETZT ANMELDEN
+        </a>
+      </div>
+      <div id="error" class="hidden flex flex-col items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-error-container flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <h1 class="text-headline-lg text-on-surface">Bestätigung fehlgeschlagen</h1>
+        <p class="text-body-md text-on-surface-variant" id="error-msg">Der Link ist ungültig oder abgelaufen.</p>
+        <a href="/login" class="border border-primary/40 text-on-surface rounded-full py-3 px-8 font-nav-item uppercase tracking-widest hover:bg-surface-container-high transition-all min-h-12 inline-flex items-center mt-4">
+          ZURÜCK ZUM LOGIN
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+(function() {
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  var loading = document.getElementById('loading');
+  var success = document.getElementById('success');
+  var error = document.getElementById('error');
+  var errorMsg = document.getElementById('error-msg');
+
+  function show(el) { el.classList.remove('hidden'); }
+  function hide(el) { el.classList.add('hidden'); }
+
+  async function handleCallback() {
+    var sb = getSupabase();
+    if (!sb) {
+      hide(loading); show(error);
+      errorMsg.textContent = 'Supabase nicht initialisiert.';
+      return;
+    }
+
+    // Check URL for error parameters
+    var url = new URL(window.location.href);
+    var errorParam = url.searchParams.get('error');
+    var errorDesc = url.searchParams.get('error_description');
+
+    if (errorParam) {
+      hide(loading); show(error);
+      errorMsg.textContent = errorDesc || 'Der Link ist ungültig oder abgelaufen.';
+      return;
+    }
+
+    // Try to exchange code for session (PKCE flow)
+    var code = url.searchParams.get('code');
+    if (code) {
+      try {
+        var { data, error: exchangeError } = await sb.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          hide(loading); show(error);
+          errorMsg.textContent = exchangeError.message || 'Bestätigung fehlgeschlagen.';
+          return;
+        }
+        hide(loading); show(success);
+        // Clean URL
+        window.history.replaceState({}, '', '/auth/callback');
+        return;
+      } catch (e) {
+        hide(loading); show(error);
+        errorMsg.textContent = 'Unerwarteter Fehler bei der Bestätigung.';
+        return;
+      }
+    }
+
+    // Check if user is already confirmed (direct access)
+    var { data: sessionData } = await sb.auth.getSession();
+    if (sessionData.session) {
+      hide(loading); show(success);
+      return;
+    }
+
+    // No code, no session — show error
+    hide(loading); show(error);
+    errorMsg.textContent = 'Kein Bestätigungscode gefunden. Bitte klicke den Link in deiner E-Mail.';
+  }
+
+  handleCallback();
+})();
+</script>
