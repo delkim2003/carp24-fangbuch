@@ -169,6 +169,7 @@ const moreItems = [
     btn.setAttribute("aria-expanded", String(!open));
     iconOpen.classList.toggle("hidden", !open);
     iconClose.classList.toggle("hidden", open);
+    document.body.style.overflow = open ? "" : "hidden";
   });
 
   // i18n: Sprache lesen & Labels setzen
@@ -251,7 +252,12 @@ const moreItems = [
     });
 
     function handleLogout() {
-      sb.auth.signOut().then(function () {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      }).then(function () {
+        window.location.href = '/';
+      }).catch(function () {
         window.location.href = '/';
       });
     }
@@ -260,20 +266,15 @@ const moreItems = [
     if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
 
     fetch('/api/admin/me', { credentials: 'same-origin' }).then(function (r) {
-      console.log('[ADMIN] response status:', r.status);
+      if (!r.ok) return null;
       return r.json();
     }).then(function (d) {
-      console.log('[ADMIN] response data:', JSON.stringify(d));
-      if (d.isAdmin) {
+      if (d && d.isAdmin) {
         var dl = document.getElementById('admin-link-desktop');
         var ml = document.getElementById('admin-link-mobile');
-        console.log('[ADMIN] desktop link:', dl, 'mobile link:', ml);
         if (dl) dl.removeAttribute('hidden');
         if (ml) ml.removeAttribute('hidden');
-        console.log('[ADMIN] hidden removed');
-      } else {
-        console.log('[ADMIN] isAdmin is false, role:', d.role);
       }
-    }).catch(function (e) { console.error('[ADMIN] fetch error:', e); });
+    }).catch(function() {});
   }
 </script>

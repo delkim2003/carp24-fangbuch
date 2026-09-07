@@ -6,7 +6,7 @@ const securityHeaders: Record<string, string> = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "geolocation=(self), camera=(), microphone=(), notifications=(), payment=(), usb=(), screen-wake-lock=()",
+  "Permissions-Policy": "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), screen-wake-lock=()",
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -35,9 +35,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   );
 
+  // CRITICAL: getUser() validates JWT against Auth server AND refreshes tokens
+  // getSession() only reads cookie — stale tokens cause redirect loops
   const { data: { user } } = await supabase.auth.getUser();
   const { data: { session } } = await supabase.auth.getSession();
   let role = "USER";
+
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -46,8 +49,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       .single();
     role = profile?.role ?? "USER";
   }
-
-  console.log("[MIDDLEWARE] Path:", context.url.pathname, "User:", user ? "found" : "null", "Role:", role);
 
   context.locals.user = user;
   context.locals.session = session;

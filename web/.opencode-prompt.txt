@@ -1,0 +1,75 @@
+Du arbeitest im Verzeichnis /mnt/projekte/carp24-fangbuch/web/
+
+AUFGABE: Refactore ALLE Admin-API-Dateien in src/pages/api/admin/ um die shared `getAdminClient` Funktion aus `_auth.ts` zu nutzen.
+
+REGELN:
+1. Jede Datei MUSS vollständig überschrieben werden.
+2. Import: `import { getAdminClient } from "./_auth";`
+3. Entferne die lokale `getServerSideProps` Funktion (falls vorhanden)
+4. Ersetze JEDE `getServerSideProps({ locals })` durch `getAdminClient(locals)`
+5. Ersetze `result.props` durch direkte Destrukturierung von `auth`
+6. Error-Check MUSS `auth.error` und `auth.status` nutzen (NICHT `result.error`)
+
+BEISPIEL - VORHER:
+```
+import { createClient } from "@supabase/supabase-js";
+
+export async function getServerSideProps({ locals }) {
+  const user = locals.user;
+  if (!user) return { error: "Nicht angemeldet.", status: 401 };
+  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+  // ... role check ...
+  return { props: { supabaseAdmin, user } };
+}
+
+export const GET = async ({ locals }) => {
+  const result = await getServerSideProps({ locals });
+  if ("error" in result) {
+    return new Response(JSON.stringify({ error: result.error }), { status: result.status });
+  }
+  const { supabaseAdmin } = result.props;
+  // ... handler logic ...
+};
+```
+
+BEISPIEL - NACHHER:
+```
+import { getAdminClient } from "./_auth";
+
+export const GET = async ({ locals }) => {
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), { status: auth.status, headers: { "Content-Type": "application/json" } });
+  }
+  const { supabaseAdmin } = auth;
+  // ... handler logic ...
+};
+```
+
+DATEIEN ZU FIXEN (in dieser Reihenfolge):
+1. integrations.ts (hat KEINE getServerSideProps Definition — nur den Call ersetzen)
+2. stats.ts
+3. reports.ts (hat GET, POST, PATCH, DELETE — ALLE Handler fixen)
+4. users.ts (hat GET, PATCH, POST, DELETE mit actorRole)
+5. content.ts (hat GET, POST, PATCH, DELETE)
+6. notifications.ts (hat GET, POST)
+7. user-feed.ts (hat GET)
+8. vapid-key.ts (hat GET, PATCH)
+9. stripe-key.ts (hat GET, PATCH)
+10. openrouter-key.ts (hat GET, PATCH)
+
+WICHTIG:
+- Behalte ALLE anderen Funktionen (writeAudit, csrfGuard, etc.) bei
+- Behalte den `export const prerender = false;` bei
+- Jeder Handler bekommt seinen eigenen `const auth = await getAdminClient(locals)` Call
+- KEINE shared Variable über Handler hinweg
+- Wenn ein Handler `user` braucht: `const { supabaseAdmin, user } = auth;`
+- Wenn ein Handler `actorRole` braucht: `const { supabaseAdmin, user, actorRole } = auth;`
+- Wenn nur `supabaseAdmin` gebraucht wird: `const { supabaseAdmin } = auth;`
+
+BEARBEITUNG:
+1. Lies JEDE Datei komplett
+2. Wende die Transformation an
+3. Schreibe die KOMPLETTE Datei
+4. Baue: npm run build
+5. Teste JEDE API: curl http://localhost:8094/api/admin/{name} MUSS 401 oder 200 sein (KEIN TypeError/ReferenceError)

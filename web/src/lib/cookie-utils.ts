@@ -25,6 +25,14 @@ export function createSupabaseServerClient(request: Request, cookies?: any) {
           }
         },
       },
+      auth: {
+        storageKey: 'sb-carp24-auth-token',
+      },
+      cookieOptions: {
+        path: '/',
+        sameSite: 'lax',
+        secure: true,
+      },
     }
   );
 }

@@ -153,11 +153,10 @@ import { t } from "../lib/i18n";
           
           <!-- Date of Birth Field (optional) -->
           <div class="relative">
-            <label class="block text-sm font-medium text-on-surface-variant mb-1 md:hidden" for="reg-dob">
+            <label class="block text-sm font-medium text-on-surface-variant mb-1" for="reg-dob">
               <span class="i18n" data-de={t("login.geburtsdatum", "de")} data-en={t("login.geburtsdatum", "en")}>{t("login.geburtsdatum")}</span>
             </label>
-            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12 peer placeholder:text-transparent md:placeholder:text-on-surface-variant" id="reg-dob" type="date" placeholder=" " />
-            <label class="hidden md:block absolute left-4 md:left-md top-3 text-on-surface-variant transition-all duration-200 ease-in-out peer-placeholder-shown:text-body-md peer-placeholder-shown:top-3 peer-focus:text-primary peer-focus:text-label-sm peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-surface-container-high peer-focus:px-xs i18n" for="reg-dob" data-de={t("login.geburtsdatum", "de")} data-en={t("login.geburtsdatum", "en")}>{t("login.geburtsdatum")}</label>
+            <input class="w-full bg-surface-container-lowest rounded-lg px-4 py-3 text-base text-on-surface border border-primary/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all min-h-12" id="reg-dob" type="date" />
             <p class="text-body-sm text-on-surface-variant mt-xs i18n" data-de={t("login.geburtsdatum_hint", "de")} data-en={t("login.geburtsdatum_hint", "en")}>{t("login.geburtsdatum_hint")}</p>
           </div>
 
@@ -226,6 +225,20 @@ import { t } from "../lib/i18n";
           </button>
         </form>
         <p id="reg-hint" class="hidden text-body-md text-secondary text-center mt-sm" role="status" aria-live="polite"></p>
+        
+        <!-- Email Confirmation Screen (hidden by default) -->
+        <div id="email-confirm-screen" class="hidden text-center py-xl">
+          <div class="w-20 h-20 mx-auto mb-lg bg-primary-container/20 rounded-full flex items-center justify-center">
+            <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface mb-md" data-de="Bestätige deine E-Mail" data-en="Confirm your email">Bestätige deine E-Mail</h2>
+          <p class="font-body-lg text-on-surface-variant mb-md" data-de="Wir haben einen Bestätigungslink an" data-en="We sent a confirmation link to">Wir haben einen Bestätigungslink an</p>
+          <p id="confirm-email-addr" class="font-headline-md text-primary mb-lg break-all"></p>
+          <p class="font-body-md text-on-surface-variant mb-xl" data-de="Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren. Überprüfe auch deinen Spam-Ordner." data-en="Click the link in the email to activate your account. Also check your spam folder.">Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren. Überprüfe auch deinen Spam-Ordner.</p>
+          <button onclick="location.reload()" class="border border-primary text-primary font-nav-item text-nav-item uppercase tracking-widest px-xl py-md rounded-full hover:bg-primary/5 transition-colors" data-de="Zurück zum Login" data-en="Back to login">Zurück zum Login</button>
+        </div>
       </div>
     </div>
   </main>
@@ -604,48 +617,61 @@ import { t } from "../lib/i18n";
     }
     loginBtn.disabled = true;
     loginBtn.textContent = 'WIRD ANGEMELDET…';
-    var sb = getSupabase();
-    if (!sb) {
-      showError('Supabase nicht initialisiert.');
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'ANMELDEN';
-      return;
-    }
-    sb.auth.signInWithPassword({ email: email, password: password }).then(function (res) {
-      if (res.error) {
+
+    // Server-side login via API route (sets cookies properly)
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password }),
+      credentials: 'same-origin'
+    }).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      if (data.error) {
         loginBtn.disabled = false;
         loginBtn.textContent = 'ANMELDEN';
         showError('Ungültige Anmeldedaten. Bitte überprüfe E-Mail und Passwort.');
         return;
       }
-      sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (aalRes) {
-        var currentLevel = aalRes.data && aalRes.data.currentLevel;
-        var nextLevel = aalRes.data && aalRes.data.nextLevel;
-        if (currentLevel === 'aal1' && nextLevel === 'aal2') {
-          sb.auth.mfa.listFactors().then(function (factorsRes) {
-            var factors = factorsRes.data && factorsRes.data.totp ? factorsRes.data.totp : [];
-            var verified = null;
-            for (var i = 0; i < factors.length; i++) {
-              if (factors[i].status === 'verified') { verified = factors[i]; break; }
-            }
-            if (verified) {
-              pendingFactorId = verified.id;
-              loginForm.classList.add('hidden');
-              totpScreen.classList.remove('hidden');
-              totpScreen.classList.add('flex');
-              totpCodeInput.focus();
-              loginBtn.disabled = false;
-              loginBtn.textContent = 'ANMELDEN';
-            } else {
-              window.location.href = '/fang-erfassen';
-            }
-          });
-        } else {
+      // Login succeeded — cookies are set server-side
+      // Check MFA status via client (reads from cookie)
+      var sb = getSupabase();
+      if (sb) {
+        sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (aalRes) {
+          var currentLevel = aalRes.data && aalRes.data.currentLevel;
+          var nextLevel = aalRes.data && aalRes.data.nextLevel;
+          if (currentLevel === 'aal1' && nextLevel === 'aal2') {
+            sb.auth.mfa.listFactors().then(function (factorsRes) {
+              var factors = factorsRes.data && factorsRes.data.totp ? factorsRes.data.totp : [];
+              var verified = null;
+              for (var i = 0; i < factors.length; i++) {
+                if (factors[i].status === 'verified') { verified = factors[i]; break; }
+              }
+              if (verified) {
+                pendingFactorId = verified.id;
+                loginForm.classList.add('hidden');
+                totpScreen.classList.remove('hidden');
+                totpScreen.classList.add('flex');
+                totpCodeInput.focus();
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'ANMELDEN';
+              } else {
+                window.location.href = '/fang-erfassen';
+              }
+            });
+          } else {
+            window.location.href = '/fang-erfassen';
+          }
+        }).catch(function () {
           window.location.href = '/fang-erfassen';
-        }
-      }).catch(function () {
+        });
+      } else {
         window.location.href = '/fang-erfassen';
-      });
+      }
+    }).catch(function () {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'ANMELDEN';
+      showError('Verbindungsfehler. Bitte versuche es erneut.');
     });
   });
 
@@ -872,9 +898,13 @@ import { t } from "../lib/i18n";
           console.warn('Could not reset Turnstile:', err);
         }
       } else {
-        regHint.textContent = 'Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse, bevor du dich anmeldest.';
-        regHint.classList.remove('hidden');
-        regHint.classList.add('text-primary');
+        // Registration successful — show prominent "Check Email" screen
+        registerForm.style.display = 'none';
+        var emailConfirmScreen = document.getElementById('email-confirm-screen');
+        if (emailConfirmScreen) {
+          emailConfirmScreen.classList.remove('hidden');
+          document.getElementById('confirm-email-addr').textContent = email;
+        }
         // Reset Turnstile after successful registration
         try {
           if (window.turnstile) {

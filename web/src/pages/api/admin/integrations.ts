@@ -1,22 +1,21 @@
-import { createClient } from "@supabase/supabase-js";
+import { getAdminClient } from "./_auth";
 
 export const prerender = false;
 
+let openrouter: boolean | null = null;
+
 export const GET = async ({ locals }: { locals: App.Locals }) => {
-  const { supabaseAdmin } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin } = auth;
 
   if (!openrouter) {
     try {
-      const supabaseAdmin = createClient(
-        import.meta.env.PUBLIC_SUPABASE_URL,
-        import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-      );
       const { data } = await supabaseAdmin
         .from("app_settings")
         .select("value")

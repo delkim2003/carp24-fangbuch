@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 - Premium Carp Fishing Journal</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..144,400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-secondary": "#ffffff",
+                "on-tertiary-container": "#faffff",
+                "surface-container-lowest": "#ffffff",
+                "error-container": "#ffdad6",
+                "secondary-fixed": "#e7e5b4",
+                "on-background": "#181d14",
+                "on-primary": "#ffffff",
+                "on-tertiary-fixed": "#061f21",
+                "inverse-surface": "#2d3228",
+                "tertiary-fixed-dim": "#b1cbcd",
+                "outline": "#76786e",
+                "on-secondary-container": "#67663f",
+                "on-surface": "#181d14",
+                "surface-container-low": "#f1f6e7",
+                "primary-container": "#6c7a57",
+                "background": "#f6fbec",
+                "surface-container-high": "#e5eadb",
+                "secondary-container": "#e7e5b4",
+                "tertiary-fixed": "#cde7e9",
+                "on-secondary-fixed": "#1d1d01",
+                "on-error": "#ffffff",
+                "on-tertiary-fixed-variant": "#334b4d",
+                "on-primary-fixed-variant": "#3e4b2c",
+                "on-primary-fixed": "#141f05",
+                "on-secondary-fixed-variant": "#494824",
+                "secondary-fixed-dim": "#cbc99a",
+                "surface-variant": "#dfe4d6",
+                "primary": "#546140",
+                "on-tertiary": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary-container": "#617a7c",
+                "secondary": "#61603a",
+                "inverse-primary": "#bdcca4",
+                "surface-container": "#ebf0e1",
+                "inverse-on-surface": "#eef3e4",
+                "surface-container-highest": "#dfe4d6",
+                "tertiary": "#496163",
+                "surface-dim": "#d7dccd",
+                "error": "#ba1a1a",
+                "surface": "#f6fbec",
+                "surface-bright": "#f6fbec",
+                "on-surface-variant": "#45483f",
+                "on-primary-container": "#fdfff0",
+                "surface-tint": "#556342",
+                "outline-variant": "#c6c8bc",
+                "primary-fixed": "#d9e8be",
+                "primary-fixed-dim": "#bdcca4"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-desktop": "64px",
+                "xs": "4px",
+                "margin-mobile": "16px",
+                "xl": "40px",
+                "gutter": "20px",
+                "unit": "4px",
+                "md": "16px",
+                "sm": "8px",
+                "lg": "24px"
+              },
+              "fontFamily": {
+                "headline-lg": [
+                  "\"Source Serif 4\""
+                ],
+                "nav-item": [
+                  "Public Sans"
+                ],
+                "body-md": [
+                  "\"Source Sans 3\""
+                ],
+                "body-lg": [
+                  "\"Source Sans 3\""
+                ],
+                "label-sm": [
+                  "Public Sans"
+                ],
+                "display-lg": [
+                  "\"Source Serif 4\""
+                ],
+                "headline-md": [
+                  "\"Source Serif 4\""
+                ],
+                "headline-lg-mobile": [
+                  "\"Source Serif 4\""
+                ]
+              },
+              "fontSize": {
+                "headline-lg": [
+                  "32px",
+                  {
+                    "lineHeight": "40px",
+                    "fontWeight": "600"
+                  }
+                ],
+                "nav-item": [
+                  "13px",
+                  {
+                    "lineHeight": "20px",
+                    "letterSpacing": "0.08em",
+                    "fontWeight": "500"
+                  }
+                ],
+                "body-md": [
+                  "16px",
+                  {
+                    "lineHeight": "24px",
+                    "fontWeight": "400"
+                  }
+                ],
+                "body-lg": [
+                  "18px",
+                  {
+                    "lineHeight": "28px",
+                    "fontWeight": "400"
+                  }
+                ],
+                "label-sm": [
+                  "12px",
+                  {
+                    "lineHeight": "16px",
+                    "letterSpacing": "0.1em",
+                    "fontWeight": "500"
+                  }
+                ],
+                "display-lg": [
+                  "48px",
+                  {
+                    "lineHeight": "56px",
+                    "letterSpacing": "-0.02em",
+                    "fontWeight": "700"
+                  }
+                ],
+                "headline-md": [
+                  "24px",
+                  {
+                    "lineHeight": "32px",
+                    "fontWeight": "600"
+                  }
+                ],
+                "headline-lg-mobile": [
+                  "28px",
+                  {
+                    "lineHeight": "36px",
+                    "fontWeight": "600"
+                  }
+                ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .texture-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        details[open] .faq-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased relative min-h-screen flex flex-col">
+<!-- Texture Overlay -->
+<div class="texture-overlay fixed inset-0 z-50"></div>
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky bg-background dark:bg-background border-b border-primary/20 dark:border-primary-fixed-dim/20 z-40 transition-all duration-300">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md">
+<div class="font-headline-md text-headline-md font-semibold text-primary dark:text-primary-fixed-dim">
+                carp24
+            </div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Journal</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Board</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Forum</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Chat</a>
+<a class="font-nav-item text-nav-item text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Statistik</a>
+</nav>
+<button class="font-nav-item text-nav-item text-primary-container border border-primary/20 px-lg py-sm rounded-full hover:bg-surface-variant transition-colors duration-300">
+                Sign Up
+            </button>
+</div>
+</header>
+<main class="flex-grow flex flex-col pt-xl">
+<!-- 1. PRICING -->
+<section class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl">
+<div class="text-center mb-xl">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-primary mb-md">Du zahlst nur, wenn du's ernst meinst.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Einfache, transparente Preise. Wähle den Plan, der zu deinem Angelstil passt.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-4xl mx-auto">
+<!-- FREE Card -->
+<div class="bg-surface-variant rounded-xl border border-primary/20 p-lg md:p-xl flex flex-col justify-between h-full">
+<div>
+<h3 class="font-nav-item text-nav-item text-secondary mb-sm uppercase tracking-widest">FREE</h3>
+<div class="flex items-baseline gap-xs mb-lg border-b border-primary/15 pb-md">
+<span class="font-display-lg text-display-lg text-on-surface">0€</span>
+<span class="font-body-md text-body-md text-on-surface-variant">/Monat</span>
+</div>
+<ul class="space-y-md mb-xl">
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+                                50 Fänge
+                            </li>
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+                                Basis-Statistiken
+                            </li>
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+                                Community-Zugang
+                            </li>
+</ul>
+</div>
+<button class="w-full py-md rounded-full border border-primary text-primary font-nav-item text-nav-item hover:bg-primary/5 transition-colors text-center">
+                        Kostenlos starten
+                    </button>
+</div>
+<!-- PRO Card -->
+<div class="bg-surface-container rounded-xl border-2 border-primary p-lg md:p-xl flex flex-col justify-between h-full relative shadow-[0_4px_24px_-4px_rgba(84,97,64,0.1)]">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-on-primary font-label-sm text-label-sm px-md py-xs rounded-full">
+                        AM BELIEBTESTEN
+                    </div>
+<div>
+<h3 class="font-nav-item text-nav-item text-primary mb-sm uppercase tracking-widest">PRO</h3>
+<div class="flex items-baseline gap-xs mb-lg border-b border-primary/15 pb-md">
+<span class="font-display-lg text-display-lg text-primary">4,99€</span>
+<span class="font-body-md text-body-md text-on-surface-variant">/Monat</span>
+</div>
+<ul class="space-y-md mb-xl">
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+                                Unbegrenzt Fänge
+                            </li>
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+                                KI-Assistent
+                            </li>
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+                                Daten-Export
+                            </li>
+<li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check_circle">check_circle</span>
+                                Offline-Karten
+                            </li>
+</ul>
+</div>
+<button class="w-full py-md rounded-full bg-primary text-on-primary font-nav-item text-nav-item hover:bg-surface-tint transition-colors text-center">
+                        Pro wählen
+                    </button>
+</div>
+</div>
+</section>
+<!-- 2. FAQ -->
+<section class="w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-center text-primary mb-xl">Fragen, die am Wasser aufkommen</h2>
+<div class="space-y-sm">
+<!-- FAQ Item 1 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Sind meine Fangplätze sicher?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Deine Fangplätze sind privat und werden standardmäßig niemals mit der Community geteilt, es sei denn, du wählst dies ausdrücklich aus.
+                    </div>
+</details>
+<!-- FAQ Item 2 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Kann ich Daten aus anderen Apps importieren?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Wir unterstützen aktuell den CSV-Import der meisten gängigen Angel-Apps. Eine detaillierte Anleitung findest du in den Einstellungen.
+                    </div>
+</details>
+<!-- FAQ Item 3 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Funktioniert Carp24 offline?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Ja. Im PRO-Plan kannst du Kartenbereiche herunterladen. Einträge, die du offline erstellst, werden synchronisiert, sobald du wieder Empfang hast.
+                    </div>
+</details>
+<!-- FAQ Item 4 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Was passiert wenn ich kündige?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Dein Account wird auf den FREE-Plan zurückgestuft. Du verlierst keine deiner bisherigen Daten, hast aber keinen Zugriff mehr auf PRO-Features.
+                    </div>
+</details>
+<!-- FAQ Item 5 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Kann ich meine Daten exportieren?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Als PRO-Nutzer kannst du all deine Daten jederzeit als CSV oder PDF exportieren, um dein eigenes Backup zu erstellen.
+                    </div>
+</details>
+<!-- FAQ Item 6 -->
+<details class="bg-surface-variant rounded-lg border border-primary/15 group">
+<summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Wie erreiche ich den Support?</span>
+<span class="material-symbols-outlined text-primary faq-icon" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</summary>
+<div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm">
+                        Unser Support-Team ist per E-Mail unter support@carp24.de erreichbar. PRO-Nutzer erhalten priorisierten Support innerhalb von 24 Stunden.
+                    </div>
+</details>
+</div>
+</section>
+<!-- 3. TRUST -->
+<section class="w-full bg-surface-container-low py-xl mb-xl border-y border-primary/10">
+<div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
+<h2 class="font-headline-md text-headline-md text-secondary mb-xl">Gebaut für dich. Geschützt nach DSGVO.</h2>
+<div class="flex flex-col md:flex-row justify-center items-center gap-xl md:gap-[80px]">
+<div class="flex flex-col items-center gap-sm">
+<div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[32px]" data-icon="shield">shield</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm">DSGVO-konform</span>
+</div>
+<div class="flex flex-col items-center gap-sm">
+<div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[32px]" data-icon="lock">lock</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm">Verschlüsselt</span>
+</div>
+<div class="flex flex-col items-center gap-sm">
+<div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[32px]" data-icon="dns">dns</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm">Server in der EU</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. FINAL CTA -->
+<section class="w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl text-center">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-primary mb-md">Worauf wartest du? Der nächste Fang wartet.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl">Starte jetzt und dokumentiere deine beste Saison.</p>
+<button class="inline-flex items-center gap-sm bg-primary text-on-primary font-nav-item text-nav-item uppercase px-xl py-lg rounded-full hover:bg-surface-tint transition-all duration-300 transform hover:scale-105 shadow-[0_4px_20px_-4px_rgba(84,97,64,0.3)]">
+                JETZT KOSTENLOS REGISTRIEREN
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-low dark:bg-surface-container-lowest border-t border-primary/10 dark:border-primary-fixed-dim/10 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl gap-lg">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">
+                carp24
+            </div>
+<nav class="flex flex-wrap justify-center gap-md md:gap-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant/70 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase tracking-widest" href="#">Legal</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant/70 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase tracking-widest" href="#">Support</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant/70 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase tracking-widest" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant/70 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors uppercase tracking-widest" href="#">Terms of Service</a>
+</nav>
+<div class="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim">
+                © 2024 carp24. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

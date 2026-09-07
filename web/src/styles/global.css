@@ -53,6 +53,13 @@
   --color-outline: #76786e;
   --color-outline-variant: #c6c8bc;
   --color-surface-tint: #556342;
+  
+  /* Stitch-Extras (nicht in Material-3, aber in Stitch-HTML verwendet) */
+  --color-deep-olive: #3d4a2c;
+  --color-warm-sand: #f6fbec;
+  --color-hairline-olive: rgba(84, 97, 64, 0.15);
+  --color-surface-mist: #ebf0e1;
+
 
   /* Typo-Familien */
   --font-headline-md: "Source Serif 4", serif;
@@ -63,6 +70,7 @@
   --font-body-lg: "Source Sans 3", sans-serif;
   --font-nav-item: "JetBrains Mono", monospace;
   --font-label-sm: "JetBrains Mono", monospace;
+  --font-data-mono: "JetBrains Mono", monospace;
 
 
   /* Radius */
@@ -131,6 +139,10 @@
   --color-outline: #8E8F85;
   --color-outline-variant: #45463F;
   --color-surface-tint: #A4B68C;
+  /* Stitch-Custom-Farben (Dark-Mode) */
+  --color-deep-olive: #A4B68C;
+  --color-hairline-olive: rgba(164, 182, 140, 0.15);
+  --color-surface-mist: #1C1D1A;
 }
 
 /* Stitch-Spacing-Klassen (als components, damit sie nicht mit Tailwind-Namespaces kollidieren) */

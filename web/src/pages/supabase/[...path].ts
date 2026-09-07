@@ -1,6 +1,6 @@
 export const prerender = false;
 
-const SUPABASE_INTERNAL_URL = "http://100.93.250.103:8055";
+const SUPABASE_INTERNAL_URL = "http://supabase-kong:8000";
 
 export async function GET({ request, params }: { request: Request; params: { path: string } }) {
   return proxyRequest(request, params.path);

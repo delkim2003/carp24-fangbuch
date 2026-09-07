@@ -4,9 +4,10 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
   const user = locals.user;
   if (!user) {
     return new Response(JSON.stringify({
-      error: "Nicht angemeldet.",
+      isAdmin: false,
+      role: "GUEST",
     }), {
-      status: 401,
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }

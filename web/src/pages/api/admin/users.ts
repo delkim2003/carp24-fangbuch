@@ -1,29 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
+import { getAdminClient } from "./_auth";
 import crypto from "crypto";
 import { csrfGuard } from "./_csrf";
 
 export const prerender = false;
-
-export async function getServerSideProps({ locals }: { locals: App.Locals }) {
-  const user = locals.user;
-  if (!user) return { props: { error: "Nicht angemeldet.", status: 401 } };
-
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = profile?.role ?? "USER";
-  if (role !== "ADMIN" && role !== "MODERATOR") return { props: { error: "Keine Berechtigung.", status: 403 } };
-
-  return { props: { supabaseAdmin, user, actorRole: role } };
-}
 
 async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
   await supabaseAdmin.from("admin_audit_log").insert({
@@ -36,13 +15,14 @@ async function writeAudit(supabaseAdmin: any, actorId: string, action: string, t
 }
 
 export const GET = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
-  const { supabaseAdmin } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin } = auth;
   const url = new URL(request.url);
   const action = url.searchParams.get("action") || "";
   const q = url.searchParams.get("q") || "";
@@ -230,13 +210,14 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
 export const PATCH = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
   const csrf = csrfGuard(request);
   if (csrf) return csrf;
-  const { supabaseAdmin, user, actorRole } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin, user, actorRole } = auth;
   let body: { id?: string; role?: string; is_pro?: boolean; ban?: boolean; ban_reason?: string; unban?: boolean };
   try {
     body = await request.json();
@@ -343,13 +324,14 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
 export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
   const csrf = csrfGuard(request);
   if (csrf) return csrf;
-  const { supabaseAdmin, user, actorRole } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin, user, actorRole } = auth;
   let body: { action?: string; id?: string; userIds?: string[]; reason?: string; actorRole?: string };
   try {
     body = await request.json();
@@ -519,13 +501,14 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 export const DELETE = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
   const csrf = csrfGuard(request);
   if (csrf) return csrf;
-  const { supabaseAdmin, user, actorRole } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin, user, actorRole } = auth;
   let body: { id?: string };
   try {
     body = await request.json();

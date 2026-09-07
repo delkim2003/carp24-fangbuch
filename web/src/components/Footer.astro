@@ -1,16 +1,99 @@
 ---
 ---
-<footer class="w-full mt-xl border-t border-outline/20 bg-surface">
-  <div class="flex flex-col md:flex-row justify-between items-center py-lg px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto gap-lg">
-    <a href="/" class="flex items-center gap-2 mr-auto" aria-label="Carp24 Startseite">
-      <img src="/assets/logo_carp24_badge.webp" alt="Carp24 Logo" loading="lazy" class="h-8 w-auto" />
-      <span class="font-headline-md text-headline-md text-primary hidden md:block">Carp24</span>
-    </a>
-    <nav class="flex flex-wrap justify-center gap-6" aria-label="Footer Navigation">
-      <a class="nav-label font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/impressum" data-de="Impressum" data-en="Legal">Impressum</a>
-      <a class="nav-label font-label-sm text-label-sm text-on-surface-variant hover:text-primary underline decoration-primary/30 transition-all opacity-90 hover:opacity-100 uppercase" href="/datenschutz" data-de="Datenschutz" data-en="Privacy">Datenschutz</a>
-    </nav>
-    <span class="nav-label font-label-sm text-label-sm text-secondary md:ml-auto" data-de="© 2026 Carp24. All rights reserved." data-en="© 2026 Carp24. All rights reserved.">© 2026 Carp24. All rights reserved.</span>
+<footer class="w-full mt-xl border-t border-outline/20 bg-surface-container-low/30">
+  <!-- Main Footer Content -->
+  <div class="px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-xl">
+      <!-- Brand Section -->
+      <div class="md:col-span-1">
+        <a href="/" class="flex items-center gap-3 mb-4" aria-label="Carp24 Startseite">
+          <img src="/assets/logo_carp24_badge.webp" alt="Carp24 Logo" loading="lazy" class="h-10 w-auto" />
+          <span class="font-headline-lg text-headline-lg text-primary">Carp24</span>
+        </a>
+        <p class="text-body-md text-on-surface-variant mb-4 nav-label" 
+           data-de="Das digitale Fangbuch für Karpfenangler. Von Anglern, für Angler." 
+           data-en="The digital logbook for carp anglers. By anglers, for anglers.">
+          Das digitale Fangbuch für Karpfenangler. Von Anglern, für Angler.
+        </p>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="md:col-span-1">
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-4 nav-label" 
+            data-de="Schnellzugriff" 
+            data-en="Quick Access">
+          Schnellzugriff
+        </h3>
+        <nav class="flex flex-col gap-2">
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/faenge" data-de="Fangbuch" data-en="Logbook">Fangbuch</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/statistik" data-de="Statistik" data-en="Statistics">Statistik</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/forum" data-de="Community" data-en="Community">Community</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/preis" data-de="Preise" data-en="Pricing">Preise</a>
+        </nav>
+      </div>
+      
+      <!-- Support -->
+      <div class="md:col-span-1">
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-4 nav-label" 
+            data-de="Support" 
+            data-en="Support">
+          Support
+        </h3>
+        <nav class="flex flex-col gap-2">
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/ueber" data-de="Hilfe & FAQ" data-en="Help & FAQ">Hilfe & FAQ</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="mailto:support@carp24.org" data-de="Kontakt" data-en="Contact">Kontakt</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/ueber" data-de="Feedback" data-en="Feedback">Feedback</a>
+        </nav>
+      </div>
+      
+      <!-- Legal -->
+      <div class="md:col-span-1">
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-4 nav-label" 
+            data-de="Rechtliches" 
+            data-en="Legal">
+          Rechtliches
+        </h3>
+        <nav class="flex flex-col gap-2">
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/impressum" data-de="Impressum" data-en="Legal Notice">Impressum</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/datenschutz" data-de="Datenschutz" data-en="Privacy Policy">Datenschutz</a>
+          <a class="nav-label font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" 
+             href="/impressum" data-de="AGB" data-en="Terms of Service">AGB</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bottom Bar -->
+  <div class="border-t border-outline/20 bg-surface">
+    <div class="flex flex-col sm:flex-row justify-between items-center py-6 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto gap-4">
+      <span class="nav-label font-label-sm text-label-sm text-on-surface-variant" 
+            data-de="© 2026 Carp24. Alle Rechte vorbehalten." 
+            data-en="© 2026 Carp24. All rights reserved.">
+        © 2026 Carp24. Alle Rechte vorbehalten.
+      </span>
+      <div class="flex items-center gap-4 text-sm text-on-surface-variant">
+        <span class="nav-label" data-de="Entwickelt in Österreich" data-en="Made in Austria">
+          Entwickelt in Österreich
+        </span>
+        <div class="w-1 h-1 bg-on-surface-variant/40 rounded-full"></div>
+        <a href="https://einfach-online.dev" target="_blank" rel="noopener" class="nav-label hover:text-primary transition-colors" data-de="von einfach-online.dev" data-en="by einfach-online.dev">
+          von einfach-online.dev
+        </a>
+        <div class="w-1 h-1 bg-on-surface-variant/40 rounded-full"></div>
+        <span class="nav-label" data-de="DSGVO-konform" data-en="GDPR compliant">
+          DSGVO-konform
+        </span>
+      </div>
+    </div>
   </div>
 </footer>
 

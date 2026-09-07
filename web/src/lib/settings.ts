@@ -4,10 +4,16 @@ let cache: { value: { enabled: boolean; message: string }; ts: number } | null =
 const TTL = 5000;
 
 function getSupabase() {
-  return createClient(
-    process.env.PUBLIC_SUPABASE_URL || "",
-    process.env.PUBLIC_SUPABASE_ANON_KEY || ""
-  );
+  // import.meta.env.DEV = true in dev mode, false in production build
+  // In dev: import.meta.env reads from .env file (Vite)
+  // In production: process.env reads from Docker environment
+  const url = import.meta.env.DEV
+    ? import.meta.env.PUBLIC_SUPABASE_URL
+    : process.env.PUBLIC_SUPABASE_URL;
+  const key = import.meta.env.DEV
+    ? import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    : process.env.PUBLIC_SUPABASE_ANON_KEY;
+  return createClient(url || "", key || "");
 }
 
 export async function getMaintenance(_supabase?: any): Promise<{ enabled: boolean; message: string }> {
@@ -20,9 +26,9 @@ export async function getMaintenance(_supabase?: any): Promise<{ enabled: boolea
 }
 
 export async function getVapidKeys(supabase?: any): Promise<{ publicKey: string; privateKey: string; subject: string }> {
-  const envPublic = process.env.VAPID_PUBLIC_KEY;
-  const envPrivate = process.env.VAPID_PRIVATE_KEY;
-  const envSubject = process.env.VAPID_SUBJECT;
+  const envPublic = import.meta.env.DEV ? import.meta.env.VAPID_PUBLIC_KEY : process.env.VAPID_PUBLIC_KEY;
+  const envPrivate = import.meta.env.DEV ? import.meta.env.VAPID_PRIVATE_KEY : process.env.VAPID_PRIVATE_KEY;
+  const envSubject = import.meta.env.DEV ? import.meta.env.VAPID_SUBJECT : process.env.VAPID_SUBJECT;
 
   if (envPublic && envPrivate) {
     return { publicKey: envPublic, privateKey: envPrivate, subject: envSubject || "mailto:info@carp24.at" };

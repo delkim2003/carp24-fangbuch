@@ -1,103 +1,524 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import heroPhoto from "../assets/stitch/onboarding-1.jpg?url";
-import catchPhoto1 from "../assets/stitch/onboarding-2.jpg?url";
-import catchPhoto2 from "../assets/stitch/catch-list-0.jpg?url";
-import catchPhoto3 from "../assets/stitch/catch-list-1.jpg?url";
-import { t } from "../lib/i18n";
-
-const features = [
-  { tagKey: "index.erfassen_tag", titleKey: "index.erfassen_title", textKey: "index.erfassen_text", icon: "plus" },
-  { tagKey: "index.verwalten_tag", titleKey: "index.verwalten_title", textKey: "index.verwalten_text", icon: "archive" },
-  { tagKey: "index.analysieren_tag", titleKey: "index.analysieren_title", textKey: "index.analysieren_text", icon: "chart" },
-];
-
-const examples = [
-  { weight: "18,2 KG", art: "KARPFEN", ort: "Silbersee • 12. Okt 2025", img: catchPhoto1 },
-  { weight: "12,5 KG", art: "KARPFEN", ort: "Waldweiher • 08. Sep 2025", img: catchPhoto2 },
-  { weight: "21,0 KG", art: "SPIEGELKARPFEN", ort: "Donau Altarm • 24. Aug 2025", img: catchPhoto3 },
-];
-
-const icons: Record<string, string> = {
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  archive: '<path d="M4 7h16M6 7v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7M9 11h6"/>',
-  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
-};
 ---
 
-<Layout title="Carp24 – Dein digitales Fangbuch">
-  <main id="page-content" class="max-w-[1440px] mx-auto pb-xl">
-    <section class="relative overflow-hidden px-margin-mobile md:px-margin-desktop py-xl md:py-20 grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
-      <img src="/assets/logo_carp24_badge.webp" alt="" aria-hidden="true" loading="lazy" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-[60%] md:h-[70%] max-w-none opacity-[0.07] z-0 select-none" />
-      <div class="relative z-10 flex flex-col gap-6">
-        <span class="font-label-sm text-label-sm uppercase text-tertiary tracking-widest i18n" data-de={t("kicker", "de")} data-en={t("kicker", "en")}>{t("kicker")}</span>
-        <h1 class="text-display-lg text-on-surface i18n" data-de={t("index.hero_titel", "de")} data-en={t("index.hero_titel", "en")}>{t("index.hero_titel")}</h1>
-        <p class="text-body-lg text-on-surface-variant max-w-lg i18n" data-de={t("index.hero_text", "de")} data-en={t("index.hero_text", "en")}>{t("index.hero_text")}</p>
-        <div class="flex flex-wrap items-center gap-6 mt-4">
-          <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full hover:opacity-90 transition-opacity min-h-12 inline-flex items-center i18n" data-de={t("index.cta", "de")} data-en={t("index.cta", "en")}>
-            {t("index.cta")}
-          </a>
-          <a href="/#funktionen" class="font-nav-item text-nav-item uppercase text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors i18n" data-de={t("index.funktionen", "de")} data-en={t("index.funktionen", "en")}>
-            {t("index.funktionen")}
-          </a>
+<Layout title="Carp24 – Jeder Fang zählt." class="i18n" data-de="Carp24 – Jeder Fang zählt." data-en="Carp24 – Every catch counts.">
+  <!-- 1. Hero Section (Screen 1) -->
+  <section class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-24 relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
+    <div class="w-full md:w-1/2 z-10 flex flex-col items-start gap-6">
+      <span class="font-label-sm text-label-sm uppercase text-tertiary-container tracking-[0.15em] i18n" 
+            data-de="Premium Editorial" 
+            data-en="Premium Editorial">Premium Editorial</span>
+      <h1 class="font-display-lg text-display-lg text-on-surface md:text-[56px] md:leading-[64px] font-bold max-w-lg i18n" 
+          data-de="Jeder Fang zählt." 
+          data-en="Every catch counts.">
+        Jeder Fang zählt.
+      </h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md i18n" 
+         data-de="Dein digitales Tagebuch für Momente, die bleiben. Präzise Dokumentation, edles Design, absolute Privatsphäre." 
+         data-en="Your digital diary for moments that last. Precise documentation, elegant design, absolute privacy.">
+        Dein digitales Tagebuch für Momente, die bleiben. Präzise Dokumentation, edles Design, absolute Privatsphäre.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+        <button class="bg-primary-container text-on-primary-container font-nav-item text-nav-item px-8 py-4 rounded-full hover:bg-primary transition-colors flex items-center justify-center gap-2 i18n" 
+                data-de="Kostenlos starten" 
+                data-en="Start free">
+          Kostenlos starten
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="border border-outline-variant text-on-surface font-nav-item text-nav-item px-8 py-4 rounded-full hover:bg-surface-variant transition-colors i18n" 
+                data-de="Funktionen entdecken" 
+                data-en="Discover features">
+          Funktionen entdecken
+        </button>
+      </div>
+    </div>
+    <div class="w-full md:w-1/2 relative">
+      <!-- Decorative Frame -->
+      <div class="absolute -inset-4 border border-outline-variant/30 rounded-2xl z-0 pointer-events-none transform translate-x-4 translate-y-4"></div>
+      <!-- Embedded Asset -->
+      <img alt="Scenic lake at sunrise" class="w-full h-auto aspect-square object-cover rounded-xl border border-outline-variant/20 relative z-10 shadow-sm" src="/images/landing/stitch-0.jpg"/>
+    </div>
+  </section>
+
+
+  <!-- 3. How it Works (Screen 2) -->
+  <section class="max-w-[1280px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-xl border-t border-hairline-olive">
+    <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-center mb-[60px] i18n" 
+        data-de="Drei Schritte. Kein Tutorial nötig." 
+        data-en="Three steps. No tutorial needed.">Drei Schritte. Kein Tutorial nötig.</h2>
+    <div class="flex flex-col md:flex-row justify-between items-center relative gap-xl md:gap-0">
+      <!-- Connecting Line (Desktop only) -->
+      <div class="hidden md:block absolute top-1/2 left-[15%] right-[15%] h-px bg-hairline-olive -translate-y-1/2 z-0"></div>
+      <div class="flex flex-col items-center bg-surface-mist border border-hairline-olive p-lg z-10 w-full md:w-64">
+        <svg class="w-6 h-6 text-[48px] text-deep-olive mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-on-surface i18n" 
+            data-de="Fang erfassen" 
+            data-en="Record catch">Fang erfassen</h3>
+      </div>
+      <div class="flex flex-col items-center bg-surface-mist border border-hairline-olive p-lg z-10 w-full md:w-64">
+        <svg class="w-6 h-6 text-[48px] text-deep-olive mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-on-surface i18n" 
+            data-de="Muster sehen" 
+            data-en="See patterns">Muster sehen</h3>
+      </div>
+      <div class="flex flex-col items-center bg-surface-mist border border-hairline-olive p-lg z-10 w-full md:w-64">
+        <svg class="w-6 h-6 text-[48px] text-deep-olive mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-on-surface i18n" 
+            data-de="Teilen &amp; vergleichen" 
+            data-en="Share &amp; compare">Teilen &amp; vergleichen</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Features (Screen 2) -->
+  <section class="max-w-[1280px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-xl border-t border-hairline-olive bg-surface-container-low">
+    <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-[60px] i18n" 
+        data-de="Gebaut für echte Ansitze." 
+        data-en="Built for real sessions.">Gebaut für echte Ansitze.</h2>
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-gutter">
+      <!-- Bento Grid Layout -->
+      <div class="md:col-span-4 bg-surface-mist border border-hairline-olive p-lg min-h-[200px]">
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-deep-olive mb-sm i18n" 
+            data-de="Fang-Erfassung" 
+            data-en="Catch Recording">Fang-Erfassung</h3>
+        <p class="font-body-lg text-body-lg text-on-surface-variant i18n" 
+           data-de="Dokumentiere Gewicht, Länge, Köder und Wetter in Sekunden. Minimalistisches Interface, maximaler Informationsgehalt." 
+           data-en="Document weight, length, bait and weather in seconds. Minimalist interface, maximum information content.">Dokumentiere Gewicht, Länge, Köder und Wetter in Sekunden. Minimalistisches Interface, maximaler Informationsgehalt.</p>
+      </div>
+      <div class="md:col-span-2 bg-surface-mist border border-hairline-olive p-lg min-h-[200px]">
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-deep-olive mb-sm i18n" 
+            data-de="Statistik" 
+            data-en="Statistics">Statistik</h3>
+        <p class="font-body-lg text-body-lg text-on-surface-variant i18n" 
+           data-de="Detaillierte Analysen zu Mondphasen, Luftdruck und Erfolgsködern." 
+           data-en="Detailed analyses of moon phases, air pressure and successful baits.">Detaillierte Analysen zu Mondphasen, Luftdruck und Erfolgsködern.</p>
+      </div>
+      <div class="md:col-span-2 bg-surface-mist border border-hairline-olive p-lg min-h-[200px]">
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-deep-olive mb-sm i18n" 
+            data-de="Season Review" 
+            data-en="Season Review">Season Review</h3>
+        <p class="font-body-lg text-body-lg text-on-surface-variant i18n" 
+           data-de="Ein eleganter Jahresrückblick deiner anglerischen Highlights." 
+           data-en="An elegant yearly review of your angling highlights.">Ein eleganter Jahresrückblick deiner anglerischen Highlights.</p>
+      </div>
+      <div class="md:col-span-2 bg-surface-mist border border-hairline-olive p-lg min-h-[200px]">
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-deep-olive mb-sm i18n" 
+            data-de="KI-Assistent" 
+            data-en="AI Assistant">KI-Assistent</h3>
+        <p class="font-body-lg text-body-lg text-on-surface-variant i18n" 
+           data-de="Intelligente Vorschläge basierend auf historischen Fangdaten." 
+           data-en="Intelligent suggestions based on historical catch data.">Intelligente Vorschläge basierend auf historischen Fangdaten.</p>
+      </div>
+      <div class="md:col-span-2 bg-surface-mist border border-hairline-olive p-lg min-h-[200px]">
+        <h3 class="font-data-mono text-data-mono uppercase tracking-widest text-deep-olive mb-sm i18n" 
+            data-de="Trips" 
+            data-en="Trips">Trips</h3>
+        <p class="font-body-lg text-body-lg text-on-surface-variant i18n" 
+           data-de="Organisiere deine Sessions an verschiedenen Gewässern übersichtlich." 
+           data-en="Organize your sessions at different waters clearly.">Organisiere deine Sessions an verschiedenen Gewässern übersichtlich.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Statistics (Screen 3) -->
+  <section class="py-xl px-margin-mobile md:px-margin-desktop mt-xl">
+    <div class="max-w-4xl mx-auto text-center mb-xl">
+      <h2 class="font-headline-lg md:font-display-lg text-headline-lg md:text-display-lg text-primary mb-md i18n" 
+          data-de="Wetterdaten treffen Fangdaten" 
+          data-en="Weather data meets catch data">Wetterdaten treffen Fangdaten</h2>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto i18n" 
+         data-de="Carp24 verknüpft deine Fänge automatisch mit Luftdruck, Temperatur, Wind und Mondphase. Erkenne, wann die Karpfen beißen — basierend auf echten Daten." 
+         data-en="Carp24 automatically links your catches to air pressure, temperature, wind and moon phase. Recognize when carp bite — based on real data.">Carp24 verknüpft deine Fänge automatisch mit Luftdruck, Temperatur, Wind und Mondphase. Erkenne, wann die Karpfen beißen — basierend auf echten Daten.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter max-w-5xl mx-auto">
+      <div class="bg-surface-variant hairline-all rounded-xl p-lg text-center">
+        <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Luftdruck" data-en="Air pressure">Luftdruck</h3>
+        <p class="font-body-md text-on-surface-variant i18n" data-de="Erkenne Zusammenhänge zwischen Luftdruckänderungen und Bissbereitschaft." data-en="Recognize connections between air pressure changes and bite activity.">Erkenne Zusammenhänge zwischen Luftdruckänderungen und Bissbereitschaft.</p>
+      </div>
+      <div class="bg-surface-variant hairline-all rounded-xl p-lg text-center">
+        <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Mondphase" data-en="Moon phase">Mondphase</h3>
+        <p class="font-body-md text-on-surface-variant i18n" data-de="Welche Mondphasen bringen die besten Ergebnisse an deinem Gewässer?" data-en="Which moon phases bring the best results at your water?">Welche Mondphasen bringen die besten Ergebnisse an deinem Gewässer?</p>
+      </div>
+      <div class="bg-surface-variant hairline-all rounded-xl p-lg text-center">
+        <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Wind & Temperatur" data-en="Wind & temperature">Wind & Temperatur</h3>
+        <p class="font-body-md text-on-surface-variant i18n" data-de="Windrichtung, Temperatur und Wetterlage — alles in deinem Fangbuch." data-en="Wind direction, temperature and weather conditions — everything in your logbook.">Windrichtung, Temperatur und Wetterlage — alles in deinem Fangbuch.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. App Preview (Screen 3) -->
+  <section class="py-xl px-margin-mobile md:px-margin-desktop my-xl">
+    <div class="text-center mb-xl">
+      <h2 class="font-headline-lg md:font-display-lg text-headline-lg md:text-display-lg text-primary mb-md i18n" 
+          data-de="Dein Fangbuch. Immer dabei." 
+          data-en="Your logbook. Always with you.">Dein Fangbuch. Immer dabei.</h2>
+    </div>
+    <div class="max-w-5xl mx-auto bg-surface-container-low rounded-xl hairline-all p-4 md:p-xl shadow-sm relative overflow-hidden">
+      <!-- Decorative grain overlay -->
+      <div class="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+      <!-- Mockup frame -->
+      <div class="relative bg-surface rounded-lg hairline-all shadow-md overflow-hidden">
+        <img src="/images/landing/dashboard-0.jpg" alt="Carp24 Dashboard" class="w-full h-auto" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Community (Screen 2) -->
+  <section class="max-w-[1280px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-xl border-t border-hairline-olive">
+    <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-center mb-[60px] i18n" 
+        data-de="Teil einer Gemeinschaft" 
+        data-en="Part of a community">Teil einer Gemeinschaft</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+      <div class="border border-hairline-olive bg-surface-mist p-sm flex flex-col">
+        <div class="aspect-w-1 aspect-h-1 w-full relative mb-sm overflow-hidden bg-surface-dim">
+          <img class="object-cover w-full h-full" alt="A high-quality editorial photograph of a large common carp being held gently at the water's edge during golden hour" src="/images/landing/stitch-1.jpg"/>
+        </div>
+        <div class="flex justify-between items-center px-xs">
+          <span class="font-data-mono text-data-mono text-on-surface i18n" data-de="24.5 KG" data-en="24.5 KG">24.5 KG</span>
+          <span class="font-data-mono text-label-sm text-outline i18n" data-de="12. OKT 2023" data-en="12 OCT 2023">12. OKT 2023</span>
         </div>
       </div>
-      <div class="relative z-10">
-        <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg shadow-sm">
-          <div class="w-full h-80 md:h-[500px] rounded-lg overflow-hidden border border-primary/20 relative bg-surface-container-highest">
-            <img src={heroPhoto} alt="Karpfen wird gewogen" class="w-full h-full object-cover" fetchpriority="high" />
-          </div>
+      <div class="border border-hairline-olive bg-surface-mist p-sm flex flex-col">
+        <div class="aspect-w-1 aspect-h-1 w-full relative mb-sm overflow-hidden bg-surface-dim">
+          <img class="object-cover w-full h-full" alt="Close-up of a trophy carp being weighed or measured on a soft mat" src="/images/landing/stitch-2.jpg"/>
+        </div>
+        <div class="flex justify-between items-center px-xs">
+          <span class="font-data-mono text-data-mono text-on-surface i18n" data-de="18.2 KG" data-en="18.2 KG">18.2 KG</span>
+          <span class="font-data-mono text-label-sm text-outline i18n" data-de="05. SEP 2023" data-en="05 SEP 2023">05. SEP 2023</span>
         </div>
       </div>
-    </section>
-
-    <section id="funktionen" class="px-margin-mobile md:px-margin-desktop py-xl border-t border-primary/10">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter md:gap-xl">
-        {features.map((f) => (
-          <div class="flex flex-col gap-4 items-start">
-            <div class="w-12 h-12 rounded-full border border-primary/40 flex items-center justify-center text-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[f.icon]} />
-            </div>
-            <span class="font-label-sm text-label-sm uppercase text-tertiary i18n" data-de={t(f.tagKey, "de")} data-en={t(f.tagKey, "en")}>{t(f.tagKey)}</span>
-            <h2 class="text-headline-md i18n" data-de={t(f.titleKey, "de")} data-en={t(f.titleKey, "en")}>{t(f.titleKey)}</h2>
-            <p class="text-body-md text-on-surface-variant i18n" data-de={t(f.textKey, "de")} data-en={t(f.textKey, "en")}>{t(f.textKey)}</p>
-          </div>
-        ))}
+      <div class="border border-hairline-olive bg-surface-mist p-sm flex flex-col">
+        <div class="aspect-w-1 aspect-h-1 w-full relative mb-sm overflow-hidden bg-surface-dim">
+          <img class="object-cover w-full h-full" alt="A premium close-up photo of a beautiful carp fish, natural colors, bright and clean editorial style" src="/images/landing/stitch-3.jpg"/>
+        </div>
+        <div class="flex justify-between items-center px-xs">
+          <span class="font-data-mono text-data-mono text-on-surface i18n" data-de="21.0 KG" data-en="21.0 KG">21.0 KG</span>
+          <span class="font-data-mono text-label-sm text-outline i18n" data-de="28. AUG 2023" data-en="28 AUG 2023">28. AUG 2023</span>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="px-margin-mobile md:px-margin-desktop py-xl bg-surface-container-low/50">
-      <div class="flex items-center gap-4 mb-xl">
-        <span class="font-nav-item text-nav-item uppercase text-on-surface-variant i18n" data-de={t("index.aus_dem_fangbuch", "de")} data-en={t("index.aus_dem_fangbuch", "en")}>{t("index.aus_dem_fangbuch")}</span>
-        <div class="flex-1 border-t border-dashed border-primary/30"></div>
+  <!-- 8. Marketplace (Screen 3) -->
+  <section class="py-xl px-margin-mobile md:px-margin-desktop my-xl bg-surface-container-low border-y border-primary/10">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-xl">
+        <h2 class="font-headline-lg text-headline-lg text-primary mb-md i18n" 
+            data-de="Kauf &amp; Verkauf unter Anglern" 
+            data-en="Buy &amp; sell among anglers">Kauf &amp; Verkauf unter Anglern</h2>
+        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto i18n" 
+           data-de="Handele sicher mit hochwertigem Equipment aus der Community. Von Ruten über Köder bis zu Elektronik — alles an einem Ort." 
+           data-en="Trade safely with high-quality equipment from the community. From rods to bait to electronics — everything in one place.">Handele sicher mit hochwertigem Equipment aus der Community. Von Ruten über Köder bis zu Elektronik — alles an einem Ort.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-        {examples.map((ex) => (
-          <div class="bg-surface-container-high border border-primary/40 rounded-2xl overflow-hidden flex flex-col group">
-            <div class="h-48 border-b border-primary/20 relative bg-surface-container-highest">
-              <img src={ex.img} alt={`Beispiel-Fang ${ex.art} ${ex.weight}`} class="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div class="p-lg flex flex-col gap-2">
-              <div class="flex justify-between items-baseline">
-                <span class="text-headline-md">{ex.weight}</span>
-                <span class="font-label-sm text-label-sm text-tertiary bg-tertiary/10 px-3 py-1 rounded-full">{ex.art}</span>
-              </div>
-              <div class="font-nav-item text-nav-item text-tertiary pt-2 border-t border-primary/10">
-                {ex.ort}
-              </div>
-            </div>
-          </div>
-        ))}
+        <div class="bg-surface-container-low rounded-xl p-lg text-center">
+          <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+          <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Kleinanzeigen" data-en="Classifieds">Kleinanzeigen</h3>
+          <p class="font-body-md text-on-surface-variant i18n" data-de="Biete oder suche Equipment direkt in der Community." data-en="Offer or search for equipment directly in the community.">Biete oder suche Equipment direkt in der Community.</p>
+        </div>
+        <div class="bg-surface-container-low rounded-xl p-lg text-center">
+          <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Kategorien" data-en="Categories">Kategorien</h3>
+          <p class="font-body-md text-on-surface-variant i18n" data-de="Ruten, Rollen, Köder, Elektronik und Zubehör — alles sauber sortiert." data-en="Rods, reels, bait, electronics and accessories — everything neatly sorted.">Ruten, Rollen, Köder, Elektronik und Zubehör — alles sauber sortiert.</p>
+        </div>
+        <div class="bg-surface-container-low rounded-xl p-lg text-center">
+          <svg class="w-10 h-10 text-deep-olive mx-auto mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <h3 class="font-headline-md text-on-surface mb-sm i18n" data-de="Community" data-en="Community">Community</h3>
+          <p class="font-body-md text-on-surface-variant i18n" data-de="Direkt von Angler zu Angler — ohne Zwischenhändler." data-en="Directly from angler to angler — without middlemen.">Direkt von Angler zu Angler — ohne Zwischenhändler.</p>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="px-margin-mobile md:px-margin-desktop py-xl md:py-24 flex flex-col items-center justify-center text-center gap-6">
-      <span class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-8 py-3 rounded-full shadow-sm border border-primary/20 min-h-11 inline-flex items-center i18n" data-de={t("index.kostenlos", "de")} data-en={t("index.kostenlos", "en")}>
-        {t("index.kostenlos")}
-      </span>
-      <p class="text-headline-md text-on-surface-variant max-w-md italic font-normal i18n" data-de={t("index.pro_preis", "de")} data-en={t("index.pro_preis", "en")}>
-        {t("index.pro_preis")}
-      </p>
-    </section>
-  </main>
+  <!-- 9. Pricing (Screen 4) -->
+  <section class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl">
+    <div class="text-center mb-xl">
+      <h2 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-primary mb-md i18n" 
+          data-de="Du zahlst nur, wenn du's ernst meinst." 
+          data-en="You only pay when you're serious.">Du zahlst nur, wenn du's ernst meinst.</h2>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto i18n" 
+         data-de="Einfache, transparente Preise. Wähle den Plan, der zu deinem Angelstil passt." 
+         data-en="Simple, transparent pricing. Choose the plan that fits your fishing style.">Einfache, transparente Preise. Wähle den Plan, der zu deinem Angelstil passt.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-4xl mx-auto">
+      <!-- FREE Card -->
+      <div class="bg-surface-variant rounded-xl border border-primary/20 p-lg md:p-xl flex flex-col justify-between h-full">
+        <div>
+          <h3 class="font-nav-item text-nav-item text-secondary mb-sm uppercase tracking-widest">FREE</h3>
+          <div class="flex items-baseline gap-xs mb-lg border-b border-primary/15 pb-md">
+            <span class="font-display-lg text-display-lg text-on-surface">0€</span>
+            <span class="font-body-md text-body-md text-on-surface-variant i18n" data-de="/Monat" data-en="/month">/Monat</span>
+          </div>
+          <ul class="space-y-md mb-xl">
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 6L9 17l-5-5"/></svg>
+              <span class="i18n" data-de="50 Fänge" data-en="50 catches">50 Fänge</span>
+            </li>
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 6L9 17l-5-5"/></svg>
+              <span class="i18n" data-de="Basis-Statistiken" data-en="Basic statistics">Basis-Statistiken</span>
+            </li>
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 6L9 17l-5-5"/></svg>
+              <span class="i18n" data-de="Community-Zugang" data-en="Community access">Community-Zugang</span>
+            </li>
+          </ul>
+        </div>
+        <button class="w-full py-md rounded-full border border-primary text-primary font-nav-item text-nav-item hover:bg-primary/5 transition-colors text-center i18n" 
+                data-de="Kostenlos starten" 
+                data-en="Start free">
+          Kostenlos starten
+        </button>
+      </div>
+      <!-- PRO Card -->
+      <div class="bg-surface-container rounded-xl border-2 border-primary p-lg md:p-xl flex flex-col justify-between h-full relative shadow-[0_4px_24px_-4px_rgba(84,97,64,0.1)]">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-on-primary font-label-sm text-label-sm px-md py-xs rounded-full i18n" 
+             data-de="AM BELIEBTESTEN" 
+             data-en="MOST POPULAR">
+          AM BELIEBTESTEN
+        </div>
+        <div>
+          <h3 class="font-nav-item text-nav-item text-primary mb-sm uppercase tracking-widest">PRO</h3>
+          <div class="flex items-baseline gap-xs mb-lg border-b border-primary/15 pb-md">
+            <span class="font-display-lg text-display-lg text-primary">4,99€</span>
+            <span class="font-body-md text-body-md text-on-surface-variant i18n" data-de="/Monat" data-en="/month">/Monat</span>
+          </div>
+          <ul class="space-y-md mb-xl">
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+              <span class="i18n" data-de="Unbegrenzt Fänge" data-en="Unlimited catches">Unbegrenzt Fänge</span>
+            </li>
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+              <span class="i18n" data-de="KI-Assistent" data-en="AI assistant">KI-Assistent</span>
+            </li>
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+              <span class="i18n" data-de="Daten-Export" data-en="Data export">Daten-Export</span>
+            </li>
+            <li class="flex items-start gap-sm font-body-md text-body-md text-on-surface-variant">
+              <svg class="w-6 h-6 text-primary text-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+              <span class="i18n" data-de="Offline-Karten" data-en="Offline maps">Offline-Karten</span>
+            </li>
+          </ul>
+        </div>
+        <button class="w-full py-md rounded-full bg-primary text-on-primary font-nav-item text-nav-item hover:bg-surface-tint transition-colors text-center i18n" 
+                data-de="Pro wählen" 
+                data-en="Choose Pro">
+          Pro wählen
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FAQ (Screen 4) -->
+  <section class="w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl">
+    <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-center text-primary mb-xl i18n" 
+        data-de="Fragen, die am Wasser aufkommen" 
+        data-en="Questions that arise at the water">Fragen, die am Wasser aufkommen</h2>
+    <div class="space-y-sm">
+      <!-- FAQ Item 1 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Sind meine Fangplätze sicher?" 
+                data-en="Are my fishing spots safe?">Sind meine Fangplätze sicher?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Deine Fangplätze sind privat und werden standardmäßig niemals mit der Community geteilt, es sei denn, du wählst dies ausdrücklich aus." 
+             data-en="Your fishing spots are private and are never shared with the community by default, unless you explicitly choose to do so.">
+          Deine Fangplätze sind privat und werden standardmäßig niemals mit der Community geteilt, es sei denn, du wählst dies ausdrücklich aus.
+        </div>
+      </details>
+      <!-- FAQ Item 2 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Kann ich Daten aus anderen Apps importieren?" 
+                data-en="Can I import data from other apps?">Kann ich Daten aus anderen Apps importieren?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Wir unterstützen aktuell den CSV-Import der meisten gängigen Angel-Apps. Eine detaillierte Anleitung findest du in den Einstellungen." 
+             data-en="We currently support CSV import from most common fishing apps. You can find detailed instructions in the settings.">
+          Wir unterstützen aktuell den CSV-Import der meisten gängigen Angel-Apps. Eine detaillierte Anleitung findest du in den Einstellungen.
+        </div>
+      </details>
+      <!-- FAQ Item 3 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Funktioniert Carp24 offline?" 
+                data-en="Does Carp24 work offline?">Funktioniert Carp24 offline?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Ja. Im PRO-Plan kannst du Kartenbereiche herunterladen. Einträge, die du offline erstellst, werden synchronisiert, sobald du wieder Empfang hast." 
+             data-en="Yes. In the PRO plan you can download map areas. Entries you create offline are synchronized as soon as you have reception again.">
+          Ja. Im PRO-Plan kannst du Kartenbereiche herunterladen. Einträge, die du offline erstellst, werden synchronisiert, sobald du wieder Empfang hast.
+        </div>
+      </details>
+      <!-- FAQ Item 4 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Was passiert wenn ich kündige?" 
+                data-en="What happens if I cancel?">Was passiert wenn ich kündige?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Dein Account wird auf den FREE-Plan zurückgestuft. Du verlierst keine deiner bisherigen Daten, hast aber keinen Zugriff mehr auf PRO-Features." 
+             data-en="Your account will be downgraded to the FREE plan. You won't lose any of your previous data, but you'll no longer have access to PRO features.">
+          Dein Account wird auf den FREE-Plan zurückgestuft. Du verlierst keine deiner bisherigen Daten, hast aber keinen Zugriff mehr auf PRO-Features.
+        </div>
+      </details>
+      <!-- FAQ Item 5 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Kann ich meine Daten exportieren?" 
+                data-en="Can I export my data?">Kann ich meine Daten exportieren?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Als PRO-Nutzer kannst du all deine Daten jederzeit als CSV oder PDF exportieren, um dein eigenes Backup zu erstellen." 
+             data-en="As a PRO user, you can export all your data as CSV or PDF at any time to create your own backup.">
+          Als PRO-Nutzer kannst du all deine Daten jederzeit als CSV oder PDF exportieren, um dein eigenes Backup zu erstellen.
+        </div>
+      </details>
+      <!-- FAQ Item 6 -->
+      <details class="bg-surface-variant rounded-lg border border-primary/15 group">
+        <summary class="flex justify-between items-center p-md md:p-lg cursor-pointer">
+          <span class="font-body-lg text-body-lg text-on-surface font-medium i18n" 
+                data-de="Wie erreiche ich den Support?" 
+                data-en="How do I reach support?">Wie erreiche ich den Support?</span>
+          <svg class="w-6 h-6 text-primary faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="px-md md:px-lg pb-md md:pb-lg font-body-md text-body-md text-on-surface-variant border-t border-primary/10 mt-sm pt-sm i18n" 
+             data-de="Unser Support-Team ist per E-Mail unter support@carp24.de erreichbar. PRO-Nutzer erhalten priorisierten Support innerhalb von 24 Stunden." 
+             data-en="Our support team can be reached by email at support@carp24.de. PRO users receive prioritized support within 24 hours.">
+          Unser Support-Team ist per E-Mail unter support@carp24.de erreichbar. PRO-Nutzer erhalten priorisierten Support innerhalb von 24 Stunden.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 11. Trust (Screen 4) -->
+  <section class="w-full bg-surface-container-low py-xl mb-xl border-y border-primary/10">
+    <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
+      <h2 class="font-headline-md text-headline-md text-secondary mb-xl i18n" 
+          data-de="Gebaut für dich. Geschützt nach DSGVO." 
+          data-en="Built for you. Protected under GDPR.">Gebaut für dich. Geschützt nach DSGVO.</h2>
+      <div class="flex flex-col md:flex-row justify-center items-center gap-xl md:gap-[80px]">
+        <div class="flex flex-col items-center gap-sm">
+          <div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+            <svg class="w-6 h-6 text-primary text-[32px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm i18n" 
+                data-de="DSGVO-konform" 
+                data-en="GDPR compliant">DSGVO-konform</span>
+        </div>
+        <div class="flex flex-col items-center gap-sm">
+          <div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+            <svg class="w-6 h-6 text-primary text-[32px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2zm-3 0V7a4 4 0 00-8 0v4"/></svg>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm i18n" 
+                data-de="Verschlüsselt" 
+                data-en="Encrypted">Verschlüsselt</span>
+        </div>
+        <div class="flex flex-col items-center gap-sm">
+          <div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border border-primary/20">
+            <svg class="w-6 h-6 text-primary text-[32px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-sm i18n" 
+                data-de="Server in der EU" 
+                data-en="Servers in EU">Server in der EU</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Final CTA (Screen 4) -->
+  <section class="w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-xl mb-xl text-center">
+    <h2 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-primary mb-md i18n" 
+        data-de="Worauf wartest du? Der nächste Fang wartet." 
+        data-en="What are you waiting for? The next catch is waiting.">Worauf wartest du? Der nächste Fang wartet.</h2>
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-xl i18n" 
+       data-de="Starte jetzt und dokumentiere deine beste Saison." 
+       data-en="Start now and document your best season.">Starte jetzt und dokumentiere deine beste Saison.</p>
+    <button class="inline-flex items-center gap-sm bg-primary text-on-primary font-nav-item text-nav-item uppercase px-xl py-lg rounded-full hover:bg-surface-tint transition-all duration-300 transform hover:scale-105 shadow-[0_4px_20px_-4px_rgba(84,97,64,0.3)] i18n" 
+            data-de="JETZT KOSTENLOS REGISTRIEREN" 
+            data-en="REGISTER NOW FOR FREE">
+      JETZT KOSTENLOS REGISTRIEREN
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </section>
 </Layout>
+
+<style>
+  .faq-icon {
+    transition: transform 0.3s ease;
+  }
+  
+  details[open] .faq-icon {
+    transform: rotate(180deg);
+  }
+  
+  .conic-gradient {
+    background: conic-gradient(
+      #546140 0% 55%,      /* Primary Sage */
+      #617a7c 55% 85%,    /* Tertiary Slate */
+      #c6c8bc 85% 100%    /* Outline Variant */
+    );
+  }
+</style>
+
+<script>
+  // i18n functionality
+  const lang = localStorage.getItem("carp24-lang") || "de";
+  document.documentElement.lang = lang;
+
+  function applyI18n() {
+    document.querySelectorAll(".i18n").forEach((el) => {
+      const text = el.getAttribute(`data-${lang}`);
+      if (text) {
+        el.innerHTML = text;
+      }
+    });
+  }
+
+  applyI18n();
+
+  // Button click handlers
+  document.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const text = this.textContent.trim().toLowerCase();
+      
+      // "Kostenlos starten" or "Register" → /login
+      if (text.includes("kostenlos") || text.includes("registrieren") || text.includes("register") || text.includes("start free")) {
+        window.location.href = "/login";
+        return;
+      }
+      
+      // "Funktionen entdecken" → scroll to features
+      if (text.includes("funktionen") || text.includes("discover")) {
+        const features = document.querySelector("h2[data-de*='Gebaut für echte']");
+        if (features) {
+          features.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
+      
+      // "Pro wählen" → /premium
+      if (text.includes("pro") || text.includes("choose")) {
+        window.location.href = "/premium";
+        return;
+      }
+    });
+  });
+</script>

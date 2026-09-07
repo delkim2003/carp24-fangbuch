@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CARP24 - Digital Angling Journal</title>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed-dim": "#cbc99a",
+                        "outline-variant": "#c6c8bc",
+                        "on-secondary-container": "#67663f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#61603a",
+                        "on-primary-fixed-variant": "#3e4b2c",
+                        "tertiary-fixed-dim": "#b1cbcd",
+                        "tertiary": "#496163",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#141f05",
+                        "background": "#f6fbec",
+                        "on-surface-variant": "#45483f",
+                        "secondary-container": "#e7e5b4",
+                        "surface-container-highest": "#dfe4d6",
+                        "on-surface": "#181d14",
+                        "surface-variant": "#dfe4d6",
+                        "inverse-surface": "#2d3228",
+                        "surface": "#f6fbec",
+                        "on-tertiary-fixed": "#061f21",
+                        "on-tertiary-container": "#faffff",
+                        "tertiary-fixed": "#cde7e9",
+                        "primary-fixed": "#d9e8be",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eef3e4",
+                        "inverse-primary": "#bdcca4",
+                        "surface-container": "#ebf0e1",
+                        "on-secondary-fixed": "#1d1d01",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary-container": "#6c7a57",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#334b4d",
+                        "on-primary-container": "#fdfff0",
+                        "on-background": "#181d14",
+                        "surface-bright": "#f6fbec",
+                        "secondary-fixed": "#e7e5b4",
+                        "on-secondary-fixed-variant": "#494824",
+                        "primary": "#546140",
+                        "surface-tint": "#556342",
+                        "surface-container-high": "#e5eadb",
+                        "primary-fixed-dim": "#bdcca4",
+                        "surface-container-low": "#f1f6e7",
+                        "tertiary-container": "#617a7c",
+                        "outline": "#76786e",
+                        "surface-dim": "#d7dccd",
+                        "error-container": "#ffdad6"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "margin-desktop": "64px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "nav-item": ["Public Sans"],
+                        "headline-md": ["\"Source Serif 4\""],
+                        "display-lg": ["\"Source Serif 4\""],
+                        "body-lg": ["\"Source Sans 3\""],
+                        "headline-lg": ["\"Source Serif 4\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "label-sm": ["Public Sans"],
+                        "headline-lg-mobile": ["\"Source Serif 4\""]
+                    },
+                    fontSize: {
+                        "nav-item": ["13px", { lineHeight: "20px", letterSpacing: "0.08em", fontWeight: "500" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "500" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.03"/%3E%3C/svg%3E');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopNavBar from JSON -->
+<header class="fixed top-0 w-full bg-surface dark:bg-surface border-b border-primary/20 dark:border-primary-fixed/20 flat no shadows z-50">
+<div class="flex justify-between items-center px-margin-desktop h-20 max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-semibold tracking-tight">
+                CARP24
+            </div>
+<nav class="hidden md:flex items-center gap-8 font-nav-item text-nav-item uppercase tracking-widest">
+<!-- Using intent fallback for a landing page, nothing is technically active, but let's highlight Journal as primary -->
+<a class="text-primary dark:text-primary-fixed-dim border-b border-primary dark:border-primary-fixed pb-1 cursor-pointer active:opacity-70" href="#">Journal</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300 cursor-pointer active:opacity-70" href="#">Equipment</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300 cursor-pointer active:opacity-70" href="#">Expeditions</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300 cursor-pointer active:opacity-70" href="#">Library</a>
+</nav>
+<button class="font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-on-primary hover:bg-primary border border-primary px-6 py-2 rounded-full transition-colors cursor-pointer active:opacity-70">
+                Sign In
+            </button>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32">
+<!-- 1. Hero Section -->
+<section class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-24 relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
+<div class="w-full md:w-1/2 z-10 flex flex-col items-start gap-6">
+<span class="font-label-sm text-label-sm uppercase text-tertiary-container tracking-[0.15em]">Premium Editorial</span>
+<h1 class="font-display-lg text-display-lg text-on-surface md:text-[56px] md:leading-[64px] font-bold max-w-lg">
+                    Jeder Fang zählt.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                    Dein digitales Tagebuch für Momente, die bleiben. Präzise Dokumentation, edles Design, absolute Privatsphäre.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+<button class="bg-primary-container text-on-primary-container font-nav-item text-nav-item px-8 py-4 rounded-full hover:bg-primary transition-colors flex items-center justify-center gap-2">
+                        Kostenlos starten
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<button class="border border-outline-variant text-on-surface font-nav-item text-nav-item px-8 py-4 rounded-full hover:bg-surface-variant transition-colors">
+                        Funktionen entdecken
+                    </button>
+</div>
+</div>
+<div class="w-full md:w-1/2 relative">
+<!-- Decorative Frame -->
+<div class="absolute -inset-4 border border-outline-variant/30 rounded-2xl z-0 pointer-events-none transform translate-x-4 translate-y-4"></div>
+<!-- Embedded Asset -->
+<img alt="Scenic lake at sunrise" class="w-full h-auto aspect-square object-cover rounded-xl border border-outline-variant/20 relative z-10 shadow-sm" src="https://lh3.googleusercontent.com/aida/AEtjO1V8SJn4GSkVK59It7ShePV1xG41-B331lTIfdcBOvCNEtKWYYN5zpfoNkzt1DbBLaC-K9f-FHO57VCH1ZYTxfGT7xKPHSDqKesZwlWZ5m49AMiDgnf2662exnrnFCPf1zAtJMoxEtcBTvVzXFUvAolX4soBUu_PJvNfqzVxmfccCbvp7HIyN1OuTAFMaA8_DCH-4nI_A2sW2ZaoOuhPRR6fX6u_vMxJxNhI-k-INGpbPRB3PHb1fRs6k_Mr"/>
+</div>
+</section>
+<!-- 3. How it Works -->
+<section class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl my-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter relative">
+<!-- Hairline Connector (Desktop) -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-[1px] bg-outline-variant/30 -z-10"></div>
+<div class="bg-surface-variant/40 border border-outline-variant/20 rounded-xl p-lg flex flex-col items-center text-center gap-4 relative backdrop-blur-sm">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary border border-primary/10">
+<span class="material-symbols-outlined text-3xl">phishing</span>
+</div>
+<h3 class="font-headline-md text-headline-md">1. Erfassen</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Dokumentiere Fang, Wetter und Setup in Sekunden direkt am Wasser.
+                    </p>
+</div>
+<div class="bg-surface-variant/40 border border-outline-variant/20 rounded-xl p-lg flex flex-col items-center text-center gap-4 relative backdrop-blur-sm">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary border border-primary/10">
+<span class="material-symbols-outlined text-3xl">bar_chart</span>
+</div>
+<h3 class="font-headline-md text-headline-md">2. Analysieren</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Erkenne Muster und optimiere deine Taktik mit präzisen Daten.
+                    </p>
+</div>
+<div class="bg-surface-variant/40 border border-outline-variant/20 rounded-xl p-lg flex flex-col items-center text-center gap-4 relative backdrop-blur-sm">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary border border-primary/10">
+<span class="material-symbols-outlined text-3xl">public</span>
+</div>
+<h3 class="font-headline-md text-headline-md">3. Teilen</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Teile ausgewählte Erfolge sicher mit Freunden oder dem elitären Zirkel.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Footer from JSON -->
+<footer class="w-full py-xl bg-surface-container-low dark:bg-surface-container-lowest border-t border-primary/10 dark:border-primary-fixed/10 flat no shadows mt-24">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-2 flex flex-col gap-4">
+<div class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed-dim">
+                        CARP24
+                    </div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">
+                        Dein digitales Tagebuch für Momente, die bleiben.
+                    </p>
+</div>
+<div class="col-span-1 flex flex-col gap-3">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-widest mb-2">Legal</span>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Terms of Service</a>
+</div>
+<div class="col-span-1 flex flex-col gap-3">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-widest mb-2">Discover</span>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Ethical Angling</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Heritage</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Contact</a>
+</div>
+</div>
+<div class="px-margin-desktop max-w-7xl mx-auto mt-12 pt-8 border-t border-outline-variant/20">
+<p class="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim">
+                    © 2024 Carp24 Digital Angling Journal. All Rights Reserved.
+                </p>
+</div>
+</footer>
+</main>
+</body></html>

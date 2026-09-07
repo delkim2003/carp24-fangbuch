@@ -1,37 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { getAdminClient } from "./_auth";
 import Stripe from "stripe";
 
 export const prerender = false;
 
-export async function getServerSideProps({ locals }: { locals: App.Locals }) {
-  const user = locals.user;
-  if (!user) return { props: { error: "Nicht angemeldet.", status: 401 } };
-
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = profile?.role ?? "USER";
-  if (role !== "ADMIN" && role !== "MODERATOR") return { props: { error: "Keine Berechtigung.", status: 403 } };
-
-  return { props: { supabaseAdmin } };
-}
-
 export const GET = async ({ locals }: { locals: App.Locals }) => {
-  const { supabaseAdmin } = await getServerSideProps({ locals });
-  if ("error" in supabaseAdmin) {
-    return new Response(JSON.stringify({ error: supabaseAdmin.error }), {
-      status: supabaseAdmin.status,
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
       headers: { "Content-Type": "application/json" },
     });
   }
+  const { supabaseAdmin } = auth;
 
   const now = new Date();
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
