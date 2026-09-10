@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
+import { itemListLD } from "../lib/jsonld";
 
 export const prerender = false;
 
@@ -73,9 +74,15 @@ const activeItemsJson = JSON.stringify(activeItems);
 const mySoldItemsJson = JSON.stringify(mySoldItems);
 const categoryLabelsJson = JSON.stringify(categoryLabels);
 const myContactsJson = JSON.stringify(myContacts);
+const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
+  name: item.title,
+  url: `${Astro.url.origin}/marktplatz`,
+  ...(item.description && { description: item.description })
+}))) : null;
 ---
 
 <Layout title="Carp24 – Marktplatz" active="marktplatz">
+  {jsonLD && <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />}
   <!-- MARKTPLATZ MARKETPLACE -->
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (

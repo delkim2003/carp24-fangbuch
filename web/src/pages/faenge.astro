@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import CatchCard from "../components/CatchCard.astro";
+import ErrorBoundary from "../components/ErrorBoundary.astro";
 import { createSSRClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
+import { itemListLD } from "../lib/jsonld";
 
 const supabase = createSSRClient(Astro);
 
@@ -17,8 +19,13 @@ if (session) {
   if (error) loadError = error.message;
 }
 const saved = Astro.url.searchParams.get("saved") === "1";
+const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
+  name: `${c.species} - ${c.water_name}`,
+  url: `${Astro.url.origin}/faenge/${c.id}`
+}))) : null;
 ---
 <Layout title="Carp24 – Fangbuch" active="fangbuch">
+  {jsonLD && <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />}
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
@@ -51,7 +58,7 @@ const saved = Astro.url.searchParams.get("saved") === "1";
           </a>
         </div>
 
-        {loadError && <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>}
+        {loadError && <ErrorBoundary error={loadError} />}
 
         {catches.length === 0 ? (
           <div class="text-center py-24 flex flex-col items-center gap-lg">

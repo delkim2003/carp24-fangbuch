@@ -1,0 +1,33 @@
+---
+import { t } from "../lib/i18n";
+
+export interface Props {
+  error: string | null;
+  fallbackText?: string;
+}
+
+const { error, fallbackText } = Astro.props;
+const showError = error !== null && error !== undefined;
+const defaultHint = "Bitte versuche es später erneut oder lade die Seite neu.";
+const hint = fallbackText || defaultHint;
+---
+{showError && (
+  <div class="bg-surface-container-high border border-error/50 rounded-xl p-lg md:p-xl flex items-start gap-md shadow-sm" role="alert">
+    <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center shrink-0 mt-0.5">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-on-error-container" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <div class="flex flex-col gap-sm min-w-0">
+      <p class="font-label-sm text-label-sm uppercase text-error tracking-widest i18n" data-de="Fehler beim Laden" data-en="Loading Error">Fehler beim Laden</p>
+      <p class="text-body-md text-on-surface-variant break-words">{error}</p>
+      <p class="text-body-sm text-on-surface-variant/70 i18n" data-de={hint} data-en={hint}>{hint}</p>
+    </div>
+  </div>
+)}
+
+<style is:global>
+  /* Carp24-Design: error-Border, roter Akzent, passend zum Dark-Theme */
+</style>
