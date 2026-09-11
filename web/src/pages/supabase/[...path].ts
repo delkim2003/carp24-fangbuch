@@ -38,11 +38,7 @@ async function proxyRequest(request: Request, path: string) {
 
   let body: string | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    try {
-      body = await request.text();
-    } catch (e) {
-      console.error("[SUPA-PROXY] body read failed:", e);
-    }
+    try { body = await request.text(); } catch {}
   }
 
   try {
@@ -50,6 +46,7 @@ async function proxyRequest(request: Request, path: string) {
       method: request.method,
       headers,
       body: body || undefined,
+      redirect: "manual", // NICHT intern folgen — Redirect an Browser weiterleiten
     });
 
     const responseHeaders = new Headers();
@@ -61,13 +58,25 @@ async function proxyRequest(request: Request, path: string) {
     responseHeaders.set("Access-Control-Allow-Origin", url.origin);
     responseHeaders.set("Access-Control-Allow-Credentials", "true");
 
+    // Redirect-Location anpassen: absolut → relativ zur Domain
+    const location = responseHeaders.get("location");
+    if (location) {
+      try {
+        const locUrl = new URL(location);
+        // Supabase redirectet auf interne URL → auf externe Domain umschreiben
+        responseHeaders.set("location", locUrl.pathname + locUrl.search);
+      } catch {
+        // Bereits relativ — ok
+      }
+    }
+
     return new Response(await response.text(), {
       status: response.status,
       headers: responseHeaders,
     });
   } catch (err: any) {
-    console.error("[SUPA-PROXY] Error:", err?.message, "cause:", err?.cause?.code);
-    return new Response(JSON.stringify({ error: "Proxy error", detail: err?.message }), {
+    console.error("[SUPA-PROXY] Error:", err?.message);
+    return new Response(JSON.stringify({ error: "Proxy error" }), {
       status: 502,
       headers: { "Content-Type": "application/json" },
     });

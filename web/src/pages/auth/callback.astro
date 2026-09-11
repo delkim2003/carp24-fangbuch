@@ -1,6 +1,4 @@
 ---
-// Auth callback — handles email confirmation links
-// Supabase redirects here after user clicks confirmation link
 import Layout from "../../layouts/Layout.astro";
 ---
 
@@ -37,20 +35,6 @@ import Layout from "../../layouts/Layout.astro";
 
 <script is:inline>
 (function() {
-  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
-  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
-
-  function getSupabase() {
-    if (window.__supabase) return window.__supabase;
-    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" }
-      });
-      return window.__supabase;
-    }
-    return null;
-  }
-
   var loading = document.getElementById('loading');
   var success = document.getElementById('success');
   var error = document.getElementById('error');
@@ -59,58 +43,45 @@ import Layout from "../../layouts/Layout.astro";
   function show(el) { el.classList.remove('hidden'); }
   function hide(el) { el.classList.add('hidden'); }
 
-  async function handleCallback() {
-    var sb = getSupabase();
-    if (!sb) {
-      hide(loading); show(error);
-      errorMsg.textContent = 'Supabase nicht initialisiert.';
-      return;
-    }
+  var url = new URL(window.location.href);
+  var errorParam = url.searchParams.get('error');
+  var code = url.searchParams.get('code');
 
-    // Check URL for error parameters
-    var url = new URL(window.location.href);
-    var errorParam = url.searchParams.get('error');
-    var errorDesc = url.searchParams.get('error_description');
-
-    if (errorParam) {
-      hide(loading); show(error);
-      errorMsg.textContent = errorDesc || 'Der Link ist ungültig oder abgelaufen.';
-      return;
-    }
-
-    // Try to exchange code for session (PKCE flow)
-    var code = url.searchParams.get('code');
-    if (code) {
-      try {
-        var { data, error: exchangeError } = await sb.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
-          hide(loading); show(error);
-          errorMsg.textContent = exchangeError.message || 'Bestätigung fehlgeschlagen.';
-          return;
-        }
-        hide(loading); show(success);
-        // Clean URL
-        window.history.replaceState({}, '', '/auth/callback');
-        return;
-      } catch (e) {
-        hide(loading); show(error);
-        errorMsg.textContent = 'Unerwarteter Fehler bei der Bestätigung.';
-        return;
-      }
-    }
-
-    // Check if user is already confirmed (direct access)
-    var { data: sessionData } = await sb.auth.getSession();
-    if (sessionData.session) {
-      hide(loading); show(success);
-      return;
-    }
-
-    // No code, no session — show error
+  // Fehler-Parameter in URL
+  if (errorParam) {
     hide(loading); show(error);
-    errorMsg.textContent = 'Kein Bestätigungscode gefunden. Bitte klicke den Link in deiner E-Mail.';
+    errorMsg.textContent = url.searchParams.get('error_description') || 'Der Link ist ungültig oder abgelaufen.';
+    return;
   }
 
-  handleCallback();
+  // Code vorhanden → Session austauschen (PKCE-Flow)
+  if (code) {
+    var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+    var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+
+    if (window.supabase && window.supabase.createClient) {
+      var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" }
+      });
+
+      sb.auth.exchangeCodeForSession(code).then(function(result) {
+        if (result.error) {
+          hide(loading); show(error);
+          errorMsg.textContent = result.error.message || 'Bestätigung fehlgeschlagen.';
+        } else {
+          hide(loading); show(success);
+          window.history.replaceState({}, '', '/auth/callback');
+        }
+      }).catch(function() {
+        hide(loading); show(error);
+        errorMsg.textContent = 'Unerwarteter Fehler bei der Bestätigung.';
+      });
+      return;
+    }
+  }
+
+  // Kein Code, kein Fehler → Email wurde bestätigt (Supabase Redirect nach Verify)
+  // Zeige Erfolg an
+  hide(loading); show(success);
 })();
 </script>
