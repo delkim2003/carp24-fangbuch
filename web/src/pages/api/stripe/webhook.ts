@@ -104,10 +104,13 @@ export const POST = async ({ request }) => {
         const user = await findUserByEmail(supabaseAdmin, customerEmail);
 
         if (user) {
-          await supabaseAdmin
-            .from("profiles")
-            .update({ is_pro: true })
-            .eq("id", user.id);
+          // P0-FIX: Nur is_pro=true wenn Zahlung erfolgreich
+          if (session.payment_status === "paid") {
+            await supabaseAdmin
+              .from("profiles")
+              .update({ is_pro: true })
+              .eq("id", user.id);
+          }
 
           if (session.subscription) {
             const subscriptionId =
@@ -150,7 +153,7 @@ export const POST = async ({ request }) => {
         past_due: "PAST_DUE",
         unpaid: "CANCELED",
         trialing: "ACTIVE",
-        incomplete: "ACTIVE",
+        incomplete: "PENDING",
         incomplete_expired: "CANCELED",
         paused: "CANCELED",
       };
@@ -161,7 +164,7 @@ export const POST = async ({ request }) => {
         shouldRevoke = true;
       } else if (event.type === "customer.subscription.updated") {
         const status = subscription.status;
-        if (status === "canceled" || status === "past_due" || status === "unpaid") {
+        if (status === "canceled" || status === "past_due" || status === "unpaid" || status === "incomplete_expired") {
           shouldRevoke = true;
         }
       }
