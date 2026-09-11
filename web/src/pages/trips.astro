@@ -2,31 +2,22 @@
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
 import PremiumLock from "../components/PremiumLock.astro";
+import { getTierFromLocals } from "../lib/tier";
 import { t } from "../lib/i18n";
 
 export const prerender = false;
 
 const supabase = createSSRClient(Astro);
+const session = Astro.locals.session;
 
-const { data: { session } } = await supabase.auth.getSession();
+if (!session) return Astro.redirect("/login/");
 
 let trips: any[] = [];
 let catchesForTrips: any[] = [];
 let waters: any[] = [];
 let loadError: string | null = null;
-let isPro = false;
-let isAdmin = false;
 
 if (session) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_pro, role")
-    .eq("id", session.user.id)
-    .single();
-
-  isPro = profile?.is_pro ?? false;
-  isAdmin = (profile?.role ?? "") == "ADMIN";
-
   const [tripsRes, catchesRes, watersRes] = await Promise.all([
     supabase
       .from("trips")
@@ -51,7 +42,7 @@ if (session) {
   if (tripsRes.error) loadError = tripsRes.error.message;
 }
 
-const isPaid = isPro || isAdmin;
+const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 
 const tripsJson = JSON.stringify(trips);
 const catchesJson = JSON.stringify(catchesForTrips);
@@ -60,6 +51,8 @@ const watersJson = JSON.stringify(waters);
 
 {!isPaid ? (
   <PremiumLock
+    tier={getTierFromLocals(Astro.locals)}
+    mode="page"
     kicker="CARP24"
     title="TRIPS"
     description="Die Trips-Funktion ist ein Premium-Feature."

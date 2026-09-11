@@ -1,35 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PremiumLock from '../components/PremiumLock.astro';
+import { getTierFromLocals } from '../lib/tier';
 
 const session = Astro.locals.session;
 if (!session) return Astro.redirect('/login');
 
-import { createClient } from '@supabase/supabase-js';
-
-let isPro = false;
-let isAdmin = false;
-
-if (session) {
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('is_pro, role')
-    .eq('id', session.user.id)
-    .single();
-
-  isPro = profile?.is_pro ?? false;
-  isAdmin = (profile?.role ?? '') == 'ADMIN';
-}
-
-const isPaid = isPro || isAdmin;
+const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 ---
 
 {!isPaid ? (
   <PremiumLock
+    tier={getTierFromLocals(Astro.locals)}
+    mode="page"
     kicker="CARP24"
     title="STATISTIK"
     description="Die Statistik ist ein Premium-Feature."

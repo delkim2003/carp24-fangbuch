@@ -1,7 +1,29 @@
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export const prerender = false;
+
+/**
+ * P1-2: Findet einen User per E-Mail mit Pagination.
+ * Supabase listUsers() hat eine Page-Size von 1000 — bei >1000 Usern
+ * wird der User ohne Pagination nicht gefunden.
+ */
+async function findUserByEmail(
+  supabaseAdmin: SupabaseClient,
+  email: string
+): Promise<{ id: string; email?: string } | null> {
+  let page = 1;
+  const perPage = 1000;
+  while (true) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    if (error || !data?.users?.length) break;
+    const match = data.users.find((u) => u.email === email);
+    if (match) return match;
+    if (data.users.length < perPage) break; // letzte Seite
+    page++;
+  }
+  return null;
+}
 
 export const POST = async ({ request }) => {
   const secretKey = import.meta.env.STRIPE_SECRET_KEY;
@@ -43,25 +65,34 @@ export const POST = async ({ request }) => {
   );
 
   // Idempotenz: Prüfe ob Event bereits verarbeitet wurde
+  // Bei status='error' → Event erneut verarbeiten (Stripe-Retry nach Fehler)
   const { data: existing } = await supabaseAdmin
     .from("stripe_events")
-    .select("id")
+    .select("id, status")
     .eq("id", event.id)
     .single();
 
-  if (existing) {
+  if (existing && existing.status !== "error") {
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  // FIX 3: Event VOR Verarbeitung speichern
-  await supabaseAdmin.from("stripe_events").insert({
-    id: event.id,
-    type: event.type,
-    status: "processing",
-  });
+  // Error-Event: Status zurücksetzen für Reprocessing
+  if (existing && existing.status === "error") {
+    await supabaseAdmin
+      .from("stripe_events")
+      .update({ status: "reprocessing" })
+      .eq("id", event.id);
+  } else {
+    // Neues Event: VOR Verarbeitung speichern
+    await supabaseAdmin.from("stripe_events").insert({
+      id: event.id,
+      type: event.type,
+      status: "processing",
+    });
+  }
 
   try {
     // Event-Typ verarbeiten
@@ -70,8 +101,7 @@ export const POST = async ({ request }) => {
       const customerEmail = session.customer_email || session.customer_details?.email;
 
       if (customerEmail) {
-        const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-        const user = userData.users.find((u) => u.email === customerEmail);
+        const user = await findUserByEmail(supabaseAdmin, customerEmail);
 
         if (user) {
           await supabaseAdmin
@@ -155,14 +185,20 @@ export const POST = async ({ request }) => {
       }
 
       if (customerEmail) {
-        const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-        const user = userData.users.find((u) => u.email === customerEmail);
+        const user = await findUserByEmail(supabaseAdmin, customerEmail);
 
         if (user) {
+          // P0-3 FIX: is_pro synchron mit mappedStatus halten
           if (shouldRevoke) {
             await supabaseAdmin
               .from("profiles")
               .update({ is_pro: false })
+              .eq("id", user.id);
+          } else if (event.type === "customer.subscription.updated" && mappedStatus === "ACTIVE") {
+            // Reaktivierung nach PAST_DUE oder Renewal: is_pro=true setzen
+            await supabaseAdmin
+              .from("profiles")
+              .update({ is_pro: true })
               .eq("id", user.id);
           }
 

@@ -37,25 +37,48 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // CRITICAL: getUser() validates JWT against Auth server AND refreshes tokens
   // getSession() only reads cookie — stale tokens cause redirect loops
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: { session } } = await supabase.auth.getSession();
+  // P1-1: try/catch — bei DB/Netzwerk-Fehler App nicht crashen
+  let user = null;
+  let session = null;
   let role = "USER";
+  let isPro = false;
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    role = profile?.role ?? "USER";
+  try {
+    const authResult = await supabase.auth.getUser();
+    user = authResult.data.user;
+    const sessionResult = await supabase.auth.getSession();
+    session = sessionResult.data.session;
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, is_pro")
+        .eq("id", user.id)
+        .single();
+      role = profile?.role ?? "USER";
+      isPro = profile?.is_pro ?? false;
+    }
+  } catch (err) {
+    // Auth/DB fehlgeschlagen — App läuft ohne User weiter
+    console.error("[middleware] Auth/Profile-Query fehlgeschlagen:", err);
+    user = null;
+    session = null;
+    role = "USER";
+    isPro = false;
   }
 
   context.locals.user = user;
   context.locals.session = session;
   context.locals.role = role;
+  context.locals.isPro = isPro;
   context.locals.isAdmin = role === "ADMIN" || role === "MODERATOR";
 
-  const maintenance = await getMaintenance();
+  let maintenance = { enabled: false, message: "" };
+  try {
+    maintenance = await getMaintenance();
+  } catch (err) {
+    console.error("[middleware] Maintenance-Query fehlgeschlagen:", err);
+  }
   const path = context.url.pathname.replace(/\/+$/, "") || "/";
   const isAdmin = role === "ADMIN" || role === "MODERATOR";
 

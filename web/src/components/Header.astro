@@ -5,20 +5,20 @@ interface Props {
 const { active } = Astro.props;
 
 const navItems = [
-  { key: "fangbuch", de: "Fänge", en: "Catches", href: "/faenge", auth: true },
-  { key: "board", de: "Board", en: "Board", href: "/board", auth: true },
-  { key: "forum", de: "Forum", en: "Forum", href: "/forum", auth: true },
-  { key: "chat", de: "Chat", en: "Chat", href: "/chat", auth: true },
-  { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik", auth: true },
-  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: true },
+  { key: "fangbuch", de: "Fänge", en: "Catches", href: "/faenge", auth: false },
+  { key: "board", de: "Board", en: "Board", href: "/board", auth: false },
+  { key: "forum", de: "Forum", en: "Forum", href: "/forum", auth: false },
+  { key: "chat", de: "Chat", en: "Chat", href: "/chat", auth: false },
+  { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik", auth: false },
+  { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: false },
   { key: "ueber", de: "Über", en: "About", href: "/ueber", auth: false },
   { key: "preis", de: "Premium", en: "Premium", href: "/premium", auth: false },
 ];
 
 const moreItems = [
-  { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick", auth: true },
-  { key: "trips", de: "Trips", en: "Trips", href: "/trips", auth: true },
-  { key: "assistent", de: "Assistent", en: "Assistant", href: "/assistent", auth: true },
+  { key: "rueckblick", de: "Rückblick", en: "Review", href: "/rueckblick", auth: false },
+  { key: "trips", de: "Trips", en: "Trips", href: "/trips", auth: false },
+  { key: "assistent", de: "Assistent", en: "Assistant", href: "/assistent", auth: false },
 ];
 ---
 

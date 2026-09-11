@@ -2,33 +2,19 @@
 import Layout from "../layouts/Layout.astro";
 import { createSSRClient } from "../lib/ssr-client";
 import PremiumLock from "../components/PremiumLock.astro";
+import { getTierFromLocals } from "../lib/tier";
 import { t } from "../lib/i18n";
 
 export const prerender = false;
 
 const supabase = createSSRClient(Astro);
-
-const { data: { session } } = await supabase.auth.getSession();
+const session = Astro.locals.session;
 
 if (!session) {
   return Astro.redirect("/login/");
 }
 
-let isPro = false;
-let isAdmin = false;
-
-if (session) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_pro, role")
-    .eq("id", session.user.id)
-    .single();
-
-  isPro = profile?.is_pro ?? false;
-  isAdmin = (profile?.role ?? "") == "ADMIN";
-}
-
-const isPaid = isPro || isAdmin;
+const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 
 let messages: any[] = [];
 let loadError: string | null = null;
@@ -45,6 +31,8 @@ const userId = session.user.id;
 ---
 {!isPaid ? (
   <PremiumLock
+    tier={getTierFromLocals(Astro.locals)}
+    mode="page"
     kicker="CARP24"
     title="CHAT"
     description="Der Chat ist ein Premium-Feature."

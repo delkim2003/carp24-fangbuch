@@ -224,7 +224,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "index.analysieren_text": { de: "Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.", en: "Recognize patterns, weather dependencies and improve your strategy." },
   "index.aus_dem_fangbuch": { de: "AUS DEM FANGBUCH", en: "FROM THE CATCH LOG" },
   "index.kostenlos": { de: "50 FÄNGE GRATIS", en: "50 CATCHES FREE" },
-  "index.pro_preis": { de: "Danach Pro ab 4,99 €/Monat", en: "Then Pro from €4.99/month" },
+  "index.pro_preis": { de: "Danach Pro ab 6,90 €/Monat", en: "Then Pro from €6.90/month" },
 
   // profil
   "profil.titel": { de: "PROFIL", en: "PROFILE" },

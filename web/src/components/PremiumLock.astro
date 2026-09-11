@@ -1,24 +1,95 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import type { UserTier } from "../lib/tier";
 
 interface Props {
-  kicker: string;
+  /** Aktuelles Tier des Users ("free" | "pro"). Von Astro.locals.isPro oder fetchTier(). */
+  tier: UserTier;
+  /** Modus: "inline" (Standard) = Slot-Gate, "page" = Ganze-Seite-Lock */
+  mode?: "inline" | "page";
+  /** Name des Features (optional, für Tracking/Analytics) */
+  feature?: string;
+  /** Kicker-Text im Lock-Overlay (Standard: "Premium Feature") */
+  kicker?: string;
+  /** Titel im Lock-Overlay */
   title?: string;
-  description: string;
+  /** Beschreibung im Lock-Overlay */
+  description?: string;
+  /** Aktive Seite für Navigation (nur page-Modus) */
   active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz" | "ueber";
 }
 
-const { kicker, title, description, active } = Astro.props;
+const {
+  tier,
+  mode = "inline",
+  feature,
+  kicker = "Premium Feature",
+  title,
+  description = "Diese Funktion ist nur für Premium-Nutzer verfügbar.",
+  active,
+} = Astro.props;
+
+const isPro = tier === "pro";
+
+// Page-Modus: Redirect zu /premium/ wenn FREE
+if (mode === "page" && !isPro) {
+  return Astro.redirect("/premium/");
+}
 ---
 
-<Layout title={`Carp24 – ${title ?? ""}`} active={active}>
-  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col items-center justify-center text-center gap-lg">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    </svg>
-    <p class="font-mono text-sm text-secondary tracking-widest uppercase mb-2">{kicker}</p>
-    {title && <h1 class="text-display-lg text-primary mb-2">{title}</h1>}
-    <p class="text-body-lg text-on-surface-variant max-w-xl">{description}</p>
-    <a href="/premium/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">ZUM PREMIUM</a>
-  </main>
-</Layout>
+{isPro ? (
+  /* ─── PRO: Slot rendern ─── */
+  <slot />
+) : mode === "page" ? (
+  /* ─── Page-Modus FREE: Sollte nie erreicht werden (Redirect oben) ─── */
+  <Fragment />
+) : (
+  /* ─── Inline-Modus FREE: Lock-Overlay ─── */
+  <div class="relative" data-feature={feature}>
+    {/* Slot-Inhalt als Teaser (blur + pointer-events-none) */}
+    <div class="opacity-30 blur-[2px] pointer-events-none select-none" aria-hidden="true">
+      <slot />
+    </div>
+
+    {/* Lock-Overlay */}
+    <div class="absolute inset-0 flex flex-col items-center justify-center bg-surface/80 backdrop-blur-sm rounded-2xl border border-outline-variant/30 p-6 text-center gap-4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-on-surface-variant"
+        aria-hidden="true"
+      >
+        <rect x="3" y="11" width="18" height="11" rx="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+
+      <span class="font-mono text-xs text-secondary tracking-widest uppercase">
+        {kicker}
+      </span>
+
+      {title && (
+        <h3 class="text-display-sm text-primary font-semibold">{title}</h3>
+      )}
+
+      <p class="text-body-md text-on-surface-variant max-w-sm">
+        {description}
+      </p>
+
+      <a
+        href="/premium/"
+        class="bg-primary-container text-on-primary-container font-nav-item text-nav-item px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 inline-flex items-center gap-2"
+      >
+        Upgrade zu Premium
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+)}
