@@ -750,7 +750,7 @@ import { t } from "../lib/i18n";
     if (!sb) return;
     sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin + '/auth/callback' }
     }).then(function (res) {
       if (res.error) {
         var msg = res.error.message || '';
@@ -770,7 +770,7 @@ import { t } from "../lib/i18n";
     if (!sb) return;
     sb.auth.signInWithOAuth({
       provider: 'facebook',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin + '/auth/callback' }
     }).then(function (res) {
       if (res.error) {
         var msg = res.error.message || '';
