@@ -1,13 +1,16 @@
 ---
 /**
- * PWA Install Banner — Zeigt "App installieren" beim ersten Besuch.
- * Captures beforeinstallprompt → zeigt Custom UI → triggered native Install.
+ * PWA Install Banner — Cross-platform install prompt.
+ * - Chrome/Android: beforeinstallprompt nach 30s Engagement
+ * - iOS Safari: "Share → Home-Bildschirm" Anleitung
+ * - Desktop: beforeinstallprompt
+ * - Fallback: manuelle Anleitung
  */
 ---
 
+<!-- Banner (initial hidden) -->
 <div id="pwa-install-banner" class="fixed bottom-0 left-0 right-0 z-50 hidden" role="dialog" aria-label="App installieren">
   <div class="max-w-lg mx-auto m-4 bg-surface-variant border border-primary/30 rounded-2xl p-5 shadow-2xl flex items-center gap-4">
-    <!-- Icon -->
     <div class="flex-shrink-0 w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-on-primary-container" aria-hidden="true">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -16,75 +19,137 @@
       </svg>
     </div>
 
-    <!-- Text -->
     <div class="flex-grow min-w-0">
-      <p class="font-headline-sm text-headline-sm text-on-surface mb-1">Carp24 installieren</p>
-      <p class="text-body-sm text-on-surface-variant">Für schnellen Zugriff und Push-Benachrichtigungen</p>
+      <p class="font-headline-sm text-headline-sm text-on-surface mb-1" id="pwa-banner-title">Carp24 installieren</p>
+      <p class="text-body-sm text-on-surface-variant" id="pwa-banner-desc">Für schnellen Zugriff und Push-Benachrichtigungen</p>
     </div>
 
-    <!-- Buttons -->
     <div class="flex-shrink-0 flex flex-col gap-2">
-      <button
-        id="pwa-install-btn"
-        type="button"
-        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors min-h-10 whitespace-nowrap"
-      >
+      <button id="pwa-install-btn" type="button"
+        class="bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase px-4 py-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors min-h-10 whitespace-nowrap">
         Installieren
       </button>
-      <button
-        id="pwa-install-dismiss"
-        type="button"
-        class="text-on-surface-variant text-body-sm hover:text-on-surface transition-colors"
-      >
+      <button id="pwa-install-dismiss" type="button"
+        class="text-on-surface-variant text-body-sm hover:text-on-surface transition-colors">
         Später
       </button>
     </div>
   </div>
 </div>
 
+<!-- iOS Anleitung (separater Banner) -->
+<div id="pwa-ios-banner" class="fixed bottom-0 left-0 right-0 z-50 hidden" role="dialog" aria-label="App installieren">
+  <div class="max-w-lg mx-auto m-4 bg-surface-variant border border-primary/30 rounded-2xl p-5 shadow-2xl">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-on-primary-container">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/>
+          <line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div>
+        <p class="font-headline-sm text-headline-sm text-on-surface">Carp24 installieren</p>
+        <p class="text-body-sm text-on-surface-variant">Für schnellen Zugriff</p>
+      </div>
+    </div>
+    <div class="bg-surface-container-low rounded-xl p-4 mb-3">
+      <p class="text-body-md text-on-surface mb-2">So geht's:</p>
+      <ol class="text-body-sm text-on-surface-variant space-y-1 list-decimal list-inside">
+        <li>Tippe unten auf das <strong>Teilen-Symbol</strong> <span class="inline-block w-5 h-5 align-middle">⬆️</span></li>
+        <li>Wähle <strong>"Zum Home-Bildschirm"</strong></li>
+        <li>Tippe auf <strong>"Hinzufügen"</strong></li>
+      </ol>
+    </div>
+    <button id="pwa-ios-dismiss" type="button"
+      class="w-full text-center text-on-surface-variant text-body-sm hover:text-on-surface transition-colors py-2">
+      Verstanden
+    </button>
+  </div>
+</div>
+
 <script is:inline>
 (function() {
-  const banner = document.getElementById('pwa-install-banner');
-  const installBtn = document.getElementById('pwa-install-btn');
-  const dismissBtn = document.getElementById('pwa-install-dismiss');
-
-  if (!banner || !installBtn || !dismissBtn) return;
-
-  // Nicht anzeigen wenn bereits dismissed oder installiert
+  // Bereits dismissed oder installiert?
   if (localStorage.getItem('pwa-install-dismissed') === 'true') return;
   if (window.matchMedia('(display-mode: standalone)').matches) return;
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  // ── iOS: manuelle Anleitung ──
+  if (isIOS) {
+    // Erst nach 5 Sekunden + Engagement
+    let engaged = false;
+    function onEngage() {
+      if (engaged) return;
+      engaged = true;
+      setTimeout(() => {
+        document.getElementById('pwa-ios-banner')?.classList.remove('hidden');
+      }, 3000);
+    }
+    ['click', 'touchstart', 'scroll'].forEach(e => document.addEventListener(e, onEngage, { once: true }));
+    document.getElementById('pwa-ios-dismiss')?.addEventListener('click', () => {
+      document.getElementById('pwa-ios-banner')?.classList.add('hidden');
+      localStorage.setItem('pwa-install-dismissed', 'true');
+    });
+    return;
+  }
+
+  // ── Chrome/Android/Desktop: beforeinstallprompt ──
   let deferredPrompt = null;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Banner anzeigen mit kleiner Verzögerung (nicht sofort)
+    // Banner nach kurzer Verzögerung zeigen
     setTimeout(() => {
-      banner.classList.remove('hidden');
+      document.getElementById('pwa-install-banner')?.classList.remove('hidden');
     }, 2000);
   });
 
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
+  // Install Button
+  document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+      // Fallback: Chrome hat kein Event gefeuert → manuelle Anleitung
+      alert('Tippe auf das Menü (⋮) in deinem Browser und wähle "App installieren" oder "Zum Startbildschirm hinzufügen".');
+      return;
+    }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
-      banner.classList.add('hidden');
+      document.getElementById('pwa-install-banner')?.classList.add('hidden');
     }
     deferredPrompt = null;
   });
 
-  dismissBtn.addEventListener('click', () => {
-    banner.classList.add('hidden');
+  // Dismiss
+  document.getElementById('pwa-install-dismiss')?.addEventListener('click', () => {
+    document.getElementById('pwa-install-banner')?.classList.add('hidden');
     localStorage.setItem('pwa-install-dismissed', 'true');
   });
 
-  // Nach Installation ausblenden
+  // Nach Installation
   window.addEventListener('appinstalled', () => {
-    banner.classList.add('hidden');
+    document.getElementById('pwa-install-banner')?.classList.add('hidden');
     localStorage.removeItem('pwa-install-dismissed');
   });
+
+  // ── Fallback: Falls beforeinstallprompt NIE kommt (nach 30s) ──
+  // Zeige den Banner trotzdem mit manueller Anleitung
+  if (!deferredPrompt) {
+    setTimeout(() => {
+      if (deferredPrompt) return; // Hat sich doch noch gemeldet
+      const banner = document.getElementById('pwa-install-banner');
+      if (!banner || banner.classList.contains('hidden') === false) return;
+      // Banner zeigen mit Fallback-Text
+      document.getElementById('pwa-banner-title').textContent = 'Carp24 als App installieren';
+      document.getElementById('pwa-banner-desc').textContent = 'Tippe auf das Menü (⋮) → "App installieren"';
+      document.getElementById('pwa-install-btn').textContent = 'Anleitung';
+      banner.classList.remove('hidden');
+    }, 30000);
+  }
 })();
 </script>
