@@ -191,6 +191,13 @@
     letter-spacing: -0.02em;
     font-weight: 700;
   }
+  .text-display-sm {
+    font-family: var(--font-display-lg);
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
   .text-headline-lg {
     font-family: var(--font-headline-lg);
     font-size: 32px;
