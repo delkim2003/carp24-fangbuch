@@ -252,13 +252,15 @@ const moreItems = [
     });
 
     function handleLogout() {
-      fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin'
-      }).then(function () {
-        window.location.href = '/';
-      }).catch(function () {
-        window.location.href = '/';
+      sb.auth.signOut().then(function() {
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        }).then(function () {
+          window.location.href = '/';
+        }).catch(function () {
+          window.location.href = '/';
+        });
       });
     }
 
