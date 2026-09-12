@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             cookies.set(name, value, {
               ...options,
               path: "/",
-              sameSite: "lax",
+              sameSite: 'strict',
               secure: true,
             });
           });

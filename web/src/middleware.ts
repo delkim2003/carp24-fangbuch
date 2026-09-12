@@ -58,8 +58,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   try {
     const authResult = await supabase.auth.getUser();
     user = authResult.data.user;
-    const sessionResult = await supabase.auth.getSession();
-    session = sessionResult.data.session;
+    // T1: getSession() removed — getUser() validates JWT already
 
     if (user) {
       const { data: profile } = await supabase

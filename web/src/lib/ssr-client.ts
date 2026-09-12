@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 export function createSSRClient(astro: { request: Request; cookies: { set: (name: string, value: string, options?: any) => void }; url?: URL }) {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-  const isSecure = astro.url?.protocol === 'https:' ?? false;
+  const isSecure = true;
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -33,7 +33,7 @@ export function createSSRClient(astro: { request: Request; cookies: { set: (name
     },
     cookieOptions: {
       path: '/',
-      sameSite: 'lax',
+      sameSite: 'strict',
       secure: isSecure,
     },
   });
