@@ -106,6 +106,7 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
+    import { escHtml } from "../../lib/escape";
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
 
     AdminKeyboardShortcuts.init({
@@ -132,12 +133,6 @@ if (!isAdmin) return Astro.redirect("/");
       toast.style.cssText = "position:fixed;top:1rem;right:1rem;padding:1rem 1.5rem;border-radius:8px;z-index:9999;color:white;font-size:0.875rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:" + (type === "success" ? "#22c55e" : "#ef4444");
       document.body.appendChild(toast);
       setTimeout(function() { toast.remove(); }, 3000);
-    }
-
-    function escapeHtml(str: string) {
-      var div = document.createElement("div");
-      div.appendChild(document.createTextNode(str || ""));
-      return div.innerHTML;
     }
 
     function timeAgo(dateStr: string | null) {
@@ -256,8 +251,8 @@ if (!isAdmin) return Astro.redirect("/");
             }
             return '<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors" data-id="' + u.id + '">' +
               '<td class="py-3 px-4"><input type="checkbox" class="user-checkbox" value="' + u.id + '" /></td>' +
-              '<td class="text-body-md text-on-surface py-3 px-4">' + escapeHtml(u.display_name || "–") + deleted + '</td>' +
-              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escapeHtml(u.email || "–") + '</td>' +
+              '<td class="text-body-md text-on-surface py-3 px-4">' + escHtml(u.display_name || "–") + deleted + '</td>' +
+              '<td class="text-body-sm text-on-surface-variant py-3 px-4">' + escHtml(u.email || "–") + '</td>' +
               '<td class="py-3 px-4">' +
                 '<select class="role-select bg-surface-container-highest text-on-surface rounded-lg px-2 py-1 text-body-sm border border-outline/20 min-h-11 cursor-pointer">' +
                   '<option value="USER"' + (u.role === "USER" ? " selected" : "") + '>USER</option>' +
@@ -488,10 +483,10 @@ if (!isAdmin) return Astro.redirect("/");
         var html = '<div class="space-y-lg">';
         html += '<div class="bg-surface-container-high rounded-xl p-lg">';
         html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Profil</p>';
-        html += '<p class="text-body-md text-on-surface font-medium">' + escapeHtml(p.display_name || "–") + '</p>';
-        html += '<p class="text-body-sm text-on-surface-variant">' + escapeHtml(p.email || "–") + '</p>';
-        html += '<p class="text-body-sm text-on-surface-variant">Rolle: ' + escapeHtml(p.role) + ' · PRO: ' + (p.is_pro ? "Ja" : "Nein") + ' · ' + banned + '</p>';
-        if (p.ban_reason) html += '<p class="text-body-sm text-error">Bann-Grund: ' + escapeHtml(p.ban_reason) + '</p>';
+        html += '<p class="text-body-md text-on-surface font-medium">' + escHtml(p.display_name || "–") + '</p>';
+        html += '<p class="text-body-sm text-on-surface-variant">' + escHtml(p.email || "–") + '</p>';
+        html += '<p class="text-body-sm text-on-surface-variant">Rolle: ' + escHtml(p.role) + ' · PRO: ' + (p.is_pro ? "Ja" : "Nein") + ' · ' + banned + '</p>';
+        if (p.ban_reason) html += '<p class="text-body-sm text-error">Bann-Grund: ' + escHtml(p.ban_reason) + '</p>';
         html += '</div>';
 
         if (data.catches.length > 0) {
@@ -501,7 +496,7 @@ if (!isAdmin) return Astro.redirect("/");
           data.catches.forEach(function(c: any) {
             var del = c.deleted_at ? ' <span class="text-error">(gelöscht)</span>' : "";
             html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
-            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(c.species || "–") + " · " + (c.weight_kg ?? "–") + " kg · " + escapeHtml(c.water_name || "–") + del + '</span>';
+            html += '<span class="text-body-sm text-on-surface">' + escHtml(c.species || "–") + " · " + (c.weight_kg ?? "–") + " kg · " + escHtml(c.water_name || "–") + del + '</span>';
             html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="catch" data-id="' + c.id + '">X</button>';
             html += '</div>';
           });
@@ -514,7 +509,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
           data.forum_threads.forEach(function(item: any) {
             html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
-            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(item.title || "–") + '</span>';
+            html += '<span class="text-body-sm text-on-surface">' + escHtml(item.title || "–") + '</span>';
             html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="forum" data-id="' + item.id + '">X</button>';
             html += '</div>';
           });
@@ -527,7 +522,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
           data.forum_posts.forEach(function(item: any) {
             html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
-            html += '<span class="text-body-sm text-on-surface">' + escapeHtml((item.body || "").slice(0, 80)) + '</span>';
+            html += '<span class="text-body-sm text-on-surface">' + escHtml((item.body || "").slice(0, 80)) + '</span>';
             html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="forum" data-id="' + item.id + '">X</button>';
             html += '</div>';
           });
@@ -540,7 +535,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
           data.chat_messages.forEach(function(item: any) {
             html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
-            html += '<span class="text-body-sm text-on-surface">' + escapeHtml((item.body || "").slice(0, 80)) + '</span>';
+            html += '<span class="text-body-sm text-on-surface">' + escHtml((item.body || "").slice(0, 80)) + '</span>';
             html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="chat" data-id="' + item.id + '">X</button>';
             html += '</div>';
           });
@@ -553,7 +548,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="space-y-sm max-h-48 overflow-y-auto">';
           data.marketplace_items.forEach(function(item: any) {
             html += '<div class="flex justify-between items-center py-xs border-b border-outline/10">';
-            html += '<span class="text-body-sm text-on-surface">' + escapeHtml(item.title || "–") + " · " + (item.price ?? "–") + " €</span>";
+            html += '<span class="text-body-sm text-on-surface">' + escHtml(item.title || "–") + " · " + (item.price ?? "–") + " €</span>";
             html += '<button type="button" class="feed-delete-btn font-label-sm text-label-sm px-2 py-1 rounded bg-error text-on-error cursor-pointer text-xs" data-type="marketplace" data-id="' + item.id + '">X</button>';
             html += '</div>';
           });
@@ -564,7 +559,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="bg-surface-container-high rounded-xl p-lg">';
           html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Trips (' + data.trips.length + ')</p>';
           data.trips.forEach(function(item: any) {
-            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(item.title || "–") + '</p>';
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escHtml(item.title || "–") + '</p>';
           });
           html += '</div>';
         }
@@ -573,7 +568,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="bg-surface-container-high rounded-xl p-lg">';
           html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Badges (' + data.badges.length + ')</p>';
           data.badges.forEach(function(item: any) {
-            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(item.badge_name) + '</p>';
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escHtml(item.badge_name) + '</p>';
           });
           html += '</div>';
         }
@@ -584,7 +579,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="bg-surface-container-high rounded-xl p-lg">';
           html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">Gemeldete Inhalte (' + data.reports_as_reporter.length + ')</p>';
           data.reports_as_reporter.forEach(function(r: any) {
-            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(r.target_type) + ": " + escapeHtml(r.reason || "–") + " (" + escapeHtml(r.status) + ")</p>";
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escHtml(r.target_type) + ": " + escHtml(r.reason || "–") + " (" + escHtml(r.status) + ")</p>";
           });
           html += '</div>';
         }
@@ -593,7 +588,7 @@ if (!isAdmin) return Astro.redirect("/");
           html += '<div class="bg-surface-container-high rounded-xl p-lg">';
           html += '<p class="font-label-sm text-label-sm uppercase tracking-widest text-error mb-sm">Meldungen gegen Nutzer (' + data.reports_against.length + ')</p>';
           data.reports_against.forEach(function(r: any) {
-            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escapeHtml(r.target_type) + ": " + escapeHtml(r.reason || "–") + " (" + escapeHtml(r.status) + ")</p>";
+            html += '<p class="text-body-sm text-on-surface border-b border-outline/10 py-xs">' + escHtml(r.target_type) + ": " + escHtml(r.reason || "–") + " (" + escHtml(r.status) + ")</p>";
           });
           html += '</div>';
         }

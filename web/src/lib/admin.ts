@@ -1,31 +1,8 @@
-import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createSSRClient } from "./ssr-client";
 import type { AstroGlobal } from "astro";
 
 export async function getSessionAndProfile(Astro: AstroGlobal) {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return parseCookieHeader(Astro.request.headers.get("Cookie") ?? "");
-        },
-        setAll(cs) {
-          cs.forEach(({ name, value, options }) => {
-            Astro.cookies.set(name, value, options);
-          });
-        },
-      },
-      auth: {
-        storageKey: 'sb-carp24-auth-token',
-      },
-      cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: true,
-      },
-    }
-  );
+  const supabase = createSSRClient(Astro);
 
   const {
     data: { user },
