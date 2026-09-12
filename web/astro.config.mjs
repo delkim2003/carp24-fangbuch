@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, sessionDrivers } from 'astro/config';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -12,7 +12,7 @@ export default defineConfig({
     mode: 'standalone',
   }),
   session: {
-    driver: 'memory',
+    driver: sessionDrivers.memory(),
   },
   vite: {
     plugins: [tailwindcss()],

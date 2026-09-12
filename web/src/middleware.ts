@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createSSRClient } from "./lib/ssr-client";
 import { getMaintenance } from "./lib/settings";
 
 const securityHeaders: Record<string, string> = {
@@ -22,30 +22,7 @@ const securityHeaders: Record<string, string> = {
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return parseCookieHeader(context.request.headers.get("Cookie") ?? "");
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            context.cookies.set(name, value, options);
-          });
-        },
-      },
-      auth: {
-        storageKey: 'sb-carp24-auth-token',
-      },
-      cookieOptions: {
-        path: '/',
-        sameSite: 'lax',
-        secure: context.url.protocol === 'https:',
-      },
-    }
-  );
+  const supabase = createSSRClient(context);
 
   // CRITICAL: getUser() validates JWT against Auth server AND refreshes tokens
   // getSession() only reads cookie — stale tokens cause redirect loops
