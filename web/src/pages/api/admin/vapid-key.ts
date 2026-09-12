@@ -44,11 +44,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
         : dbConfig?.public_key
           ? dbConfig.public_key.slice(0, 12) + "…"
           : null,
-      masked_private_key: envPrivateKey
-        ? envPrivateKey.slice(0, 6) + "…"
-        : dbConfig?.private_key
-          ? dbConfig.private_key.slice(0, 6) + "…"
-          : null,
+
       subject: envSubject || dbConfig?.subject || null,
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }

@@ -40,16 +40,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
       has_secret_key: !!(envSecretKey || dbConfig?.secret_key),
       has_webhook_secret: !!(envWebhookSecret || dbConfig?.webhook_secret),
       has_price_id: !!(envPriceId || dbConfig?.price_id),
-      masked_secret_key: envSecretKey
-        ? envSecretKey.slice(0, 8) + "…"
-        : dbConfig?.secret_key
-          ? dbConfig.secret_key.slice(0, 8) + "…"
-          : null,
-      masked_webhook_secret: envWebhookSecret
-        ? envWebhookSecret.slice(0, 8) + "…"
-        : dbConfig?.webhook_secret
-          ? dbConfig.webhook_secret.slice(0, 8) + "…"
-          : null,
+
       price_id: envPriceId || dbConfig?.price_id || null,
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }
