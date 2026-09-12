@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 export type AdminAuth = {
   supabaseAdmin: ReturnType<typeof createClient>;
@@ -21,6 +22,11 @@ export type AdminAuthResult = AdminAuth | AdminAuthError;
 export async function getAdminClient(
   locals: App.Locals,
 ): Promise<AdminAuthResult> {
+  // Rate-Limit: 30 Requests pro User pro Minute
+  const userId = locals.user?.id || "anonymous";
+  const rl = checkRateLimit(`admin:${userId}`, 30, 60_000);
+  if (rl) return { error: "Zu viele Admin-Anfragen.", status: 429 };
+
   const user = locals.user;
   if (!user) return { error: "Nicht angemeldet.", status: 401 };
 

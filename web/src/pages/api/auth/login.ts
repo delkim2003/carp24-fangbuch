@@ -1,10 +1,16 @@
 import type { APIRoute } from "astro";
+import { checkRateLimit } from "../../../lib/rate-limit";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
+    // Rate-Limit: 5 Versuche pro IP pro 60s
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rateLimitResponse = checkRateLimit(`login:${ip}`, 5, 60_000);
+    if (rateLimitResponse) return rateLimitResponse;
+
     const { email, password, captchaToken } = await request.json();
 
     if (!email || !password) {

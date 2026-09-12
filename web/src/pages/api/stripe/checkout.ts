@@ -1,8 +1,13 @@
 import Stripe from "stripe";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 export const prerender = false;
 
 export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  // Rate-Limit: 10 Checkout-Versuche pro User pro Minute
+  const userId = locals.user?.id || "anonymous";
+  const rl = checkRateLimit(`stripe:${userId}`, 10, 60_000);
+  if (rl) return rl;
   const secretKey = import.meta.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     return new Response(JSON.stringify({ error: "Stripe ist noch nicht konfiguriert." }), {

@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 export const prerender = false;
 
 export async function POST({ request, locals }: { request: Request; locals: App.Locals }) {
+  // Rate-Limit: 3 Löschversuche pro User pro Stunde
+  const userId = locals.user?.id || "anonymous";
+  const rl = checkRateLimit(`delete:${userId}`, 3, 3_600_000);
+  if (rl) return rl;
   let user = locals.user;
   if (!user) {
     const authHeader = request.headers.get('authorization');
