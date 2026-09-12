@@ -1,3 +1,4 @@
+import { escHtml } from "../../../lib/escape";
 import { getAdminClient } from "./_auth";
 import crypto from "crypto";
 import { csrfGuard } from "./_csrf";
@@ -226,6 +227,17 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Input-Validierung
+  if (!body.id || !/^[0-9a-f-]{36}$/.test(body.id)) {
+    return new Response(JSON.stringify({ error: "Ungültige User-ID." }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
+  if (body.role && !["USER", "MODERATOR", "ADMIN"].includes(body.role)) {
+    return new Response(JSON.stringify({ error: "Ungültige Rolle." }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
+  if (body.ban_reason) {
+    body.ban_reason = escHtml(String(body.ban_reason).slice(0, 500));
   }
 
   if (!body.id) {
@@ -517,6 +529,17 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Input-Validierung
+  if (!body.id || !/^[0-9a-f-]{36}$/.test(body.id)) {
+    return new Response(JSON.stringify({ error: "Ungültige User-ID." }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
+  if (body.role && !["USER", "MODERATOR", "ADMIN"].includes(body.role)) {
+    return new Response(JSON.stringify({ error: "Ungültige Rolle." }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
+  if (body.ban_reason) {
+    body.ban_reason = escHtml(String(body.ban_reason).slice(0, 500));
   }
 
   if (!body.id) {
