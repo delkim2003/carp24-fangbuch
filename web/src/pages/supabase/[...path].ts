@@ -35,6 +35,9 @@ async function proxyRequest(request: Request, path: string) {
   if (anonKey && !headers.has("apikey")) {
     headers.set("apikey", anonKey);
   }
+  if (anonKey && !headers.has("authorization")) {
+    headers.set("authorization", "Bearer " + anonKey);
+  }
 
   let body: string | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {

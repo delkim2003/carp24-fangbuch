@@ -867,6 +867,7 @@ import { t } from "../lib/i18n";
       password: password,
       options: {
         captchaToken: turnstileToken,
+        emailRedirectTo: window.location.origin + "/auth/callback",
         data: {
           date_of_birth: dob,
           country: country,

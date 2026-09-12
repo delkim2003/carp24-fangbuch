@@ -4,6 +4,7 @@ import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  try {
   const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -35,4 +36,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     JSON.stringify({ success: true }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );
+  } catch (e: any) {
+    return new Response(
+      JSON.stringify({ error: e.message || "Logout failed" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 };
