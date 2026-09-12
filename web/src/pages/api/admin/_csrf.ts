@@ -2,6 +2,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8094",
   "http://100.93.250.103:8094",
   "http://100.93.250.103:8055",
+  "https://carp24.org",
 ];
 
 export function csrfGuard(request: Request): Response | null {

@@ -101,6 +101,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // CSRF: Origin-Check für state-changing Requests (POST/PUT/DELETE/PATCH)
+  // Ausnahmen: Auth-Routen (haben eigenen Schutz), Stripe-Webhook (Signature-Check), Supabase-Proxy (intern)
+  const method = context.request.method;
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
+    const skipPaths = ["/api/auth/", "/api/stripe/webhook", "/supabase/"];
+    const shouldCheck = !skipPaths.some(p => path.startsWith(p));
+    if (shouldCheck) {
+      const origin = context.request.headers.get("origin") || context.request.headers.get("referer") || "";
+      const allowed = ["https://carp24.org", "http://localhost:8094", "http://100.93.250.103:8094"];
+      const originOk = allowed.some(a => origin.startsWith(a));
+      if (!originOk && origin !== "") {
+        // Origin vorhanden aber nicht erlaubt → blockieren
+        return new Response(JSON.stringify({ error: "CSRF check failed" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...securityHeaders },
+        });
+      }
+      // Kein Origin = Browser-Form-Submit oder gleicher-Origin → erlauben (SameSite=Cookies schützen)
+    }
+  }
+
   const response = await next();
 
   for (const [key, value] of Object.entries(securityHeaders)) {
