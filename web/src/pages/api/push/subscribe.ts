@@ -14,6 +14,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     }
   }
 
+  const { createClient } = await import("@supabase/supabase-js");
+  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
       status: 401,
@@ -31,7 +34,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("push_subscriptions")
     .upsert({ user_id: user.id, endpoint, keys }, { onConflict: "endpoint" });
 

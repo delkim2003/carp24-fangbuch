@@ -78,7 +78,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const { data: subs } = await supabase
+  const { data: subs } = await supabaseAdmin
     .from("push_subscriptions")
     .select("endpoint, keys")
     .eq("user_id", ownerId);
