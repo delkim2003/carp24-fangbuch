@@ -1,6 +1,7 @@
 export const prerender = false;
 
-const SUPABASE_INTERNAL_URL = "http://supabase-kong:8000";
+// Nutze SUPABASE_URL (extern für Dev) oder PUBLIC_SUPABASE_URL (intern für Docker)
+const SUPABASE_INTERNAL_URL = process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL || "http://supabase-kong:8000";
 
 export async function GET({ request, params }: { request: Request; params: { path: string } }) {
   return proxyRequest(request, params.path);

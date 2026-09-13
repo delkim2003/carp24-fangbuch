@@ -7,7 +7,10 @@ set -a
 source .env
 set +a
 
-# Überschreibe PUBLIC_SUPABASE_URL für Host-Betrieb (Docker-Hostnamen nicht auflösbar)
+# Überschreibe URLs für Host-Betrieb (Docker-Hostnamen nicht auflösbar)
 export PUBLIC_SUPABASE_URL=http://100.93.250.103:8055
+export SUPABASE_URL=http://100.93.250.103:8055
+export HOST=0.0.0.0
+export PORT=8094
 
-HOST=0.0.0.0 PORT=8094 node dist/server/entry.mjs
+exec node dist/server/entry.mjs
