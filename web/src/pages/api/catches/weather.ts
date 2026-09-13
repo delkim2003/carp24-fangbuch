@@ -77,13 +77,10 @@ export const POST = async ({
     }
   );
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_pro")
-    .eq("id", user.id)
-    .single();
+  // Nutze isPro aus Middleware (bereits via Service-Role gecacht)
+  const isPro = (locals as any).isPro ?? false;
 
-  if (!profile?.is_pro) {
+  if (!isPro) {
     const now = Date.now();
     const lastRequest = freeRateLimitMap.get(user.id);
     if (lastRequest && now - lastRequest < 60_000) {

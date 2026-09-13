@@ -52,13 +52,11 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const userId = user.id;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_pro, role")
-    .eq("id", userId)
-    .single();
+  // Nutze isPro/role aus Middleware (bereits via Service-Role gecacht)
+  const isPro = (locals as any).isPro ?? false;
+  const userRole = (locals as any).role ?? "USER";
 
-  if (!profile?.is_pro) {
+  if (!isPro) {
     return new Response(
       JSON.stringify({ error: "Nur für Premium-Mitglieder verfügbar. Jetzt upgraden: /premium" }),
       { status: 403, headers: { "Content-Type": "application/json" } }
@@ -66,7 +64,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
 
   // Monthly usage limit: 50/month for Pro, admin bypasses
-  const isAdmin = profile?.role === "ADMIN";
+  const isAdmin = userRole === "ADMIN";
   let remaining = 999;
 
   if (!isAdmin) {
