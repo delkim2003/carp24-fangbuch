@@ -47,3 +47,4 @@ docs/*.log
 docs/*.out
 docs/*.toc
 docs/*.synctex.gz
+web/dependencies-audit-report.json
