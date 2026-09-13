@@ -170,8 +170,14 @@ if (createdAt) {
                     {t("profil.daten_text")}
                   </p>
                   <div class="flex flex-wrap gap-sm">
-                    <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.json_export", "de")} data-en={t("profil.json_export", "en")}>{t("profil.json_export")}</button>
-                    <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.csv_export", "de")} data-en={t("profil.csv_export", "en")}>{t("profil.csv_export")}</button>
+                    {isPro ? (
+                      <>
+                        <button type="button" id="export-json-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-surface-tint transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.json_export", "de")} data-en={t("profil.json_export", "en")}>{t("profil.json_export")}</button>
+                        <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.csv_export", "de")} data-en={t("profil.csv_export", "en")}>{t("profil.csv_export")}</button>
+                      </>
+                    ) : (
+                      <a href="/premium" class="text-primary text-body-md underline">Upgrade zu Premium für Daten-Export</a>
+                    )}
                   </div>
                   <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
                 </div>

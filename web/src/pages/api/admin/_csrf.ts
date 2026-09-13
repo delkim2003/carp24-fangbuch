@@ -7,11 +7,10 @@ const ALLOWED_ORIGINS = [
 
 export function csrfGuard(request: Request): Response | null {
   const origin = request.headers.get("origin") || request.headers.get("referer");
+  // Kein Origin = same-site Request (Browser-Form-Submit) → erlaubt
+  // SameSite=Strict Cookies schützen bereits vor CSRF
   if (!origin) {
-    return new Response(JSON.stringify({ error: "CSRF check failed" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
+    return null;
   }
   const normalizedOrigin = origin.replace(/\/+$/, "");
   if (

@@ -32,12 +32,6 @@ const userId = session.user.id;
     <div>
       <div class="flex items-center gap-3 mb-2">
         <p class="font-label-sm text-label-sm uppercase text-primary tracking-[0.15em] i18n" data-de={t("kicker.chat", "de")} data-en={t("kicker.chat", "en")}>{t("kicker.chat")}</p>
-        {!isPaid && (
-          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            50 Anfragen/Monat
-          </span>
-        )}
       </div>
       <h1 class="text-display-lg text-on-surface mb-2 i18n" data-de={t("chat.titel", "de")} data-en={t("chat.titel", "en")}>{t("chat.titel")}</h1>
     </div>
