@@ -13,64 +13,64 @@ if (!isAdmin) return Astro.redirect("/");
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
-      <h1 class="text-headline-lg text-on-surface">REVENUE</h1>
+      <h1 class="text-headline-lg text-on-surface" data-de="REVENUE" data-en="REVENUE">REVENUE</h1>
     </div>
 
     <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Revenue'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
-      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
-      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Revenue</a>
-      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/" data-de="Übersicht" data-en="Overview" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/reports/" data-de="Reports" data-en="Reports" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
+      <a href="/admin/users/" data-de="Nutzer" data-en="Users" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
+      <a href="/admin/content/" data-de="Inhalte" data-en="Content" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/revenue/" data-de="Revenue" data-en="Revenue" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Revenue</a>
+      <a href="/admin/audit/" data-de="Audit" data-en="Audit" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
+      <a href="/admin/notifications/" data-de="Benachrichtigungen" data-en="Notifications" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
+      <a href="/admin/settings/" data-de="Einstellungen" data-en="Settings" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
     </nav>
 
     <div id="kpi-grid" class="grid grid-cols-2 md:grid-cols-4 gap-gutter w-full mb-xl">
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">MRR (Monatlicher Umsatz)</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm" data-de="MRR (Monatlicher Umsatz)" data-en="MRR (Monthly Revenue)">MRR (Monatlicher Umsatz)</p>
         <p class="text-headline-lg text-on-surface font-mono" data-kpi="mrr">–</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktive Abonnenten</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm" data-de="Aktive Abonnenten" data-en="Active Subscribers">Aktive Abonnenten</p>
         <p class="text-headline-lg text-on-surface" data-kpi="activeSubscribers">–</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Abwanderung (30 Tage)</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm" data-de="Abwanderung (30 Tage)" data-en="Churn (30 Days)">Abwanderung (30 Tage)</p>
         <p class="text-headline-lg text-on-surface" data-kpi="churnRate">–</p>
       </div>
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Conversion zu Pro</p>
+        <p class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm" data-de="Conversion zu Pro" data-en="Conversion to Pro">Conversion zu Pro</p>
         <p class="text-headline-lg text-on-surface" data-kpi="conversionRate">–</p>
       </div>
     </div>
 
     <div class="w-full mb-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Events</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Stripe-Events" data-en="Stripe Events">Stripe-Events</h2>
       <div id="stripe-section" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <Skeleton variant="card" count={1} />
       </div>
     </div>
 
     <div class="w-full mb-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Status</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Stripe-Status" data-en="Stripe Status">Stripe-Status</h2>
       <div id="stripe-events-table" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <Skeleton variant="card" count={1} />
       </div>
     </div>
 
     <div class="w-full">
-      <h2 class="text-headline-md text-on-surface mb-lg">Pro-User-Liste</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Pro-User-Liste" data-en="Pro User List">Pro-User-Liste</h2>
       <div class="w-full overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-outline/20">
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Name</th>
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
-              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Name" data-en="Name">Name</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="E-Mail" data-en="Email">E-Mail</th>
+              <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Registriert" data-en="Registered">Registriert</th>
             </tr>
           </thead>
           <tbody id="pro-users-body">

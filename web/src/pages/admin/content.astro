@@ -14,27 +14,27 @@ if (!isAdmin) return Astro.redirect("/");
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
-      <h1 class="text-headline-lg text-on-surface">INHALTE</h1>
+      <h1 class="text-headline-lg text-on-surface" data-de="INHALTE" data-en="CONTENT">INHALTE</h1>
     </div>
 
     <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Inhalte'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
-      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Inhalte</a>
-      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
-      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Übersicht" data-en="Overview">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Reports" data-en="Reports">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Nutzer" data-en="Users">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center" data-de="Inhalte" data-en="Content">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Revenue" data-en="Revenue">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Audit" data-en="Audit">Audit</a>
+      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Benachrichtigungen" data-en="Notifications">Benachrichtigungen</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Einstellungen" data-en="Settings">Einstellungen</a>
     </nav>
 
     <div class="flex gap-3 mb-lg flex-wrap">
-      <button id="tab-catch" type="button" data-type="catch" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer">Fänge</button>
-      <button id="tab-forum" type="button" data-type="forum" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Forum</button>
-      <button id="tab-chat" type="button" data-type="chat" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Chat</button>
-      <button id="tab-marketplace" type="button" data-type="marketplace" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Marktplatz</button>
+      <button id="tab-catch" type="button" data-type="catch" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-11 flex items-center cursor-pointer" data-de="Fänge" data-en="Catches">Fänge</button>
+      <button id="tab-forum" type="button" data-type="forum" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer" data-de="Forum" data-en="Forum">Forum</button>
+      <button id="tab-chat" type="button" data-type="chat" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer" data-de="Chat" data-en="Chat">Chat</button>
+      <button id="tab-marketplace" type="button" data-type="marketplace" class="content-tab font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer" data-de="Marktplatz" data-en="Marketplace">Marktplatz</button>
     </div>
 
     <div class="w-full mb-md flex gap-3 items-center">
@@ -62,8 +62,8 @@ if (!isAdmin) return Astro.redirect("/");
   <div id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
     <div class="bg-surface-container-lowest rounded-xl p-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-lg">
-        <h2 class="text-headline-sm text-on-surface" id="edit-modal-title">Inhalt bearbeiten</h2>
-        <button type="button" id="edit-modal-close" class="text-on-surface-variant hover:text-on-surface cursor-pointer p-1" aria-label="Schliessen">
+        <h2 class="text-headline-sm text-on-surface" id="edit-modal-title" data-de="Inhalt bearbeiten" data-en="Edit Content">Inhalt bearbeiten</h2>
+        <button type="button" id="edit-modal-close" class="text-on-surface-variant hover:text-on-surface cursor-pointer p-1" aria-label="Schliessen" data-de="Schliessen" data-en="Close">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -71,9 +71,9 @@ if (!isAdmin) return Astro.redirect("/");
         <!-- Dynamic form fields rendered by JS -->
       </div>
       <div class="flex justify-end gap-3 mt-lg">
-        <button type="button" id="edit-modal-cancel" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-container-high transition-colors min-h-12 flex items-center cursor-pointer">Abbrechen</button>
+        <button type="button" id="edit-modal-cancel" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-container-high transition-colors min-h-12 flex items-center cursor-pointer" data-de="Abbrechen" data-en="Cancel">Abbrechen</button>
         <button type="button" id="edit-modal-save" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-primary text-on-primary hover:opacity-90 transition-colors min-h-12 flex items-center cursor-pointer gap-2">
-          <span id="edit-modal-save-text">Speichern</span>
+          <span id="edit-modal-save-text" data-de="Speichern" data-en="Save">Speichern</span>
           <svg id="edit-modal-spinner" class="w-4 h-4 hidden animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
         </button>
       </div>

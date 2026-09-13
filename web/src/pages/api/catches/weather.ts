@@ -95,18 +95,6 @@ export const POST = async ({
     freeRateLimitMap.set(user.id, now);
   }
 
-  if (!profile?.is_pro) {
-    const now = Date.now();
-    const lastRequest = freeRateLimitMap.get(user.id);
-    if (lastRequest && now - lastRequest < 60_000) {
-      return new Response(
-        JSON.stringify({ error: "Bitte kurz warten (Free-Limit)." }),
-        { status: 429, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    freeRateLimitMap.set(user.id, now);
-  }
-
   let body: { catch_id?: string; lat?: number; lng?: number; catch_ts?: string };
   try {
     body = await request.json();

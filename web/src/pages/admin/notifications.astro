@@ -11,28 +11,28 @@ if (!isAdmin) return Astro.redirect("/");
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
-      <h1 class="text-headline-lg text-on-surface">ADMIN-BENACHRICHTIGUNGEN</h1>
+      <h1 class="text-headline-lg text-on-surface" data-de="ADMIN-BENACHRICHTIGUNGEN" data-en="ADMIN NOTIFICATIONS">ADMIN-BENACHRICHTIGUNGEN</h1>
     </div>
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
-      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
-      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
-      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Übersicht" data-en="Overview">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Reports" data-en="Reports">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Nutzer" data-en="Users">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Inhalte" data-en="Content">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Revenue" data-en="Revenue">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Audit" data-en="Audit">Audit</a>
+      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Benachrichtigungen" data-en="Notifications">Benachrichtigungen</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Einstellungen" data-en="Settings">Einstellungen</a>
     </nav>
 
     <div class="w-full max-w-2xl">
       <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <h2 class="text-headline-md text-on-surface mb-lg">Push-Benachrichtigung senden</h2>
+        <h2 class="text-headline-md text-on-surface mb-lg" data-de="Push-Benachrichtigung senden" data-en="Send Push Notification">Push-Benachrichtigung senden</h2>
 
         <form id="notify-form" class="flex flex-col gap-lg">
           <!-- Title -->
           <div>
-            <label for="title" class="font-label-sm text-label-sm text-on-surface block mb-xs">Titel</label>
+            <label for="title" class="font-label-sm text-label-sm text-on-surface block mb-xs" data-de="Titel" data-en="Title">Titel</label>
             <input
               type="text"
               id="title"
@@ -41,12 +41,14 @@ if (!isAdmin) return Astro.redirect("/");
               maxlength="128"
               class="w-full px-4 py-3 rounded-xl bg-surface-container-highest text-on-surface border border-outline/20 focus:outline-none focus:border-primary placeholder:text-on-surface-variant"
               placeholder="z. B. Wartungsarbeiten"
+              data-de="z. B. Wartungsarbeiten"
+              data-en="e.g. Maintenance"
             />
           </div>
 
           <!-- Body -->
           <div>
-            <label for="body" class="font-label-sm text-label-sm text-on-surface block mb-xs">Nachricht</label>
+            <label for="body" class="font-label-sm text-label-sm text-on-surface block mb-xs" data-de="Nachricht" data-en="Message">Nachricht</label>
             <textarea
               id="body"
               name="body"
@@ -55,29 +57,31 @@ if (!isAdmin) return Astro.redirect("/");
               rows="4"
               class="w-full px-4 py-3 rounded-xl bg-surface-container-highest text-on-surface border border-outline/20 focus:outline-none focus:border-primary placeholder:text-on-surface-variant resize-none"
               placeholder="z. B. Die App ist heute Abend von 22:00–23:00 Uhr wegen Wartungsarbeiten nicht erreichbar."
+              data-de="z. B. Die App ist heute Abend von 22:00–23:00 Uhr wegen Wartungsarbeiten nicht erreichbar."
+              data-en="e.g. The app is unavailable tonight from 10:00 PM to 11:00 PM due to maintenance."
             ></textarea>
           </div>
 
           <!-- Filter: Role -->
           <div>
-            <label for="role-filter" class="font-label-sm text-label-sm text-on-surface block mb-xs">Empfänger-Rolle (optional)</label>
+            <label for="role-filter" class="font-label-sm text-label-sm text-on-surface block mb-xs" data-de="Empfänger-Rolle (optional)" data-en="Recipient Role (optional)">Empfänger-Rolle (optional)</label>
             <select
               id="role-filter"
               name="role-filter"
               class="w-full px-4 py-3 rounded-xl bg-surface-container-highest text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
             >
-              <option value="">Alle Rollen</option>
-              <option value="USER">Nur USER</option>
-              <option value="MODERATOR">Nur MODERATOR</option>
-              <option value="ADMIN">Nur ADMIN</option>
+              <option value="" data-de="Alle Rollen" data-en="All Roles">Alle Rollen</option>
+              <option value="USER" data-de="Nur USER" data-en="USER only">Nur USER</option>
+              <option value="MODERATOR" data-de="Nur MODERATOR" data-en="MODERATOR only">Nur MODERATOR</option>
+              <option value="ADMIN" data-de="Nur ADMIN" data-en="ADMIN only">Nur ADMIN</option>
             </select>
           </div>
 
           <!-- Filter: is_pro -->
           <div class="flex items-center justify-between">
             <div>
-              <p class="font-label-sm text-label-sm text-on-surface">Nur Pro-Benutzer</p>
-              <p class="text-body-sm text-on-surface-variant">Beschränkt auf Premium-Mitglieder</p>
+              <p class="font-label-sm text-label-sm text-on-surface" data-de="Nur Pro-Benutzer" data-en="Pro Users only">Nur Pro-Benutzer</p>
+              <p class="text-body-sm text-on-surface-variant" data-de="Beschränkt auf Premium-Mitglieder" data-en="Limited to Premium Members">Beschränkt auf Premium-Mitglieder</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="pro-filter" class="sr-only peer" />
@@ -91,6 +95,8 @@ if (!isAdmin) return Astro.redirect("/");
               type="submit"
               id="send-btn"
               class="font-nav-item text-nav-item uppercase tracking-widest px-8 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              data-de="SENDEN"
+              data-en="SEND"
             >
               SENDEN
             </button>
@@ -101,10 +107,10 @@ if (!isAdmin) return Astro.redirect("/");
 
       <!-- History -->
       <div class="mt-xl">
-        <h2 class="text-headline-md text-on-surface mb-lg">Verlauf</h2>
+        <h2 class="text-headline-md text-on-surface mb-lg" data-de="Verlauf" data-en="History">Verlauf</h2>
         <div id="history-loading"><div style="padding:16px;background:linear-gradient(90deg,rgba(128,128,128,0.06) 25%,rgba(128,128,128,0.12) 50%,rgba(128,128,128,0.06) 75%);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:12px;display:flex;flex-direction:column;gap:10px"><div style="height:12px;width:30%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-bottom:4px"></div><div style="height:16px;width:60%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:14px;width:40%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-top:8px"></div></div><div style="padding:16px;background:linear-gradient(90deg,rgba(128,128,128,0.06) 25%,rgba(128,128,128,0.12) 50%,rgba(128,128,128,0.06) 75%);background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:12px;display:flex;flex-direction:column;gap:10px;margin-top:12px"><div style="height:12px;width:25%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-bottom:4px"></div><div style="height:16px;width:70%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px"></div><div style="height:14px;width:50%;background:inherit;background-size:468px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:4px;margin-top:8px"></div></div></div>
         <div id="history-list" class="hidden space-y-md"></div>
-        <div id="history-empty" class="hidden text-body-md text-on-surface-variant">Noch keine Benachrichtigungen gesendet.</div>
+        <div id="history-empty" class="hidden text-body-md text-on-surface-variant" data-de="Noch keine Benachrichtigungen gesendet." data-en="No notifications sent yet.">Noch keine Benachrichtigungen gesendet.</div>
       </div>
     </div>
   </main>

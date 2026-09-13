@@ -10,8 +10,6 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 ---
 
 <Layout title="Carp24 – Statistik" active="statistik" noindex>
-  <meta name="ssr-access" content={session.access_token} />
-  <meta name="ssr-refresh" content={session.refresh_token} />
   <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -719,18 +717,12 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
   // Ensure session is available, then load data
   (async () => {
     try {
-      // Wait for createBrowserClient to initialize from cookies
       await new Promise(r => setTimeout(r, 100));
       let { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        const accMeta = document.querySelector('meta[name="ssr-access"]');
-        const refMeta = document.querySelector('meta[name="ssr-refresh"]');
-        if (accMeta && refMeta) {
-          await supabase.auth.setSession({
-            access_token: accMeta.getAttribute('content'),
-            refresh_token: refMeta.getAttribute('content')
-          });
-        }
+        // Kein Session-Cookie → Login erforderlich
+        window.location.href = '/login';
+        return;
       }
       await refresh();
     } catch(e) { console.warn('Init error:', e); }

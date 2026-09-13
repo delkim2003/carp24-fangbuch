@@ -14,25 +14,25 @@ if (!isAdmin) return Astro.redirect("/");
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
-      <h1 class="text-headline-lg text-on-surface">AUDIT-LOG</h1>
+      <h1 class="text-headline-lg text-on-surface" data-de="AUDIT-LOG" data-en="AUDIT LOG">AUDIT-LOG</h1>
     </div>
 
     <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Audit'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
-      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
-      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
-      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Übersicht" data-en="Overview">Übersicht</a>
+      <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Reports" data-en="Reports">Reports</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Nutzer" data-en="Users">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Inhalte" data-en="Content">Inhalte</a>
+      <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Revenue" data-en="Revenue">Revenue</a>
+      <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center" data-de="Audit" data-en="Audit">Audit</a>
+      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Benachrichtigungen" data-en="Notifications">Benachrichtigungen</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Einstellungen" data-en="Settings">Einstellungen</a>
     </nav>
 
     <div class="w-full flex flex-wrap items-center gap-3 mb-lg">
       <select id="filter-action" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
-        <option value="">Alle Aktionen</option>
+        <option value="" data-de="Alle Aktionen" data-en="All Actions">Alle Aktionen</option>
         <option value="user.role">user.role</option>
         <option value="user.pro">user.pro</option>
         <option value="user.ban">user.ban</option>
@@ -45,19 +45,19 @@ if (!isAdmin) return Astro.redirect("/");
       <input type="date" id="filter-date-from" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
       <span class="text-on-surface-variant text-body-md">–</span>
       <input type="date" id="filter-date-to" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
-      <button id="filter-apply-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer">Anwenden</button>
-      <button id="filter-clear-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors min-h-12 flex items-center cursor-pointer">Zurücksetzen</button>
+      <button id="filter-apply-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer" data-de="Anwenden" data-en="Apply">Anwenden</button>
+      <button id="filter-clear-btn" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-error-container hover:text-on-error-container transition-colors min-h-12 flex items-center cursor-pointer" data-de="Zurücksetzen" data-en="Reset">Zurücksetzen</button>
     </div>
 
     <div class="w-full overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-outline/20">
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Zeit</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Admin</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Ziel</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Details</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Zeit" data-en="Time">Zeit</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Admin" data-en="Admin">Admin</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Aktion" data-en="Action">Aktion</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Ziel" data-en="Target">Ziel</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Details" data-en="Details">Details</th>
           </tr>
         </thead>
         <tbody id="audit-body">

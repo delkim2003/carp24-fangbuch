@@ -2,6 +2,10 @@ import { defineMiddleware } from "astro:middleware";
 import { createSSRClient, createServiceClient } from "./lib/ssr-client";
 import { getMaintenance } from "./lib/settings";
 
+// Profile Cache: 30s TTL, reduziert DB-Queries bei jedem Request
+const profileCache = new Map<string, { role: string; isPro: boolean; ts: number }>();
+const PROFILE_TTL = 30_000;
+
 const securityHeaders: Record<string, string> = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
@@ -38,14 +42,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // T1: getSession() removed — getUser() validates JWT already
 
     if (user) {
-      const adminSb = createServiceClient();
-      const { data: profile } = await adminSb
-        .from("profiles")
-        .select("role, is_pro")
-        .eq("id", user.id)
-        .single();
-      role = profile?.role ?? "USER";
-      isPro = profile?.is_pro ?? false;
+      const cached = profileCache.get(user.id);
+      if (cached && Date.now() - cached.ts < PROFILE_TTL) {
+        role = cached.role;
+        isPro = cached.isPro;
+      } else {
+        const adminSb = createServiceClient();
+        const { data: profile } = await adminSb
+          .from("profiles")
+          .select("role, is_pro")
+          .eq("id", user.id)
+          .single();
+        role = profile?.role ?? "USER";
+        isPro = profile?.is_pro ?? false;
+        profileCache.set(user.id, { role, isPro, ts: Date.now() });
+      }
     }
   } catch (err) {
     // Auth/DB fehlgeschlagen — App läuft ohne User weiter
@@ -99,7 +110,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (shouldCheck) {
       const origin = context.request.headers.get("origin") || context.request.headers.get("referer") || "";
       const allowed = ["https://carp24.org", "http://localhost:8094", "http://100.93.250.103:8094"];
-      const originOk = allowed.some(a => origin.startsWith(a));
+      const originOk = allowed.some(a => origin === a || origin.startsWith(a + "/"));
       if (!originOk && origin !== "") {
         // Origin vorhanden aber nicht erlaubt → blockieren
         return new Response(JSON.stringify({ error: "CSRF check failed" }), {

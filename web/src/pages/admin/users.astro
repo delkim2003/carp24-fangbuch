@@ -20,28 +20,28 @@ if (!isAdmin) return Astro.redirect("/");
     <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Nutzer'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Übersicht" data-en="Overview">Übersicht</a>
       <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center" data-de="Nutzer" data-en="Users">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Inhalte" data-en="Content">Inhalte</a>
       <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
       <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Benachrichtigungen" data-en="Notifications">Benachrichtigungen</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Einstellungen" data-en="Settings">Einstellungen</a>
     </nav>
 
     <div class="w-full flex flex-wrap gap-3 mb-lg">
-      <input id="search-input" type="text" placeholder="Name / E-Mail suchen…" class="flex-1 min-w-48 max-w-md bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 placeholder:text-on-surface-variant/60 min-h-12" />
+      <input id="search-input" type="text" placeholder="Name / E-Mail suchen…" data-de="Name / E-Mail suchen…" data-en="Search name / email…" class="flex-1 min-w-48 max-w-md bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 placeholder:text-on-surface-variant/60 min-h-12" />
       <select id="filter-role" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
-        <option value="">Alle Rollen</option>
+        <option value="" data-de="Alle Rollen" data-en="All Roles">Alle Rollen</option>
         <option value="USER">USER</option>
         <option value="MODERATOR">MODERATOR</option>
         <option value="ADMIN">ADMIN</option>
       </select>
       <select id="filter-status" class="bg-surface-container-highest text-on-surface rounded-full px-4 py-3 text-body-md border border-outline/20 min-h-12 cursor-pointer">
-        <option value="">Alle Status</option>
-        <option value="active">AKTIV</option>
-        <option value="banned">GEBANNT</option>
+        <option value="" data-de="Alle Status" data-en="All Status">Alle Status</option>
+        <option value="active" data-de="AKTIV" data-en="ACTIVE">AKTIV</option>
+        <option value="banned" data-de="GEBANNT" data-en="BANNED">GEBANNT</option>
         <option value="pro">PRO</option>
       </select>
       <a href="/api/admin/users?action=export" download class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-3 rounded-full bg-primary text-on-primary min-h-12 flex items-center cursor-pointer hover:opacity-90 transition-colors gap-2">
@@ -57,15 +57,15 @@ if (!isAdmin) return Astro.redirect("/");
             <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4 w-12">
               <input type="checkbox" id="select-all" class="w-5 h-5 accent-primary cursor-pointer" />
             </th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Name</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">E-Mail</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Rolle</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">PRO</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Status</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Meldungen</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Registriert</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Letzter Login</th>
-            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4">Aktion</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Name" data-en="Name">Name</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="E-Mail" data-en="Email">E-Mail</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Rolle" data-en="Role">Rolle</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="PRO" data-en="PRO">PRO</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Status" data-en="Status">Status</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Meldungen" data-en="Reports">Meldungen</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Registriert" data-en="Registered">Registriert</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Letzter Login" data-en="Last Login">Letzter Login</th>
+            <th class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant py-3 px-4" data-de="Aktion" data-en="Action">Aktion</th>
           </tr>
         </thead>
         <tbody id="users-body">
@@ -79,9 +79,9 @@ if (!isAdmin) return Astro.redirect("/");
         <div class="bg-surface-container-highest border border-outline/20 rounded-t-xl shadow-2xl p-4 flex items-center justify-between gap-4">
           <span id="bulk-count" class="font-label-sm text-label-sm text-on-surface"></span>
           <div class="flex items-center gap-3">
-            <button id="bulk-ban" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl Bannen</button>
-            <button id="bulk-delete" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl Löschen</button>
-            <button id="bulk-deselect" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-high text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors">Auswahl aufheben</button>
+            <button id="bulk-ban" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-de="Auswahl Bannen" data-en="Ban Selection">Auswahl Bannen</button>
+            <button id="bulk-delete" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-de="Auswahl Löschen" data-en="Delete Selection">Auswahl Löschen</button>
+            <button id="bulk-deselect" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-high text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-de="Auswahl aufheben" data-en="Deselect All">Auswahl aufheben</button>
           </div>
         </div>
       </div>
@@ -94,8 +94,8 @@ if (!isAdmin) return Astro.redirect("/");
     <div id="user-feed-drawer" class="fixed top-0 right-0 h-full w-full max-w-xl bg-surface-container-lowest border-l border-outline/20 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 overflow-y-auto">
       <div class="p-lg">
         <div class="flex justify-between items-center mb-xl">
-          <h2 class="text-headline-md text-on-surface">Nutzer-Details</h2>
-          <button id="close-drawer" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer">Schliessen</button>
+          <h2 class="text-headline-md text-on-surface" data-de="Nutzer-Details" data-en="User Details">Nutzer-Details</h2>
+          <button id="close-drawer" type="button" class="font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer" data-de="Schliessen" data-en="Close">Schliessen</button>
         </div>
         <div id="feed-content">
           <Skeleton variant="drawer-card" />

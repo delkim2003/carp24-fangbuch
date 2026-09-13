@@ -13,43 +13,43 @@ if (!isAdmin) return Astro.redirect("/");
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
-      <h1 class="text-headline-lg text-on-surface">ADMIN-EINSTELLUNGEN</h1>
+      <h1 class="text-headline-lg text-on-surface" data-de="ADMIN-EINSTELLUNGEN" data-en="ADMIN SETTINGS">ADMIN-EINSTELLUNGEN</h1>
     </div>
 
     <Breadcrumb items={[{label: 'Admin', href: '/admin/'}, {label: 'Einstellungen'}]} />
 
     <nav class="flex gap-4 mb-xl flex-wrap">
-      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Übersicht</a>
+      <a href="/admin/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Übersicht" data-en="Overview">Übersicht</a>
       <a href="/admin/reports/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Reports</a>
-      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Nutzer</a>
-      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Inhalte</a>
+      <a href="/admin/users/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Nutzer" data-en="Users">Nutzer</a>
+      <a href="/admin/content/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Inhalte" data-en="Content">Inhalte</a>
       <a href="/admin/revenue/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Revenue</a>
       <a href="/admin/audit/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Audit</a>
-      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center">Benachrichtigungen</a>
-      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center">Einstellungen</a>
+      <a href="/admin/notifications/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-12 flex items-center" data-de="Benachrichtigungen" data-en="Notifications">Benachrichtigungen</a>
+      <a href="/admin/settings/" class="font-nav-item text-nav-item uppercase tracking-widest px-4 py-2 rounded-full bg-primary text-on-primary min-h-12 flex items-center" data-de="Einstellungen" data-en="Settings">Einstellungen</a>
     </nav>
 
     <div class="w-full">
-      <h2 class="text-headline-md text-on-surface mb-lg">Feature-Flags</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Feature-Flags" data-en="Feature Flags">Feature-Flags</h2>
       <div id="feature-flags-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <div id="flags-loading"><Skeleton variant="card" count={1} /></div>
         <div id="flags-list" class="space-y-lg hidden"></div>
         <div id="save-row" class="hidden mt-lg pt-lg border-t border-outline/20">
-          <button id="save-flags" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90">SPEICHERN</button>
+          <button id="save-flags" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90" data-de="SPEICHERN" data-en="SAVE">SPEICHERN</button>
           <span id="save-feedback" class="text-body-sm text-on-surface-variant ml-md hidden"></span>
         </div>
       </div>
     </div>
 
     <div class="w-full mt-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">KI-Assistent</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="KI-Assistent" data-en="AI Assistant">KI-Assistent</h2>
       <div id="openrouter-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <div class="flex items-center gap-md mb-md">
           <span id="openrouter-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
           <span id="openrouter-hint" class="text-body-sm text-on-surface-variant"></span>
         </div>
         <div class="mb-md">
-          <label for="openrouter-key-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">OpenRouter API-Key</label>
+          <label for="openrouter-key-input" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block" data-de="OpenRouter API-Key" data-en="OpenRouter API Key">OpenRouter API-Key</label>
           <div class="flex gap-sm items-stretch">
             <input
               id="openrouter-key-input"
@@ -58,18 +58,18 @@ if (!isAdmin) return Astro.redirect("/");
               placeholder="sk-or-..."
               autocomplete="off"
             />
-            <button id="openrouter-toggle-visibility" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+            <button id="openrouter-toggle-visibility" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen" data-de="Key anzeigen/verbergen" data-en="Show/Hide Key">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
             </button>
           </div>
-          <p class="text-body-sm text-on-surface-variant mt-xs">Der Key wird verschlüsselt in der Datenbank gespeichert. Überschreibt den Wert aus der .env-Datei.</p>
+          <p class="text-body-sm text-on-surface-variant mt-xs" data-de="Der Key wird verschlüsselt in der Datenbank gespeichert. Überschreibt den Wert aus der .env-Datei." data-en="The key is stored encrypted in the database. Overrides the value from the .env file.">Der Key wird verschlüsselt in der Datenbank gespeichert. Überschreibt den Wert aus der .env-Datei.</p>
         </div>
         <div class="flex items-center gap-md">
-          <button id="openrouter-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
-          <button id="openrouter-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <button id="openrouter-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="SPEICHERN" data-en="SAVE">SPEICHERN</button>
+          <button id="openrouter-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="LÖSCHEN" data-en="DELETE">LÖSCHEN</button>
           <span id="openrouter-feedback" class="text-body-sm ml-md hidden"></span>
         </div>
       </div>
@@ -77,20 +77,20 @@ if (!isAdmin) return Astro.redirect("/");
 
     <!-- AI-Nutzung Reset -->
     <div class="w-full mt-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">KI-Nutzung zurücksetzen</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="KI-Nutzung zurücksetzen" data-en="Reset AI Usage">KI-Nutzung zurücksetzen</h2>
       <div id="ai-usage-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
-        <p class="text-body-md text-on-surface-variant mb-md">Monatliche KI-Anfragen für einen Nutzer zurücksetzen (aktuell 50/Monat).</p>
+        <p class="text-body-md text-on-surface-variant mb-md" data-de="Monatliche KI-Anfragen für einen Nutzer zurücksetzen (aktuell 50/Monat)." data-en="Reset monthly AI requests for a user (currently 50/month).">Monatliche KI-Anfragen für einen Nutzer zurücksetzen (aktuell 50/Monat).</p>
         <div class="flex gap-sm items-end">
           <div class="flex-1">
-            <label for="ai-reset-email" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block">E-Mail des Nutzers</label>
-            <input id="ai-reset-email" type="email" placeholder="nutzer@email.de"
+            <label for="ai-reset-email" class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm block" data-de="E-Mail des Nutzers" data-en="User Email">E-Mail des Nutzers</label>
+            <input id="ai-reset-email" type="email" placeholder="nutzer@email.de" data-de="nutzer@email.de" data-en="user@email.com"
               class="w-full bg-surface-container-highest text-on-surface rounded-xl px-lg py-md border border-outline/20 focus:border-primary focus:outline-none text-body-md" />
           </div>
           <button id="ai-reset-btn" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 cursor-pointer">RESET</button>
         </div>
         <div id="ai-reset-feedback" class="text-body-sm mt-sm hidden"></div>
         <div id="ai-usage-list" class="mt-lg pt-lg border-t border-outline/20 hidden">
-          <h3 class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm">Aktuelle Nutzung</h3>
+          <h3 class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-sm" data-de="Aktuelle Nutzung" data-en="Current Usage">Aktuelle Nutzung</h3>
           <div id="ai-usage-table"></div>
         </div>
       </div>
@@ -98,7 +98,7 @@ if (!isAdmin) return Astro.redirect("/");
 
     <!-- Stripe-Zahlungen -->
     <div class="w-full mt-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">Stripe-Zahlungen</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Stripe-Zahlungen" data-en="Stripe Payments">Stripe-Zahlungen</h2>
       <div id="stripe-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <div class="flex items-center gap-md mb-md">
           <span id="stripe-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
@@ -115,7 +115,7 @@ if (!isAdmin) return Astro.redirect("/");
                 placeholder="sk_test_..."
                 autocomplete="off"
               />
-              <button id="stripe-toggle-secret" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+              <button id="stripe-toggle-secret" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen" data-de="Key anzeigen/verbergen" data-en="Show/Hide Key">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -133,7 +133,7 @@ if (!isAdmin) return Astro.redirect("/");
                 placeholder="whsec_..."
                 autocomplete="off"
               />
-              <button id="stripe-toggle-webhook" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+              <button id="stripe-toggle-webhook" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen" data-de="Key anzeigen/verbergen" data-en="Show/Hide Key">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -151,11 +151,11 @@ if (!isAdmin) return Astro.redirect("/");
             placeholder="price_..."
             autocomplete="off"
           />
-          <p class="text-body-sm text-on-surface-variant mt-xs">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
+          <p class="text-body-sm text-on-surface-variant mt-xs" data-de="Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei." data-en="The keys are stored encrypted in the database. Overrides values from the .env file.">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
         </div>
         <div class="flex items-center gap-md">
-          <button id="stripe-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
-          <button id="stripe-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <button id="stripe-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="SPEICHERN" data-en="SAVE">SPEICHERN</button>
+          <button id="stripe-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="LÖSCHEN" data-en="DELETE">LÖSCHEN</button>
           <span id="stripe-feedback" class="text-body-sm ml-md hidden"></span>
         </div>
       </div>
@@ -163,7 +163,7 @@ if (!isAdmin) return Astro.redirect("/");
 
     <!-- Push-Benachrichtigungen (VAPID) -->
     <div class="w-full mt-xl">
-      <h2 class="text-headline-md text-on-surface mb-lg">Push-Benachrichtigungen (VAPID)</h2>
+      <h2 class="text-headline-md text-on-surface mb-lg" data-de="Push-Benachrichtigungen (VAPID)" data-en="Push Notifications (VAPID)">Push-Benachrichtigungen (VAPID)</h2>
       <div id="vapid-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
         <div class="flex items-center gap-md mb-md">
           <span id="vapid-badge" class="inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest">–</span>
@@ -180,7 +180,7 @@ if (!isAdmin) return Astro.redirect("/");
                 placeholder="BN..."
                 autocomplete="off"
               />
-              <button id="vapid-toggle-public" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+              <button id="vapid-toggle-public" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen" data-de="Key anzeigen/verbergen" data-en="Show/Hide Key">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -198,7 +198,7 @@ if (!isAdmin) return Astro.redirect("/");
                 placeholder="..."
                 autocomplete="off"
               />
-              <button id="vapid-toggle-private" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen">
+              <button id="vapid-toggle-private" type="button" class="bg-surface-container-highest text-on-surface-variant rounded-xl px-3 border border-outline/20 hover:bg-surface-container-high transition-colors cursor-pointer" title="Key anzeigen/verbergen" data-de="Key anzeigen/verbergen" data-en="Show/Hide Key">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -216,11 +216,11 @@ if (!isAdmin) return Astro.redirect("/");
             placeholder="mailto:info@..."
             autocomplete="off"
           />
-          <p class="text-body-sm text-on-surface-variant mt-xs">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
+          <p class="text-body-sm text-on-surface-variant mt-xs" data-de="Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei." data-en="The keys are stored encrypted in the database. Overrides values from the .env file.">Die Keys werden verschlüsselt in der Datenbank gespeichert. Überschreibt Werte aus der .env-Datei.</p>
         </div>
         <div class="flex items-center gap-md">
-          <button id="vapid-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">SPEICHERN</button>
-          <button id="vapid-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">LÖSCHEN</button>
+          <button id="vapid-save" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="SPEICHERN" data-en="SAVE">SPEICHERN</button>
+          <button id="vapid-clear" class="font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-11 transition-colors bg-error-container text-on-error-container hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" data-de="LÖSCHEN" data-en="DELETE">LÖSCHEN</button>
           <span id="vapid-feedback" class="text-body-sm ml-md hidden"></span>
         </div>
       </div>
