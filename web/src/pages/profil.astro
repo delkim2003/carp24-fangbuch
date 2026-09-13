@@ -13,6 +13,7 @@ if (!session) return Astro.redirect("/login/");
 let catchCount = 0;
 let heaviestKg: string | null = null;
 let waterCount = 0;
+let isPro = false;
 let badges: any[] = [];
 let earnedBadgeIds: Set<string> = new Set();
 
@@ -21,7 +22,7 @@ if (session) {
     .from("catches")
     .select("weight_kg, water_name")
     .is("deleted_at", null)
-    .eq("draft", false);
+    .eq("draft", false).eq("user_id", session.user.id);
 
   if (catches && catches.length > 0) {
     catchCount = catches.length;
@@ -47,6 +48,13 @@ if (session) {
     .select("badge_id")
     .eq("user_id", session.user.id);
   if (userBadges) earnedBadgeIds = new Set(userBadges.map((ub: any) => ub.badge_id));
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_pro")
+    .eq("id", session.user.id)
+    .single();
+  if (profile) isPro = profile.is_pro ?? false;
 }
 
 const userEmail = session?.user?.email ?? "";
@@ -72,6 +80,9 @@ if (createdAt) {
     ) : (
       <>
         <section class="flex flex-col items-center justify-center mb-16 text-center">
+          <div class="flex items-center gap-2 px-4 py-1 bg-surface-variant rounded-full mb-4">
+            <span class="font-label-sm uppercase text-on-surface-variant">{isPro ? 'Pro' : 'Free'}</span>
+          </div>
           <div class="w-32 h-32 rounded-full overflow-hidden mb-6 border border-primary/40 shadow-sm relative bg-primary-container flex items-center justify-center">
             <span class="text-display-lg text-on-primary-container font-bold">{displayName.charAt(0).toUpperCase()}</span>
           </div>
@@ -311,12 +322,28 @@ if (createdAt) {
           <div class="lg:col-span-4 flex flex-col gap-8 mt-12 lg:mt-0">
             <div class="bg-surface-container-high border border-primary/40 rounded-2xl p-8 flex flex-col relative overflow-hidden">
               <span class="font-label-sm text-label-sm uppercase text-primary-container mb-6 block tracking-widest i18n" data-de={t("profil.pro_status", "de")} data-en={t("profil.pro_status", "en")}>{t("profil.pro_status")}</span>
-              <p class="text-headline-md text-on-surface mb-8 leading-snug i18n" data-de="Dein Abonnement ist aktiv." data-en="Your subscription is active.">
-                Dein Abonnement ist aktiv.
-              </p>
-                <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
-                  {t("profil.abo_verwalten")}
-                </a>
+              {isPro ? (
+                <>
+                  <p class="text-headline-md text-on-surface mb-8 leading-snug">
+                    Dein Abonnement ist aktiv.
+                  </p>
+                  <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
+                    {t("profil.abo_verwalten")}
+                  </a>
+                </>
+              ) : (
+                <>
+                  <p class="text-headline-md text-on-surface mb-4 leading-snug">
+                    Free Account
+                  </p>
+                  <p class="text-body-md text-on-surface-variant mb-8">
+                    Upgrade zu Premium für Statistiken, KI-Assistent und mehr.
+                  </p>
+                  <a href="/premium" class="mt-auto self-start bg-primary text-on-primary font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
+                    Upgrade zu Premium
+                  </a>
+                </>
+              )}
             </div>
 
             <div class="pt-8 flex justify-end lg:justify-start">
