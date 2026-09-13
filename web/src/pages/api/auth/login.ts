@@ -34,7 +34,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
                 ...options,
                 path: "/",
                 sameSite: 'strict',
-                secure: true,
+                secure: request.headers.get("x-forwarded-proto") === "https" || request.url.startsWith("https"),
               });
             });
           },

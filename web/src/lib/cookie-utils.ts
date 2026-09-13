@@ -31,7 +31,7 @@ export function createSupabaseServerClient(request: Request, cookies?: any) {
       cookieOptions: {
         path: '/',
         sameSite: 'lax',
-        secure: true,
+        secure: request.url.startsWith("https"),
       },
     }
   );

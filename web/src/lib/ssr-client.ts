@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 export function createSSRClient(astro: { request: Request; cookies: { set: (name: string, value: string, options?: any) => void }; url?: URL }) {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-  const isSecure = true;
+  const isSecure = astro.request.url.startsWith("https");
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
