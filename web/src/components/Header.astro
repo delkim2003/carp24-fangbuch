@@ -101,7 +101,7 @@ const moreItems = [
     </div>
   </div>
 
-  <div id="mobile-nav" class="hidden md:hidden border-t border-outline/20 bg-surface">
+  <div id="mobile-nav" class="hidden md:hidden border-t border-outline/20 bg-surface overflow-y-auto max-h-[calc(100dvh-5rem)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
     <nav class="flex flex-col px-margin-mobile py-4 gap-1" aria-label="Mobile Navigation">
       {navItems.map((item) => (
         <a
