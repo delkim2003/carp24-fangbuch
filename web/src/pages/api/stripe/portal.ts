@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import Stripe from "stripe";
 
 export const prerender = false;
@@ -18,7 +19,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       const { createClient } = await import('@supabase/supabase-js');
-      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
       const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
       if (tokenUser) user = tokenUser;
     }
@@ -31,7 +32,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
 
   const { data: subscription } = await supabaseAdmin
     .from("subscriptions")

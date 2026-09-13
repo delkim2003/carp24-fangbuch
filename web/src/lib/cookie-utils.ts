@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey } from "./config";
 /**
  * Shared cookie parsing utility for Supabase SSR
  * Uses parseCookieHeader from @supabase/ssr — handles base64-encoded cookies internally
@@ -10,8 +11,8 @@ export function parseCookies(request: Request): { name: string; value: string }[
 
 export function createSupabaseServerClient(request: Request, cookies?: any) {
   return createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         getAll() {

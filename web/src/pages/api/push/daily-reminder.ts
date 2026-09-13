@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createClient } from "@supabase/supabase-js";
 import webPush from "web-push";
 import { getVapidKeys } from "../../../lib/settings";
@@ -22,8 +23,8 @@ export const POST = async ({ request }: { request: Request }) => {
   }
 
   const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    getSupabaseUrl(),
+    getSupabaseServiceKey()
   );
 
   const { publicKey: vapidPublicKey, privateKey: vapidPrivateKey, subject: vapidSubject } = await getVapidKeys(supabaseAdmin);

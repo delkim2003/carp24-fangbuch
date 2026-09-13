@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
@@ -8,14 +9,14 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
-      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
       const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
       if (tokenUser) user = tokenUser;
     }
   }
   if (!user) return new Response(JSON.stringify({ error: "Nicht angemeldet." }), { status: 401 });
 
-  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
   const { data: profile } = await supabaseAdmin.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "ADMIN") return new Response(JSON.stringify({ error: "Nur für Admins." }), { status: 403 });
 
@@ -66,14 +67,14 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
-      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
       const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
       if (tokenUser) user = tokenUser;
     }
   }
   if (!user) return new Response(JSON.stringify({ error: "Nicht angemeldet." }), { status: 401 });
 
-  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
   const { data: profile } = await supabaseAdmin.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "ADMIN") return new Response(JSON.stringify({ error: "Nur für Admins." }), { status: 403 });
 

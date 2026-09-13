@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createClient } from "@supabase/supabase-js";
 import { checkRateLimit } from "../../../lib/rate-limit";
 
@@ -31,8 +32,8 @@ export async function getAdminClient(
   if (!user) return { error: "Nicht angemeldet.", status: 401 };
 
   const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+    getSupabaseUrl(),
+    getSupabaseServiceKey(),
   );
 
   const { data: profile } = await supabaseAdmin

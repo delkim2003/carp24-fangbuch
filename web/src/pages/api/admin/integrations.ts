@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { getAdminClient } from "./_auth";
 
 export const prerender = false;
@@ -32,9 +33,9 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
       stripe_keys: !!(import.meta.env.STRIPE_SECRET_KEY && import.meta.env.STRIPE_WEBHOOK_SECRET),
       openrouter,
       vapid: !!(import.meta.env.VAPID_PUBLIC_KEY && import.meta.env.VAPID_PRIVATE_KEY),
-      service_role: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+      service_role: !!getSupabaseServiceKey(),
       smtp: true,
-      realtime: !!import.meta.env.PUBLIC_SUPABASE_URL,
+      realtime: !!getSupabaseUrl(),
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );

@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey } from "./config";
 import { createClient } from "@supabase/supabase-js";
 
 let cache: { value: { enabled: boolean; message: string }; ts: number } | null = null;
@@ -8,10 +9,10 @@ function getSupabase() {
   // In dev: import.meta.env reads from .env file (Vite)
   // In production: process.env reads from Docker environment
   const url = import.meta.env.DEV
-    ? import.meta.env.PUBLIC_SUPABASE_URL
+    ? getSupabaseUrl()
     : process.env.PUBLIC_SUPABASE_URL;
   const key = import.meta.env.DEV
-    ? import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    ? getSupabaseAnonKey()
     : process.env.PUBLIC_SUPABASE_ANON_KEY;
   return createClient(url || "", key || "");
 }

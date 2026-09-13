@@ -1,9 +1,10 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseInternalUrl, getSupabaseServiceKey } from './config';
 
 export function createSSRClient(astro: { request: Request; cookies: { set: (name: string, value: string, options?: any) => void }; url?: URL }) {
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = getSupabaseUrl();
+  const supabaseAnonKey = getSupabaseAnonKey();
   const isSecure = astro.request.url.startsWith("https");
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -43,11 +44,10 @@ export function createSSRClient(astro: { request: Request; cookies: { set: (name
 /**
  * Service-Role Client — Bypasses RLS. NUR für sensible Profil-Queries (is_pro, role).
  * Nicht für allgemeine Queries verwenden!
- * Nutzt SUPABASE_URL (Docker-IP) oder PUBLIC_SUPABASE_URL als Fallback.
  */
 export function createServiceClient() {
-  const supabaseUrl = import.meta.env.SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
-  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = getSupabaseInternalUrl();
+  const serviceKey = getSupabaseServiceKey();
   if (!supabaseUrl) throw new Error('SUPABASE_URL and PUBLIC_SUPABASE_URL not set');
   if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
   return createClient(supabaseUrl, serviceKey, {

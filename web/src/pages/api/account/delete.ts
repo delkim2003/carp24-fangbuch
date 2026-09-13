@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createClient } from "@supabase/supabase-js";
 import { checkRateLimit } from "../../../lib/rate-limit";
 
@@ -14,7 +15,7 @@ export async function POST({ request, locals }: { request: Request; locals: App.
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       const { createClient } = await import('@supabase/supabase-js');
-      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+      const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
       const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
       if (tokenUser) user = tokenUser;
     }
@@ -45,8 +46,8 @@ export async function POST({ request, locals }: { request: Request; locals: App.
   }
 
   const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    getSupabaseUrl(),
+    getSupabaseServiceKey()
   );
 
   const { error } = await supabaseAdmin

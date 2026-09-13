@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import Stripe from "stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
@@ -60,8 +61,8 @@ export const POST = async ({ request }) => {
   }
 
   const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    getSupabaseUrl(),
+    getSupabaseServiceKey()
   );
 
   // Idempotenz: Prüfe ob Event bereits verarbeitet wurde

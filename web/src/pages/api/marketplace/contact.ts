@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
@@ -12,8 +13,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
 
   const supabase = createServerClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         getAll() { return parseCookieHeader(request.headers.get("Cookie") ?? ""); },

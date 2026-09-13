@@ -1,3 +1,4 @@
+import { getSupabaseUrl, getSupabaseAnonKey } from "../../../lib/config";
 import type { APIRoute } from "astro";
 import { checkRateLimit } from "../../../lib/rate-limit";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
@@ -21,8 +22,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     const supabase = createServerClient(
-      import.meta.env.PUBLIC_SUPABASE_URL,
-      import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+      getSupabaseUrl(),
+      getSupabaseAnonKey(),
       {
         cookies: {
           getAll() {
