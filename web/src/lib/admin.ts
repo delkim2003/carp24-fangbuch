@@ -1,4 +1,4 @@
-import { createSSRClient } from "./ssr-client";
+import { createSSRClient, createServiceClient } from "./ssr-client";
 import type { AstroGlobal } from "astro";
 
 export async function getSessionAndProfile(Astro: AstroGlobal) {
@@ -12,7 +12,9 @@ export async function getSessionAndProfile(Astro: AstroGlobal) {
 
   const { data: { session } } = await supabase.auth.getSession();
 
-  const { data: profile } = await supabase
+  // Service-Role Client für role/is_pro (nach Migration 0052 nicht mehr via anon-key lesbar)
+  const adminSb = createServiceClient();
+  const { data: profile } = await adminSb
     .from("profiles")
     .select("id, display_name, role, is_pro")
     .eq("id", user.id)
