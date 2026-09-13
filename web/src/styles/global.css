@@ -309,3 +309,96 @@
   line-height: 36px;
   font-weight: 600;
 }
+
+/* ── Skeleton Loading States ── */
+@keyframes skeleton-shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--color-surface-variant, #f0f0f0) 25%, var(--color-surface-container, #e0e0e0) 50%, var(--color-surface-variant, #f0f0f0) 75%);
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-outline-variant, rgba(128,128,128,0.1));
+}
+
+.skeleton-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-cell {
+  height: 14px;
+  border-radius: 4px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-card {
+  padding: 16px;
+  border: 1px solid var(--color-outline-variant, rgba(128,128,128,0.1));
+  border-radius: 16px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-drawer-card {
+  padding: 16px;
+  border: 1px solid var(--color-outline-variant, rgba(128,128,128,0.1));
+  border-radius: 12px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-label {
+  height: 12px;
+  width: 60%;
+  border-radius: 4px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  margin-bottom: 8px;
+}
+
+.skeleton-kpi {
+  height: 28px;
+  width: 40%;
+  border-radius: 4px;
+  background: inherit;
+  background-size: 468px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}

@@ -223,8 +223,8 @@ const dict: Record<string, Record<Lang, string>> = {
   "index.analysieren_title": { de: "Lerne aus deinen Daten", en: "Learn from your data" },
   "index.analysieren_text": { de: "Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.", en: "Recognize patterns, weather dependencies and improve your strategy." },
   "index.aus_dem_fangbuch": { de: "AUS DEM FANGBUCH", en: "FROM THE CATCH LOG" },
-  "index.kostenlos": { de: "50 FÄNGE GRATIS", en: "50 CATCHES FREE" },
-  "index.pro_preis": { de: "Danach Pro ab 6,90 €/Monat", en: "Then Pro from €6.90/month" },
+  "index.kostenlos": { de: "KOSTENLOS STARTEN", en: "START FREE" },
+  "index.pro_preis": { de: "Pro ab 6,90 €/Monat", en: "Pro from €6.90/month" },
 
   // profil
   "profil.titel": { de: "PROFIL", en: "PROFILE" },
