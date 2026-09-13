@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
@@ -65,9 +65,16 @@ export const POST = async ({
     });
   }
 
-  const supabase = createClient(
+  const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() { return parseCookieHeader(request.headers.get("Cookie") ?? ""); },
+        setAll() {},
+      },
+      auth: { storageKey: "sb-carp24-auth-token" },
+    }
   );
 
   const { data: profile } = await supabase

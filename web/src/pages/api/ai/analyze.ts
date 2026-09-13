@@ -1,18 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
 // DSGVO: transiente Verarbeitung, keine Speicherung, kein Logging.
 const rateLimitMap = new Map<string, number>();
 
-async function getApiKey(supabaseAdmin: any): Promise<string | null> {
+async function getApiKey(supabase: any): Promise<string | null> {
   // 1. Check env var first (fast path)
   const envKey = import.meta.env.OPENROUTER_API_KEY;
   if (envKey) return envKey;
 
   // 2. Fall back to DB-stored key
   try {
-    const { data } = await supabaseAdmin
+    const { data } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "openrouter_key")
@@ -83,21 +83,23 @@ function getWeatherDescription(weatherText: string): string {
 }
 
 export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  const supabase = createServerClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() { return parseCookieHeader(request.headers.get("Cookie") ?? ""); },
+        setAll() {},
+      },
+      auth: { storageKey: "sb-carp24-auth-token" },
+    }
+  );
+
   let user = locals.user;
 
-  // Fallback: Bearer token if cookies didn't reach (e.g. direct API calls)
   if (!user) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.slice(7);
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabaseAdmin = createClient(
-        import.meta.env.PUBLIC_SUPABASE_URL,
-        import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
-      if (tokenUser) user = tokenUser;
-    }
+    const { data: { user: ssrUser } } = await supabase.auth.getUser();
+    if (ssrUser) user = ssrUser;
   }
 
   if (!user) {
@@ -109,12 +111,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const userId = user.id;
 
-  const supabaseAdmin = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await supabase
     .from("profiles")
     .select("is_pro, role")
     .eq("id", userId)
@@ -132,7 +129,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   let remaining = 999;
 
   if (!isAdmin) {
-    const { data: monthlyUsage } = await supabaseAdmin.rpc("get_ai_usage_monthly", { p_user_id: userId });
+    const { data: monthlyUsage } = await supabase.rpc("get_ai_usage_monthly", { p_user_id: userId });
     const used = monthlyUsage || 0;
     remaining = Math.max(0, 50 - used);
     if (used >= 50) {
@@ -155,7 +152,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   rateLimitMap.set(userId, now);
 
   // Look up API key (env → DB)
-  const apiKey = await getApiKey(supabaseAdmin);
+  const apiKey = await getApiKey(supabase);
   if (!apiKey) {
     return new Response(
       JSON.stringify({
@@ -192,7 +189,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
 
   // Fetch user's catches with weather data
-  const { data: catches } = await supabaseAdmin
+  const { data: catches } = await supabase
     .from("catches")
     .select("catch_ts, weight_kg, species, water_name, weather")
     .eq("user_id", userId)
@@ -470,7 +467,7 @@ Erstelle eine Angelprognose basierend AUSSCHLIESSLICH auf diesen Daten. Erfinde 
 
     // Track usage (fire-and-forget, non-blocking)
     if (!isAdmin) {
-      supabaseAdmin.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
+      supabase.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
     }
 
     return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather, remaining }), {

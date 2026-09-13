@@ -1,21 +1,26 @@
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+
 export const prerender = false;
 
 export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  const supabase = createServerClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() { return parseCookieHeader(request.headers.get("Cookie") ?? ""); },
+        setAll() {},
+      },
+      auth: { storageKey: "sb-carp24-auth-token" },
+    }
+  );
+
   let user = locals.user;
 
   if (!user) {
-    const authHeader = request.headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.slice(7);
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
-      const { data: { user: tokenUser } } = await supabaseAdmin.auth.getUser(token);
-      if (tokenUser) user = tokenUser;
-    }
+    const { data: { user: ssrUser } } = await supabase.auth.getUser();
+    if (ssrUser) user = ssrUser;
   }
-
-  const { createClient } = await import("@supabase/supabase-js");
-  const supabaseAdmin = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
 
   if (!user) {
     return new Response(JSON.stringify({ error: "Nicht angemeldet." }), {
@@ -34,7 +39,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from("push_subscriptions")
     .upsert({ user_id: user.id, endpoint, keys }, { onConflict: "endpoint" });
 

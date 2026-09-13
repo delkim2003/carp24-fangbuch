@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
 
@@ -11,9 +11,16 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const supabaseAdmin = createClient(
+  const supabase = createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() { return parseCookieHeader(request.headers.get("Cookie") ?? ""); },
+        setAll() {},
+      },
+      auth: { storageKey: "sb-carp24-auth-token" },
+    }
   );
 
   let body: any;
@@ -46,7 +53,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const { data: item, error: itemError } = await supabaseAdmin
+  const { data: item, error: itemError } = await supabase
     .from("marketplace_items")
     .select("user_id")
     .eq("id", item_id)
@@ -66,7 +73,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     );
   }
 
-  const { error: insertError } = await supabaseAdmin.from("marketplace_contacts").insert({
+  const { error: insertError } = await supabase.from("marketplace_contacts").insert({
     item_id,
     from_user: user.id,
     to_user: item.user_id,

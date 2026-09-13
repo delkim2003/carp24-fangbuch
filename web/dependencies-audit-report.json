@@ -1,0 +1,72 @@
+[
+  {
+    "file": "package.json (dependencies)",
+    "severity": "critical",
+    "details": "npm audit: astro ^7.2.4 < 7.2.8 → Critical RCE through AVIF image optimization (GHSA-26w7-cxv4-gfx2). Update to >=7.2.8 immediately."
+  },
+  {
+    "file": "package.json (transitive: js-yaml)",
+    "severity": "high",
+    "details": "npm audit: js-yaml 4.0.0-4.3.1 (transitive via astro or eslint) → High CPU exhaustion via maxTotalMergeKeys in empty merge sources (GHSA-2883-xcg3-v3hh). Fix via `npm audit fix`."
+  },
+  {
+    "file": "package.json (transitive: sharp)",
+    "severity": "high",
+    "details": "npm audit: sharp < 0.35.4 (transitive via astro) → High libheif vulnerabilities (GHSA-rgj7-g3m4-5g8c). Fix via `npm audit fix`."
+  },
+  {
+    "file": "package.json (transitive: svgo)",
+    "severity": "high",
+    "details": "npm audit: svgo 4.0.0-4.0.2 (transitive via astro) → Two High SVG sanitization bypasses: removeScripts allows executable links through namespace/control-character bypass (GHSA-w27v-7q3p-w38r) and incomplete sanitization of executable HTML in foreignObject elements (GHSA-4vpr-x523-8j87). Fix via `npm audit fix`."
+  },
+  {
+    "file": "package.json",
+    "severity": "low",
+    "details": "Outdated dependency: @astrojs/node ^11.1.4 → latest 11.1.5 (minor update available)."
+  },
+  {
+    "file": "package.json",
+    "severity": "low",
+    "details": "Outdated dependency: @supabase/ssr ^0.12.4 → latest 0.12.7 (minor updates available)."
+  },
+  {
+    "file": "package.json",
+    "severity": "low",
+    "details": "Outdated dependency: @supabase/supabase-js ^2.112.3 → latest 2.116.0 (minor updates available)."
+  },
+  {
+    "file": "package.json",
+    "severity": "low",
+    "details": "Outdated dependency: stripe ^22.5.0 → latest 22.6.2 (minor update available)."
+  },
+  {
+    "file": "package.json (devDependencies)",
+    "severity": "low",
+    "details": "Outdated devDependency: @typescript-eslint/parser ^8.67.0 → latest 8.70.0 (minor update available)."
+  },
+  {
+    "file": "package.json (devDependencies)",
+    "severity": "low",
+    "details": "Outdated devDependency: eslint ^10.8.1 → latest 10.10.0 (minor update available)."
+  },
+  {
+    "file": "package.json (devDependencies)",
+    "severity": "medium",
+    "details": "Major version behind: prettier-plugin-astro ^0.14.1 → latest 1.0.0. Major jump from 0.x to 1.x; verify compatibility before updating (breaking changes possible)."
+  },
+  {
+    "file": "package.json (devDependencies)",
+    "severity": "medium",
+    "details": "Missing @types/leaflet. Leaflet is used via dynamic import in src/pages/fang-erfassen.astro (line 857) and its CSS is imported (line 8), but no @types/leaflet in devDependencies. TypeScript strict mode may cause type errors. Add '@types/leaflet' to devDependencies."
+  },
+  {
+    "file": "eslint.config.js",
+    "severity": "low",
+    "details": "ESLint config uses only eslint-plugin-astro flat/recommended but does not include @typescript-eslint rules for .ts/.tsx files. Since the project uses TypeScript strict mode, consider adding TypeScript-specific lint rules."
+  },
+  {
+    "file": "package.json",
+    "severity": "medium",
+    "details": "Unused dependency: uplot ^1.6.32. Declared as a dependency but never imported in any source file (.astro, .ts, .tsx, .js, .jsx, .mjs). Only exists in node_modules/. Consider removing if not planned for future use."
+  }
+]
