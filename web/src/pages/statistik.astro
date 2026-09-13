@@ -9,20 +9,10 @@ if (!session) return Astro.redirect('/login');
 const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 ---
 
-{!isPaid ? (
-  <PremiumLock
-    tier={getTierFromLocals(Astro.locals)}
-    mode="page"
-    kicker="CARP24"
-    title="STATISTIK"
-    description="Die Statistik ist ein Premium-Feature."
-    active="statistik"
-  />
-) : (
-  <Layout title="Carp24 – Statistik" active="statistik" noindex>
-   <meta name="ssr-access" content={session.access_token} />
-   <meta name="ssr-refresh" content={session.refresh_token} />
-   <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
+<Layout title="Carp24 – Statistik" active="statistik" noindex>
+  <meta name="ssr-access" content={session.access_token} />
+  <meta name="ssr-refresh" content={session.refresh_token} />
+  <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
       <div>
@@ -123,6 +113,8 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       <p class="text-body-sm text-on-surface-variant mt-3 opacity-70">Basierend auf deinen Carp24-Fangdaten. Für eine detailliertere Beratung findest du eine Auswertung beim <a href="/assistent" class="text-primary underline">KI-Assistenten</a>.</p>
     </section>
 
+    <PremiumLock tier={getTierFromLocals(Astro.locals)} mode="inline" kicker="CARP24" title="Statistik Studio" description="Erweiterte Statistiken, Charts und Filter sind ein Premium-Feature.">
+
     <!-- CHARTS -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-xl">
       <section class="bg-surface-container-high border border-primary/40 rounded-2xl p-lg flex flex-col">
@@ -212,9 +204,10 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       </div>
     </section>
 
+    </PremiumLock>
+
   </main>
 </Layout>
-)}
 
 <script>
   import { supabase } from '../lib/supabase-client';
