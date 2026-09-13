@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { createSSRClient } from "../lib/ssr-client";
+import { createSSRClient, createServiceClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
 import { itemListLD } from "../lib/jsonld";
 
@@ -15,16 +15,25 @@ let role = "USER";
 let displayName = "";
 
 if (session) {
-  const { data: profile } = await supabase
+  // display_name via authenticated client (safe column)
+  const { data: safeProfile } = await supabase
     .from("profiles")
-    .select("is_pro, role, display_name")
+    .select("display_name")
+    .eq("id", session.user.id)
+    .single();
+  if (safeProfile) displayName = safeProfile.display_name ?? "";
+
+  // is_pro/role via service role (sensible columns, RLS-geschützt)
+  const adminSb = createServiceClient();
+  const { data: profile } = await adminSb
+    .from("profiles")
+    .select("is_pro, role")
     .eq("id", session.user.id)
     .single();
 
   if (profile) {
     isPro = profile.is_pro ?? false;
     role = profile.role ?? "USER";
-    displayName = profile.display_name ?? "";
   }
 }
 

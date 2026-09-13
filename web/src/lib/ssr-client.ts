@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
 export function createSSRClient(astro: { request: Request; cookies: { set: (name: string, value: string, options?: any) => void }; url?: URL }) {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -36,5 +37,18 @@ export function createSSRClient(astro: { request: Request; cookies: { set: (name
       sameSite: 'strict',
       secure: isSecure,
     },
+  });
+}
+
+/**
+ * Service-Role Client — Bypasses RLS. NUR für sensible Profil-Queries (is_pro, role).
+ * Nicht für allgemeine Queries verwenden!
+ */
+export function createServiceClient() {
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  return createClient(supabaseUrl, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
   });
 }

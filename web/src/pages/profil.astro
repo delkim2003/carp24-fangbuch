@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { createSSRClient } from "../lib/ssr-client";
+import { createSSRClient, createServiceClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
 import { getVapidKeys } from "../lib/settings";
 
@@ -49,7 +49,8 @@ if (session) {
     .eq("user_id", session.user.id);
   if (userBadges) earnedBadgeIds = new Set(userBadges.map((ub: any) => ub.badge_id));
 
-  const { data: profile } = await supabase
+  const adminSb = createServiceClient();
+  const { data: profile } = await adminSb
     .from("profiles")
     .select("is_pro")
     .eq("id", session.user.id)

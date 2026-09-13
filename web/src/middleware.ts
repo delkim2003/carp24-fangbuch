@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { createSSRClient } from "./lib/ssr-client";
+import { createSSRClient, createServiceClient } from "./lib/ssr-client";
 import { getMaintenance } from "./lib/settings";
 
 const securityHeaders: Record<string, string> = {
@@ -38,7 +38,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // T1: getSession() removed — getUser() validates JWT already
 
     if (user) {
-      const { data: profile } = await supabase
+      const adminSb = createServiceClient();
+      const { data: profile } = await adminSb
         .from("profiles")
         .select("role, is_pro")
         .eq("id", user.id)
