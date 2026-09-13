@@ -117,5 +117,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     response.headers.set(key, value);
   }
 
+  // Cache-Header: Static Assets = 1 Jahr, HTML = no-cache, API = no-store
+  const url = context.url.pathname;
+  if (url.match(/\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|webp|gif|ico)(\?|$)/)) {
+    response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  } else if (url.startsWith("/api/")) {
+    response.headers.set("Cache-Control", "no-store");
+  } else {
+    response.headers.set("Cache-Control", "no-cache, must-revalidate");
+  }
+
   return response;
 });
