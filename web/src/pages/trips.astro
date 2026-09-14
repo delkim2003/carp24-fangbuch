@@ -49,6 +49,7 @@ const catchesJson = JSON.stringify(catchesForTrips);
 const watersJson = JSON.stringify(waters);
 ---
 
+<Layout title="Carp24 – Trips" active="trips" noindex>
 {!isPaid ? (
   <PremiumLock
     tier={getTierFromLocals(Astro.locals)}
@@ -59,7 +60,6 @@ const watersJson = JSON.stringify(waters);
     active="trips"
   />
 ) : (
-<Layout title="Carp24 – Trips" active="trips" noindex>
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!session ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
@@ -141,8 +141,8 @@ const watersJson = JSON.stringify(waters);
       </>
     )}
   </main>
-</Layout>
 )}
+</Layout>
 
 <script is:inline define:vars={{ tripsJson, catchesJson, watersJson }}>
 (function () {
