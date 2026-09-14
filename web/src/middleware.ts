@@ -26,6 +26,28 @@ const securityHeaders: Record<string, string> = {
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const path = context.url.pathname;
+
+  // Static Assets: kein Auth, kein DB-Query → direkt durchlassen
+  if (
+    path.startsWith("/_astro/") ||
+    path.startsWith("/images/") ||
+    path.startsWith("/icons/") ||
+    path.startsWith("/fonts/") ||
+    path.startsWith("/favicon") ||
+    path.startsWith("/sw.js") ||
+    path.startsWith("/manifest") ||
+    path.endsWith(".ico") ||
+    path.endsWith(".webp") ||
+    path.endsWith(".png") ||
+    path.endsWith(".jpg") ||
+    path.endsWith(".svg") ||
+    path.endsWith(".woff2") ||
+    path.endsWith(".woff")
+  ) {
+    return next();
+  }
+
   const supabase = createSSRClient(context);
 
   // CRITICAL: getUser() validates JWT against Auth server AND refreshes tokens
@@ -81,11 +103,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   } catch (err) {
     console.error("[middleware] Maintenance-Query fehlgeschlagen:", err);
   }
-  const path = context.url.pathname.replace(/\/+$/, "") || "/";
+  const normalizedPath = path.replace(/\/+$/, "") || "/";
   const isAdmin = role === "ADMIN" || role === "MODERATOR";
 
   if (maintenance.enabled && !isAdmin) {
-    if (path.startsWith("/api/")) {
+    // API: Login/Logout/Register ausnehmen (sonst kann sich niemand einloggen)
+    if (path.startsWith("/api/") && !path.startsWith("/api/auth/")) {
       return new Response(JSON.stringify({ error: "Wartungsarbeiten" }), {
         status: 503,
         headers: { "Content-Type": "application/json", ...securityHeaders },

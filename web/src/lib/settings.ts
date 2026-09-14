@@ -2,7 +2,7 @@ import { getSupabaseUrl, getSupabaseAnonKey } from "./config";
 import { createClient } from "@supabase/supabase-js";
 
 let cache: { value: { enabled: boolean; message: string }; ts: number } | null = null;
-const TTL = 5000;
+const TTL = 60000; // 60s — reduziert DB-Queries durch Kong
 
 function getSupabase() {
   // import.meta.env.DEV = true in dev mode, false in production build
