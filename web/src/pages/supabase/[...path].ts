@@ -74,7 +74,10 @@ async function proxyRequest(request: Request, path: string) {
       }
     }
 
-    return new Response(await response.text(), {
+    const isBodyless = response.status === 204 || response.status === 205 || response.status === 304;
+    const responseBody = isBodyless ? null : await response.text();
+
+    return new Response(responseBody, {
       status: response.status,
       headers: responseHeaders,
     });
