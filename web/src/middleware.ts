@@ -114,6 +114,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
         headers: { "Content-Type": "application/json", ...securityHeaders },
       });
     }
+    // Auth-Routen durchlassen (Login/Register/Logout funktionieren auch im Wartungsmodus)
+    if (path.startsWith("/api/auth/")) {
+      return next();
+    }
     const isAllowed =
       path === "/login" ||
       path === "/wartung" ||
