@@ -1,8 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { createSSRClient } from "../../lib/ssr-client";
+import { createSSRClient, createServiceClient } from "../../lib/ssr-client";
 
 const supabase = createSSRClient(Astro);
+const adminClient = createServiceClient();
 
 // SSR: Fang-Detail ist user-abhängig (Session), nicht vorab generierbar
 export const prerender = false;
@@ -20,8 +21,8 @@ let signedPhotoUrl: string | null = null;
 if (catchData && Array.isArray(catchData.photos) && catchData.photos[0]) {
   const photoRef = catchData.photos[0] as string;
   if (photoRef.startsWith("foto:")) {
-    const { data: signedData } = await supabase.storage.from("catch-photos").createSignedUrl(photoRef.slice(5), 3600);
-    signedPhotoUrl = signedData?.signedUrl ?? null;
+    const { data: signedData } = await adminClient.storage.from("catch-photos").createSignedUrl(photoRef.slice(5), 3600);
+    signedPhotoUrl = signedData?.signedUrl ? `${process.env.PUBLIC_SUPABASE_URL || 'http://100.93.250.103:8055'}/storage/v1${signedData.signedUrl}` : null;
   } else if (photoRef.startsWith("http")) {
     signedPhotoUrl = photoRef;
   }

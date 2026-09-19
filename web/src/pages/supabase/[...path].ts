@@ -40,9 +40,9 @@ async function proxyRequest(request: Request, path: string) {
     headers.set("authorization", "Bearer " + anonKey);
   }
 
-  let body: string | undefined;
+  let body: ArrayBuffer | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    try { body = await request.text(); } catch {}
+    try { body = await request.arrayBuffer(); } catch {}
   }
 
   try {

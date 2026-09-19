@@ -14,7 +14,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2026.08.03-sha-022b374
+    image: supabase/studio:2026.09.14-sha-4dd8a95
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -129,7 +129,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.189.0
+    image: supabase/gotrue:v2.197.0
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -338,7 +338,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.102.3
+    image: supabase/realtime:v2.137.2
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -390,7 +390,7 @@ services:
   # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.60.4
+    image: supabase/storage-api:v1.79.2
     restart: unless-stopped
     mem_limit: 2g
     logging:
@@ -490,7 +490,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.96.6
+    image: supabase/postgres-meta:v0.99.0
     restart: unless-stopped
     mem_limit: 512m
     logging:
@@ -513,7 +513,7 @@ services:
 
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.74.0
+    image: supabase/edge-runtime:v1.76.2
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -561,7 +561,7 @@ services:
   db:
     container_name: supabase-db
     # To upgrade an existing Postgres 15 database in place, see utils/upgrade-pg17.sh.
-    image: supabase/postgres:17.6.1.136
+    image: supabase/postgres:17.6.1.173
     restart: unless-stopped
     mem_limit: 4g
     logging:
@@ -622,7 +622,7 @@ services:
   # Update the DATABASE_URL if you are using an external Postgres database
   supavisor:
     container_name: supabase-pooler
-    image: supabase/supavisor:2.9.5
+    image: supabase/supavisor:2.9.13
     restart: unless-stopped
     mem_limit: 4g
     logging:

@@ -2,11 +2,14 @@
 import Layout from "../layouts/Layout.astro";
 import CatchCard from "../components/CatchCard.astro";
 import ErrorBoundary from "../components/ErrorBoundary.astro";
-import { createSSRClient } from "../lib/ssr-client";
+import { createSSRClient, createServiceClient } from "../lib/ssr-client";
 import { t } from "../lib/i18n";
 import { itemListLD } from "../lib/jsonld";
+import PremiumLock from "../components/PremiumLock.astro";
+import { getTierFromLocals } from "../lib/tier";
 
 const supabase = createSSRClient(Astro);
+const adminClient = createServiceClient();
 
 // Auth-Guard
 const { data: { session } } = await supabase.auth.getSession();
@@ -16,7 +19,21 @@ let loadError: string | null = null;
 if (session) {
   const { data, error } = await supabase.from("catches").select("*").is("deleted_at", null).order("catch_ts", { ascending: false });
   catches = data ?? [];
+  // Resolve signed photo URLs using SSR client (has user session)
+  for (const c of catches) {
+    if (Array.isArray(c.photos) && c.photos[0] && typeof c.photos[0] === 'string' && c.photos[0].startsWith('foto:')) {
+      const { data: sd } = await adminClient.storage.from('catch-photos').createSignedUrl(c.photos[0].slice(5), 3600);
+      c._photoUrl = sd?.signedUrl ? `${process.env.PUBLIC_SUPABASE_URL || 'http://100.93.250.103:8055'}/storage/v1${sd.signedUrl}` : null;
+    }
+  }
   if (error) loadError = error.message;
+}
+
+const userTier = getTierFromLocals(Astro.locals);
+let remainingCatches = -1;
+if (session && userTier === "free") {
+  const { data } = await supabase.rpc("get_remaining_catches");
+  remainingCatches = data ?? 50;
 }
 const saved = Astro.url.searchParams.get("saved") === "1";
 const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
@@ -70,9 +87,24 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
             <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("faenge.ersten_eintragen", "de")} data-en={t("faenge.ersten_eintragen", "en")}>{t("faenge.ersten_eintragen")}</a>
           </div>
         ) : (
-          <div class="flex flex-col gap-md">
-            {catches.map((c: any) => <CatchCard catch={c} />)}
-          </div>
+          <>
+            <div class="flex flex-col gap-md">
+              {catches.slice(0, 3).map((c: any) => <CatchCard catch={c} />)}
+            </div>
+            {catches.length > 3 && (
+              userTier === "free" ? (
+                <PremiumLock tier="free" mode="inline" feature="catches_unlimited" kicker="Premium" title="Alle Fänge anzeigen" description={`Du siehst 3 von ${catches.length} Fängen. Upgrade für dein komplettes Fangbuch.`}>
+                  <div class="flex flex-col gap-md">
+                    {catches.slice(3).map((c: any) => <CatchCard catch={c} />)}
+                  </div>
+                </PremiumLock>
+              ) : (
+                <div class="flex flex-col gap-md">
+                  {catches.slice(3).map((c: any) => <CatchCard catch={c} />)}
+                </div>
+              )
+            )}
+          </>
         )}
       </>
     )}

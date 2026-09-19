@@ -97,7 +97,8 @@ const dict: Record<string, Record<Lang, string>> = {
   "premium.free": { de: "FREE", en: "FREE" },
   "premium.free_preis": { de: "0 €", en: "Free" },
   "premium.free_desc": { de: "Fangbuch einfach starten", en: "Start your fishing log" },
-  "premium.pro_preis": { de: "6,90 € / Monat", en: "€6.90 / month" },
+  "premium.pro_preis": { de: "4,99 € / Monat", en: "€4.99 / month" },
+  "premium.pro_preis_jahr": { de: "49,99 € / Jahr (≈4,17 €/Mo)", en: "€49.99 / year (≈€4.17/mo)" },
   "premium.pro_desc": { de: "Alle Premium-Funktionen", en: "All premium features" },
   "premium.vgl_faenge": { de: "Fänge erfassen", en: "Log catches" },
   "premium.vgl_board": { de: "Community-Board", en: "Community Board" },
@@ -224,7 +225,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "index.analysieren_text": { de: "Erkenne Muster, Wetterabhängigkeiten und verbessere deine Strategie.", en: "Recognize patterns, weather dependencies and improve your strategy." },
   "index.aus_dem_fangbuch": { de: "AUS DEM FANGBUCH", en: "FROM THE CATCH LOG" },
   "index.kostenlos": { de: "KOSTENLOS STARTEN", en: "START FREE" },
-  "index.pro_preis": { de: "Pro ab 6,90 €/Monat", en: "Pro from €6.90/month" },
+  "index.pro_preis": { de: "Pro ab 4,99 €/Monat", en: "Pro from €4.99/month" },
 
   // profil
   "profil.titel": { de: "PROFIL", en: "PROFILE" },

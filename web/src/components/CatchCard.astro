@@ -3,6 +3,7 @@ interface CatchRow {
   id: string; catch_ts: string; species: string; weight_kg: number;
   length_cm?: number | null; bait?: string | null; method?: string | null;
   notes?: string | null; photos?: string[] | null; water_name?: string | null;
+  _photoUrl?: string | null;
   weather?: { temp_c?: number; pressure_hpa?: number; weather_text?: string; moon_text?: string } | null;
 }
 const { catch: c } = Astro.props as { catch: CatchRow };
@@ -11,10 +12,11 @@ const speciesDe = speciesMap[c.species] ?? c.species;
 const gewicht = (Number(c.weight_kg) ?? 0).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " KG";
 const datum = new Date(c.catch_ts).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/\./g, ".");
 const wetterText = c.weather?.weather_text ?? null;
+const photoUrl = c._photoUrl ?? null;
 ---
 <a href={`/faenge/${c.id}`} class="block bg-surface-container-high rounded-xl border border-primary/40 p-lg hover:bg-surface-container transition-colors">
   <div class="flex items-center gap-md">
-    {c.photos?.[0] && <img src={c.photos[0]} alt={speciesDe} loading="lazy" class="w-20 h-20 rounded-lg object-cover" />}
+    {photoUrl && <img src={photoUrl} alt={speciesDe} loading="lazy" class="w-20 h-20 rounded-lg object-cover" />}
     <div class="flex-1 min-w-0">
       <div class="font-mono text-display-sm text-primary font-bold">{gewicht}</div>
       <div class="font-label-sm text-label-sm uppercase text-secondary">{speciesDe} · {c.water_name ?? "Unbekanntes Gewässer"}</div>
