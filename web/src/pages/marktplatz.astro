@@ -69,6 +69,16 @@ if (session && isPaid) {
   activeItems = activeRes.data ?? [];
   mySoldItems = soldRes.data ?? [];
   myContacts = contactsRes.data ?? [];
+
+  // Generate signed URLs for marketplace item photos (server-side, service client)
+  const adminClient = createServiceClient();
+  const allItems = [...activeItems, ...mySoldItems];
+  for (const item of allItems) {
+    if (Array.isArray(item.photos) && item.photos[0] && typeof item.photos[0] === 'string' && item.photos[0].startsWith('foto:')) {
+      const { data: sd } = await adminClient.storage.from('catch-photos').createSignedUrl(item.photos[0].slice(5), 3600);
+      item._photoUrl = sd?.signedUrl ? sd.signedUrl.replace(process.env.PUBLIC_SUPABASE_URL || 'http://supabase-kong:8000', '/supabase') : null;
+    }
+  }
 }
 
 const categoryLabels: Record<string, { de: string; en: string }> = {
@@ -329,18 +339,10 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
       wrapper.innerHTML = html;
       var card = wrapper.firstChild;
       container.appendChild(card);
-      if (item.photos && item.photos.length > 0 && item.photos[0] && item.photos[0].startsWith('foto:')) {
-        var path = item.photos[0].slice(5);
+      if (item._photoUrl) {
         var img = card.querySelector('div.w-full');
         if (img) {
-          var sb = getSupabase();
-          if (sb) {
-            sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
-              if (res.data && res.data.signedUrl) {
-                img.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
-              }
-            });
-          }
+          img.innerHTML = '<img src="' + item._photoUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
         }
       }
     });
@@ -358,21 +360,10 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
       var wrapper = document.createElement('div');
       wrapper.innerHTML = html;
       container.appendChild(wrapper.firstChild);
-      if (item.photos && item.photos.length > 0 && item.photos[0] && item.photos[0].startsWith('foto:')) {
-        var path = item.photos[0].slice(5);
-        var sb = getSupabase();
-        if (sb) {
-          sb.storage.from('catch-photos').createSignedUrl(path, 3600).then(function (res) {
-            if (res.data && res.data.signedUrl) {
-              var lastCard = container.lastElementChild;
-              if (lastCard) {
-                var imgDiv = lastCard.querySelector('div.w-full');
-                if (imgDiv) {
-                  imgDiv.innerHTML = '<img src="' + res.data.signedUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
-                }
-              }
-            }
-          });
+      if (item._photoUrl) {
+        var img = wrapper.querySelector('div.w-full');
+        if (img) {
+          img.innerHTML = '<img src="' + item._photoUrl + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="w-full h-48 object-cover" />';
         }
       }
     });
