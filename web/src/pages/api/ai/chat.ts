@@ -161,38 +161,41 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const userPrompt = `Fang-Kontext:\n${contextStr}\n\nFrage: ${message}`;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30_000);
-
   try {
     let res;
-    const maxRetries = 3;
+    const maxRetries = 5;
+    const models = ["mistralai/mistral-small-2603", "mistralai/mistral-small-3.2-24b-instruct"];
     
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30_000);
-      
-      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "deepseek/deepseek-chat-v3-0324",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-        }),
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeout);
-      
-      if (res.ok) break;
-      if (res.status === 429 && attempt < maxRetries - 1) {
-        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+      for (const model of models) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30_000);
+        
+        res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+          }),
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeout);
+        
+        if (res.ok) break;
+        // If404 (guardrail), try next model. If429 (rate limit), retry after delay.
+        if (res.status !== 404) break;
+      }
+      if (res && res.ok) break;
+      if (res && res.status === 429 && attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt)));
         continue;
       }
       break;
