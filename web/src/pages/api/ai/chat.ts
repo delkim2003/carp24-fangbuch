@@ -163,8 +163,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   try {
     let res;
-    const maxRetries = 5;
-    const models = ["mistralai/mistral-small-2603", "mistralai/mistral-small-3.2-24b-instruct"];
+    const maxRetries = 3;
+    const models = ["mistralai/mistral-small-3.2-24b-instruct", "mistralai/mistral-nemo", "mistralai/mistral-small-2603"];
     
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       for (const model of models) {
