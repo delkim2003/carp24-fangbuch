@@ -166,10 +166,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   try {
     let res;
-    let lastError = "";
-    const models = ["mistralai/mistral-small-2603", "google/gemma-3-12b-it", "meta-llama/llama-4-scout"];
+    const maxRetries = 3;
     
-    for (const model of models) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30_000);
       
@@ -180,7 +179,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model,
+          model: "mistralai/mistral-small-2603",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
@@ -192,19 +191,19 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       clearTimeout(timeout);
       
       if (res.ok) break;
-      lastError = await res.text().catch(() => "");
-      if (res.status === 429) {
-        await new Promise(r => setTimeout(r, 2000));
+      if (res.status === 429 && attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
         continue;
       }
       break;
     }
 
     if (!res || !res.ok) {
+      const errorBody = await res?.text().catch(() => "") || "";
       return new Response(
         JSON.stringify({
           error: `KI-Dienst nicht erreichbar (${res?.status || 'unknown'}).`,
-          detail: lastError.slice(0, 200),
+          detail: errorBody.slice(0, 200),
         }),
         {
           status: 502,
