@@ -80,10 +80,29 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     }
   }
 
-  // Rate-Limit: 10s pro User
+  // Parse body early — _check must bypass rate limit
+  let body: { message?: string; _check?: boolean };
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Usage check request — no rate limit, no API key needed
+  if (body._check) {
+    return new Response(JSON.stringify({ remaining }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Rate-Limit: 3s pro User (nur für echte Nachrichten)
   const now = Date.now();
   const lastRequest = rateLimitMap.get(userId);
-  if (lastRequest && now - lastRequest < 10_000) {
+  if (lastRequest && now - lastRequest < 3_000) {
     return new Response(JSON.stringify({ error: "Bitte kurz warten." }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
@@ -104,24 +123,6 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
         headers: { "Content-Type": "application/json" },
       }
     );
-  }
-
-  let body: { message?: string; _check?: boolean };
-  try {
-    body = await request.json();
-  } catch {
-    return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // Usage check request (just return remaining count)
-  if (body._check) {
-    return new Response(JSON.stringify({ remaining }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
   }
 
   const message = body.message?.trim();
