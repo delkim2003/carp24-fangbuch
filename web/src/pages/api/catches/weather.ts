@@ -1,5 +1,6 @@
 import { getSupabaseUrl, getSupabaseAnonKey } from "../../../lib/config";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createServiceClient } from "../../../lib/ssr-client";
 
 export const prerender = false;
 
@@ -35,14 +36,52 @@ async function fetchWeather(
       console.error("[WEATHER] No current data in Open-Meteo response");
       return null;
     }
+    const weatherCode = current.weather_code;
+    const weatherTextMap: Record<number, string> = {
+      0: 'Klar', 1: 'Überwiegend klar', 2: 'Teils bewölkt', 3: 'Bewölkt',
+      45: 'Nebel', 48: 'Reifnebel',
+      51: 'Leichter Nieselregen', 53: 'Nieselregen', 55: 'Starker Nieselregen',
+      61: 'Leichter Regen', 63: 'Regen', 65: 'Starker Regen',
+      66: 'Gefrierender Regen', 67: 'Starker gefrierender Regen',
+      71: 'Leichter Schneefall', 73: 'Schneefall', 75: 'Starker Schneefall',
+      77: 'Schneegriesel', 80: 'Leichte Regenschauer', 81: 'Regenschauer', 82: 'Starke Regenschauer',
+      85: 'Leichte Schneeschauer', 86: 'Starke Schneeschauer',
+      95: 'Gewitter', 96: 'Gewitter mit Hagel', 99: 'Starkes Gewitter mit Hagel',
+    };
+
+    // Simple moon phase calculation
+    function getMoonPhase(date: Date): string {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      let c = 0, e = 0, jd = 0, b = 0;
+      if (month < 3) { c = year - 1; e = month + 12; } else { c = year; e = month; }
+      jd = Math.floor(365.25 * (c + 4716)) + Math.floor(30.6001 * (e + 1)) + day - 1524.5;
+      b = Math.round(((jd - 2451550.1) / 29.530588853) * 100) / 100;
+      const phase = ((b % 1) + 1) % 1;
+      if (phase < 0.0625) return 'Neumond';
+      if (phase < 0.1875) return 'Zunehmend';
+      if (phase < 0.3125) return 'Erstes Viertel';
+      if (phase < 0.4375) return 'Zunehmender Mond';
+      if (phase < 0.5625) return 'Vollmond';
+      if (phase < 0.6875) return 'Abnehmender Mond';
+      if (phase < 0.8125) return 'Letztes Viertel';
+      if (phase < 0.9375) return 'Abnehmend';
+      return 'Neumond';
+    }
+
     return {
-      temperature_2m: current.temperature_2m,
-      relative_humidity_2m: current.relative_humidity_2m,
-      weather_code: current.weather_code,
-      wind_speed_10m: current.wind_speed_10m,
-      pressure_msl: current.pressure_msl,
-      time: current.time,
-      units: data?.current_units ?? {},
+      temp_c: current.temperature_2m,
+      weather_text: weatherTextMap[weatherCode] || 'Unbekannt',
+      pressure_hpa: Math.round(current.pressure_msl),
+      wind_speed_kmh: Math.round(current.wind_speed_10m),
+      humidity_pct: current.relative_humidity_2m,
+      moon_text: getMoonPhase(new Date()),
+      // Keep raw data for reference
+      _raw: {
+        weather_code: weatherCode,
+        time: current.time,
+      },
     };
   } catch (err) {
     console.error("[WEATHER] Fetch error:", err);
@@ -139,8 +178,11 @@ export const POST = async ({
     });
   }
 
+  // Use service client for DB operations (auth already verified via middleware locals.user)
+  const adminSb = createServiceClient();
+
   // Verify the catch belongs to this user
-  const { data: catchRow, error: fetchError } = await supabase
+  const { data: catchRow, error: fetchError } = await adminSb
     .from("catches")
     .select("user_id")
     .eq("id", catch_id)
@@ -169,8 +211,8 @@ export const POST = async ({
     });
   }
 
-  // Update the catch record
-  const { error: updateError } = await supabase
+  // Update the catch record (use service client to bypass RLS — auth already verified above)
+  const { error: updateError } = await adminSb
     .from("catches")
     .update({
       weather,
