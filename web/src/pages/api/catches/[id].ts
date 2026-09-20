@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 import { createSSRClient, createServiceClient } from '../../../lib/ssr-client';
 
-export const PUT: APIRoute = async ({ request, params }) => {
+export const PUT: APIRoute = async ({ request, params, cookies }) => {
   // Auth check
-  const ssr = createSSRClient({ request } as any);
+  const ssr = createSSRClient({ request, cookies } as any);
   const { data: { user } } = await ssr.supabase.auth.getUser();
   if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
 
