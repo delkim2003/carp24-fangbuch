@@ -127,7 +127,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   // Rate-Limit: 3s pro User (nur für echte Nachrichten)
   const now = Date.now();
   const lastRequest = rateLimitMap.get(userId);
+  console.log("[AI] rateLimit check", { userId: userId.substring(0, 8), lastRequest, diff: lastRequest ? now - lastRequest : null });
   if (lastRequest && now - lastRequest < 3_000) {
+    console.log("[AI] rateLimit BLOCKED");
     return new Response(JSON.stringify({ error: "Bitte kurz warten." }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
@@ -136,7 +138,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   rateLimitMap.set(userId, now);
 
   // API Key holen
+  console.log("[AI] getting API key...");
   const apiKey = await getApiKey(supabase);
+  console.log("[AI] apiKey:", apiKey ? apiKey.substring(0, 10) + "..." : "NULL");
   if (!apiKey) {
     return new Response(
       JSON.stringify({ error: "KI-Assistent ist nicht konfiguriert. Bitte den API-Key im Admin-Bereich unter Einstellungen hinterlegen." }),
@@ -152,6 +156,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
+  console.log("[AI] querying catches...");
   // Letzte 20 Fänge laden
   const { data: catches } = await supabase
     .from("catches")
@@ -205,7 +210,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
         });
 
         try {
+          console.log("[AI] calling OpenRouter...", model);
           const result = await openRouterRequest(apiKey, modelBody, 30_000);
+          console.log("[AI] OpenRouter result:", result.status);
           orStatus = result.status;
           orBody = result.body;
 
