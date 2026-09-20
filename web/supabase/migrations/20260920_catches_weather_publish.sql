@@ -71,3 +71,8 @@ $$;
 
 REVOKE ALL ON FUNCTION public.publish_catch(uuid, uuid) FROM public;
 GRANT EXECUTE ON FUNCTION public.publish_catch(uuid, uuid) TO authenticated;
+-- Migration: add catch_release column
+-- Date: 2026-09-20
+-- Applied: LOCAL Docker + HETZNER Docker
+
+ALTER TABLE public.catches ADD COLUMN IF NOT EXISTS catch_release boolean DEFAULT false;
