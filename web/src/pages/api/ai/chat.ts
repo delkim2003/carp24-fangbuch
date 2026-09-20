@@ -179,7 +179,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "mistralai/mistral-small-2603",
+          model: "deepseek/deepseek-chat-v3-0324",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
