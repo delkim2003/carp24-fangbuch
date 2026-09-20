@@ -260,6 +260,11 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
             </div>
 
             <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" checked={catchData.catch_release ?? false} />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">Catch & Release</label>
+            </div>
+
+            <div class="flex items-center gap-3 pt-md">
               <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="is_public" name="is_public" type="checkbox" checked={catchData.is_public ?? false} />
               <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="is_public">{t("fang_erfassen.oeffentlich_teilen")}</label>
               <span class="text-body-md text-on-surface-variant text-xs">{t("fang_erfassen.oeffentlich_teilen_hinweis")}</span>
@@ -610,11 +615,15 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
       return;
     }
 
-    sb.from('catches').update(input).eq('id', catchId).then(function (res) {
+    fetch('/api/catches/' + catchId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input)
+    }).then(function (r) { return r.json(); }).then(function (res) {
       submitBtn.disabled = false;
       submitBtn.textContent = 'ÄNDERUNGEN SPEICHERN';
       if (res.error) {
-        showSubmitError('Fehler beim Speichern: ' + res.error.message);
+        showSubmitError('Fehler beim Speichern: ' + res.error);
       } else {
         submitSuccess.textContent = 'Fang erfolgreich aktualisiert!';
         submitSuccess.classList.remove('hidden');

@@ -36,6 +36,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
   if (body.notes !== undefined) update.notes = body.notes;
   if (body.photos !== undefined) update.photos = body.photos;
   if (body.caught_at !== undefined) update.caught_at = body.caught_at;
+  if (body.catch_release !== undefined) update.catch_release = body.catch_release;
 
   if (Object.keys(update).length === 0) {
     return new Response(JSON.stringify({ error: 'Keine Änderungen' }), { status: 400 });
