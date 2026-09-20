@@ -167,7 +167,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   try {
     let res;
     let lastError = "";
-    const models = ["mistralai/mistral-small-2603", "google/gemma-3-12b-it:free", "meta-llama/llama-4-scout:free"];
+    const models = ["mistralai/mistral-small-2603", "google/gemma-3-12b-it", "meta-llama/llama-4-scout"];
     
     for (const model of models) {
       const controller = new AbortController();
