@@ -130,6 +130,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
   var input = document.getElementById('ai-input');
   var sendBtn = document.getElementById('ai-send');
   var errorDiv = document.getElementById('ai-error');
+  var counterEl = document.getElementById('ai-usage-counter');
   var bestConditionsBtn = document.getElementById('best-conditions-btn');
   var forecastBtn = document.getElementById('forecast-btn');
   var locationInputContainer = document.getElementById('location-input-container');
@@ -223,6 +224,13 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
           } else if (res.ok && data.answer) {
             addBubble(data.answer, false);
+            // Counter nach jeder Nachricht aktualisieren
+            if (counterEl && data.remaining !== undefined && data.remaining < 999) {
+              var lang2 = getLang();
+              counterEl.textContent = lang2 === 'en'
+                ? data.remaining + ' of 50 requests this month remaining'
+                : data.remaining + ' von 50 Anfragen diesen Monat verbleibend';
+            }
           } else {
             showError(data.error || i18nErrors.request_error[lang] || i18nErrors.request_error.de);
           }
@@ -382,8 +390,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     });
   }
 
-  // AI usage counter
-  var counterEl = document.getElementById('ai-usage-counter');
+  // AI usage counter — initial load
   if (counterEl) {
     fetch('/api/ai/chat', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _check: true }) })
       .then(function(r) { return r.json(); })

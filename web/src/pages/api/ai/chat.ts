@@ -1,4 +1,4 @@
-import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
+import { getSupabaseUrl, getSupabaseAnonKey } from "../../../lib/config";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
@@ -7,11 +7,11 @@ export const prerender = false;
 const rateLimitMap = new Map<string, number>();
 
 async function getApiKey(supabase: any): Promise<string | null> {
-  // 1. Check env var first (fast path)
-  const envKey = import.meta.env.OPENROUTER_API_KEY;
+  // 1. Runtime env var (nicht import.meta.env — das ist Build-Time)
+  const envKey = process.env.OPENROUTER_API_KEY;
   if (envKey) return envKey;
 
-  // 2. Fall back to DB-stored key
+  // 2. DB-stored key
   try {
     const { data } = await supabase
       .from("app_settings")
@@ -52,10 +52,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
 
   const userId = user.id;
-
-  // Nutze isPro/role aus Middleware (bereits via Service-Role gecacht)
   const isPro = (locals as any).isPro ?? false;
   const userRole = (locals as any).role ?? "USER";
+  const isAdmin = userRole === "ADMIN";
 
   if (!isPro) {
     return new Response(
@@ -64,23 +63,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     );
   }
 
-  // Monthly usage limit: 50/month for Pro, admin bypasses
-  const isAdmin = userRole === "ADMIN";
-  let remaining = 999;
-
-  if (!isAdmin) {
-    const { data: monthlyUsage } = await supabase.rpc("get_ai_usage_monthly", { p_user_id: userId });
-    const used = monthlyUsage || 0;
-    remaining = Math.max(0, 50 - used);
-    if (used >= 50) {
-      return new Response(
-        JSON.stringify({ error: "Monatslimit erreicht (50/Monat). Nächster Monat geht es weiter." }),
-        { status: 429, headers: { "Content-Type": "application/json" } }
-      );
-    }
-  }
-
-  // Parse body early — _check must bypass rate limit
+  // Parse body FIRST — _check must bypass rate limit + API key
   let body: { message?: string; _check?: boolean };
   try {
     body = await request.json();
@@ -91,7 +74,24 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  // Usage check request — no rate limit, no API key needed
+  // Monthly usage: 50/month for Pro, admin = unlimited
+  let remaining = 999;
+
+  if (!isAdmin) {
+    const { data: monthlyUsage } = await supabase.rpc("get_ai_usage_monthly", { p_user_id: userId });
+    const used = monthlyUsage || 0;
+    remaining = Math.max(0, 50 - used);
+
+    // _check darf auch bei Limit laufen (Counter-Anzeige)
+    if (used >= 50 && !body._check) {
+      return new Response(
+        JSON.stringify({ error: "Monatslimit erreicht (50/Monat). Nächster Monat geht es weiter.", remaining: 0 }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
+  // _check: nur Counter zurückgeben, kein Rate Limit, kein API Call
   if (body._check) {
     return new Response(JSON.stringify({ remaining }), {
       status: 200,
@@ -110,18 +110,12 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
   rateLimitMap.set(userId, now);
 
-  // Look up API key (env → DB)
+  // API Key holen
   const apiKey = await getApiKey(supabase);
   if (!apiKey) {
     return new Response(
-      JSON.stringify({
-        error:
-          "KI-Assistent ist nicht konfiguriert. Bitte den API-Key im Admin-Bereich unter Einstellungen hinterlegen.",
-      }),
-      {
-        status: 503,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: "KI-Assistent ist nicht konfiguriert. Bitte den API-Key im Admin-Bereich unter Einstellungen hinterlegen." }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -151,7 +145,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
         const species = c.species || "unbekannt";
         const water = c.water_name || "unbekannt";
         const w = c.weather || {};
-        const wInfo = w.pressure_hpa ? `, ${w.pressure_hpa}hPa, ${w.weather_text||'?'}, ${w.temp_c||'?'}°C, ${w.wind_speed_kmh||'?'}km/h` : '';
+        const wInfo = w.pressure_hpa
+          ? `, ${w.pressure_hpa}hPa, ${w.weather_text || "?"}, ${w.temp_c || "?"}°C, ${w.wind_speed_kmh || "?"}km/h`
+          : "";
         return `${date}, ${kg}, ${species}, ${water}${wInfo}`;
       })
       .join("\n");
@@ -162,77 +158,95 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const userPrompt = `Fang-Kontext:\n${contextStr}\n\nFrage: ${message}`;
 
+  // Modelle: primary → fallback. Bei 404 (Guardrail) oder 429 (Rate Limit) → sofort nächstes Modell.
+  const models = [
+    "mistralai/mistral-small-3.2-24b-instruct",
+    "mistralai/mistral-nemo",
+    "mistralai/mistral-small-2603",
+  ];
+  const maxRetries = 3;
+  let res: Response | null = null;
+
   try {
-    let res;
-    const maxRetries = 3;
-    const models = ["mistralai/mistral-small-3.2-24b-instruct", "mistralai/mistral-nemo", "mistralai/mistral-small-2603"];
-    
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       for (const model of models) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30_000);
-        
-        res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-          }),
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeout);
-        
+
+        try {
+          res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+              ],
+            }),
+            signal: controller.signal,
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
+
         if (res.ok) break;
-        // If404 (guardrail), try next model. If429 (rate limit), retry after delay.
-        if (res.status !== 404) break;
+        // 404 = Guardrail blockiert → nächstes Modell
+        // 429 = Rate Limit → auch nächstes Modell versuchen
+        if (res.status === 404 || res.status === 429) continue;
+        // Andere Fehler → abbrechen
+        break;
       }
+
+      // Erfolg → fertig
       if (res && res.ok) break;
+
+      // Alle Modelle 429 → exponential backoff vor Retry
       if (res && res.status === 429 && attempt < maxRetries - 1) {
-        await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt)));
+        await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, attempt)));
         continue;
       }
+
       break;
     }
 
     if (!res || !res.ok) {
-      const errorBody = await res?.text().catch(() => "") || "";
+      const errorBody = (await res?.text().catch(() => "")) || "";
       return new Response(
         JSON.stringify({
-          error: `KI-Dienst nicht erreichbar (${res?.status || 'unknown'}).`,
+          error: `KI-Dienst nicht erreichbar (${res?.status || "unknown"}).`,
           detail: errorBody.slice(0, 200),
         }),
-        {
-          status: 502,
-          headers: { "Content-Type": "application/json" },
-        }
+        { status: 502, headers: { "Content-Type": "application/json" } }
       );
     }
 
     const data = await res.json();
     const answer = data.choices?.[0]?.message?.content || "Keine Antwort erhalten.";
 
-    // Track usage (fire-and-forget, non-blocking)
+    // Usage tracken + remaining dekrementieren
     if (!isAdmin) {
       supabase.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
+      remaining = Math.max(0, remaining - 1);
     }
 
     return new Response(JSON.stringify({ answer, remaining }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch {
-    clearTimeout(timeout);
-    return new Response(JSON.stringify({ error: "KI-Dienst nicht erreichbar." }), {
-      status: 502,
-      headers: { "Content-Type": "application/json" },
-    });
+  } catch (err: any) {
+    if (err?.name === "AbortError") {
+      return new Response(
+        JSON.stringify({ error: "KI-Dienst antwortet nicht (Timeout)." }),
+        { status: 504, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    return new Response(
+      JSON.stringify({ error: "KI-Dienst nicht erreichbar." }),
+      { status: 502, headers: { "Content-Type": "application/json" } }
+    );
   }
 };
