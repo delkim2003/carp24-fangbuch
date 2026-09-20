@@ -165,30 +165,46 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   const timeout = setTimeout(() => controller.abort(), 30_000);
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "mistralai/mistral-small-2603",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-      signal: controller.signal,
-    });
+    let res;
+    let lastError = "";
+    const models = ["mistralai/mistral-small-2603", "google/gemma-3-12b-it:free", "meta-llama/llama-4-scout:free"];
+    
+    for (const model of models) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30_000);
+      
+      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeout);
+      
+      if (res.ok) break;
+      lastError = await res.text().catch(() => "");
+      if (res.status === 429) {
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      break;
+    }
 
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const errorBody = await res.text().catch(() => "");
+    if (!res || !res.ok) {
       return new Response(
         JSON.stringify({
-          error: `KI-Dienst nicht erreichbar (${res.status}).`,
-          detail: errorBody.slice(0, 200),
+          error: `KI-Dienst nicht erreichbar (${res?.status || 'unknown'}).`,
+          detail: lastError.slice(0, 200),
         }),
         {
           status: 502,
