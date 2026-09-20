@@ -3,8 +3,8 @@ import { createSSRClient, createServiceClient } from '../../../lib/ssr-client';
 
 export const PUT: APIRoute = async ({ request, params, cookies }) => {
   // Auth check
-  const ssr = createSSRClient({ request, cookies } as any);
-  const { data: { user } } = await ssr.supabase.auth.getUser();
+  const supabase = createSSRClient({ request, cookies } as any);
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
 
   const catchId = params.id;
