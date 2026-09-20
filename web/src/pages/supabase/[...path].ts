@@ -75,7 +75,17 @@ async function proxyRequest(request: Request, path: string) {
     }
 
     const isBodyless = response.status === 204 || response.status === 205 || response.status === 304;
-    const responseBody = isBodyless ? null : await response.text();
+    const contentType = response.headers.get("content-type") || "";
+    const isBinary = contentType.startsWith("image/") || contentType.startsWith("video/") || contentType.startsWith("audio/") || contentType.startsWith("application/octet-stream");
+    
+    let responseBody: BodyInit | null;
+    if (isBodyless) {
+      responseBody = null;
+    } else if (isBinary) {
+      responseBody = await response.arrayBuffer();
+    } else {
+      responseBody = await response.text();
+    }
 
     return new Response(responseBody, {
       status: response.status,

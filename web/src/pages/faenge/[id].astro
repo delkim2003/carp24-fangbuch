@@ -22,7 +22,8 @@ if (catchData && Array.isArray(catchData.photos) && catchData.photos[0]) {
   const photoRef = catchData.photos[0] as string;
   if (photoRef.startsWith("foto:")) {
     const { data: signedData } = await adminClient.storage.from("catch-photos").createSignedUrl(photoRef.slice(5), 3600);
-    signedPhotoUrl = signedData?.signedUrl ? `${process.env.PUBLIC_SUPABASE_URL || 'http://100.93.250.103:8055'}/storage/v1${signedData.signedUrl}` : null;
+    // Rewrite signed URL to use Astro proxy (browser can't reach Supabase directly)
+    signedPhotoUrl = signedData?.signedUrl ? signedData.signedUrl.replace(process.env.SUPABASE_URL || 'http://100.93.250.103:8055', '/supabase') : null;
   } else if (photoRef.startsWith("http")) {
     signedPhotoUrl = photoRef;
   }

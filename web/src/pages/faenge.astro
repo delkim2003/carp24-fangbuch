@@ -23,7 +23,8 @@ if (session) {
   for (const c of catches) {
     if (Array.isArray(c.photos) && c.photos[0] && typeof c.photos[0] === 'string' && c.photos[0].startsWith('foto:')) {
       const { data: sd } = await adminClient.storage.from('catch-photos').createSignedUrl(c.photos[0].slice(5), 3600);
-      c._photoUrl = sd?.signedUrl ? `${process.env.PUBLIC_SUPABASE_URL || 'http://100.93.250.103:8055'}/storage/v1${sd.signedUrl}` : null;
+      // Rewrite signed URL to use Astro proxy (browser can't reach Supabase directly)
+      c._photoUrl = sd?.signedUrl ? sd.signedUrl.replace(process.env.SUPABASE_URL || 'http://100.93.250.103:8055', '/supabase') : null;
     }
   }
   if (error) loadError = error.message;
