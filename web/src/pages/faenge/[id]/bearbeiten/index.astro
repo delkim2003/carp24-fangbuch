@@ -1,0 +1,732 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { createSSRClient } from "../../../lib/ssr-client";
+import { t } from "../../../lib/i18n";
+
+const supabase = createSSRClient(Astro);
+
+export const prerender = false;
+
+const id = Astro.params.id ?? "";
+const { data: { session } } = await supabase.auth.getSession();
+const isLoggedIn = !!session;
+
+let catchData: any = null;
+let notFound = false;
+let notOwned = false;
+
+if (isLoggedIn && session && id) {
+  const { data, error } = await supabase
+    .from("catches")
+    .select("*")
+    .eq("id", id)
+    .is("deleted_at", null)
+    .single();
+  if (error || !data) {
+    notFound = true;
+  } else if (data.user_id !== session.user.id) {
+    notOwned = true;
+  } else {
+    catchData = data;
+  }
+}
+
+// Pre-format date and time from catch_ts
+let prefillDate = "";
+let prefillTime = "";
+if (catchData?.catch_ts) {
+  const d = new Date(catchData.catch_ts);
+  prefillDate = d.toISOString().split("T")[0];
+  prefillTime = d.toTimeString().slice(0, 5);
+}
+
+// Extract existing photo for display
+let existingPhotoUrl: string | null = null;
+let existingPhotoRef: string | null = null;
+if (catchData && Array.isArray(catchData.photos) && catchData.photos[0]) {
+  const ref = catchData.photos[0] as string;
+  if (ref.startsWith("foto:")) {
+    existingPhotoRef = ref.slice(5);
+    existingPhotoUrl = "/supabase/storage/v1/object/public/catch-photos/" + existingPhotoRef;
+  } else if (ref.startsWith("http")) {
+    existingPhotoUrl = ref;
+  }
+}
+
+const catchDataJson = JSON.stringify(catchData);
+const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
+---
+
+<Layout title={`Carp24 – ${catchData ? t("fang_bearbeiten.titel") : t("fang_bearbeiten.nicht_gefunden")}`} noindex>
+  <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    {!session ? (
+      <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
+        <h1 class="text-display-lg text-primary mb-2">{t("fang_bearbeiten.anmelden_text")}</h1>
+        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+          {t("fang_erfassen.anmelden_btn")}
+        </a>
+      </div>
+    ) : notFound ? (
+      <div class="text-center py-24 flex flex-col items-center gap-lg">
+        <h1 class="text-display-lg text-primary">{t("fang_bearbeiten.nicht_gefunden")}</h1>
+        <p class="text-body-lg text-on-surface-variant">{t("fang_bearbeiten.nicht_gefunden_text")}</p>
+        <a href="/faenge" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
+      </div>
+    ) : notOwned ? (
+      <div class="text-center py-24 flex flex-col items-center gap-lg">
+        <h1 class="text-display-lg text-primary">{t("fang_bearbeiten.kein_zugriff")}</h1>
+        <p class="text-body-lg text-on-surface-variant">{t("fang_bearbeiten.kein_zugriff_text")}</p>
+        <a href="/faenge" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
+      </div>
+    ) : catchData ? (
+      <>
+        <div class="mb-xl text-center md:text-left">
+          <a href={`/faenge/${id}`} class="inline-flex items-center font-nav-item text-nav-item uppercase text-primary tracking-widest hover:opacity-80 transition-opacity mb-md">
+            <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19L5 12M12 5L5 12"/></svg>
+            {t("fang_bearbeiten.zurueck")}
+          </a>
+          <h1 class="text-display-lg text-primary mb-2">{t("fang_bearbeiten.titel")}</h1>
+          <p class="text-body-lg text-on-surface-variant max-w-2xl">{t("fang_bearbeiten.intro")}</p>
+        </div>
+
+        <form id="catch-form" class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl shadow-sm" data-catch-id={id}>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
+            <div class="flex flex-col gap-lg">
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewicht">{t("fang_erfassen.gewicht")}<span class="text-primary" aria-hidden="true">*</span></label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="gewicht" name="gewicht" type="number" step="0.1" placeholder="0.0" inputmode="decimal" required
+                  value={catchData.weight_kg ?? ""}
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="laenge">{t("fang_erfassen.laenge")}</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="laenge" name="laenge" type="number" placeholder="0" inputmode="numeric"
+                  value={catchData.length_cm ?? ""}
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="water_temp_c">{t("fang_erfassen.wassertemperatur_label")}</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="water_temp_c" name="water_temp_c" type="number" step="0.1" min="0" max="40" placeholder="18.5" inputmode="decimal" data-testid="water-temp-input"
+                  value={catchData.water_temp_c ?? ""}
+                />
+                <span class="text-body-md text-on-surface-variant text-xs">{t("fang_erfassen.wassertemperatur_hinweis")}</span>
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary">{t("fang_erfassen.fischart")}<span class="text-primary" aria-hidden="true">*</span></label>
+                <div id="species-chips" class="flex flex-wrap gap-sm">
+                  {speciesList.map((s) => (
+                    <button type="button" data-species={s}
+                      class={`species-chip font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 transition-colors min-h-11 cursor-pointer ${
+                        catchData.species === s
+                          ? "bg-primary-container text-on-primary-container"
+                          : "text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container"
+                      }`}
+                    >{s}</button>
+                  ))}
+                </div>
+                <input type="hidden" id="species" name="species" value={catchData.species ?? ""} />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-lg">
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="datum">{t("fang_erfassen.datum")}<span class="text-primary" aria-hidden="true">*</span></label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="datum" name="datum" type="date" required
+                  value={prefillDate}
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="uhrzeit">{t("fang_erfassen.uhrzeit")}</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="uhrzeit" name="uhrzeit" type="time"
+                  value={prefillTime}
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="koeder">{t("fang_erfassen.koeder")}</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="koeder" name="koeder" type="text" placeholder={t("fang_erfassen.koeder_placeholder")}
+                  value={catchData.bait ?? ""}
+                />
+              </div>
+
+              <div class="flex flex-col gap-sm">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="methode">{t("fang_erfassen.methode")}</label>
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="methode" name="methode" type="text" placeholder={t("fang_erfassen.methode_placeholder")}
+                  value={catchData.method ?? ""}
+                />
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-t border-primary/20 my-xl" />
+
+          <div class="flex flex-col gap-lg">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary" for="gewaesser-input">{t("fang_erfassen.gewaesser")}</label>
+              <div class="relative">
+                <input
+                  class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                  id="gewaesser-input" name="gewaesser" type="text" placeholder={t("fang_erfassen.gewaesser_placeholder")} autocomplete="off"
+                  value={catchData.water_name ?? ""}
+                />
+                <div id="gewaesser-dropdown" class="hidden absolute z-10 w-full bg-surface-container-lowest border border-primary/20 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+              </div>
+              <input type="hidden" id="water_name" name="water_name" value={catchData.water_name ?? ""} />
+              <input type="hidden" id="water_id" name="water_id" value={catchData.water_id ?? ""} />
+
+              <button type="button" id="gps-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+                {t("fang_erfassen.standort_verwenden")}
+              </button>
+              <span id="gps-status" class="text-body-md text-secondary hidden"></span>
+
+              <button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {t("fang_erfassen.auf_karte_waehlen")}
+              </button>
+              <p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs">{t("fang_erfassen.karten_consent_hinweis")}</p>
+
+              <div class="grid grid-cols-2 gap-gutter mt-sm">
+                <div class="flex flex-col gap-xs">
+                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lat">{t("fang_erfassen.breitengrad")}</label>
+                  <input
+                    class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                    id="lat" name="lat" type="number" step="any" placeholder="48.1351" inputmode="decimal"
+                    value={catchData.lat ?? ""}
+                  />
+                </div>
+                <div class="flex flex-col gap-xs">
+                  <label class="font-label-sm text-label-sm uppercase text-secondary" for="lng">{t("fang_erfassen.laengengrad")}</label>
+                  <input
+                    class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 min-h-12"
+                    id="lng" name="lng" type="number" step="any" placeholder="11.5820" inputmode="decimal"
+                    value={catchData.lng ?? ""}
+                  />
+                </div>
+              </div>
+              <p class="text-body-md text-on-surface-variant text-xs mt-xs">{t("fang_erfassen.privatgewaesser_hinweis")}</p>
+              <p class="text-body-md text-on-surface-variant text-xs mt-xs">{t("fang_erfassen.wetterdaten_hinweis")}</p>
+              <div id="map-pick-container" class="hidden mt-sm rounded-lg overflow-hidden border border-primary/20" style="height: 320px; z-index: 1;"></div>
+            </div>
+
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-sm text-label-sm uppercase text-secondary">{t("fang_erfassen.foto_hochladen")}</label>
+              <!-- Existing photo preview -->
+              {existingPhotoUrl && (
+                <div id="existing-photo-container" class="relative rounded-lg overflow-hidden mb-sm border border-primary/20">
+                  <img src={existingPhotoUrl} alt="Aktuelles Fangfoto" class="w-full max-h-48 object-cover" id="existing-photo-img" />
+                  <button type="button" id="remove-photo-btn" class="absolute top-2 right-2 bg-error-container text-on-error-container rounded-full w-8 h-8 flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer" aria-label="Foto entfernen">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              )}
+              <div id="photo-drop" class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span class="font-nav-item text-nav-item text-secondary">{t("fang_erfassen.bild_auswaehlen")}</span>
+                <span id="photo-name" class="text-body-md text-primary mt-sm hidden"></span>
+              </div>
+              <input type="file" id="photo-input" accept="image/*" class="hidden" />
+              <input type="hidden" id="photos" name="photos" value={catchData.photos ? JSON.stringify(catchData.photos) : ""} />
+            </div>
+
+            <div class="flex flex-col gap-sm">
+              <div class="flex justify-between items-center">
+                <label class="font-label-sm text-label-sm uppercase text-secondary" for="notizen">{t("fang_erfassen.notizen")}</label>
+                <span id="notes-counter" class="font-label-sm text-label-sm text-secondary">{(catchData.notes?.length ?? 0) + " / 1000"}</span>
+              </div>
+              <textarea
+                class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-3 px-4 resize-none min-h-32"
+                id="notizen" name="notizen" rows="4" maxlength="1000" placeholder={t("fang_erfassen.notizen_placeholder")}
+              >{catchData.notes ?? ""}</textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="catch_release" name="catch_release" type="checkbox" checked={catchData.catch_release ?? false} />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="catch_release">{t("fang_erfassen.catch_release")}</label>
+            </div>
+
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="is_public" name="is_public" type="checkbox" checked={catchData.is_public ?? false} />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="is_public">{t("fang_erfassen.oeffentlich_teilen")}</label>
+              <span class="text-body-md text-on-surface-variant text-xs">{t("fang_erfassen.oeffentlich_teilen_hinweis")}</span>
+            </div>
+
+            <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
+            <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
+
+            <div class="pt-xl flex justify-end gap-md">
+              <a href={`/faenge/${id}`} class="inline-flex items-center justify-center font-nav-item text-nav-item uppercase py-4 px-8 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-lowest transition-colors min-h-12">
+                {t("fang_bearbeiten.abbrechen")}
+              </a>
+              <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed">
+                {t("fang_bearbeiten.speichern")}
+              </button>
+            </div>
+          </div>
+        </form>
+      </>
+    ) : null}
+  </main>
+</Layout>
+
+<script is:inline define:vars={{}}>
+(function () {
+  var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
+  var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+  var form = document.getElementById('catch-form');
+  if (!form) return;
+  var catchId = form.dataset.catchId;
+
+  var speciesChips = document.querySelectorAll('.species-chip');
+  var speciesInput = document.getElementById('species');
+  var gewaesserInput = document.getElementById('gewaesser-input');
+  var gewaesserDropdown = document.getElementById('gewaesser-dropdown');
+  var waterNameInput = document.getElementById('water_name');
+  var waterIdInput = document.getElementById('water_id');
+  var latInput = document.getElementById('lat');
+  var lngInput = document.getElementById('lng');
+  var gpsBtn = document.getElementById('gps-btn');
+  var gpsStatus = document.getElementById('gps-status');
+  var photoDrop = document.getElementById('photo-drop');
+  var photoInput = document.getElementById('photo-input');
+  var photoName = document.getElementById('photo-name');
+  var photosInput = document.getElementById('photos');
+  var notizen = document.getElementById('notizen');
+  var notesCounter = document.getElementById('notes-counter');
+  var gewichtInput = document.getElementById('gewicht');
+  var submitBtn = document.getElementById('submit-btn');
+  var submitError = document.getElementById('submit-error');
+  var submitSuccess = document.getElementById('submit-success');
+  var removePhotoBtn = document.getElementById('remove-photo-btn');
+  var existingPhotoContainer = document.getElementById('existing-photo-container');
+
+  var debounceTimer = null;
+  var photoRemoved = false;
+
+  speciesChips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      speciesChips.forEach(function (c) {
+        c.classList.remove('bg-primary-container', 'text-on-primary-container');
+        c.classList.add('text-on-surface-variant');
+      });
+      chip.classList.add('bg-primary-container', 'text-on-primary-container');
+      chip.classList.remove('text-on-surface-variant');
+      speciesInput.value = chip.getAttribute('data-species');
+    });
+  });
+
+  gewichtInput.addEventListener('input', function () {
+    this.value = this.value.replace(',', '.');
+  });
+
+  notizen.addEventListener('input', function () {
+    notesCounter.textContent = this.value.length + ' / 1000';
+  });
+
+  gewaesserInput.addEventListener('input', function () {
+    var q = this.value.trim();
+    if (q.length < 2) {
+      gewaesserDropdown.classList.add('hidden');
+      return;
+    }
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () {
+      fetchWaters(q);
+    }, 300);
+  });
+
+  gewaesserInput.addEventListener('blur', function () {
+    setTimeout(function () {
+      gewaesserDropdown.classList.add('hidden');
+    }, 200);
+  });
+
+  function fetchWaters(query) {
+    if (!navigator.onLine) {
+      gewaesserDropdown.classList.add('hidden');
+      return;
+    }
+    var sb = getSupabase();
+    if (!sb) return;
+    sb.functions.invoke('gewaesser-search', { body: { query: query } }).then(function (res) {
+      if (res.error || !res.data) {
+        gewaesserDropdown.classList.add('hidden');
+        return;
+      }
+      var results = res.data;
+      if (!results.length) {
+        gewaesserDropdown.classList.add('hidden');
+        return;
+      }
+      gewaesserDropdown.innerHTML = '';
+      results.forEach(function (w) {
+        var item = document.createElement('div');
+        item.className = 'px-4 py-3 cursor-pointer hover:bg-surface-container-high transition-colors border-b border-primary/10 last:border-0';
+        item.innerHTML = '<div class="text-body-md text-on-surface">' + escapeHtml(w.name) + '</div>' +
+          '<div class="text-body-md text-on-surface-variant text-xs">' + w.lat.toFixed(4) + ', ' + w.lng.toFixed(4) + '</div>';
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          gewaesserInput.value = w.name;
+          waterNameInput.value = w.name;
+          latInput.value = w.lat;
+          lngInput.value = w.lng;
+          gewaesserDropdown.classList.add('hidden');
+        });
+        gewaesserDropdown.appendChild(item);
+      });
+      gewaesserDropdown.classList.remove('hidden');
+    });
+  }
+
+  gpsBtn.addEventListener('click', function () {
+    if (!navigator.geolocation) {
+      gpsStatus.textContent = 'Geolocation nicht unterstützt';
+      gpsStatus.classList.remove('hidden');
+      return;
+    }
+    gpsStatus.textContent = 'Standort wird ermittelt…';
+    gpsStatus.classList.remove('hidden');
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        latInput.value = pos.coords.latitude.toFixed(6);
+        lngInput.value = pos.coords.longitude.toFixed(6);
+        gpsStatus.textContent = 'Standort erfasst ✓';
+        gpsStatus.classList.add('text-primary');
+      },
+      function (err) {
+        gpsStatus.textContent = 'Fehler: ' + err.message;
+        gpsStatus.classList.remove('text-primary');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  photoDrop.addEventListener('click', function () {
+    photoInput.click();
+  });
+  photoDrop.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      photoInput.click();
+    }
+  });
+
+  photoInput.addEventListener('change', function () {
+    if (!this.files || !this.files[0]) return;
+    var file = this.files[0];
+    photoName.textContent = file.name;
+    photoName.classList.remove('hidden');
+    if (existingPhotoContainer) existingPhotoContainer.classList.add('hidden');
+
+    var isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+                 file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+
+    var sb = getSupabase();
+    if (!sb) {
+      showSubmitError('Foto-Upload nicht möglich — offline.');
+      return;
+    }
+    sb.auth.getUser().then(function (ur) {
+      var userId = ur.data && ur.data.user ? ur.data.user.id : null;
+      if (!userId) {
+        showSubmitError('Foto-Upload fehlgeschlagen: nicht angemeldet.');
+        return;
+      }
+      var processImage = function (blob) {
+        createImageBitmap(blob).then(function (bitmap) {
+          var maxDim = 1600;
+          var scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.round(bitmap.width * scale);
+          canvas.height = Math.round(bitmap.height * scale);
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          bitmap.close();
+          canvas.toBlob(function (blob) {
+            if (!blob) {
+              canvas.toBlob(function (blob2) {
+                uploadPhotoBlob(blob2, 'image/jpeg', '.jpg');
+              }, 'image/jpeg', 0.80);
+              return;
+            }
+            uploadPhotoBlob(blob, 'image/webp', '.webp');
+          }, 'image/webp', 0.80);
+        }).catch(function (e) {
+          console.error('Image decode failed:', e);
+          showSubmitError('Foto konnte nicht gelesen werden: ' + (e.message || 'Unbekannter Fehler'));
+        });
+      };
+      function uploadPhotoBlob(blob, mime, ext) {
+        var filePath = userId + '/' + genClientUuid() + ext;
+        sb.storage.from('catch-photos').upload(filePath, blob, { contentType: mime }).then(function (res) {
+          if (res.error) {
+            showSubmitError('Foto-Upload fehlgeschlagen: ' + res.error.message);
+            return;
+          }
+          photosInput.value = JSON.stringify(['foto:' + filePath]);
+          photoName.textContent = file.name + ' (optimiert)';
+        });
+      }
+      if (isHeic) {
+        photoName.textContent = file.name + ' (HEIC → WebP konvertiert...)';
+        createImageBitmap(file).then(function (bitmap) {
+          var c = document.createElement('canvas');
+          c.width = bitmap.width;
+          c.height = bitmap.height;
+          c.getContext('2d').drawImage(bitmap, 0, 0);
+          c.toBlob(function (blob) {
+            if (blob) processImage(blob);
+            else showSubmitError('HEIC-Konvertierung fehlgeschlagen.');
+          }, 'image/jpeg', 0.90);
+        }).catch(function () {
+          showSubmitError('HEIC nicht unterstützt in diesem Browser. Bitte JPG/PNG verwenden.');
+        });
+      } else {
+        processImage(file);
+      }
+    });
+  });
+
+  // Remove photo
+  if (removePhotoBtn) {
+    removePhotoBtn.addEventListener('click', function () {
+      if (existingPhotoContainer) existingPhotoContainer.classList.add('hidden');
+      photosInput.value = '';
+      photoRemoved = true;
+      photoName.textContent = 'Foto entfernt';
+      photoName.classList.remove('hidden');
+    });
+  }
+
+  function buildInputData() {
+    var gewicht = parseFloat(gewichtInput.value);
+    if (!gewicht || gewicht <= 0) {
+      showSubmitError('Bitte ein gültiges Gewicht eingeben.');
+      return null;
+    }
+
+    var species = speciesInput.value;
+    if (!species) {
+      showSubmitError('Bitte eine Fischart auswählen.');
+      return null;
+    }
+
+    var datum = document.getElementById('datum').value;
+    if (!datum) {
+      showSubmitError('Bitte ein Datum eingeben.');
+      return null;
+    }
+
+    var uhrzeit = document.getElementById('uhrzeit').value;
+    var catch_ts = datum + (uhrzeit ? 'T' + uhrzeit + ':00' : 'T12:00:00');
+
+    var input = {
+      catch_ts: new Date(catch_ts).toISOString(),
+      species: species,
+      weight_kg: gewicht,
+    };
+
+    var laenge = parseFloat(document.getElementById('laenge').value);
+    if (laenge > 0) input.length_cm = laenge;
+
+    var waterTemp = parseFloat(document.getElementById('water_temp_c').value);
+    if (!isNaN(waterTemp) && waterTemp >= 0 && waterTemp <= 40) input.water_temp_c = waterTemp;
+
+    var koeder = document.getElementById('koeder').value.trim();
+    if (koeder) input.bait = koeder;
+
+    var methode = document.getElementById('methode').value.trim();
+    if (methode) input.method = methode;
+
+    var notes = notizen.value.trim();
+    if (notes !== undefined) input.notes = notes;
+
+    var lat = parseFloat(latInput.value);
+    var lng = parseFloat(lngInput.value);
+    if (!isNaN(lat)) input.lat = lat;
+    if (!isNaN(lng)) input.lng = lng;
+
+    var wn = waterNameInput.value;
+    if (wn) input.water_name = wn;
+    var wid = waterIdInput.value;
+    if (wid) input.water_id = wid;
+
+    // Photos: if no new photo uploaded and not removed, keep existing
+    var photosVal = photosInput.value;
+    if (photoRemoved) {
+      input.photos = [];
+    } else if (photosVal) {
+      try { input.photos = JSON.parse(photosVal); } catch (e) { input.photos = []; }
+    } else {
+      // Keep existing photos — read from hidden field original value
+      // Original value was set from catchData, so we keep it
+      input.photos = photosVal ? (function(){ try { return JSON.parse(photosVal); } catch(e){ return []; } })() : [];
+    }
+
+    // catch_release
+    var catchReleaseCheckbox = document.getElementById('catch_release');
+    if (catchReleaseCheckbox) {
+      input.catch_release = catchReleaseCheckbox.checked;
+    }
+
+    // is_public
+    var isPublicCheckbox = document.getElementById('is_public');
+    if (isPublicCheckbox) {
+      input.is_public = isPublicCheckbox.checked;
+    }
+
+    return input;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+
+    var input = buildInputData();
+    if (!input) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'WIRD GESPEICHERT…';
+
+    var sb = getSupabase();
+    if (!sb) {
+      showSubmitError('Supabase nicht initialisiert');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'ÄNDERUNGEN SPEICHERN';
+      return;
+    }
+
+    sb.from('catches').update(input).eq('id', catchId).then(function (res) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'ÄNDERUNGEN SPEICHERN';
+      if (res.error) {
+        showSubmitError('Fehler beim Speichern: ' + res.error.message);
+      } else {
+        submitSuccess.textContent = 'Fang erfolgreich aktualisiert!';
+        submitSuccess.classList.remove('hidden');
+        setTimeout(function () {
+          window.location.href = '/faenge/' + catchId;
+        }, 1200);
+      }
+    });
+  });
+
+  function getSupabase() {
+    if (window.__supabase) return window.__supabase;
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      window.__supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "sb-carp24-auth-token" },
+        cookieOptions: { path: '/', sameSite: 'lax', secure: window.location.protocol === 'https:' }
+      });
+      return window.__supabase;
+    }
+    return null;
+  }
+
+  function genClientUuid() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+      var buf = new Uint8Array(16);
+      crypto.getRandomValues(buf);
+      buf[6] = (buf[6] & 0x0f) | 0x40;
+      buf[8] = (buf[8] & 0x3f) | 0x80;
+      var hex = Array.from(buf, function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+      return hex.slice(0, 8) + "-" + hex.slice(8, 12) + "-" + hex.slice(12, 16) + "-" + hex.slice(16, 20) + "-" + hex.slice(20);
+    }
+    return "f" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+  }
+
+  function showSubmitError(msg) {
+    submitError.textContent = msg;
+    submitError.classList.remove('hidden');
+  }
+
+  function hideMessages() {
+    submitError.classList.add('hidden');
+    submitSuccess.classList.add('hidden');
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+})();
+</script>
+
+<script>
+  // Map pick: Leaflet dynamisch, OSM-Tiles nur mit Klaro-Consent ("all")
+  const mapPickBtn = document.getElementById("map-pick-btn");
+  const mapContainer = document.getElementById("map-pick-container");
+  const mapConsentHint = document.getElementById("map-consent-hint");
+  const latInput = document.getElementById("lat");
+  const lngInput = document.getElementById("lng");
+
+  function hasMapConsent() {
+    try { return localStorage.getItem("klaro-consent") === "all"; } catch (e) { return false; }
+  }
+
+  if (mapPickBtn && mapContainer && latInput && lngInput) {
+    mapPickBtn.addEventListener("click", async function () {
+      if (!hasMapConsent()) {
+        if (mapConsentHint) mapConsentHint.classList.remove("hidden");
+        return;
+      }
+      if (mapConsentHint) mapConsentHint.classList.add("hidden");
+      mapContainer.classList.remove("hidden");
+      const L = await import("leaflet");
+      const pinIcon = L.divIcon({
+        className: "",
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 24 24" fill="none" stroke="#0b6e4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#0b6e4f" stroke="none"/></svg>',
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+      });
+      let marker = null;
+      if (!window.__mapPick) {
+        window.__mapPick = L.map(mapContainer, { zoomControl: true, attributionControl: true });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(window.__mapPick);
+        window.__mapPick.on("click", function (e) {
+          const lat = e.latlng.lat.toFixed(6);
+          const lng = e.latlng.lng.toFixed(6);
+          latInput.value = lat;
+          lngInput.value = lng;
+          if (marker) window.__mapPick.removeLayer(marker);
+          marker = L.marker([lat, lng], { icon: pinIcon }).addTo(window.__mapPick);
+        });
+        const curLat = parseFloat(latInput.value);
+        const curLng = parseFloat(lngInput.value);
+        if (!isNaN(curLat) && !isNaN(curLng)) {
+          window.__mapPick.setView([curLat, curLng], 13);
+        } else {
+          window.__mapPick.setView([47.5, 14.3], 7);
+        }
+      } else {
+        window.__mapPick.invalidateSize();
+      }
+    });
+  }
+</script>

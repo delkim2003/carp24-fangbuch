@@ -444,6 +444,19 @@ const dict: Record<string, Record<Lang, string>> = {
   "fang_erfassen.speichern": { de: "FANG SPEICHERN", en: "SAVE CATCH" },
   "fang_erfassen.jetzt_syncen": { de: "JETZT SYNCEN", en: "SYNC NOW" },
 
+  // fang_bearbeiten
+  "fang_bearbeiten.titel": { de: "Fang bearbeiten", en: "Edit catch" },
+  "fang_bearbeiten.intro": { de: "Ändere die Details deines Fangs.", en: "Edit the details of your catch." },
+  "fang_bearbeiten.speichern": { de: "ÄNDERUNGEN SPEICHERN", en: "SAVE CHANGES" },
+  "fang_bearbeiten.abbrechen": { de: "ABBRECHEN", en: "CANCEL" },
+  "fang_bearbeiten.zurueck": { de: "ZURÜCK ZUM FANG", en: "BACK TO CATCH" },
+  "fang_bearbeiten.anmelden_text": { de: "Du musst angemeldet sein, um einen Fang zu bearbeiten.", en: "You must be signed in to edit a catch." },
+  "fang_bearbeiten.nicht_gefunden": { de: "FANG NICHT GEFUNDEN", en: "CATCH NOT FOUND" },
+  "fang_bearbeiten.nicht_gefunden_text": { de: "Dieser Fang existiert nicht oder wurde gelöscht.", en: "This catch does not exist or has been deleted." },
+  "fang_bearbeiten.zur_fangliste": { de: "ZUR FANGLISTE", en: "BACK TO CATCH LIST" },
+  "fang_bearbeiten.kein_zugriff": { de: "KEIN ZUGRIFF", en: "NO ACCESS" },
+  "fang_bearbeiten.kein_zugriff_text": { de: "Du hast keine Berechtigung, diesen Fang zu bearbeiten.", en: "You are not allowed to edit this catch." },
+
   // assistent
   "assistent.titel": { de: "KI-ANGELASSISTENT", en: "AI FISHING ASSISTANT" },
   "assistent.begrüssung": { de: "Frag mich nach deinen Fängen — z.B. 'Was war mein größter Fang?'", en: "Ask me about your catches — e.g. 'What was my biggest catch?'" },
