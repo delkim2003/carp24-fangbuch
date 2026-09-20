@@ -1,10 +1,35 @@
 import { getSupabaseUrl, getSupabaseAnonKey } from "../../../lib/config";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import https from "node:https";
 
 export const prerender = false;
 
 // DSGVO: transiente Verarbeitung, keine Speicherung, kein Logging.
 const rateLimitMap = new Map<string, number>();
+
+/**
+ * OpenRouter-Request via node:https (umgeht Astro fetch interception).
+ * Gibt { status, body } zurück oder wirft bei Timeout.
+ */
+function openRouterRequest(apiKey: string, body: string, timeoutMs = 30_000): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => { req.destroy(new Error("Timeout")); }, timeoutMs);
+    const req = https.request("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+    }, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => { clearTimeout(timer); resolve({ status: res.statusCode ?? 0, body: data }); });
+    });
+    req.on("error", (err) => { clearTimeout(timer); reject(err); });
+    req.write(body);
+    req.end();
+  });
+}
 
 async function getApiKey(supabase: any): Promise<string | null> {
   // 1. Runtime env var (nicht import.meta.env — das ist Build-Time)
@@ -165,47 +190,44 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     "mistralai/mistral-small-2603",
   ];
   const maxRetries = 3;
-  let res: Response | null = null;
+  let orStatus = 0;
+  let orBody = "";
 
   try {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       for (const model of models) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30_000);
+        const modelBody = JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        });
 
         try {
-          res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: userPrompt },
-              ],
-            }),
-            signal: controller.signal,
-          });
-        } finally {
-          clearTimeout(timeout);
-        }
+          const result = await openRouterRequest(apiKey, modelBody, 30_000);
+          orStatus = result.status;
+          orBody = result.body;
 
-        if (res.ok) break;
-        // 404 = Guardrail blockiert → nächstes Modell
-        // 429 = Rate Limit → auch nächstes Modell versuchen
-        if (res.status === 404 || res.status === 429) continue;
-        // Andere Fehler → abbrechen
-        break;
+          if (orStatus >= 200 && orStatus < 300) break;
+          // 404 = Guardrail blockiert → nächstes Modell
+          // 429 = Rate Limit → auch nächstes Modell versuchen
+          if (orStatus === 404 || orStatus === 429) continue;
+          // Andere Fehler → abbrechen
+          break;
+        } catch (err: any) {
+          // Timeout oder Netzwerk-Fehler → nächstes Modell
+          orStatus = 0;
+          orBody = err?.message || "Network error";
+          continue;
+        }
       }
 
       // Erfolg → fertig
-      if (res && res.ok) break;
+      if (orStatus >= 200 && orStatus < 300) break;
 
       // Alle Modelle 429 → exponential backoff vor Retry
-      if (res && res.status === 429 && attempt < maxRetries - 1) {
+      if (orStatus === 429 && attempt < maxRetries - 1) {
         await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, attempt)));
         continue;
       }
@@ -213,18 +235,17 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       break;
     }
 
-    if (!res || !res.ok) {
-      const errorBody = (await res?.text().catch(() => "")) || "";
+    if (orStatus < 200 || orStatus >= 300) {
       return new Response(
         JSON.stringify({
-          error: `KI-Dienst nicht erreichbar (${res?.status || "unknown"}).`,
-          detail: errorBody.slice(0, 200),
+          error: `KI-Dienst nicht erreichbar (${orStatus || "unknown"}).`,
+          detail: orBody.slice(0, 200),
         }),
         { status: 502, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const data = await res.json();
+    const data = JSON.parse(orBody);
     const answer = data.choices?.[0]?.message?.content || "Keine Antwort erhalten.";
 
     // Usage tracken + remaining dekrementieren
@@ -238,12 +259,6 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       headers: { "Content-Type": "application/json" },
     });
   } catch (err: any) {
-    if (err?.name === "AbortError") {
-      return new Response(
-        JSON.stringify({ error: "KI-Dienst antwortet nicht (Timeout)." }),
-        { status: 504, headers: { "Content-Type": "application/json" } }
-      );
-    }
     return new Response(
       JSON.stringify({ error: "KI-Dienst nicht erreichbar." }),
       { status: 502, headers: { "Content-Type": "application/json" } }
