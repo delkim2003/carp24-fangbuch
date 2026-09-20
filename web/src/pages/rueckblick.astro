@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { createSSRClient } from "../lib/ssr-client";
+import { createSSRClient, createServiceClient } from "../lib/ssr-client";
 import PremiumLock from "../components/PremiumLock.astro";
 import { getTierFromLocals } from "../lib/tier";
 import { t } from "../lib/i18n";
@@ -8,6 +8,7 @@ import { t } from "../lib/i18n";
 export const prerender = false;
 
 const supabase = createSSRClient(Astro);
+const adminClient = createServiceClient();
 const session = Astro.locals.session;
 
 if (!session) return Astro.redirect("/login/");
@@ -26,8 +27,8 @@ if (session) {
     if (Array.isArray(c.photos) && c.photos[0]) {
       const ref = c.photos[0] as string;
       if (ref.startsWith("foto:")) {
-        const { data: signed } = await supabase.storage.from("catch-photos").createSignedUrl(ref.slice(5), 3600);
-        c._signedPhotoUrl = signed?.signedUrl ?? null;
+        const { data: signed } = await adminClient.storage.from("catch-photos").createSignedUrl(ref.slice(5), 3600);
+        c._signedPhotoUrl = signed?.signedUrl ? signed.signedUrl.replace(process.env.PUBLIC_SUPABASE_URL || 'http://supabase-kong:8000', '/supabase') : null;
       } else if (ref.startsWith("http")) {
         c._signedPhotoUrl = ref;
       }
