@@ -3,7 +3,6 @@ import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import Pagination from "../../components/admin/Pagination.astro";
 import { getSessionAndProfile } from "../../lib/admin";
-import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 import Skeleton from "../../components/admin/Skeleton.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -46,10 +45,7 @@ if (!isAdmin) return Astro.redirect("/");
 
     <div id="pagination-wrapper" class="mt-lg">{/* JS fills this */}</div>
   </main>
-
-  <SkeletonTimeout />
-
-  <script>
+<script>
     // Auto-reload on SW update
     if ('serviceWorker' in navigator) {
       let reloading = false;
@@ -59,6 +55,15 @@ if (!isAdmin) return Astro.redirect("/");
         window.location.reload();
       });
     }
+
+    // Auto-hide skeleton loaders after 8s
+    setTimeout(() => {
+      document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
+        if (el.querySelector('[class*="skeleton"], [style*="skeleton-shimmer"]')) {
+          el.style.display = 'none';
+        }
+      });
+    }, 8000);
 
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
 

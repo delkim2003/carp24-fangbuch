@@ -2,7 +2,6 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
-import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 import Skeleton from "../../components/admin/Skeleton.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -227,10 +226,7 @@ if (!isAdmin) return Astro.redirect("/");
       </div>
     </div>
   </main>
-
-  <SkeletonTimeout />
-
-  <style>
+<style>
     100%{background-position:468px 0}}
   </style>
 
@@ -244,6 +240,15 @@ if (!isAdmin) return Astro.redirect("/");
         window.location.reload();
       });
     }
+
+    // Auto-hide skeleton loaders after 8s
+    setTimeout(() => {
+      document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
+        if (el.querySelector('[class*="skeleton"], [style*="skeleton-shimmer"]')) {
+          el.style.display = 'none';
+        }
+      });
+    }, 8000);
 
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
 

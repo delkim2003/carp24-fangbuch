@@ -2,7 +2,6 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
-import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 import Skeleton from "../../components/admin/Skeleton.astro";
 import Pagination from "../../components/admin/Pagination.astro";
 
@@ -58,10 +57,7 @@ if (!isAdmin) return Astro.redirect("/");
       100% { background-position: 468px 0; }
     }
   </style>
-
-  <SkeletonTimeout />
-
-  <!-- Edit Modal -->
+<!-- Edit Modal -->
   <div id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
     <div class="bg-surface-container-lowest rounded-xl p-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-lg">
