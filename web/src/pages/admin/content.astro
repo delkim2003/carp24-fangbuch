@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
+import SWReload from "../../components/SWReload.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 import Skeleton from "../../components/admin/Skeleton.astro";
 import Pagination from "../../components/admin/Pagination.astro";
@@ -11,6 +12,7 @@ if (!isAdmin) return Astro.redirect("/");
 ---
 
 <Layout title="Carp24 – Admin: Inhalte" noindex>
+  <SWReload />
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>

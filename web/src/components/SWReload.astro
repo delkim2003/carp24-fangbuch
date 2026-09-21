@@ -1,0 +1,10 @@
+---
+// SWReload.astro — Auto-reload on service worker update
+---
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  }
+</script>

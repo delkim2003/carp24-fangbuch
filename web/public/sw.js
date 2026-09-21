@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carp24-v2';
+const CACHE_NAME = 'carp24-v3';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
