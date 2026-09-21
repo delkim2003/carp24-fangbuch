@@ -114,16 +114,17 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const { data: catches } = await supabase
     .from("catches")
-    .select("caught_at, weight_kg, species, water_id, weather_code, temperature_2m, pressure_msl, wind_speed_10m, bait, method, notes")
+    .select("catch_ts, weight_kg, species, water_id, weather_code, temperature_2m, pressure_msl, wind_speed_10m, bait, method, notes")
     .eq("user_id", userId)
+    .eq("draft", false)
     .is("deleted_at", null)
-    .order("caught_at", { ascending: false })
+    .order("catch_ts", { ascending: false })
     .limit(20);
 
   let contextStr = "Keine Fänge vorhanden.";
   if (catches && catches.length > 0) {
     contextStr = catches.map((c: any) => {
-      const date = c.caught_at ? new Date(c.caught_at).toLocaleDateString("de-DE") : "?";
+      const date = c.catch_ts ? new Date(c.catch_ts).toLocaleDateString("de-DE") : "?";
       const kg = c.weight_kg ? c.weight_kg + " kg" : "?";
       const species = c.species || "unbekannt";
       return date + ", " + kg + ", " + species;
