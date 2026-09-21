@@ -210,7 +210,8 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
 
   const { data: reports, error } = await dataQuery;
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -352,7 +353,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       .eq("id", reportId);
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -376,7 +378,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       .eq("id", reportId);
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -429,7 +432,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
     .eq("id", body.id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -500,7 +504,8 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     .eq("id", body.id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

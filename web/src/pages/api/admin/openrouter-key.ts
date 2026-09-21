@@ -117,7 +117,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
     );
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

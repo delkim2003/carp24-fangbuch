@@ -37,7 +37,8 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     .single();
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -86,7 +87,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
     .upsert({ key: "maintenance", value, updated_at: new Date().toISOString() }, { onConflict: "key" });
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

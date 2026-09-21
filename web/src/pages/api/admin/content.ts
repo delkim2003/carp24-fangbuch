@@ -449,7 +449,8 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", body.id);
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -465,7 +466,8 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     if (table) {
       const { error } = await supabaseAdmin.from(table).delete().eq("id", body.id);
       if (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        console.error("[admin]", error);
+        return new Response(JSON.stringify({ error: "Interner Fehler" }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
         });
@@ -554,7 +556,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
     .eq("id", body.contentId);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

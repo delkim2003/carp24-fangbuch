@@ -165,7 +165,8 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
   const { data: profiles, error } = await query;
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -270,7 +271,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
   if (body.role && ["USER", "MODERATOR", "ADMIN"].includes(body.role)) {
     const { error } = await supabaseAdmin.from("profiles").update({ role: body.role }).eq("id", body.id);
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -281,7 +283,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
   if (typeof body.is_pro === "boolean") {
     const { error } = await supabaseAdmin.from("profiles").update({ is_pro: body.is_pro }).eq("id", body.id);
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -303,7 +306,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
       .update({ banned_at: new Date().toISOString(), ban_reason: reason })
       .eq("id", body.id);
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -318,7 +322,8 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
       .update({ banned_at: null, ban_reason: null })
       .eq("id", body.id);
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -382,7 +387,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
           .eq("id", userId);
 
         if (error) {
-          results.push({ userId, success: false, error: error.message });
+          console.error("[admin]", error);
+          results.push({ userId, success: false, error: "Fehler" });
           continue;
         }
 
@@ -428,7 +434,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
           .eq("id", userId);
 
         if (error) {
-          results.push({ userId, success: false, error: error.message });
+          console.error("[admin]", error);
+          results.push({ userId, success: false, error: "Fehler" });
           continue;
         }
 
@@ -450,7 +457,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     const newPassword = crypto.randomBytes(6).toString("hex") + "Aa1!";
     const { error } = await supabaseAdmin.auth.admin.updateUserById(body.id, { password: newPassword });
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -575,7 +583,8 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     .eq("id", body.id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[admin]", error);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
