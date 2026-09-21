@@ -209,22 +209,34 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     sendBtn.disabled = true;
     errorDiv.classList.add('hidden');
 
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 30000);
+
     fetch('/api/ai/chat', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg }),
+      signal: controller.signal,
     })
       .then(function (res) {
-        return res.json().then(function (data) {
+        clearTimeout(timeoutId);
+        return res.text().then(function (text) {
           var lang = getLang();
-          if (res.status === 503) {
+          var data;
+          try { data = JSON.parse(text); } catch(e) {
+            console.error('[AI] Non-JSON response:', res.status, text.substring(0, 200));
+            showError('Server-Fehler (' + res.status + '). Bitte erneut versuchen.');
+            return;
+          }
+          if (res.status === 401) {
+            showError('Sitzung abgelaufen. Bitte neu einloggen.');
+          } else if (res.status === 503) {
             showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
           } else if (res.status === 429) {
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
           } else if (res.ok && data.answer) {
             addBubble(data.answer, false);
-            // Counter nach jeder Nachricht aktualisieren
             if (counterEl && data.remaining !== undefined && data.remaining < 999) {
               var lang2 = getLang();
               counterEl.textContent = lang2 === 'en'
@@ -236,9 +248,15 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           }
         });
       })
-      .catch(function () {
+      .catch(function (err) {
+        clearTimeout(timeoutId);
         var lang = getLang();
-        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
+        if (err.name === 'AbortError') {
+          showError(lang === 'en' ? 'Request timed out (30s).' : 'Zeitüberschreitung (30s). Bitte erneut versuchen.');
+        } else {
+          console.error('[AI] Fetch error:', err.message, err);
+          showError((i18nErrors.unreachable[lang] || i18nErrors.unreachable.de) + ' (' + (err.message || 'network') + ')');
+        }
       })
       .finally(function () {
         sendBtn.disabled = false;
@@ -249,16 +267,29 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     addBubble('Analysiere deine besten Angelbedingungen...', true);
     errorDiv.classList.add('hidden');
 
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 30000);
+
     fetch('/api/ai/analyze', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'best-conditions' }),
+      signal: controller.signal,
     })
       .then(function (res) {
-        return res.json().then(function (data) {
+        clearTimeout(timeoutId);
+        return res.text().then(function (text) {
           var lang = getLang();
-          if (res.status === 503) {
+          var data;
+          try { data = JSON.parse(text); } catch(e) {
+            console.error('[AI] Non-JSON response:', res.status, text.substring(0, 200));
+            showError('Server-Fehler (' + res.status + ').');
+            return;
+          }
+          if (res.status === 401) {
+            showError('Sitzung abgelaufen. Bitte neu einloggen.');
+          } else if (res.status === 503) {
             showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
           } else if (res.status === 429) {
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
@@ -270,9 +301,15 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           }
         });
       })
-      .catch(function () {
+      .catch(function (err) {
+        clearTimeout(timeoutId);
         var lang = getLang();
-        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
+        if (err.name === 'AbortError') {
+          showError(lang === 'en' ? 'Request timed out.' : 'Zeitüberschreitung.');
+        } else {
+          console.error('[AI] Fetch error:', err.message);
+          showError((i18nErrors.unreachable[lang] || i18nErrors.unreachable.de) + ' (' + (err.message || 'network') + ')');
+        }
       });
   }
 
@@ -310,16 +347,29 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       requestBody.lon = parseFloat(lon);
     }
 
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 30000);
+
     fetch('/api/ai/analyze', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
+      signal: controller.signal,
     })
       .then(function (res) {
-        return res.json().then(function (data) {
+        clearTimeout(timeoutId);
+        return res.text().then(function (text) {
           var lang = getLang();
-          if (res.status === 503) {
+          var data;
+          try { data = JSON.parse(text); } catch(e) {
+            console.error('[AI] Non-JSON response:', res.status, text.substring(0, 200));
+            showError('Server-Fehler (' + res.status + ').');
+            return;
+          }
+          if (res.status === 401) {
+            showError('Sitzung abgelaufen. Bitte neu einloggen.');
+          } else if (res.status === 503) {
             showError(data.error || i18nErrors.not_configured[lang] || i18nErrors.not_configured.de);
           } else if (res.status === 429) {
             showError(data.error || i18nErrors.rate_limit[lang] || i18nErrors.rate_limit.de);
@@ -331,9 +381,15 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           }
         });
       })
-      .catch(function () {
+      .catch(function (err) {
+        clearTimeout(timeoutId);
         var lang = getLang();
-        showError(i18nErrors.unreachable[lang] || i18nErrors.unreachable.de);
+        if (err.name === 'AbortError') {
+          showError(lang === 'en' ? 'Request timed out.' : 'Zeitüberschreitung.');
+        } else {
+          console.error('[AI] Fetch error:', err.message);
+          showError((i18nErrors.unreachable[lang] || i18nErrors.unreachable.de) + ' (' + (err.message || 'network') + ')');
+        }
       });
   }
 
@@ -396,10 +452,13 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.remaining !== undefined && data.remaining < 999) {
-          counterEl.textContent = data.remaining + ' von 50 Anfragen diesen Monat verbleibend';
+          var lang = getLang();
+          counterEl.textContent = lang === 'en'
+            ? data.remaining + ' of 50 requests this month remaining'
+            : data.remaining + ' von 50 Anfragen diesen Monat verbleibend';
         }
       })
-      .catch(function() {});
+      .catch(function(err) { console.error('[AI] Counter check failed:', err.message); });
   }
 })();
 </script>
