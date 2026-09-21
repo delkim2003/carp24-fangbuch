@@ -1,5 +1,12 @@
 import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { createClient } from "@supabase/supabase-js";
+import { csrfGuard } from "./_csrf";
+
+async function writeAudit(supabaseAdmin: any, actorId: string, action: string, targetType: string, targetId: string, details: any) {
+  await supabaseAdmin.from("admin_audit_log").insert({
+    actor_id: actorId, action, target_type: targetType, target_id: targetId, details,
+  });
+}
 
 export const prerender = false;
 
@@ -74,6 +81,9 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
   }
   if (!user) return new Response(JSON.stringify({ error: "Nicht angemeldet." }), { status: 401 });
 
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
   const { data: profile } = await supabaseAdmin.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "ADMIN") return new Response(JSON.stringify({ error: "Nur für Admins." }), { status: 403 });
@@ -101,6 +111,8 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     .gte("request_date", monthStartStr);
 
   if (error) return new Response(JSON.stringify({ error: "Fehler beim Reset." }), { status: 500 });
+
+  await writeAudit(supabaseAdmin, user.id, "ai_usage.reset", "user", targetProfile.id, { email });
 
   return new Response(JSON.stringify({ ok: true, message: `KI-Nutzung für ${email} zurückgesetzt.` }), { status: 200, headers: { "Content-Type": "application/json" } });
 };
