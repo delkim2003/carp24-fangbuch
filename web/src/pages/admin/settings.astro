@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 import Skeleton from "../../components/admin/Skeleton.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -226,6 +227,8 @@ if (!isAdmin) return Astro.redirect("/");
       </div>
     </div>
   </main>
+
+  <SkeletonTimeout />
 
   <style>
     100%{background-position:468px 0}}

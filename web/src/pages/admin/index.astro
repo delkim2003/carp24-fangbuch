@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
 if (!session) return Astro.redirect("/login/");
@@ -119,6 +120,8 @@ if (!isAdmin) return Astro.redirect("/");
       </div>
     </div>
   </main>
+
+  <SkeletonTimeout />
 
   <script>
     // Auto-reload on SW update

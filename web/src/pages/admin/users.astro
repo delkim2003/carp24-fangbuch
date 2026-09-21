@@ -4,6 +4,7 @@ import Breadcrumb from "../../components/admin/Breadcrumb.astro";
 import Pagination from "../../components/admin/Pagination.astro";
 import Skeleton from "../../components/admin/Skeleton.astro";
 import { getSessionAndProfile } from "../../lib/admin";
+import SkeletonTimeout from "../../components/admin/SkeletonTimeout.astro";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
 if (!session) return Astro.redirect("/login/");
@@ -104,6 +105,8 @@ if (!isAdmin) return Astro.redirect("/");
     </div>
     <div id="drawer-overlay" class="fixed inset-0 bg-black/40 z-40 hidden"></div>
   </main>
+
+  <SkeletonTimeout />
 
   <script>
     // Auto-reload on SW update
