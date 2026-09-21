@@ -32,7 +32,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     marketContacts,
   ] = await Promise.all([
     supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).is("deleted_at", null),
-    supabaseAdmin.from("catches").select("id", { count: "exact", head: true }).is("deleted_at", null),
+    supabaseAdmin.from("catches").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("draft", false),
     supabaseAdmin.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     supabaseAdmin.from("forum_threads").select("id", { count: "exact", head: true }),
     supabaseAdmin.from("forum_posts").select("id", { count: "exact", head: true }),
