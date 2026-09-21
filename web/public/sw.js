@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carp24-v1';
+const CACHE_NAME = 'carp24-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -24,9 +24,17 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first, fallback to cache
+// Fetch: network-first for pages, network-only for API
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // API requests: network-only, never cache
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Static/pages: network-first, fallback to cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
