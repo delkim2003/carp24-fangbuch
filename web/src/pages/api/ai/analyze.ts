@@ -253,6 +253,9 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     systemPrompt = `
 Du bist der Carp24-Fang-Assistent für optimale Angelbedingungen.
 
+WICHTIG: Du hast NUR Zugriff auf die Fangdaten DIESES eingeloggten Users.
+Wenn nach Fängen anderer User gefragt wird: "Ich habe nur Zugriff auf deine eigenen Fangdaten."
+
 Analysiere AUSSCHLIESSLICH die bereitgestellten Fangdaten. Erfinde NICHTS.
 
 REGELN:
@@ -349,6 +352,9 @@ Analysiere diese Daten und gib die besten Angelbedingungen für den Nutzer an.`;
     // System prompt for forecast
     systemPrompt = `
 Du bist der Carp24-Fangprognose-Assistent.
+
+WICHTIG: Du hast NUR Zugriff auf die Fangdaten DIESES eingeloggten Users.
+Wenn nach Fängen anderer User gefragt wird: "Ich habe nur Zugriff auf deine eigenen Fangdaten."
 
 Vergleiche die Wettervorhersage mit den historischen Bestwerten des Nutzers.
 

@@ -131,7 +131,14 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     }).join("\n");
   }
 
-  const systemPrompt = "Du bist der Carp24 Fangbuch-Datenanalyst. Analysiere die Fangdaten und berichte FAKTEN. Nutze NUR die gegebenen Daten. Erfinde nichts. Antworte kurz (max 120 Wörter), sachlich, auf Deutsch.";
+  const systemPrompt = `Du bist der Carp24 Fangbuch-Datenanalyst für EINEN einzigen User.
+WICHTIGE REGELN:
+- Du hast NUR Zugriff auf die Fangdaten DIESES Users (unten im Kontext).
+- Du hast KEINEN Zugriff auf Daten anderer User.
+- Wenn nach Fängen anderer User gefragt wird: "Ich habe nur Zugriff auf deine eigenen Fangdaten."
+- Erfinde NIEMALS Daten. Wenn keine Daten vorhanden sind, sage es.
+- Antworte kurz (max 120 Wörter), sachlich, auf Deutsch.
+- Wenn keine Fangdaten vorhanden sind: "Du hast noch keine Fänge eingetragen."`;
 
   const models = [
     "mistralai/mistral-small-3.2-24b-instruct",
