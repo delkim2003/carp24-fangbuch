@@ -30,6 +30,8 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     bannedUsers,
     openReports,
     marketContacts,
+    recentUsers,
+    recentCatches,
   ] = await Promise.all([
     supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).is("deleted_at", null),
     supabaseAdmin.from("catches").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("draft", false),
@@ -43,6 +45,8 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).not("banned_at", "is", null),
     supabaseAdmin.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     supabaseAdmin.from("marketplace_contacts").select("id", { count: "exact", head: true }),
+    supabaseAdmin.from("profiles").select("created_at").is("deleted_at", null).gte("created_at", fourteenDaysAgo),
+    supabaseAdmin.from("catches").select("created_at").is("deleted_at", null).eq("draft", false).gte("created_at", fourteenDaysAgo),
   ]);
 
   const activeSubCount = 0;
@@ -79,8 +83,8 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     return result;
   }
 
-  const userSignupsByDay = groupByDay([]);
-  const catchesByDayData = groupByDay([]);
+  const userSignupsByDay = groupByDay(recentUsers.data ?? []);
+  const catchesByDayData = groupByDay(recentCatches.data ?? []);
 
   const typeCount: Record<string, number> = {};
   const statusCount: Record<string, number> = {};
