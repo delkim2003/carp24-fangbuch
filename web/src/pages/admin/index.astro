@@ -1,7 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumb from "../../components/admin/Breadcrumb.astro";
-import SWReload from "../../components/SWReload.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -10,7 +9,6 @@ if (!isAdmin) return Astro.redirect("/");
 ---
 
 <Layout title="Carp24 – Admin" noindex>
-  <SWReload />
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
@@ -123,6 +121,16 @@ if (!isAdmin) return Astro.redirect("/");
   </main>
 
   <script>
+    // Auto-reload on SW update
+    if ('serviceWorker' in navigator) {
+      let reloading = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+    }
+
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
 
     AdminKeyboardShortcuts.init({
@@ -167,8 +175,11 @@ if (!isAdmin) return Astro.redirect("/");
       }
 
       try {
-        const res = await fetch("/api/admin/stats");
-        if (!res.ok) return;
+        const statsCtrl = new AbortController();
+        const statsTimer = setTimeout(() => statsCtrl.abort(), 15000);
+        const res = await fetch("/api/admin/stats", { signal: statsCtrl.signal });
+        clearTimeout(statsTimer);
+        if (!res.ok) { console.error("Stats API:", res.status); return; }
         const { stats, growth, stripeEvents } = await res.json();
         for (const [key, value] of Object.entries(stats)) {
           const el = document.querySelector('[data-kpi="' + key + '"]');

@@ -1,6 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import SWReload from "../../components/SWReload.astro";
 import { getSessionAndProfile } from "../../lib/admin";
 
 const { session, isAdmin } = await getSessionAndProfile(Astro);
@@ -9,8 +8,7 @@ if (!isAdmin) return Astro.redirect("/");
 ---
 
 <Layout title="Carp24 – Admin – Benachrichtigungen" noindex>
-  <SWReload />
-  <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
+<main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="w-full mb-xl">
       <p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-sm">PASSION. FISHING. COMMUNITY.</p>
       <h1 class="text-headline-lg text-on-surface" data-de="ADMIN-BENACHRICHTIGUNGEN" data-en="ADMIN NOTIFICATIONS">ADMIN-BENACHRICHTIGUNGEN</h1>
@@ -120,6 +118,16 @@ if (!isAdmin) return Astro.redirect("/");
   <style>100%{background-position:468px 0}}</style>
 
   <script>
+    // Auto-reload on SW update
+    if ('serviceWorker' in navigator) {
+      let reloading = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+    }
+
     import { escHtml } from "../../lib/escape";
     import AdminKeyboardShortcuts from "../../components/admin/keyboard-shortcuts.js";
 
