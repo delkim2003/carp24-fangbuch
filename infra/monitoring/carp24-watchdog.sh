@@ -1,8 +1,19 @@
 #!/bin/bash
-# === carp24 Watchdog (Task 0.6) — RAM/Disk/Supabase-Health → Cron-Output für Telegram ===
+# === carp24 Watchdog (Task 0.6) — RAM/Disk/Supabase-Health/Backup → Cron-Output für Telegram ===
+# MASTER: /mnt/projekte/carp24-fangbuch/infra/monitoring/carp24-watchdog.sh
 # SYNCHRON: wird nach jedem Update nach ~/.hermes/profiles/agentur-berater/scripts/ kopiert
 # Wird vom Hermes-Cron aufgerufen; stdout = Telegram-Delivery.
 # Ausgabe NUR bei Problemen (Watchdog-Pattern: still = alles gut).
+#
+# 27.09.2026 (Backup-Audit-Nachtrag):
+#   - Backup-Check zeigt auf VAULT BACKUPS/carp24-live/ (LIVE-Backups, Audit Nr. 4)
+#     statt Alt-Pfad infra/backups/ (DEV — seit 26.09. 02:30 bewusst NICHT gesichert,
+#     Philipp: "Carp24 Dev braucht nicht gesichert werden nur carp24 live auf Hetzner").
+#     Alt-Check = Ursache für 14 Dauer-Failed-Runs 27.09. (Fehlalarm auf totem Pfad).
+#   - Dauer-Befunde (Backup stale/fehlt) max. 1×/12h melden: kein 30-Min-Spam
+#     (gleiche Philosophie wie Swap-Warnung 24.08.). Unterdrückte Runs = still = exit 0,
+#     sonst zählt Hermes "failed runs in a row" hoch und eskaliert erneut.
+#   - Neuer/veränderter Befund meldet sofort (Key-Vergleich im Statefile).
 
 set -u
 DATE=$(date '+%d.%m.%Y %H:%M')
@@ -44,17 +55,32 @@ if [ "${DISK_PCT:-0}" -gt 85 ]; then
   FAILS=$((FAILS+1))
 fi
 
-# 4) Backup-Age (neuestes postgres_*.dump.gpg muss < 26h alt sein)
-LATEST_BACKUP=$(ls -t /mnt/projekte/carp24-fangbuch/infra/backups/postgres_*.dump.gpg 2>/dev/null | head -1)
+# 4) Backup-Age (VAULT carp24-live: neuestes carp24-live_postgres_*.dump.gpg muss < 26h alt sein)
+LIVE_DIR="/mnt/projekte/vault/02_SYSTEM/BACKUPS/carp24-live"
+STATE="/home/philipp/.hermes/profiles/agentur-berater/cache/carp24-watchdog-backup-alarm"
+mkdir -p "$(dirname "$STATE")"
+BACKUP_MSG=""
+LATEST_BACKUP=$(ls -t "$LIVE_DIR"/carp24-live_postgres_*.dump.gpg 2>/dev/null | head -1)
 if [ -n "$LATEST_BACKUP" ]; then
   BACKUP_AGE_H=$(( ($(date +%s) - $(stat -c %Y "$LATEST_BACKUP")) / 3600 ))
   if [ "$BACKUP_AGE_H" -gt 26 ]; then
-    OUT="${OUT}❌ Backup zu alt: ${BACKUP_AGE_H}h (letztes: $(basename "$LATEST_BACKUP"))\n"
-    FAILS=$((FAILS+1))
+    BACKUP_MSG="Backup zu alt: ${BACKUP_AGE_H}h (letztes: $(basename "$LATEST_BACKUP"))"
   fi
 else
-  OUT="${OUT}❌ KEIN Backup gefunden!\n"
-  FAILS=$((FAILS+1))
+  BACKUP_MSG="KEIN carp24-live-Backup im Vault (${LIVE_DIR}) — LIVE-Daten ungesichert!"
+fi
+
+if [ -n "$BACKUP_MSG" ]; then
+  NOW=$(date +%s)
+  LAST_EPOCH=0
+  LAST_KEY=""
+  if [ -s "$STATE" ]; then read -r LAST_EPOCH LAST_KEY < "$STATE" || true; fi
+  if [ "$BACKUP_MSG" != "${LAST_KEY:-}" ] || [ $((NOW - ${LAST_EPOCH:-0})) -gt 43200 ]; then
+    OUT="${OUT}❌ ${BACKUP_MSG}\n"
+    FAILS=$((FAILS+1))
+    echo "$NOW $BACKUP_MSG" > "$STATE"
+  fi
+  # sonst: identischer Dauerbefund <12h alt → unterdrückt (still = exit 0, s. Header)
 fi
 
 if [ "$FAILS" -gt 0 ]; then
