@@ -9,7 +9,8 @@ const adminClient = createServiceClient();
 export const prerender = false;
 
 const id = Astro.params.id ?? "";
-const { data: { session } } = await supabase.auth.getSession();
+const { data: { user } } = await supabase.auth.getUser();
+       const session = user ? { user } : null;
 let catchData: any = null;
 let notFound = false;
 if (session) {

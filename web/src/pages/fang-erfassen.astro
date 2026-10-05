@@ -7,7 +7,8 @@ const supabase = createSSRClient(Astro);
 import { escHtml } from "../lib/escape";
 import "leaflet/dist/leaflet.css";
 
-const { data: { session } } = await supabase.auth.getSession();
+const { data: { user } } = await supabase.auth.getUser();
+       const session = user ? { user } : null;
 const isLoggedIn = !!session;
 
 let userTrips: any[] = [];
@@ -569,9 +570,21 @@ const userTripsJson = JSON.stringify(userTrips);
       };
       function uploadPhotoBlob(blob, mime, ext) {
           var filePath = userId + '/' + genClientUuid() + ext;
-          sb.storage.from('catch-photos').upload(filePath, blob, { contentType: mime }).then(function (res) {
+          sb.auth.getUser().then(function (chk) {
+            var freshUser = chk.data && chk.data.user ? chk.data.user : null;
+            if (!freshUser) {
+              showSubmitError('Foto-Upload fehlgeschlagen: Sitzung abgelaufen — bitte neu anmelden.');
+              return null;
+            }
+            return sb.storage.from('catch-photos').upload(filePath, blob, { contentType: mime });
+          }).then(function (res) {
+            if (!res) return;
             if (res.error) {
-              showSubmitError('Foto-Upload fehlgeschlagen: ' + res.error.message);
+              if ((res.error.message || '').indexOf('row-level security') !== -1) {
+                showSubmitError('Foto-Upload fehlgeschlagen: Sitzung abgelaufen — bitte neu anmelden.');
+              } else {
+                showSubmitError('Foto-Upload fehlgeschlagen: ' + res.error.message);
+              }
               return;
             }
             photosInput.value = JSON.stringify(['foto:' + filePath]);

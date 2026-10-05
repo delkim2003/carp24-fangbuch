@@ -7,7 +7,8 @@ import { getVapidKeys } from "../lib/settings";
 const supabase = createSSRClient(Astro);
 const vapidKeys = await getVapidKeys(supabase);
 
-const { data: { session } } = await supabase.auth.getSession();
+const { data: { user } } = await supabase.auth.getUser();
+       const session = user ? { user } : null;
 if (!session) return Astro.redirect("/login/");
 
 let catchCount = 0;

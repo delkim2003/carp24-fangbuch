@@ -8,7 +8,8 @@ export const prerender = false;
 
 const supabase = createSSRClient(Astro);
 
-const { data: { session } } = await supabase.auth.getSession();
+const { data: { user } } = await supabase.auth.getUser();
+       const session = user ? { user } : null;
 
 let isPro = false;
 let role = "USER";
