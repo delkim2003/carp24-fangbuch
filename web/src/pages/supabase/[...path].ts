@@ -25,6 +25,11 @@ async function proxyRequest(request: Request, path: string) {
   const url = new URL(request.url);
   const targetUrl = `${SUPABASE_INTERNAL_URL}/${path}${url.search}`;
 
+  // Boundary-Messung VOR dem Anhaengen/Aendern von Auth-Headern (roher Client-Zustand)
+  const clientAuth = request.headers.has("authorization");
+  const clientApikey = request.headers.has("apikey");
+  const clientCookie = request.headers.has("cookie");
+
   const headers = new Headers();
   for (const [key, value] of request.headers.entries()) {
     if (!SKIP_HEADERS.has(key.toLowerCase())) {
@@ -45,6 +50,9 @@ async function proxyRequest(request: Request, path: string) {
     try { body = await request.arrayBuffer(); } catch {}
   }
 
+  // Boundary-Log: NUR Header-Existenz (Booleans, roher Client-Zustand) + Byte-Groesse, KEINE Werte/Secrets
+  console.log(`[SUPA-PROXY] >> ${request.method} /${path} auth=${clientAuth ? "client" : "MISSING"} apikey=${clientApikey ? "client" : "MISSING"} cookie=${clientCookie} body=${body ? body.byteLength : 0}b`);
+
   try {
     const response = await fetch(targetUrl, {
       method: request.method,
@@ -52,6 +60,7 @@ async function proxyRequest(request: Request, path: string) {
       body: body || undefined,
       redirect: "manual", // NICHT intern folgen — Redirect an Browser weiterleiten
     });
+    console.log(`[SUPA-PROXY] << ${response.status} /${path}`);
 
     const responseHeaders = new Headers();
     for (const [key, value] of response.headers.entries()) {
