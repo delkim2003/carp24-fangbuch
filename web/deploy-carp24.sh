@@ -48,7 +48,7 @@ run() {
 }
 
 ssh_cmd() {
-  ssh $HETZNER_SSH $HETZNER_HOST "$@"
+  ssh -n $HETZNER_SSH $HETZNER_HOST "$@"
 }
 
 # ============================================================
