@@ -163,6 +163,8 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     var span = document.createElement('span');
     span.className = 'block break-words';
     span.textContent = text;
+    span.style.whiteSpace = "pre-wrap";
+    span.style.lineHeight = "1.6";
     bubble.appendChild(span);
     wrapper.appendChild(bubble);
     container.appendChild(wrapper);

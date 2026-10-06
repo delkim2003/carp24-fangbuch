@@ -119,7 +119,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     .eq("draft", false)
     .is("deleted_at", null)
     .order("catch_ts", { ascending: false })
-    .limit(20);
+    .limit(50);
 
   let contextStr = "Keine Fänge vorhanden.";
   if (catches && catches.length > 0) {
@@ -167,6 +167,7 @@ WICHTIGE REGELN:
 - Wenn nach Fängen anderer User gefragt wird: "Ich habe nur Zugriff auf deine eigenen Fangdaten."
 - Erfinde NIEMALS Daten. Wenn keine Daten vorhanden sind, sage es.
 - Bei Wetter-, Angelzeitpunkt- oder Fangchancen-Fragen: Nutze die Wetterdaten der Fänge und den WETTER-AUSBLICK. Verweise fuer andere Orte auf den Button "Fangprognose". Erfinde keine Wetterwerte.
+FORMAT-REGEL: Antworte als kurze Stichpunktzeilen. Jede Zeile beginnt mit einem SCHLAGWORT in Versalien und Doppelpunkt (z.B. "MOND: abnehmender Mond, gute Bedingungen"). Maximal 7 Zeilen, je maximal 90 Zeichen. KEIN Markdown, keine Sternchen, keine Ueberschriften-Syntax. Reiner Text mit Zeilenumbruechen.
 - Antworte kurz (max 120 Wörter), sachlich, auf Deutsch.
 - Wenn keine Fangdaten vorhanden sind: "Du hast noch keine Fänge eingetragen."`;
 

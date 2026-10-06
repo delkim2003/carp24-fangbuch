@@ -194,7 +194,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     .eq("user_id", userId)
     .is("deleted_at", null)
     .order("catch_ts", { ascending: false })
-    .limit(50);
+    .limit(500);
 
   let contextStr = "Keine Fänge vorhanden.";
   let catchesWithWeather = [];
@@ -274,6 +274,7 @@ Antworte strukturiert mit diesen Punkten (nur was Daten hergeben):
 3. LUFTDRUCK-Bereich mit den meisten/besten Fängen
 4. TEMPERATUR-Bereich mit den meisten/besten Fängen
 5. WIND-Bereich mit den meisten/besten Fängen
+FORMAT-REGEL: Antworte als kurze Stichpunktzeilen. Jede Zeile beginnt mit einem SCHLAGWORT in Versalien und Doppelpunkt (z.B. "MOND: abnehmender Mond, gute Bedingungen"). Maximal 7 Zeilen, je maximal 90 Zeichen. KEIN Markdown, keine Sternchen, keine Ueberschriften-Syntax. Reiner Text mit Zeilenumbruechen.
 `;
 
     userPrompt = `Fang-Kontext mit Wetterdaten:
@@ -431,7 +432,8 @@ ${contextStr}
 3-Tage-Wettervorhersage:
 ${forecastText}
 
-Erstelle eine Angelprognose basierend AUSSCHLIESSLICH auf diesen Daten. Erfinde keine Angelmethoden, Köder oder Rigs. Berichte nur Fakten: Wetterdaten, Mondphasen, und ob die Bedingungen mit den historischen Bestwerten übereinstimmen.`;
+Erstelle eine Angelprognose basierend AUSSCHLIESSLICH auf diesen Daten. Erfinde keine
+FORMAT-REGEL: Antworte als kurze Stichpunktzeilen. Jede Zeile beginnt mit einem SCHLAGWORT in Versalien und Doppelpunkt (z.B. "MOND: abnehmender Mond, gute Bedingungen"). Maximal 7 Zeilen, je maximal 90 Zeichen. KEIN Markdown, keine Sternchen, keine Ueberschriften-Syntax. Reiner Text mit Zeilenumbruechen. Angelmethoden, Köder oder Rigs. Berichte nur Fakten: Wetterdaten, Mondphasen, und ob die Bedingungen mit den historischen Bestwerten übereinstimmen.`;
    }
 
   const models = [
