@@ -7,6 +7,7 @@ const profileCache = new Map<string, { role: string; isPro: boolean; ts: number 
 const PROFILE_TTL = 30_000;
 
 const securityHeaders: Record<string, string> = {
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -45,7 +46,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     path.endsWith(".woff2") ||
     path.endsWith(".woff")
   ) {
-    return next();
+    const assetRes = await next();
+    for (const [key, value] of Object.entries(securityHeaders)) {
+      assetRes.headers.set(key, value);
+    }
+    return assetRes;
   }
 
   const supabase = createSSRClient(context);
