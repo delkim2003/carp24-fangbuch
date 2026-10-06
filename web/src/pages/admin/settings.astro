@@ -231,6 +231,12 @@ if (!isAdmin) return Astro.redirect("/");
   </style>
 
   <script>
+  function escapeHtml(d) {
+    const div = document.createElement('div');
+    div.textContent = d;
+    return div.innerHTML;
+  }
+
     // Auto-reload on SW update
     if ('serviceWorker' in navigator) {
       let reloading = false;
@@ -930,7 +936,7 @@ if (!isAdmin) return Astro.redirect("/");
 
         const html = users.map(user => `
           <div class="grid grid-cols-2 gap-md py-2 border-b border-outline/20 last:border-b-0">
-            <div class="text-body-sm text-on-surface-variant">${user.email}</div>
+            <div class="text-body-sm text-on-surface-variant">${escapeHtml(user.email)}</div>
             <div class="text-body-sm text-on-surface font-medium">${user.count}/50</div>
           </div>
         `).join('');

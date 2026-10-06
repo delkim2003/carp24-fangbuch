@@ -368,6 +368,12 @@ if (createdAt) {
 </Layout>
 
 <script>
+  function escapeHtml(d) {
+    const div = document.createElement('div');
+    div.textContent = d;
+    return div.innerHTML;
+  }
+
 import { supabase } from "../lib/supabase-client";
 
 if (!document.getElementById("logout-btn")) {
@@ -1174,7 +1180,7 @@ csvImportBtn.addEventListener("click", async () => {
       const failed = result.filter((r: any) => r.status === "error");
       if (failed.length > 0) {
         csvImportResult.innerHTML = `⚠️ ${failed.length} Zeile${failed.length !== 1 ? "n" : ""} fehlerhaft:<br/>` +
-          failed.map((f: any) => `Zeile ${f.line ?? "?"}: ${f.error ?? "unbekannt"}`).join("<br/>");
+          failed.map((f: any) => `Zeile ${f.line ?? "?"}: ${escapeHtml(f.error ?? "unbekannt")}`).join("<br/>");
         csvImportResult.className = "p-md bg-error-container text-on-error-container rounded-lg text-body-md";
       } else {
         csvImportResult.textContent = `✅ ${imported} Fänge importiert`;

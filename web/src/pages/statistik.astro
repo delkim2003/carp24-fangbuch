@@ -208,6 +208,12 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 </Layout>
 
 <script>
+  function escapeHtml(d) {
+    const div = document.createElement('div');
+    div.textContent = d;
+    return div.innerHTML;
+  }
+
   import { supabase } from '../lib/supabase-client';
 
   let CSS = getCSS();
@@ -305,7 +311,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       const pct = maxVal > 0 ? (n(d[valueKey]) / maxVal * 100) : 0;
       const label = d[labelKey] ?? '–';
       return `<div class="flex items-center gap-sm text-body-md">
-        <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${label}</span>
+        <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${escapeHtml(label)}</span>
         <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
         <span class="font-bold text-on-surface min-w-[30px] text-right">${ni(d[valueKey])}</span>
         <span class="text-on-surface-variant opacity-50 text-xs min-w-[70px]">Ø ${nf(d[avgKey])} kg</span>
@@ -329,7 +335,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
 
     el.innerHTML = `
       <div class="flex flex-wrap gap-sm flex-1">
-        ${parts.map(p => `<span class="inline-flex items-center py-1 px-3 rounded-full bg-surface-variant text-body-md text-on-surface whitespace-nowrap font-medium">${p}</span>`).join('')}
+        ${parts.map(p => `<span class="inline-flex items-center py-1 px-3 rounded-full bg-surface-variant text-body-md text-on-surface whitespace-nowrap font-medium">${escapeHtml(p)}</span>`).join('')}
       </div>
       <div class="flex items-baseline gap-sm">
         <span class="text-headline-md text-primary-container font-bold">${ni(row.catch_count)} Fänge</span>
@@ -358,7 +364,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       const count = Number(d.catch_count) || 0;
       const pct = (count / maxVal * 100);
       return `<div class="flex items-center gap-sm text-body-md">
-        <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
+        <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${escapeHtml(d.water_name || 'Unbekannt')}</span>
         <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
         <span class="w-10 font-bold text-on-surface text-right">${ni(count)}</span>
       </div>`;
@@ -370,7 +376,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
         const count = Number(d.catch_count) || 0;
         const pct = (count / maxVal * 100);
         return `<div class="flex items-center gap-sm text-body-md mt-sm">
-          <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
+          <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${escapeHtml(d.water_name || 'Unbekannt')}</span>
           <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
           <span class="w-10 font-bold text-on-surface text-right">${ni(count)}</span>
         </div>`;
@@ -390,7 +396,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     el.innerHTML = data.map(d => {
       const pct = maxVal > 0 ? (d.count / maxVal * 100) : 0;
       return `<div class="flex items-center gap-sm text-body-md">
-        <span class="w-[100px] text-right text-on-surface-variant truncate flex-shrink-0">${d.label}</span>
+        <span class="w-[100px] text-right text-on-surface-variant truncate flex-shrink-0">${escapeHtml(d.label)}</span>
         <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
         <span class="font-bold text-on-surface min-w-[30px] text-right">${ni(d.count)}</span>
       </div>`;
@@ -447,7 +453,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       const rankBadge = rank === 1 ? 'bg-[#d4a843] text-white' : rank === 2 ? 'bg-[#b8b8b8] text-white' : rank === 3 ? 'bg-[#c4956a] text-white' : 'bg-primary-container text-on-primary-container';
       const parts = (k.kombi ?? '').split(' + ').map((p: string) => {
         const [key, val] = p.split('=');
-        return `${kombiLabels[key] || key} ${val}`;
+        return `${escapeHtml(kombiLabels[key] || key)} ${escapeHtml(val)}`;
       });
       return `<div class="${rankBg} ${rankBorder} border-2 rounded-[16px] p-lg flex flex-col gap-sm relative">
         <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${rankBadge} text-xs font-bold flex items-center justify-center">${rank}</div>
@@ -455,7 +461,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           <span class="text-headline-md text-primary-container font-bold">${ni(k.fangzahl)} Fänge</span>
           <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(k.avg_gewicht)} kg</span>
         </div>
-        <div class="text-body-md text-on-surface opacity-80 leading-relaxed">${parts.join(' · ')}</div>
+        <div class="text-body-md text-on-surface opacity-80 leading-relaxed">${escapeHtml(parts.join(' · '))}</div>
       </div>`;
     }).join('');
   }
@@ -475,8 +481,8 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
         <td class="py-3 px-4 text-body-md text-on-surface">${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface font-bold">${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface">${speciesName(d.species)}</td>
-        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.water_name ?? '–'}</td>
-        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.bait ?? '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${escapeHtml(d.water_name ?? '–')}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${escapeHtml(d.bait ?? '–')}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.length_cm ? ni(d.length_cm) + ' cm' : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.moon_text ?? '–'}</td>
@@ -491,8 +497,8 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Datum</span><span class="text-on-surface">${d.catch_ts ? new Date(d.catch_ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewicht</span><span class="text-on-surface font-bold">${d.weight_kg ? nf(d.weight_kg) + ' kg' : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Fischart</span><span class="text-on-surface">${speciesName(d.species)}</span></div>
-          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewässer</span><span class="text-on-surface-variant">${d.water_name ?? '–'}</span></div>
-          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Köder</span><span class="text-on-surface-variant">${d.bait ?? '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewässer</span><span class="text-on-surface-variant">${escapeHtml(d.water_name ?? '–')}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Köder</span><span class="text-on-surface-variant">${escapeHtml(d.bait ?? '–')}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Länge</span><span class="text-on-surface-variant">${d.length_cm ? ni(d.length_cm) + ' cm' : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Wetter</span><span class="text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Mond</span><span class="text-on-surface-variant">${d.weather?.moon_text ?? '–'}</span></div>
