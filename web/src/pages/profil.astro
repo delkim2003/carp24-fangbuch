@@ -71,13 +71,13 @@ if (createdAt) {
 }
 ---
 
-<Layout title="Carp24 – Profil" active="profil" noindex>
+<Layout title="Carp24 – Profil" description="Dein Carp24 Profil: Angler-Avatar, Heimatgewässer, Fangplätze-Einstellungen und Account-Verwaltung an einem Ort." active="profil" noindex>
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl" data-vapid-key={vapidKeys.publicKey || ""}>
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("profil.titel", "de")} data-en={t("profil.titel", "en")}>{t("profil.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("profil.anmelden_text", "de")} data-en={t("profil.anmelden_text", "en")}>{t("profil.anmelden_text")}</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("profil.anmelden", "de")} data-en={t("profil.anmelden", "en")}>{t("profil.anmelden")}</a>
+        <a href="/login/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("profil.anmelden", "de")} data-en={t("profil.anmelden", "en")}>{t("profil.anmelden")}</a>
       </div>
     ) : (
       <>
@@ -177,7 +177,7 @@ if (createdAt) {
                         <button type="button" id="export-csv-btn" class="border border-primary/40 text-primary font-nav-item text-nav-item uppercase py-3 px-6 rounded-full hover:bg-primary hover:text-white transition-colors min-h-12 cursor-pointer i18n" data-de={t("profil.csv_export", "de")} data-en={t("profil.csv_export", "en")}>{t("profil.csv_export")}</button>
                       </>
                     ) : (
-                      <a href="/premium" class="text-primary text-body-md underline">Upgrade zu Premium für Daten-Export</a>
+                      <a href="/premium/" class="text-primary text-body-md underline">Upgrade zu Premium für Daten-Export</a>
                     )}
                   </div>
                   <p id="export-status" class="hidden text-body-md text-secondary mt-md" role="status" aria-live="polite"></p>
@@ -237,7 +237,7 @@ if (createdAt) {
                   )}
                 </div>
 
-                <a href="/datenschutz" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
+                <a href="/datenschutz/" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
                   <div>
                     <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.datenschutz", "de")} data-en={t("profil.datenschutz", "en")}>{t("profil.datenschutz")}</h3>
                     <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.datenschutz_text", "de")} data-en={t("profil.datenschutz_text", "en")}>{t("profil.datenschutz_text")}</p>
@@ -245,7 +245,7 @@ if (createdAt) {
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-on-surface-variant group-hover:text-primary transition-colors" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
 
-                <a href="/impressum" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
+                <a href="/impressum/" class="py-6 border-b border-primary/20 flex justify-between items-center gap-4 group">
                   <div>
                     <h3 class="font-label-sm text-label-sm uppercase text-on-surface mb-1 i18n" data-de={t("profil.impressum", "de")} data-en={t("profil.impressum", "en")}>{t("profil.impressum")}</h3>
                     <p class="text-body-md text-on-surface-variant i18n" data-de={t("profil.impressum_text", "de")} data-en={t("profil.impressum_text", "en")}>{t("profil.impressum_text")}</p>
@@ -335,7 +335,7 @@ if (createdAt) {
                   <p class="text-headline-md text-on-surface mb-8 leading-snug">
                     Dein Abonnement ist aktiv.
                   </p>
-                  <a href="/premium" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
+                  <a href="/premium/" class="mt-auto self-start border border-primary-container text-primary-container font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors duration-300 min-h-11 inline-flex items-center i18n" data-de={t("profil.abo_verwalten", "de")} data-en={t("profil.abo_verwalten", "en")}>
                     {t("profil.abo_verwalten")}
                   </a>
                 </>
@@ -347,7 +347,7 @@ if (createdAt) {
                   <p class="text-body-md text-on-surface-variant mb-8">
                     Upgrade zu Premium für Statistiken, KI-Assistent und mehr.
                   </p>
-                  <a href="/premium" class="mt-auto self-start bg-primary text-on-primary font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
+                  <a href="/premium/" class="mt-auto self-start bg-primary text-on-primary font-label-sm text-label-sm uppercase px-6 py-3 rounded-full hover:bg-primary-container transition-colors duration-300 min-h-11 inline-flex items-center">
                     Upgrade zu Premium
                   </a>
                 </>

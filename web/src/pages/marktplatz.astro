@@ -101,7 +101,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
 }))) : null;
 ---
 
-<Layout title="Carp24 – Marktplatz" active="marktplatz">
+<Layout title="Carp24 – Marktplatz" description="Der Carp24 Marktplatz: Angel-Equipment, Boote und Zubehör von Anglern für Angler kaufen und verkaufen." active="marktplatz">
   {jsonLD && <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />}
   <!-- MARKTPLATZ MARKETPLACE -->
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
@@ -110,7 +110,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
         <p class="font-mono text-sm text-secondary tracking-widest uppercase mb-2 i18n" data-de={t("kicker.marktplatz", "de")} data-en={t("kicker.marktplatz", "en")}>{t("kicker.marktplatz")}</p>
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("marketplace.titel", "de")} data-en={t("marketplace.titel", "en")}>{t("marketplace.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("marketplace.anmelden_text", "de")} data-en={t("marketplace.anmelden_text", "en")}>{t("marketplace.anmelden_text")}</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("marketplace.anmelden", "de")} data-en={t("marketplace.anmelden", "en")}>{t("marketplace.anmelden")}</a>
+        <a href="/login/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("marketplace.anmelden", "de")} data-en={t("marketplace.anmelden", "en")}>{t("marketplace.anmelden")}</a>
       </div>
     ) : !isPaid ? (
       <div class="text-center py-24 flex flex-col items-center gap-lg">

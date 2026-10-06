@@ -14,7 +14,7 @@ const customMessage = maintenance.message && maintenance.message.trim().length >
 Astro.response.status = 503;
 ---
 
-<Layout title="Carp24 – Wartungsarbeiten" noindex bare>
+<Layout title="Carp24 – Wartungsarbeiten" description="Carp24 wird gerade aktualisiert – wir sind in Kürze zurück." noindex bare>
   <main class="flex-grow flex flex-col items-center justify-center px-margin-mobile md:px-margin-desktop py-xl min-h-[60vh]">
     <div class="max-w-lg w-full bg-white rounded-2xl p-xl border border-outline/20 text-center">
       <img src="/assets/logo_carp24_badge.webp" alt="Carp24 Logo" loading="eager" class="h-20 w-auto mx-auto mb-lg" />
@@ -27,8 +27,8 @@ Astro.response.status = 503;
         </div>
       )}
       <div class="flex justify-center gap-lg text-body-sm text-on-surface-variant mt-xl">
-        <a href="/impressum" class="underline decoration-primary/30 hover:text-primary transition-colors i18n" data-de={t("footer.impressum", "de")} data-en={t("footer.impressum", "en")}>{t("footer.impressum")}</a>
-        <a href="/datenschutz" class="underline decoration-primary/30 hover:text-primary transition-colors i18n" data-de={t("footer.datenschutz", "de")} data-en={t("footer.datenschutz", "en")}>{t("footer.datenschutz")}</a>
+        <a href="/impressum/" class="underline decoration-primary/30 hover:text-primary transition-colors i18n" data-de={t("footer.impressum", "de")} data-en={t("footer.impressum", "en")}>{t("footer.impressum")}</a>
+        <a href="/datenschutz/" class="underline decoration-primary/30 hover:text-primary transition-colors i18n" data-de={t("footer.datenschutz", "de")} data-en={t("footer.datenschutz", "en")}>{t("footer.datenschutz")}</a>
       </div>
     </div>
   </main>

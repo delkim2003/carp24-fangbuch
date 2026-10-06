@@ -56,14 +56,22 @@ const lang = getLang();
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={`https://carp24.org${Astro.url.pathname}`} />
-    <meta property="og:image" content="https://carp24.org/assets/logo_carp24_badge.svg" />
+    <meta property="og:url" content={`https://carp24.org${Astro.url.pathname.replace(/\/+$/, "") + "/"}`} />
+    <meta property="og:image" content="https://carp24.org/assets/og-carp24.png" />
+    <meta property="og:image:alt" content="Carp24 – digitales Fangbuch für Karpfenangler" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Carp24" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:locale" content="de_AT" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://carp24.org/assets/og-carp24.png" />
     <!-- Canonical -->
-    <link rel="canonical" href={`https://carp24.org${Astro.url.pathname}`} />
+    <link rel="canonical" href={`https://carp24.org${Astro.url.pathname.replace(/\/+$/, "") + "/"}`} />
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="llms.txt" href="/llms.txt" />
     <meta name="theme-color" content="#0B0C0B" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -88,6 +96,9 @@ const lang = getLang();
         }
       ]
     })} />
+
+    <!-- JSON-LD: SoftwareApplication (App-Rich-Results) -->
+    <script type="application/ld+json" set:html={JSON.stringify({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Carp24", "applicationCategory": "SportsApplication", "operatingSystem": "Web (alle modernen Browser)", "url": "https://carp24.org/", "description": "Digitales Fangbuch für Karpfenangler: Fänge mit Foto, Gewicht und Länge erfassen, Statistiken auswerten, Fangplätze privat halten.", "inLanguage": ["de", "en"], "publisher": {"@type": "Organization", "name": "Carp24"}})} />
     <title>{title}</title>
     <!-- Matomo on-Premise (DSGVO: requireConsent blockiert bis Consent) -->
     <script>

@@ -33,17 +33,17 @@ const userId = session?.user?.id ?? null;
     {!session ? (
       <div class="text-center py-24">
         <p class="text-body-lg text-on-surface-variant mb-8">Melde dich an, um das Forum zu sehen.</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
+        <a href="/login/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ANMELDEN</a>
       </div>
     ) : notFound ? (
       <div class="text-center py-24 flex flex-col items-center gap-lg">
         <h1 class="text-display-lg text-primary">THREAD NICHT GEFUNDEN</h1>
         <p class="text-body-lg text-on-surface-variant">Dieser Thread existiert nicht oder wurde gelöscht.</p>
-        <a href="/forum" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ZUM FORUM</a>
+        <a href="/forum/" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">ZUM FORUM</a>
       </div>
     ) : thread ? (
       <>
-        <a href="/forum" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZUM FORUM</a>
+        <a href="/forum/" class="font-nav-item text-nav-item uppercase text-secondary tracking-widest">← ZUM FORUM</a>
 
         <div class="bg-surface-container-high rounded-xl border border-primary/40 p-lg md:p-xl">
           <h1 class="text-display-lg text-on-surface mb-md flex items-center gap-sm">

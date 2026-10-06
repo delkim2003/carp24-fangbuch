@@ -23,13 +23,13 @@ if (isLoggedIn && session) {
 const userTripsJson = JSON.stringify(userTrips);
 ---
 
-<Layout title="Carp24 – Neuen Fang eintragen" noindex>
+<Layout title="Carp24 – Neuen Fang eintragen" description="Neuen Karpfen eintragen: Foto, Gewicht, Länge, Gewässer, Köder und Fangzeit in Sekunden erfassen – auch unterwegs vom Wasser." noindex>
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
     {!isLoggedIn ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
         <h1 class="text-display-lg text-primary mb-2 i18n" data-de={t("fang_erfassen.titel", "de")} data-en={t("fang_erfassen.titel", "en")}>{t("fang_erfassen.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant max-w-xl i18n" data-de={t("fang_erfassen.anmelden_text", "de")} data-en={t("fang_erfassen.anmelden_text", "en")}>{t("fang_erfassen.anmelden_text")}</p>
-        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("fang_erfassen.anmelden_btn", "de")} data-en={t("fang_erfassen.anmelden_btn", "en")}>
+        <a href="/login/" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12 i18n" data-de={t("fang_erfassen.anmelden_btn", "de")} data-en={t("fang_erfassen.anmelden_btn", "en")}>
           {t("fang_erfassen.anmelden_btn")}
         </a>
       </div>

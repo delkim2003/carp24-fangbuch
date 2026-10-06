@@ -31,14 +31,14 @@ const jsonLD = threads.length > 0 ? itemListLD(threads.map(thread => ({
   url: `${Astro.url.origin}/forum/${thread.id}`
 }))) : null;
 ---
-<Layout title="Carp24 – Forum" active="forum">
+<Layout title="Carp24 – Forum" description="Im Carp24 Forum diskutieren Karpfenangler über Technik, Köder, Gewässer und Fangtaktik – Fragen stellen und Erfahrungen teilen." active="forum">
   {jsonLD && <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />}
   <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("forum.titel", "de")} data-en={t("forum.titel", "en")}>{t("forum.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("forum.anmelden_text", "de")} data-en={t("forum.anmelden_text", "en")}>{t("forum.anmelden_text")}</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("forum.anmelden", "de")} data-en={t("forum.anmelden", "en")}>{t("forum.anmelden")}</a>
+        <a href="/login/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("forum.anmelden", "de")} data-en={t("forum.anmelden", "en")}>{t("forum.anmelden")}</a>
       </div>
     ) : (
       <>

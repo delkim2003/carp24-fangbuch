@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { t } from "../lib/i18n";
 ---
 
-<Layout title="Carp24 – Passwort zurücksetzen" noindex>
+<Layout title="Carp24 – Passwort zurücksetzen" description="Carp24 Passwort zurücksetzen: E-Mail eingeben und sicher wieder Zugang zu deinem Fangbuch erhalten." noindex>
   <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop py-xl">
     <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full max-w-md p-lg md:p-xl mx-auto flex flex-col gap-lg">
       <div class="text-center mb-sm">
@@ -25,7 +25,7 @@ import { t } from "../lib/i18n";
       </form>
 
       <p class="text-center mt-sm">
-        <a href="/login" class="text-primary hover:underline text-sm i18n" data-de={t("pwreset.zurueck", "de")} data-en={t("pwreset.zurueck", "en")}>{t("pwreset.zurueck")}</a>
+        <a href="/login/" class="text-primary hover:underline text-sm i18n" data-de={t("pwreset.zurueck", "de")} data-en={t("pwreset.zurueck", "en")}>{t("pwreset.zurueck")}</a>
       </p>
     </div>
   </main>

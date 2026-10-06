@@ -43,14 +43,14 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
   url: `${Astro.url.origin}/faenge/${c.id}`
 }))) : null;
 ---
-<Layout title="Carp24 – Fangbuch" active="fangbuch">
+<Layout title="Carp24 – Fangbuch" description="Dein digitales Fangbuch: alle Karpfenfänge mit Foto, Gewicht, Länge, Gewässer und Köder im Überblick – durchsuchbar, filterbar und immer dabei." active="fangbuch">
   {jsonLD && <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />}
   <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl flex flex-col gap-xl">
     {!session ? (
       <div class="text-center py-24">
         <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-4 i18n" data-de={t("faenge.titel", "de")} data-en={t("faenge.titel", "en")}>{t("faenge.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("faenge.anmelden_text", "de")} data-en={t("faenge.anmelden_text", "en")}>{t("faenge.anmelden_text")}</p>
-        <a href="/login" class="bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
+        <a href="/login/" class="bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
       </div>
     ) : (
       <>
@@ -71,7 +71,7 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
               <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest"><span class="i18n" data-de={catches.length + " " + t("faenge.faenge_gesamt", "de")} data-en={catches.length + " " + t("faenge.faenge_gesamt", "en")}>{catches.length} {t("faenge.faenge_gesamt")}</span></p>
             )}
           </div>
-          <a href="/fang-erfassen" class="bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
+          <a href="/fang-erfassen/" class="bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest px-6 py-3 rounded-full hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 min-h-12">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
             <span class="i18n" data-de={t("faenge.neuer_fang", "de")} data-en={t("faenge.neuer_fang", "en")}>{t("faenge.neuer_fang")}</span>
           </a>
@@ -86,7 +86,7 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
             </div>
             <h2 class="text-display-md text-primary i18n" data-de={t("faenge.keine_faenge", "de")} data-en={t("faenge.keine_faenge", "en")}>{t("faenge.keine_faenge")}</h2>
             <p class="text-body-lg text-on-surface-variant max-w-md i18n" data-de={t("faenge.keine_faenge_text", "de")} data-en={t("faenge.keine_faenge_text", "en")}>{t("faenge.keine_faenge_text")}</p>
-            <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("faenge.ersten_eintragen", "de")} data-en={t("faenge.ersten_eintragen", "en")}>{t("faenge.ersten_eintragen")}</a>
+            <a href="/fang-erfassen/" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("faenge.ersten_eintragen", "de")} data-en={t("faenge.ersten_eintragen", "en")}>{t("faenge.ersten_eintragen")}</a>
           </div>
         ) : (
           <>

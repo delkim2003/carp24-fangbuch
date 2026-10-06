@@ -119,12 +119,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return next();
     }
     const isAllowed =
-      path === "/login" ||
-      path === "/wartung" ||
-      path === "/impressum" ||
-      path === "/datenschutz" ||
-      path === "/404" ||
-      path === "/offline";
+      normalizedPath === "/login" ||
+      normalizedPath === "/wartung" ||
+      normalizedPath === "/impressum" ||
+      normalizedPath === "/datenschutz" ||
+      normalizedPath === "/404" ||
+      normalizedPath === "/offline";
     if (!path.startsWith("/admin") && !isAllowed) {
       return context.redirect("/wartung");
     }

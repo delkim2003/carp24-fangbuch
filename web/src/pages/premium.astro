@@ -52,7 +52,7 @@ const features = [
 ];
 ---
 
-<Layout title="Carp24 – Premium" active="preis">
+<Layout title="Carp24 – Premium" description="Carp24 Premium: erweiterte Statistiken, Jahres-Rückblick und Trips für ambitionierte Karpfenangler – monatlich kündbar." active="preis">
   <main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto w-full">
     <div class="text-center mb-xl">
       <h1 class="text-display-lg text-primary mb-lg i18n" data-de={t("premium.titel", "de")} data-en={t("premium.titel", "en")}>{t("premium.titel")}</h1>
@@ -72,7 +72,7 @@ const features = [
     {!session && (
       <div class="mb-xl text-center">
         <p class="text-body-lg text-on-surface-variant mb-md i18n" data-de={t("premium.anmelden_status", "de")} data-en={t("premium.anmelden_status", "en")}>{t("premium.anmelden_status")}</p>
-        <a href="/login" class="inline-block px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors min-h-12 i18n" data-de={t("premium.anmelden", "de")} data-en={t("premium.anmelden", "en")}>
+        <a href="/login/" class="inline-block px-8 py-3 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-colors min-h-12 i18n" data-de={t("premium.anmelden", "de")} data-en={t("premium.anmelden", "en")}>
           {t("premium.anmelden")}
         </a>
       </div>
@@ -209,7 +209,7 @@ const features = [
                 {t("premium.du_bist_premium")}
               </span>
             ) : (
-              <a href="/login" class="inline-block px-6 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm uppercase tracking-widest transition-colors min-h-12 w-full flex items-center justify-center i18n" data-de={t("premium.anmelden", "de")} data-en={t("premium.anmelden", "en")}>
+              <a href="/login/" class="inline-block px-6 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm uppercase tracking-widest transition-colors min-h-12 w-full flex items-center justify-center i18n" data-de={t("premium.anmelden", "de")} data-en={t("premium.anmelden", "en")}>
                 {t("premium.anmelden")}
               </a>
             )}

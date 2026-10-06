@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Carp24 – Jeder Fang zählt." class="i18n" data-de="Carp24 – Jeder Fang zählt." data-en="Carp24 – Every catch counts.">
+<Layout title="Carp24 – Jeder Fang zählt." description="Carp24 ist das digitale Fangbuch für Karpfenangler: Fänge mit Foto, Gewicht und Länge erfassen, Statistiken auswerten, Fangplätze privat halten. Jetzt kostenlos starten." class="i18n" data-de="Carp24 – Jeder Fang zählt." data-en="Carp24 – Every catch counts.">
   <!-- 1. Hero Section (Screen 1) -->
   <section class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-24 relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
     <div class="w-full md:w-1/2 z-10 flex flex-col items-start gap-6">
@@ -474,6 +474,8 @@ import Layout from "../layouts/Layout.astro";
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
   </section>
+
+<script type="application/ld+json" set:html={JSON.stringify({"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Sind meine Fangplätze sicher?", "acceptedAnswer": {"@type": "Answer", "text": "Deine Fangplätze sind privat und werden standardmäßig niemals mit der Community geteilt, es sei denn, du wählst dies ausdrücklich aus."}}, {"@type": "Question", "name": "Kann ich Daten aus anderen Apps importieren?", "acceptedAnswer": {"@type": "Answer", "text": "Wir unterstützen aktuell den CSV-Import der meisten gängigen Angel-Apps. Eine detaillierte Anleitung findest du in den Einstellungen."}}, {"@type": "Question", "name": "Funktioniert Carp24 offline?", "acceptedAnswer": {"@type": "Answer", "text": "Carp24 ist eine Web-App und benötigt eine Internetverbindung. Du kannst sie auf jedem Gerät öffnen — ohne Installation."}}, {"@type": "Question", "name": "Was passiert wenn ich kündige?", "acceptedAnswer": {"@type": "Answer", "text": "Dein Account wird auf den FREE-Plan zurückgestuft. Du verlierst keine deiner bisherigen Daten, hast aber keinen Zugriff mehr auf PRO-Features."}}, {"@type": "Question", "name": "Kann ich meine Daten exportieren?", "acceptedAnswer": {"@type": "Answer", "text": "Als PRO-Nutzer kannst du all deine Daten jederzeit als CSV oder PDF exportieren, um dein eigenes Backup zu erstellen."}}, {"@type": "Question", "name": "Wie erreiche ich den Support?", "acceptedAnswer": {"@type": "Answer", "text": "Unser Support-Team ist per E-Mail unter support@carp24.de erreichbar. PRO-Nutzer erhalten priorisierten Support innerhalb von 24 Stunden."}}]})} />
 </Layout>
 
 <style>

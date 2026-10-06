@@ -65,7 +65,7 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
     {!session ? (
       <div class="flex flex-col items-center justify-center py-3xl text-center gap-lg">
         <h1 class="text-display-lg text-primary mb-2">{t("fang_bearbeiten.anmelden_text")}</h1>
-        <a href="/login" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
+        <a href="/login/" class="inline-flex items-center justify-center bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm min-h-12">
           {t("fang_erfassen.anmelden_btn")}
         </a>
       </div>
@@ -73,13 +73,13 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
       <div class="text-center py-24 flex flex-col items-center gap-lg">
         <h1 class="text-display-lg text-primary">{t("fang_bearbeiten.nicht_gefunden")}</h1>
         <p class="text-body-lg text-on-surface-variant">{t("fang_bearbeiten.nicht_gefunden_text")}</p>
-        <a href="/faenge" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
+        <a href="/faenge/" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
       </div>
     ) : notOwned ? (
       <div class="text-center py-24 flex flex-col items-center gap-lg">
         <h1 class="text-display-lg text-primary">{t("fang_bearbeiten.kein_zugriff")}</h1>
         <p class="text-body-lg text-on-surface-variant">{t("fang_bearbeiten.kein_zugriff_text")}</p>
-        <a href="/faenge" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
+        <a href="/faenge/" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase px-6 py-3 rounded-full min-h-12">{t("fang_bearbeiten.zur_fangliste")}</a>
       </div>
     ) : catchData ? (
       <>

@@ -82,13 +82,13 @@ const moreItems = [
       </div>
       <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label hidden lg:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200">ADMIN</a>
       <div class="hidden lg:flex items-center gap-4">
-        <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
+        <a id="auth-link" href="/login/" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
           Anmelden
         </a>
         <button id="logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer hidden">
           Abmelden
         </button>
-        <a href="/profil" class="inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors hidden" aria-label="Profil">
+        <a href="/profil/" class="inline-flex items-center justify-center text-primary hover:text-primary-container transition-colors hidden" aria-label="Profil">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       </div>
@@ -137,13 +137,13 @@ const moreItems = [
         <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
         <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
       </div>
-      <a id="mobile-auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
+      <a id="mobile-auth-link" href="/login/" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4">
         Anmelden
       </a>
       <button id="mobile-logout-btn" type="button" data-de="Abmelden" data-en="Sign out" class="nav-label hidden font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-primary border-t border-outline/20 mt-2 pt-4 cursor-pointer text-left w-full">
         Abmelden
       </button>
-      <a href="/profil" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hidden">
+      <a href="/profil/" data-de="Profil" data-en="Profile" class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant hidden">
         Profil
       </a>
       <a id="admin-link-mobile" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label font-nav-item text-nav-item uppercase tracking-widest py-3 min-h-11 flex items-center text-on-surface-variant">ADMIN</a>
@@ -229,7 +229,7 @@ const moreItems = [
           el.classList.toggle('hidden', !isLoggedIn);
         }
       });
-      document.querySelectorAll('a[href="/profil"]').forEach(function (el) {
+      document.querySelectorAll('a[href="/profil/"]').forEach(function (el) {
         el.classList.toggle('hidden', !isLoggedIn);
       });
 

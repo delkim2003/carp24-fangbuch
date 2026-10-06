@@ -135,7 +135,7 @@ if (trend.length > 0) {
 }
 ---
 
-<Layout title="Carp24 – Dashboard" active="statistik" noindex>
+<Layout title="Carp24 – Dashboard" description="Dein Carp24 Dashboard: letzte Fänge, wichtige Kennzahlen und Schnellzugriff auf Fangbuch, Statistik und Community auf einen Blick." active="statistik" noindex>
   <main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto w-full py-xl flex flex-col gap-xl">
     {loadError && (
       <div class="text-red-700 bg-red-50 border border-red-200 rounded-lg px-lg py-md">{loadError}</div>
@@ -144,7 +144,7 @@ if (trend.length > 0) {
       <div class="text-center py-24">
         <h1 class="text-display-lg text-primary mb-4 i18n" data-de={t("dashboard.titel", "de")} data-en={t("dashboard.titel", "en")}>{t("dashboard.titel")}</h1>
         <p class="text-body-lg text-on-surface-variant mb-8 i18n" data-de={t("faenge.anmelden_text", "de")} data-en={t("faenge.anmelden_text", "en")}>{t("faenge.anmelden_text")}</p>
-        <a href="/login" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
+        <a href="/login/" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase tracking-widest px-6 py-3 rounded-full min-h-12 i18n" data-de={t("faenge.anmelden", "de")} data-en={t("faenge.anmelden", "en")}>{t("faenge.anmelden")}</a>
       </div>
     ) : catches.length === 0 ? (
       <div class="text-center py-24 flex flex-col items-center gap-lg">
@@ -153,7 +153,7 @@ if (trend.length > 0) {
         </div>
         <h2 class="text-display-md text-primary i18n" data-de={t("dashboard.keine_faenge", "de")} data-en={t("dashboard.keine_faenge", "en")}>{t("dashboard.keine_faenge")}</h2>
         <p class="text-body-lg text-on-surface-variant max-w-md i18n" data-de={t("dashboard.keine_faenge_text", "de")} data-en={t("dashboard.keine_faenge_text", "en")}>{t("dashboard.keine_faenge_text")}</p>
-        <a href="/fang-erfassen" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("dashboard.ersten_eintragen", "de")} data-en={t("dashboard.ersten_eintragen", "en")}>{t("dashboard.ersten_eintragen")}</a>
+        <a href="/fang-erfassen/" class="bg-primary text-on-primary font-nav-item text-nav-item uppercase tracking-widest px-8 py-4 rounded-full min-h-12 i18n" data-de={t("dashboard.ersten_eintragen", "de")} data-en={t("dashboard.ersten_eintragen", "en")}>{t("dashboard.ersten_eintragen")}</a>
       </div>
     ) : (
       <>
@@ -163,11 +163,11 @@ if (trend.length > 0) {
             <p class="text-body-lg text-on-surface-variant i18n" data-de={t("dashboard.ueberblick_saison", "de").replace("{year}", String(currentYear))} data-en={t("dashboard.ueberblick_saison", "en").replace("{year}", String(currentYear))}>{t("dashboard.ueberblick_saison").replace("{year}", String(currentYear))}</p>
           </div>
           <div class="flex flex-wrap gap-3">
-            <a href="/fang-erfassen" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-colors duration-200 flex items-center gap-2 min-h-12">
+            <a href="/fang-erfassen/" class="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-nav-item text-nav-item uppercase tracking-widest hover:bg-surface-tint transition-colors duration-200 flex items-center gap-2 min-h-12">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
               <span class="i18n" data-de={t("dashboard.neuer_fang", "de")} data-en={t("dashboard.neuer_fang", "en")}>{t("dashboard.neuer_fang")}</span>
             </a>
-            <a href="/statistik" class="border border-primary/40 text-primary rounded-full px-6 py-3 font-nav-item text-nav-item uppercase tracking-widest hover:bg-primary hover:text-white transition-colors min-h-12 flex items-center i18n" data-de={t("dashboard.statistik_studio", "de")} data-en={t("dashboard.statistik_studio", "en")}>
+            <a href="/statistik/" class="border border-primary/40 text-primary rounded-full px-6 py-3 font-nav-item text-nav-item uppercase tracking-widest hover:bg-primary hover:text-white transition-colors min-h-12 flex items-center i18n" data-de={t("dashboard.statistik_studio", "de")} data-en={t("dashboard.statistik_studio", "en")}>
               {t("dashboard.statistik_studio")}
             </a>
           </div>

@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { t } from "../lib/i18n";
 ---
 
-<Layout title="Carp24 – Anmelden">
+<Layout title="Carp24 – Anmelden" description="Bei Carp24 anmelden oder kostenlos registrieren und sofort mit dem digitalen Fangbuch für Karpfenangler starten.">
   <main class="flex-grow flex items-center justify-center px-4 md:p-margin-desktop py-xl">
     <div class="bg-surface-container-high border border-primary/40 rounded-2xl w-full md:max-w-md px-4 md:p-lg xl:p-xl mx-auto flex flex-col gap-4 md:gap-lg">
       <div class="text-center mb-sm">
@@ -51,7 +51,7 @@ import { t } from "../lib/i18n";
       </form>
 
       <p class="text-center mt-4">
-        <a href="/passwort-vergessen" class="text-primary hover:underline text-sm i18n" data-de={t("login.passwort_vergessen", "de")} data-en={t("login.passwort_vergessen", "en")}>{t("login.passwort_vergessen")}</a>
+        <a href="/passwort-vergessen/" class="text-primary hover:underline text-sm i18n" data-de={t("login.passwort_vergessen", "de")} data-en={t("login.passwort_vergessen", "en")}>{t("login.passwort_vergessen")}</a>
       </p>
 
       <div class="flex items-center gap-sm my-xs">
@@ -213,7 +213,7 @@ import { t } from "../lib/i18n";
             <div class="flex items-start gap-3">
               <input type="checkbox" id="reg-dsgvo" required class="mt-1 min-w-5 min-h-5 w-5 h-5 accent-primary flex-shrink-0" />
               <label for="reg-dsgvo" class="text-sm md:text-body-sm text-on-surface leading-relaxed">
-                <span class="i18n" data-de={t("login.datenschutz", "de")} data-en={t("login.datenschutz", "en")}>{t("login.datenschutz")}</span> <a href="/datenschutz" class="text-primary hover:underline break-words i18n" data-de={t("login.datenschutz_link", "de")} data-en={t("login.datenschutz_link", "en")}>{t("login.datenschutz_link")}</a>
+                <span class="i18n" data-de={t("login.datenschutz", "de")} data-en={t("login.datenschutz", "en")}>{t("login.datenschutz")}</span> <a href="/datenschutz/" class="text-primary hover:underline break-words i18n" data-de={t("login.datenschutz_link", "de")} data-en={t("login.datenschutz_link", "en")}>{t("login.datenschutz_link")}</a>
               </label>
             </div>
             <div id="reg-dsgvo-error" class="hidden text-body-sm text-error mt-xs"></div>

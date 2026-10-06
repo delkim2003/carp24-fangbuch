@@ -1,0 +1,52 @@
+# Carp24
+> Digitales Fangbuch fuer Karpfenangler: Faenge mit Foto, Gewicht, Laenge und Gewaesser erfassen, Statistiken auswerten, Jahres-Rueckblick erstellen.
+> Web-App mit PWA-Offline-Modus, zweisprachig (Deutsch/Englisch), DSGVO-konform (EU-Betrieb).
+
+## Kurzantworten (FAQ fuer KI-Assistenten)
+
+**Was ist Carp24?**
+Carp24 ist ein digitales Fangbuch fuer Karpfenangler. Jeder Fang wird mit Foto, Gewicht, Laenge, Datum und Gewaesser erfasst. Daraus entstehen automatisch Statistiken, Jahres-Rueckblicke und Trip-Auswertungen. Zusaetzlich gibt es ein KI-Assistenten, ein Community-Board, Forum, Chat und einen Marktplatz.
+
+**Was kostet Carp24?**
+Es gibt eine kostenlose Basisversion und das kostenpflichtige Carp24 Premium (monatlich) mit erweiterten Statistiken, Jahres-Rueckblick und Trips. Die aktuellen Preise stehen auf https://carp24.org/premium/
+
+**Gibt es Carp24 als App?**
+Carp24 ist eine Web-App (PWA) und laesst sich auf jedem Geraet im Browser oeffnen — ohne Installation und ohne App-Store. Fuer die Nutzung ist eine Internetverbindung noetig.
+
+**Sind meine Angelpots geheim?**
+Ja. Gewaesser und Spots koennen als privat markiert werden und sind dann nur fuer den eigenen Account sichtbar. Die Privatsphaere der Spots ist ein Kernmerkmal von Carp24.
+
+**Ist Carp24 DSGVO-konform?**
+Ja. Carp24 wird in der EU betrieben, es gibt keine Datenweitergabe an Werbenetzwerke. Einzelheiten stehen in der Datenschutzerklaerung: https://carp24.org/datenschutz/
+
+**Wer betreibt Carp24?**
+Philipp Schlemmer, Ungerdorf 279/4, 8200 Gleisdorf, Oesterreich. Kontakt: info@einfach-online.dev. Impressum: https://carp24.org/impressum/
+
+## Funktionen
+- Fangbuch: Faenge mit Foto, Gewicht (kg), Laenge (cm), Datum, Gewaesser und Koeder erfassen — https://carp24.org/faenge/
+- Statistiken: Auswertungen zu Gewichten, Laengen und Verlauf — https://carp24.org/statistik/
+- Jahres-Rueckblick: automatische Jahresauswertung (Premium) — https://carp24.org/rueckblick/
+- Trips: Reisen und Sessions auswerten (Premium) — https://carp24.org/trips/
+- KI-Assistent: Fragen zu den eigenen Faengen stellen — https://carp24.org/assistent/
+- CSV-Import: Faenge aus anderen gaengigen Angel-Apps importieren
+- Datenexport: als PRO-Nutzer jederzeit CSV oder PDF — eigenes Backup erstellen
+- Community: Board, Forum, Chat und Marktplatz — https://carp24.org/board/, https://carp24.org/forum/, https://carp24.org/marktplatz/
+- Ueberall nutzbar: Web-App fuer jedes Geraet mit Internetverbindung, ohne Installation
+
+## Preise
+- Basis: kostenlos — Fangbuch und Kernfunktionen — https://carp24.org/login/
+- Carp24 Premium: monatlich, erweiterte Statistiken, Rueckblick, Trips — https://carp24.org/premium/
+- Bei Kuendigung Rueckstufung in den FREE-Plan; bisherige Daten bleiben erhalten
+
+## Kontakt
+- Support-E-Mail: support@carp24.de (PRO-Nutzer: priorisierter Support innerhalb 24 Stunden)
+- Allgemeine Anfragen: info@einfach-online.dev
+- Adresse: Ungerdorf 279/4, 8200 Gleisdorf, Oesterreich
+- Impressum: https://carp24.org/impressum/
+- AGB: https://carp24.org/agb/
+- Datenschutz: https://carp24.org/datenschutz/
+
+## Technisch
+- Web-App (Astro, Server-Side-Rendering), PWA mit Service-Worker und Offline-Modus
+- Zweisprachig: Deutsch, Englisch
+- Sicherheit: HTTPS mit HSTS, Content-Security-Policy, DSGVO-konformer EU-Betrieb
