@@ -217,9 +217,14 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     return Number.isFinite(v) ? v.toFixed(digits) : '–';
   }
 
+  function ni(val: unknown): string {
+    const v = Number(val);
+    return Number.isFinite(v) ? String(Math.round(v)) : '–';
+  }
+
   function nf(val: unknown, digits: number = 1): string {
     const v = Number(val);
-    return Number.isFinite(v) ? v.toFixed(digits) : '–';
+    return Number.isFinite(v) ? v.toFixed(digits).replace('.', ',') : '–';
   }
 
   function speciesName(s: string): string {
@@ -302,7 +307,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       return `<div class="flex items-center gap-sm text-body-md">
         <span class="w-[140px] text-right text-on-surface-variant truncate flex-shrink-0">${label}</span>
         <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
-        <span class="font-bold text-on-surface min-w-[30px] text-right">${n(d[valueKey])}</span>
+        <span class="font-bold text-on-surface min-w-[30px] text-right">${ni(d[valueKey])}</span>
         <span class="text-on-surface-variant opacity-50 text-xs min-w-[70px]">Ø ${nf(d[avgKey])} kg</span>
       </div>`;
     }).join('');
@@ -327,7 +332,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
         ${parts.map(p => `<span class="inline-flex items-center py-1 px-3 rounded-full bg-surface-variant text-body-md text-on-surface whitespace-nowrap font-medium">${p}</span>`).join('')}
       </div>
       <div class="flex items-baseline gap-sm">
-        <span class="text-headline-md text-primary-container font-bold">${n(row.catch_count)} Fänge</span>
+        <span class="text-headline-md text-primary-container font-bold">${ni(row.catch_count)} Fänge</span>
       </div>
     `;
   }
@@ -350,24 +355,24 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     };
 
     let html = top8.map(d => {
-      const count = n(d.catch_count);
+      const count = Number(d.catch_count) || 0;
       const pct = (count / maxVal * 100);
       return `<div class="flex items-center gap-sm text-body-md">
         <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
         <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
-        <span class="w-10 font-bold text-on-surface text-right">${count}</span>
+        <span class="w-10 font-bold text-on-surface text-right">${ni(count)}</span>
       </div>`;
     }).join('');
 
     if (rest.length) {
       html += `<details class="mt-sm"><summary class="cursor-pointer text-body-md text-primary-container font-semibold py-sm">Weitere anzeigen (${rest.length})</summary>`;
       html += rest.map(d => {
-        const count = n(d.catch_count);
+        const count = Number(d.catch_count) || 0;
         const pct = (count / maxVal * 100);
         return `<div class="flex items-center gap-sm text-body-md mt-sm">
           <span class="w-[180px] text-right text-on-surface-variant truncate flex-shrink-0">${d.water_name || 'Unbekannt'}</span>
           <div class="flex-1 h-6 bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${heatColor(count)}"></div></div>
-          <span class="w-10 font-bold text-on-surface text-right">${count}</span>
+          <span class="w-10 font-bold text-on-surface text-right">${ni(count)}</span>
         </div>`;
       }).join('');
       html += '</details>';
@@ -387,7 +392,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       return `<div class="flex items-center gap-sm text-body-md">
         <span class="w-[100px] text-right text-on-surface-variant truncate flex-shrink-0">${d.label}</span>
         <div class="flex-1 h-[22px] bg-surface-variant rounded-md overflow-hidden"><div class="h-full rounded-md min-w-[2px] transition-all duration-300" style="width:${pct}%;background:${color}"></div></div>
-        <span class="font-bold text-on-surface min-w-[30px] text-right">${d.count}</span>
+        <span class="font-bold text-on-surface min-w-[30px] text-right">${ni(d.count)}</span>
       </div>`;
     }).join('');
   }
@@ -399,7 +404,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       const parts = d.month?.split('-');
       if (parts?.length === 2) {
         const m = parseInt(parts[1]) - 1;
-        byMonth[m] = n(d.catch_count);
+        byMonth[m] = Number(d.catch_count) || 0;
       }
     });
     const bars = monatLabels.map((label, i) => ({ label, count: byMonth[i] ?? 0 }));
@@ -410,14 +415,14 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     const zeitLabels: Record<string, string> = { '0-6': 'Nacht', '6-12': 'Morgen', '12-18': 'Mittag', '18-24': 'Abend' };
     const order = ['0-6', '6-12', '12-18', '18-24'];
     const uhrzeitBuckets = cond?.buckets?.uhrzeit ?? {};
-    const bars = order.map(key => ({ label: zeitLabels[key] ?? key, count: n(uhrzeitBuckets[key]?.fangzahl) }));
+    const bars = order.map(key => ({ label: zeitLabels[key] ?? key, count: Number(uhrzeitBuckets[key]?.fangzahl) || 0 }));
     renderSimpleBars('zeitenBars', bars);
   }
 
   function renderKoeder(cond: any) {
     const koederBuckets = cond?.buckets?.koeder ?? {};
     const entries = Object.entries(koederBuckets)
-      .map(([label, v]: any) => ({ label, count: n(v?.fangzahl) }))
+      .map(([label, v]: any) => ({ label, count: Number(v?.fangzahl) || 0 }))
       .filter(e => e.label && e.label !== 'Unbekannt')
       .sort((a, b) => b.count - a.count);
     renderSimpleBars('koederBars', entries);
@@ -447,7 +452,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
       return `<div class="${rankBg} ${rankBorder} border-2 rounded-[16px] p-lg flex flex-col gap-sm relative">
         <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${rankBadge} text-xs font-bold flex items-center justify-center">${rank}</div>
         <div class="flex justify-between items-center">
-          <span class="text-headline-md text-primary-container font-bold">${n(k.fangzahl)} Fänge</span>
+          <span class="text-headline-md text-primary-container font-bold">${ni(k.fangzahl)} Fänge</span>
           <span class="text-body-md text-on-surface-variant opacity-60">Ø ${nf(k.avg_gewicht)} kg</span>
         </div>
         <div class="text-body-md text-on-surface opacity-80 leading-relaxed">${parts.join(' · ')}</div>
@@ -472,7 +477,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
         <td class="py-3 px-4 text-body-md text-on-surface">${speciesName(d.species)}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.water_name ?? '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.bait ?? '–'}</td>
-        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</td>
+        <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.length_cm ? ni(d.length_cm) + ' cm' : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.moon_text ?? '–'}</td>
         <td class="py-3 px-4 text-body-md text-on-surface-variant">${d.weather?.pressure_hpa ? d.weather.pressure_hpa + ' hPa' : '–'}</td>
@@ -488,7 +493,7 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Fischart</span><span class="text-on-surface">${speciesName(d.species)}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Gewässer</span><span class="text-on-surface-variant">${d.water_name ?? '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Köder</span><span class="text-on-surface-variant">${d.bait ?? '–'}</span></div>
-          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Länge</span><span class="text-on-surface-variant">${d.length_cm ? n(d.length_cm) + ' cm' : '–'}</span></div>
+          <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Länge</span><span class="text-on-surface-variant">${d.length_cm ? ni(d.length_cm) + ' cm' : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Wetter</span><span class="text-on-surface-variant">${d.weather?.weather_text ? d.weather.weather_text + (d.weather.temp_c ? ' ' + d.weather.temp_c + '°C' : '') : '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Mond</span><span class="text-on-surface-variant">${d.weather?.moon_text ?? '–'}</span></div>
           <div class="flex justify-between py-xs text-body-md"><span class="text-on-surface-variant font-semibold">Luftdruck</span><span class="text-on-surface-variant">${d.weather?.pressure_hpa ? d.weather.pressure_hpa + ' hPa' : '–'}</span></div>
@@ -530,11 +535,11 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     if (pillsEl && b.art) {
       const prevActive = pillsEl.querySelector('.pill.active')?.getAttribute('data-value') ?? '';
       const total = Object.values(b.art as Record<string, any>).reduce((s: number, v: any) => s + (Number(v?.fangzahl) || 0), 0);
-      let html = `<button class="pill active font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 bg-primary-container text-on-primary-container hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="">Alle <span class="opacity-60">${total}</span></button>`;
+      let html = `<button class="pill active font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 bg-primary-container text-on-primary-container hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="">Alle <span class="opacity-60">${Math.round(total)}</span></button>`;
       for (const [art, v] of Object.entries(b.art as Record<string, any>)) {
         if (!art || art === 'Unbekannt') continue;
         const cnt = Number(v?.fangzahl) || 0;
-        html += `<button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="${art}">${speciesName(art)} <span class="opacity-60">${cnt}</span></button>`;
+        html += `<button class="pill font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-colors min-h-11 cursor-pointer" data-value="${art}">${speciesName(art)} <span class="opacity-60">${Math.round(cnt)}</span></button>`;
       }
       pillsEl.innerHTML = html;
       if (prevActive) {
@@ -590,12 +595,12 @@ const isPaid = Astro.locals.isPro || Astro.locals.isAdmin;
     const kpiAvg = document.getElementById('kpiAvg');
     const kpiMax = document.getElementById('kpiMax');
     const kpiWater = document.getElementById('kpiWater');
-    if (kpiFang) kpiFang.textContent = String(n(cond?.total?.fangzahl));
+    if (kpiFang) kpiFang.textContent = ni(cond?.total?.fangzahl);
     if (kpiAvg) kpiAvg.textContent = nf(cond?.total?.avg_gewicht) + ' kg';
     if (kpiMax) kpiMax.textContent = nf(cond?.total?.max_gewicht) + ' kg';
     if (kpiWater) kpiWater.textContent = String(Object.keys(cond?.buckets?.gewaesser ?? {}).length);
     const filterCountEl = document.getElementById('filterCount');
-    if (filterCountEl) filterCountEl.textContent = `${n(cond?.total?.fangzahl)} von ${n(cond?.total?.fangzahl)} Fängen`;
+    if (filterCountEl) filterCountEl.textContent = `${ni(cond?.total?.fangzahl)} von ${ni(cond?.total?.fangzahl)} Fängen`;
 
     renderBestConditions(bestCond);
 
