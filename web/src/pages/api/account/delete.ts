@@ -62,6 +62,24 @@ export async function POST({ request, locals }: { request: Request; locals: App.
     });
   }
 
+  // X1-Deletion (Art. 17 DSGVO): alle User-Daten hart loeschen, fehlertolerant je Tabelle
+  const x1Tables: [string, string][] = [
+    ["catches", "user_id"],
+    ["trips", "user_id"],
+    ["user_badges", "user_id"],
+    ["forum_threads", "user_id"],
+    ["forum_posts", "user_id"],
+    ["chat_messages", "user_id"],
+    ["marketplace_items", "user_id"],
+    ["push_subscriptions", "user_id"],
+    ["content_reports", "reporter_id"],
+  ];
+  for (const [t, col] of x1Tables) {
+    try {
+      await supabaseAdmin.from(t).delete().eq(col, user.id);
+    } catch {}
+  }
+
   // GoTrue-User löschen (Art. 17 DSGVO)
   const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   if (authError) {
