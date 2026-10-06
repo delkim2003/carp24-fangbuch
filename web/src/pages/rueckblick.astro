@@ -287,7 +287,7 @@ const catchesJson = JSON.stringify(catches);
     moonSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
     moonSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">MONDVERTEILUNG</div>';
     var moonBarContainer = document.createElement("div");
-    moonBarContainer.className = "flex items-end gap-xs min-h-24";
+    moonBarContainer.className = "flex items-end gap-xs min-h-24 overflow-x-auto";
 
     var moonLabels = ["NEUMOND", "ERSTES VIERTEL", "VOLLMOND", "LETZTES VIERTEL"];
     moonLabels.forEach(function (label) {
@@ -327,7 +327,7 @@ const catchesJson = JSON.stringify(catches);
     barSection.className = "bg-surface-container-high rounded-xl border border-primary/40 p-lg";
     barSection.innerHTML = '<div class="font-label-sm text-label-sm uppercase text-secondary mb-md">FÄNGE PRO MONAT</div>';
     var barContainer = document.createElement("div");
-    barContainer.className = "flex items-end gap-xs min-h-32";
+    barContainer.className = "flex items-end gap-xs min-h-32 overflow-x-auto";
 
     monthLabels.forEach(function (label, i) {
       var col = document.createElement("div");

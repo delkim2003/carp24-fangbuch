@@ -29,7 +29,7 @@ const moreItems = [
       <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Carp24</span>
     </a>
 
-    <nav class="hidden md:flex gap-6 items-center flex-1 min-w-0 ml-12" aria-label="Hauptnavigation">
+    <nav class="hidden lg:flex gap-6 items-center flex-1 min-w-0 ml-12" aria-label="Hauptnavigation">
       {navItems.map((item) => (
         <a
           href={item.href}
@@ -76,12 +76,12 @@ const moreItems = [
     </nav>
 
     <div class="flex items-center gap-4">
-      <div id="lang-switcher" class="hidden md:inline-flex items-center rounded-full bg-surface-container-highest p-0.5">
+      <div id="lang-switcher" class="hidden lg:inline-flex items-center rounded-full bg-surface-container-highest p-0.5">
         <button type="button" data-lang="de" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">DE</button>
         <button type="button" data-lang="en" class="lang-btn font-nav-item text-nav-item uppercase tracking-widest px-3 py-1.5 rounded-full min-h-11 flex items-center transition-colors cursor-pointer text-on-surface">EN</button>
       </div>
-      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200">ADMIN</a>
-      <div class="hidden md:flex items-center gap-4">
+      <a id="admin-link-desktop" href="/admin/" data-de="ADMIN" data-en="ADMIN" hidden class="nav-label hidden lg:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200">ADMIN</a>
+      <div class="hidden lg:flex items-center gap-4">
         <a id="auth-link" href="/login" data-de="Anmelden" data-en="Sign In" class="nav-label font-nav-item text-nav-item uppercase tracking-widest text-primary hover:text-primary-container transition-colors duration-200">
           Anmelden
         </a>
@@ -92,16 +92,16 @@ const moreItems = [
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       </div>
-      <button id="theme-toggle" type="button" data-de="Dunkel" data-en="Dark" class="nav-label hidden md:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">Dunkel</button>
+      <button id="theme-toggle" type="button" data-de="Dunkel" data-en="Dark" class="nav-label hidden lg:inline font-nav-item text-nav-item uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer min-h-11 flex items-center" aria-label="Design wechseln">Dunkel</button>
 
-      <button id="mobile-burger" type="button" class="md:hidden inline-flex items-center justify-center w-11 h-11 text-primary" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav">
+      <button id="mobile-burger" type="button" class="lg:hidden inline-flex items-center justify-center w-11 h-11 text-primary" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav">
         <svg id="burger-open" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         <svg id="burger-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
   </div>
 
-  <div id="mobile-nav" class="hidden md:hidden border-t border-outline/20 bg-surface overflow-y-auto max-h-[calc(100dvh-5rem)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+  <div id="mobile-nav" class="hidden lg:hidden border-t border-outline/20 bg-surface overflow-y-auto max-h-[calc(100dvh-5rem)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
     <nav class="flex flex-col px-margin-mobile py-4 gap-1" aria-label="Mobile Navigation">
       {navItems.map((item) => (
         <a
