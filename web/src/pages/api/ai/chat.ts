@@ -114,7 +114,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const { data: catches } = await supabase
     .from("catches")
-    .select("catch_ts, weight_kg, species, water_id, weather_code, temperature_2m, pressure_msl, wind_speed_10m, bait, method, notes")
+    .select("catch_ts, weight_kg, species, water_name, lat, lng, weather, bait, method, notes")
     .eq("user_id", userId)
     .eq("draft", false)
     .is("deleted_at", null)
@@ -127,9 +127,38 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       const date = c.catch_ts ? new Date(c.catch_ts).toLocaleDateString("de-DE") : "?";
       const kg = c.weight_kg ? c.weight_kg + " kg" : "?";
       const species = c.species || "unbekannt";
-      return date + ", " + kg + ", " + species;
+      const w = c.weather || {};
+      const teile = [w.weather_text, (w.temp_c !== undefined && w.temp_c !== null) ? (w.temp_c + " Grad") : null, w.pressure_hpa ? (w.pressure_hpa + " hPa") : null, w.wind_speed_kmh ? (w.wind_speed_kmh + " km/h Wind") : null, w.moon_text ? ("Mond: " + w.moon_text) : null].filter(Boolean).join(", ");
+      return date + ", " + kg + ", " + species + ", " + (c.water_name || "unbekannt") +
+        (c.bait ? (", Koeder: " + c.bait) : "") +
+        (c.method ? (", Methode: " + c.method) : "") +
+        (teile ? (", Wetter: " + teile) : "") +
+        (c.notes ? (", Notiz: " + c.notes) : "");
     }).join("\n");
   }
+
+  // Wetter-Ausblick 3 Tage fuer Ort des letzten Fangs (beantwortet Wetterfragen)
+  let wetterAusblick = "";
+  try {
+    const lastWithPos = [...(catches || [])].reverse().find((c: any) => c.lat && c.lng);
+    if (lastWithPos) {
+      const wxUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lastWithPos.lat + "&longitude=" + lastWithPos.lng + "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode&forecast_days=3&timezone=auto";
+      const wx = await fetch(wxUrl);
+      const wxData = await wx.json().catch(() => null);
+      const d = wxData?.daily;
+      if (d?.time?.length) {
+        const ziele: Record<string, string> = { "0": "sonnig", "1": "leicht bewoelkt", "2": "bewoelkt", "3": "bedeckt", "45": "Nebel", "51": "Nieselregen", "61": "Regen", "80": "leichte Schauer", "95": "Gewitter" };
+        wetterAusblick = d.time.map((date: string, i: number) => {
+          const code = String(d.weathercode?.[i] ?? 0);
+          return date + ": " + d.temperature_2m_min?.[i] + " bis " + d.temperature_2m_max?.[i] + " Grad, " + (ziele[code] || "wechselhaft") + ", " + d.precipitation_sum?.[i] + "mm Niederschlag";
+        }).join("\n");
+      }
+    }
+  } catch { wetterAusblick = ""; }
+  if (wetterAusblick) {
+    contextStr += "\n\nWETTER-AUSBLICK 3 TAGE (Ort des letzten Fangs, Open-Meteo):\n" + wetterAusblick;
+  }
+
 
   const systemPrompt = `Du bist der Carp24 Fangbuch-Datenanalyst für EINEN einzigen User.
 WICHTIGE REGELN:
@@ -137,6 +166,7 @@ WICHTIGE REGELN:
 - Du hast KEINEN Zugriff auf Daten anderer User.
 - Wenn nach Fängen anderer User gefragt wird: "Ich habe nur Zugriff auf deine eigenen Fangdaten."
 - Erfinde NIEMALS Daten. Wenn keine Daten vorhanden sind, sage es.
+- Bei Wetter-, Angelzeitpunkt- oder Fangchancen-Fragen: Nutze die Wetterdaten der Fänge und den WETTER-AUSBLICK. Verweise fuer andere Orte auf den Button "Fangprognose". Erfinde keine Wetterwerte.
 - Antworte kurz (max 120 Wörter), sachlich, auf Deutsch.
 - Wenn keine Fangdaten vorhanden sind: "Du hast noch keine Fänge eingetragen."`;
 
@@ -156,7 +186,7 @@ WICHTIGE REGELN:
           const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: "Bearer " + apiKey },
-            body: JSON.stringify({ model, messages: [
+            body: JSON.stringify({ model, temperature: 0.2, messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: "Fang-Kontext:\n" + contextStr + "\n\nFrage: " + message },
             ]}),

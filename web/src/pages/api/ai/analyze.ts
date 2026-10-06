@@ -8,7 +8,7 @@ const rateLimitMap = new Map<string, number>();
 
 async function getApiKey(supabase: any): Promise<string | null> {
   // 1. Check env var first (fast path)
-  const envKey = import.meta.env.OPENROUTER_API_KEY;
+  const envKey = process.env.OPENROUTER_API_KEY;
   if (envKey) return envKey;
 
   // 2. Fall back to DB-stored key
@@ -142,7 +142,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   // Rate-Limit: 10s pro User
   const now = Date.now();
   const lastRequest = rateLimitMap.get(userId);
-  if (lastRequest && now - lastRequest < 10_000) {
+  if (lastRequest && now - lastRequest < 5_000) {
     return new Response(JSON.stringify({ error: "Bitte kurz warten." }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
@@ -198,9 +198,12 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   let contextStr = "Keine Fänge vorhanden.";
   let catchesWithWeather = [];
-  
+
   if (catches && catches.length > 0) {
     catchesWithWeather = catches.filter(c => c.weather && Object.keys(c.weather).length > 0);
+    if (catchesWithWeather.length === 0) {
+      contextStr = `${catches.length} Fänge vorhanden, aber keine mit Wetterdaten. Wetter-Snapshots werden nur für Fänge der letzten 24 Stunden automatisch erfasst.`;
+    }
     
     if (catchesWithWeather.length > 0) {
       contextStr = catchesWithWeather
@@ -322,7 +325,7 @@ Analysiere diese Daten und gib die besten Angelbedingungen für den Nutzer an.`;
     try {
       // Get forecast
       const forecastResponse = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&forecast_days=3&timezone=auto`
       );
       
       if (!forecastResponse.ok) {
@@ -431,56 +434,71 @@ ${forecastText}
 Erstelle eine Angelprognose basierend AUSSCHLIESSLICH auf diesen Daten. Erfinde keine Angelmethoden, Köder oder Rigs. Berichte nur Fakten: Wetterdaten, Mondphasen, und ob die Bedingungen mit den historischen Bestwerten übereinstimmen.`;
    }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30_000);
+  const models = [
+    "mistralai/mistral-small-2603",
+    "mistralai/mistral-small-3.2-24b-instruct",
+    "mistralai/mistral-nemo",
+  ];
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "mistralai/mistral-small-2603",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const errorBody = await res.text().catch(() => "");
-      return new Response(
-        JSON.stringify({
-          error: `KI-Dienst nicht erreichbar (${res.status}).`,
-          detail: errorBody.slice(0, 200),
-        }),
-        {
-          status: 502,
-          headers: { "Content-Type": "application/json" },
+    for (let attempt = 0; attempt < 3; attempt++) {
+      for (const model of models) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30_000);
+        try {
+          const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: 'Bearer ' + apiKey,
+            },
+            body: JSON.stringify({
+              model,
+              temperature: 0.2,
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+              ],
+            }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          if (res.status === 404) continue;
+          if (res.status === 429) { await new Promise(r => setTimeout(r, 2000 * (attempt + 1))); continue; }
+          if (!res.ok) {
+            const errorBody = await res.text().catch(() => "");
+            return new Response(
+              JSON.stringify({
+                error: `KI-Dienst nicht erreichbar (${res.status}).`,
+                detail: errorBody.slice(0, 200),
+              }),
+              {
+                status: 502,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+          }
+          const data = await res.json();
+          const answer = data.choices?.[0]?.message?.content || "Keine Antwort erhalten.";
+          if (!isAdmin) {
+            supabase.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
+          }
+          return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather, remaining }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (fetchErr: any) {
+          clearTimeout(timeout);
+          if (fetchErr?.name === "AbortError") return new Response(JSON.stringify({ error: "KI-Dienst antwortet nicht (Timeout)." }), { status: 504, headers: { "Content-Type": "application/json" } });
+          continue;
         }
-      );
+      }
     }
-
-    const data = await res.json();
-    const answer = data.choices?.[0]?.message?.content || "Keine Antwort erhalten.";
-
-    // Track usage (fire-and-forget, non-blocking)
-    if (!isAdmin) {
-      supabase.rpc("increment_ai_usage", { p_user_id: userId }).catch(() => {});
-    }
-
-    return new Response(JSON.stringify({ answer, confidence, catchesTotal: totalCatches, catchesWithWeather: withWeather, remaining }), {
-      status: 200,
+    return new Response(JSON.stringify({ error: "KI-Dienst nicht erreichbar." }), {
+      status: 502,
       headers: { "Content-Type": "application/json" },
     });
   } catch {
-    clearTimeout(timeout);
     return new Response(JSON.stringify({ error: "KI-Dienst nicht erreichbar." }), {
       status: 502,
       headers: { "Content-Type": "application/json" },
