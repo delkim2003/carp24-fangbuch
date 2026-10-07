@@ -133,6 +133,16 @@ if (!isAdmin) return Astro.redirect("/");
       return '<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm border ' + colors + '">' + label + '</span>';
     }
 
+    function mailBadge(m: any) {
+      if (!m) {
+        return '<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm border bg-gray-100 text-gray-800 border-gray-300">—</span>';
+      }
+      if (m.status === "sent") {
+        return '<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm border bg-green-100 text-green-800 border-green-300" title="' + escapeHtml(m.created_at) + '">gesendet</span>';
+      }
+      return '<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm border bg-red-100 text-red-800 border-red-300" title="' + escapeHtml(m.error) + '">fehlgeschlagen</span>';
+    }
+
     function buildPagination() {
       var wrapper = document.getElementById("pagination-wrapper");
       if (!wrapper) return;
@@ -248,6 +258,16 @@ if (!isAdmin) return Astro.redirect("/");
               banShortcut = '<button type="button" class="ban-user-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-error text-on-error min-h-11 flex items-center cursor-pointer hover:opacity-90 transition-colors" data-owner-id="' + r.owner.id + '">User bannen</button>';
             }
 
+            var mailInfo = '<div class="flex flex-col gap-1 mb-sm">' +
+              '<div class="flex items-center gap-2"><span class="text-body-sm text-on-surface-variant">Bestätigungsmail:</span>' + mailBadge(r.mails ? r.mails.ack : null) + '</div>' +
+              '<div class="flex items-center gap-2"><span class="text-body-sm text-on-surface-variant">Entscheidungsmail:</span>' + mailBadge(r.mails ? r.mails.decision : null) + '</div>' +
+              '</div>';
+
+            var mailButtons = '<div class="flex gap-3 mt-md flex-wrap">' +
+              '<button type="button" class="resend-ack-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-80 transition-colors">Ack erneut senden</button>' +
+              '<button type="button" class="resend-decision-btn font-label-sm text-label-sm uppercase tracking-widest px-4 py-2 rounded-full bg-surface-container-highest text-on-surface min-h-11 flex items-center cursor-pointer hover:opacity-80 transition-colors">Entscheidung erneut senden</button>' +
+              '</div>';
+
             var actionButtons = "";
             if (r.status === "open") {
               actionButtons = '<div class="flex gap-3 mt-md flex-wrap">' +
@@ -276,6 +296,8 @@ if (!isAdmin) return Astro.redirect("/");
               resolvedInfo +
               dismissedInfo +
               escalatedInfo +
+              mailInfo +
+              mailButtons +
               actionButtons +
               '</div>';
           })
@@ -417,6 +439,60 @@ if (!isAdmin) return Astro.redirect("/");
               }
             } catch {
               showToast("Netzwerk-Fehler", "error");
+            }
+            loadReports();
+          });
+        });
+
+        // Resend ack buttons
+        container.querySelectorAll(".resend-ack-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
+            if (!card) return;
+            var id = card.getAttribute("data-id");
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "resend_ack", reportId: id }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Mail erneut gesendet.", "success");
+              } else {
+                showToast("Versand fehlgeschlagen.", "error");
+              }
+            } catch {
+              showToast("Versand fehlgeschlagen.", "error");
+            }
+            loadReports();
+          });
+        });
+
+        // Resend decision buttons
+        container.querySelectorAll(".resend-decision-btn").forEach(function(btn) {
+          btn.addEventListener("click", async function() {
+            var card = (btn as HTMLElement).closest("[data-id]");
+            if (!card) return;
+            var id = card.getAttribute("data-id");
+            (btn as HTMLButtonElement).disabled = true;
+            (btn as HTMLElement).textContent = "…";
+            try {
+              var res = await fetch("/api/admin/reports", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "resend_decision", reportId: id }),
+              });
+              var d = await res.json();
+              if (d.success) {
+                showToast("Mail erneut gesendet.", "success");
+              } else {
+                showToast("Versand fehlgeschlagen.", "error");
+              }
+            } catch {
+              showToast("Versand fehlgeschlagen.", "error");
             }
             loadReports();
           });
