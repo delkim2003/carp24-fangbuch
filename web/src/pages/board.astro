@@ -232,6 +232,9 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
           feedback.className = 'report-feedback mt-sm text-body-md text-error';
           feedback.classList.remove('hidden');
         } else {
+          try {
+            fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reason: reason }) });
+          } catch (ackErr) {}
           feedback.textContent = 'Meldung gesendet — danke!';
           feedback.className = 'report-feedback mt-sm text-body-md text-primary';
           feedback.classList.remove('hidden');

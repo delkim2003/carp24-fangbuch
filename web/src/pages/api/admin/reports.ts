@@ -1,5 +1,6 @@
 import { getAdminClient } from "./_auth";
 import { csrfGuard } from "./_csrf";
+import { sendReportDecision } from "../../../lib/mail";
 
 export const prerender = false;
 
@@ -361,6 +362,22 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     }
 
     await writeAudit(supabaseAdmin, user.id, "report.dismiss", "report", reportId, {});
+
+    try {
+      const { data: report } = await supabaseAdmin
+        .from("content_reports")
+        .select("reporter_id, reason")
+        .eq("id", reportId)
+        .single();
+      if (report?.reporter_id) {
+        const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
+        const reporterEmail = reporterUser?.user?.email;
+        if (reporterEmail) {
+          await sendReportDecision(reporterEmail, "dismissed", report.reason ?? "");
+        }
+      }
+    } catch {}
+
     return new Response(JSON.stringify({ success: true, status: "dismissed" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -441,6 +458,21 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
 
   await writeAudit(supabaseAdmin, user.id, "report.resolve", "report", body.id, {});
 
+  try {
+    const { data: report } = await supabaseAdmin
+      .from("content_reports")
+      .select("reporter_id, reason")
+      .eq("id", body.id)
+      .single();
+    if (report?.reporter_id) {
+      const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
+      const reporterEmail = reporterUser?.user?.email;
+      if (reporterEmail) {
+        await sendReportDecision(reporterEmail, "removed", report.reason ?? "");
+      }
+    }
+  } catch {}
+
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
@@ -515,6 +547,21 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     target_type: body.target_type,
     target_id: body.target_id,
   });
+
+  try {
+    const { data: report } = await supabaseAdmin
+      .from("content_reports")
+      .select("reporter_id, reason")
+      .eq("id", body.id)
+      .single();
+    if (report?.reporter_id) {
+      const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
+      const reporterEmail = reporterUser?.user?.email;
+      if (reporterEmail) {
+        await sendReportDecision(reporterEmail, "removed", report.reason ?? "");
+      }
+    }
+  } catch {}
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
