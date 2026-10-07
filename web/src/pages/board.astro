@@ -22,6 +22,11 @@ if (session) {
     .order("catch_ts", { ascending: false })
     .limit(50);
   catches = data ?? [];
+  // DSGVO: Koordinaten nur auf ~1 km gerundet ausliefern (Private-Gewässer-Schutz) — auch ins JSON, nicht nur ins Display
+  for (const c of catches) {
+    if (typeof c.lat === 'number') c.lat = Math.round(c.lat * 100) / 100;
+    if (typeof c.lng === 'number') c.lng = Math.round(c.lng * 100) / 100;
+  }
   if (error) loadError = error.message;
 
   // Generate signed URLs for photos (server-side, service client)

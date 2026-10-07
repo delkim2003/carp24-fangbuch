@@ -211,6 +211,11 @@ const userTripsJson = JSON.stringify(userTrips);
               </select>
             </div>
 
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-5 h-5 rounded border border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest" id="foto-einwilligung" name="foto-einwilligung" type="checkbox" required />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer i18n" for="foto-einwilligung">Ich bestaetige: Alle auf hochgeladenen Fotos abgebildeten Personen stimmen der Veroeffentlichung zu.</label>
+            </div>
+
             <div class="pt-xl flex justify-end">
               <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-nav-item text-nav-item uppercase py-4 px-8 rounded-full hover:bg-surface-tint transition-colors shadow-sm w-full md:w-auto min-h-12 disabled:opacity-50 disabled:cursor-not-allowed i18n" data-de={t("fang_erfassen.speichern", "de")} data-en={t("fang_erfassen.speichern", "en")}>
                 {t("fang_erfassen.speichern")}
@@ -239,6 +244,7 @@ const userTripsJson = JSON.stringify(userTrips);
 (function () {
   var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
   var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+  var FOTO_EINWILLIGUNG_VERSION = "foto-freigabe-v1";
 
   var userTrips = [];
   try { userTrips = JSON.parse(userTripsJson); } catch (e) { userTrips = []; }
@@ -709,6 +715,12 @@ const userTripsJson = JSON.stringify(userTrips);
     e.preventDefault();
     hideMessages();
 
+    var fotoEinwilligung = document.getElementById('foto-einwilligung');
+    if (fotoEinwilligung && !fotoEinwilligung.checked) {
+      showSubmitError('Bitte die Einwilligung zur Foto-Veröffentlichung bestätigen.');
+      return;
+    }
+
     var input = buildInputData();
     if (!input) return;
 
@@ -776,6 +788,15 @@ const userTripsJson = JSON.stringify(userTrips);
             }
           });
         }
+        (async function () {
+          try {
+            var ur = await sb.auth.getUser();
+            var sessionUser = ur.data && ur.data.user ? ur.data.user : null;
+            if (sessionUser) {
+              await sb.from("upload_consents").insert({ user_id: sessionUser.id, purpose: "catch", text_version: FOTO_EINWILLIGUNG_VERSION });
+            }
+          } catch (err) {}
+        })();
         setTimeout(function () {
           window.location.href = '/faenge';
         }, 1200);

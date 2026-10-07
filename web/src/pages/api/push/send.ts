@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import webPush from "web-push";
 import { getVapidKeys } from "../../../lib/settings";
 
+const PUSH_TOKEN_MAX_AGE_DAYS = 90;
+
 export const prerender = false;
 
 export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
@@ -68,7 +70,19 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     )
   );
 
+  for (let i = 0; i < results.length; i++) {
+    if (results[i].status === "fulfilled") {
+      await supabaseAdmin.from("push_subscriptions").update({ last_success_at: new Date().toISOString() }).eq("endpoint", subs[i].endpoint);
+    }
+  }
+
   const successful = results.filter((r) => r.status === "fulfilled").length;
+
+  try {
+    const cutoff = new Date(Date.now() - PUSH_TOKEN_MAX_AGE_DAYS * 86400000).toISOString();
+    await supabaseAdmin.from("push_subscriptions").delete().lt("last_success_at", cutoff);
+    await supabaseAdmin.from("push_subscriptions").delete().is("last_success_at", null).lt("created_at", cutoff);
+  } catch {}
 
   return new Response(JSON.stringify({ ok: true, sent: successful, total: subs.length }), {
     status: 200,

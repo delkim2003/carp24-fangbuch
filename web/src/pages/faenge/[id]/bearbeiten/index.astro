@@ -276,6 +276,11 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
             <div id="submit-error" class="hidden p-md bg-error-container text-on-error-container rounded-lg text-body-md" role="alert" aria-live="polite"></div>
             <div id="submit-success" class="hidden p-md bg-primary-container/20 text-primary rounded-lg text-body-md"></div>
 
+            <div class="flex items-center gap-3 pt-md">
+              <input class="w-6 h-6 rounded border-2 border-primary/40 text-primary focus:ring-primary bg-surface-container-lowest accent-primary cursor-pointer" id="foto-einwilligung" name="foto-einwilligung" type="checkbox" required />
+              <label class="font-label-sm text-label-sm uppercase text-secondary pt-1 cursor-pointer" for="foto-einwilligung">Ich bestaetige: Alle auf hochgeladenen Fotos abgebildeten Personen stimmen der Veroeffentlichung zu.</label>
+            </div>
+
             <div class="pt-xl flex justify-end gap-md">
               <a href={`/faenge/${id}`} class="inline-flex items-center justify-center font-nav-item text-nav-item uppercase py-4 px-8 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-lowest transition-colors min-h-12">
                 {t("fang_bearbeiten.abbrechen")}
@@ -295,6 +300,7 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
 (function () {
   var SUPABASE_URL = document.body.dataset.supabaseUrl || "";
   var SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || "";
+  var FOTO_EINWILLIGUNG_VERSION = "foto-freigabe-v1";
   var form = document.getElementById('catch-form');
   if (!form) return;
   var catchId = form.dataset.catchId;
@@ -604,6 +610,12 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
     e.preventDefault();
     hideMessages();
 
+    var fotoEinwilligung = document.getElementById('foto-einwilligung');
+    if (fotoEinwilligung && !fotoEinwilligung.checked) {
+      showSubmitError('Bitte die Einwilligung zur Foto-Veröffentlichung bestätigen.');
+      return;
+    }
+
     var input = buildInputData();
     if (!input) return;
 
@@ -630,6 +642,15 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
       } else {
         submitSuccess.textContent = 'Fang erfolgreich aktualisiert!';
         submitSuccess.classList.remove('hidden');
+        (async function () {
+          try {
+            var ur = await sb.auth.getUser();
+            var sessionUser = ur.data && ur.data.user ? ur.data.user : null;
+            if (sessionUser) {
+              await sb.from("upload_consents").insert({ user_id: sessionUser.id, purpose: "catch", text_version: FOTO_EINWILLIGUNG_VERSION });
+            }
+          } catch (err) {}
+        })();
         setTimeout(function () {
           window.location.href = '/faenge/' + catchId;
         }, 1200);
