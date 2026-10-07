@@ -13,7 +13,9 @@ function createTransport() {
   });
 }
 
-export async function sendMail(to: string, subject: string, text: string): Promise<boolean> {
+export type MailResult = { ok: boolean; error: string | null };
+
+export async function sendMail(to: string, subject: string, text: string): Promise<MailResult> {
   try {
     const transporter = createTransport();
     await transporter.sendMail({
@@ -22,14 +24,14 @@ export async function sendMail(to: string, subject: string, text: string): Promi
       subject,
       text,
     });
-    return true;
+    return { ok: true, error: null };
   } catch (e) {
     console.error("[mail]", e);
-    return false;
+    return { ok: false, error: String((e as Error).message) };
   }
 }
 
-export async function sendReportReceived(toEmail: string, reason: string): Promise<boolean> {
+export async function sendReportReceived(toEmail: string, reason: string): Promise<MailResult> {
   const subject = "Carp24 – Ihre Meldung ist eingegangen";
   const text =
     "Guten Tag,\n\n" +
@@ -41,7 +43,7 @@ export async function sendReportReceived(toEmail: string, reason: string): Promi
   return sendMail(toEmail, subject, text);
 }
 
-export async function sendReportDecision(toEmail: string, decision: string, note: string): Promise<boolean> {
+export async function sendReportDecision(toEmail: string, decision: string, note: string): Promise<MailResult> {
   const decisionText =
     decision === "removed"
       ? "Der gemeldete Inhalt wurde entfernt."

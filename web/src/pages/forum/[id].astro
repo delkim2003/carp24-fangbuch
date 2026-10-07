@@ -309,7 +309,7 @@ const userId = session?.user?.id ?? null;
         target_id: targetId,
         reporter_id: reporterId,
         reason: reason
-      }).then(function (res) {
+      }).select("id").maybeSingle().then(function (res) {
         btn.disabled = false;
         btn.textContent = 'Meldung senden';
         if (res.error) {
@@ -323,7 +323,7 @@ const userId = session?.user?.id ?? null;
           feedback.classList.remove('hidden');
         } else {
           try {
-            fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reason: reason }) });
+            fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reportId: (res.data && res.data.id) || "", reason: reason }) });
           } catch (ackErr) {}
           feedback.textContent = 'Meldung gesendet — danke!';
           feedback.className = 'report-feedback mt-sm text-body-md text-primary';

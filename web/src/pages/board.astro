@@ -219,7 +219,7 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
         target_id: catchId,
         reporter_id: reporterId,
         reason: reason
-      }).then(function (res) {
+      }).select("id").maybeSingle().then(function (res) {
         btn.disabled = false;
         btn.textContent = 'Meldung senden';
         if (res.error) {
@@ -233,7 +233,7 @@ const jsonLD = catches.length > 0 ? itemListLD(catches.map(c => ({
           feedback.classList.remove('hidden');
         } else {
           try {
-            fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reason: reason }) });
+            fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reportId: (res.data && res.data.id) || "", reason: reason }) });
           } catch (ackErr) {}
           feedback.textContent = 'Meldung gesendet — danke!';
           feedback.className = 'report-feedback mt-sm text-body-md text-primary';
