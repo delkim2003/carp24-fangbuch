@@ -1,6 +1,6 @@
 import { getAdminClient } from "./_auth";
 import { csrfGuard } from "./_csrf";
-import { sendReportDecision } from "../../../lib/mail";
+import { sendReportDecision, sendReportReceived } from "../../../lib/mail";
 
 export const prerender = false;
 
@@ -12,6 +12,74 @@ async function writeAudit(supabaseAdmin: any, actorId: string, action: string, t
     target_id: targetId,
     details,
   });
+}
+
+async function logReportMail(
+  supabaseAdmin: any,
+  reportId: string,
+  kind: "ack" | "decision",
+  status: "sent" | "failed",
+  error: string | null
+) {
+  try {
+    await supabaseAdmin.from("report_mails").insert({
+      report_id: reportId,
+      kind,
+      status,
+      error,
+    });
+  } catch (e) {
+    console.error("[admin]", e);
+  }
+}
+
+async function sendAckMailLogged(supabaseAdmin: any, reportId: string) {
+  try {
+    const { data: report } = await supabaseAdmin
+      .from("content_reports")
+      .select("reporter_id, reason")
+      .eq("id", reportId)
+      .single();
+    if (!report?.reporter_id) {
+      await logReportMail(supabaseAdmin, reportId, "ack", "failed", "Kein Reporter hinterlegt");
+      return;
+    }
+    const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
+    const reporterEmail = reporterUser?.user?.email;
+    if (!reporterEmail) {
+      await logReportMail(supabaseAdmin, reportId, "ack", "failed", "Keine Reporter-E-Mail hinterlegt");
+      return;
+    }
+    const r = await sendReportReceived(reporterEmail, report.reason ?? "");
+    await logReportMail(supabaseAdmin, reportId, "ack", r.ok ? "sent" : "failed", r.error);
+  } catch (e) {
+    await logReportMail(supabaseAdmin, reportId, "ack", "failed", e instanceof Error ? e.message : String(e));
+  }
+}
+
+async function sendDecisionMailLogged(supabaseAdmin: any, reportId: string, decision?: "removed" | "dismissed") {
+  try {
+    const { data: report } = await supabaseAdmin
+      .from("content_reports")
+      .select("reporter_id, reason, status")
+      .eq("id", reportId)
+      .single();
+    if (!report?.reporter_id) {
+      await logReportMail(supabaseAdmin, reportId, "decision", "failed", "Kein Reporter hinterlegt");
+      return;
+    }
+    const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
+    const reporterEmail = reporterUser?.user?.email;
+    if (!reporterEmail) {
+      await logReportMail(supabaseAdmin, reportId, "decision", "failed", "Keine Reporter-E-Mail hinterlegt");
+      return;
+    }
+    const d = decision ?? (report.status === "dismissed" ? "dismissed" : "removed");
+    const r = await sendReportDecision(reporterEmail, d, report.reason ?? "");
+    await logReportMail(supabaseAdmin, reportId, "decision", r.ok ? "sent" : "failed", r.error);
+  } catch (e) {
+    await logReportMail(supabaseAdmin, reportId, "decision", "failed", e instanceof Error ? e.message : String(e));
+  }
 }
 
 export const GET = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
@@ -231,6 +299,8 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
     }
   }
 
+  const reportIds = [...new Set((reports ?? []).map((r: any) => r.id).filter(Boolean))];
+
   const [reporterProfiles, ...contentResults] = await Promise.all([
     reporterIds.length > 0
       ? supabaseAdmin.from("profiles").select("id, display_name").in("id", reporterIds)
@@ -278,6 +348,22 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
     waterMap.set(w.id, w.name);
   }
 
+  const mailsMap = new Map<string, { ack: any; decision: any }>();
+  if (reportIds.length > 0) {
+    const { data: mailRows } = await supabaseAdmin
+      .from("report_mails")
+      .select("report_id, kind, status, error, created_at")
+      .in("report_id", reportIds)
+      .order("created_at", { ascending: false });
+    for (const m of mailRows ?? []) {
+      const entry = mailsMap.get(m.report_id) ?? { ack: null, decision: null };
+      const slim = { status: m.status, error: m.error, created_at: m.created_at };
+      if (m.kind === "ack" && !entry.ack) entry.ack = slim;
+      if (m.kind === "decision" && !entry.decision) entry.decision = slim;
+      mailsMap.set(m.report_id, entry);
+    }
+  }
+
   const enriched = (reports ?? []).map((r: any) => {
     const reporterName = r.reporter_id ? (reporterMap.get(r.reporter_id) ?? "Unbekannt") : "Unbekannt";
 
@@ -304,7 +390,14 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
       }
     }
 
-    return { ...r, reporter_name: reporterName, preview, owner: ownerDisplay, owner_name: ownerName };
+    return {
+      ...r,
+      reporter_name: reporterName,
+      preview,
+      owner: ownerDisplay,
+      owner_name: ownerName,
+      mails: mailsMap.get(r.id) ?? { ack: null, decision: null },
+    };
   });
 
   return new Response(JSON.stringify({ reports: enriched, pagination: { page, limit, total: count ?? 0, totalPages } }), {
@@ -363,20 +456,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
     await writeAudit(supabaseAdmin, user.id, "report.dismiss", "report", reportId, {});
 
-    try {
-      const { data: report } = await supabaseAdmin
-        .from("content_reports")
-        .select("reporter_id, reason")
-        .eq("id", reportId)
-        .single();
-      if (report?.reporter_id) {
-        const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
-        const reporterEmail = reporterUser?.user?.email;
-        if (reporterEmail) {
-          await sendReportDecision(reporterEmail, "dismissed", report.reason ?? "");
-        }
-      }
-    } catch {}
+    await sendDecisionMailLogged(supabaseAdmin, reportId, "dismissed");
 
     return new Response(JSON.stringify({ success: true, status: "dismissed" }), {
       status: 200,
@@ -404,6 +484,24 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
     await writeAudit(supabaseAdmin, user.id, "report.escalate", "report", reportId, {});
     return new Response(JSON.stringify({ success: true, status: "escalated" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "resend_ack") {
+    await sendAckMailLogged(supabaseAdmin, reportId);
+    await writeAudit(supabaseAdmin, user.id, "report.resend_ack", "report", reportId, {});
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "resend_decision") {
+    await sendDecisionMailLogged(supabaseAdmin, reportId);
+    await writeAudit(supabaseAdmin, user.id, "report.resend_decision", "report", reportId, {});
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -458,20 +556,7 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
 
   await writeAudit(supabaseAdmin, user.id, "report.resolve", "report", body.id, {});
 
-  try {
-    const { data: report } = await supabaseAdmin
-      .from("content_reports")
-      .select("reporter_id, reason")
-      .eq("id", body.id)
-      .single();
-    if (report?.reporter_id) {
-      const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
-      const reporterEmail = reporterUser?.user?.email;
-      if (reporterEmail) {
-        await sendReportDecision(reporterEmail, "removed", report.reason ?? "");
-      }
-    }
-  } catch {}
+  await sendDecisionMailLogged(supabaseAdmin, body.id, "removed");
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
@@ -548,20 +633,7 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     target_id: body.target_id,
   });
 
-  try {
-    const { data: report } = await supabaseAdmin
-      .from("content_reports")
-      .select("reporter_id, reason")
-      .eq("id", body.id)
-      .single();
-    if (report?.reporter_id) {
-      const { data: reporterUser } = await supabaseAdmin.auth.admin.getUserById(report.reporter_id);
-      const reporterEmail = reporterUser?.user?.email;
-      if (reporterEmail) {
-        await sendReportDecision(reporterEmail, "removed", report.reason ?? "");
-      }
-    }
-  } catch {}
+  await sendDecisionMailLogged(supabaseAdmin, body.id, "removed");
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
