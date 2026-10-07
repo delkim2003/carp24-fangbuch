@@ -287,6 +287,20 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
         '<button data-action="delete" data-id="' + item.id + '" class="mp-action-btn font-nav-item text-nav-item uppercase text-xs py-1 px-3 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors cursor-pointer min-h-8">LÖSCHEN</button>' +
         '</div>';
     }
+    var reportBlock = '';
+    if (userId) {
+      reportBlock = '<div class="mt-auto pt-md border-t border-primary/10">' +
+        '<button type="button" class="report-toggle font-label-sm text-label-sm uppercase text-secondary hover:text-error transition-colors cursor-pointer min-h-11 i18n" data-catch-id="' + item.id + '" data-de="Melden" data-en="Report">Melden</button>' +
+        '<div class="report-form hidden mt-sm" data-catch-id="' + item.id + '">' +
+        '<textarea class="w-full bg-surface-container-lowest rounded border-b border-primary/20 focus:ring-0 focus:border-primary text-body-md py-2 px-3 resize-none min-h-11" rows="2" maxlength="500" placeholder="Grund der Meldung…" data-reason-input="' + item.id + '"></textarea>' +
+        '<div class="flex gap-sm mt-sm">' +
+        '<button type="button" class="report-submit font-nav-item text-nav-item uppercase py-2 px-4 rounded-full bg-error-container text-on-error-container hover:bg-surface-tint transition-colors text-sm cursor-pointer min-h-11 i18n" data-catch-id="' + item.id + '" data-reporter-id="' + userId + '" data-de="Meldung senden" data-en="Send report">Meldung senden</button>' +
+        '<button type="button" class="report-cancel font-nav-item text-nav-item uppercase py-2 px-4 rounded-full border border-primary/40 text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer min-h-11 i18n" data-catch-id="' + item.id + '" data-de="Abbrechen" data-en="Cancel">Abbrechen</button>' +
+        '</div>' +
+        '<div class="report-feedback hidden mt-sm text-body-md" data-catch-id="' + item.id + '"></div>' +
+        '</div>' +
+        '</div>';
+    }
     var contactBtn = '';
     if (!isOwner && item.status === 'active') {
       contactBtn = '<div class="mt-2">' +
@@ -320,6 +334,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
       '</div>' +
       ownerBtns +
       contactBtn +
+      reportBlock +
       '</div></div>';
   }
 
@@ -356,6 +371,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
     });
     bindActionButtons(container);
     bindContactButtons(container);
+    bindReportButtons(container);
     applyLang(container);
   }
 
@@ -375,6 +391,8 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
         }
       }
     });
+    bindReportButtons(container);
+    applyLang(container);
   }
 
   function renderContacts() {
@@ -496,6 +514,92 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
           feedback.classList.remove('hidden');
           btn.textContent = lang2 === 'en' ? 'SEND MESSAGE' : 'NACHRICHT SENDEN';
           applyLang(container);
+        });
+      });
+    });
+  }
+
+  function bindReportButtons(container) {
+    container.querySelectorAll('.report-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var catchId = btn.getAttribute('data-catch-id');
+        var form = container.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+        if (form) form.classList.toggle('hidden');
+      });
+    });
+    container.querySelectorAll('.report-cancel').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var catchId = btn.getAttribute('data-catch-id');
+        var form = container.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+        if (form) form.classList.add('hidden');
+        var feedback = container.querySelector('.report-feedback[data-catch-id="' + catchId + '"]');
+        if (feedback) { feedback.classList.add('hidden'); feedback.textContent = ''; }
+      });
+    });
+    container.querySelectorAll('.report-submit').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var catchId = btn.getAttribute('data-catch-id');
+        var reporterId = btn.getAttribute('data-reporter-id');
+        var reasonInput = container.querySelector('[data-reason-input="' + catchId + '"]');
+        var feedback = container.querySelector('.report-feedback[data-catch-id="' + catchId + '"]');
+        if (!reasonInput || !feedback) return;
+
+        var reason = reasonInput.value.trim();
+        if (reason.length < 3) {
+          feedback.textContent = 'Bitte mindestens 3 Zeichen eingeben.';
+          feedback.className = 'report-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+          return;
+        }
+        if (reason.length > 500) {
+          feedback.textContent = 'Bitte maximal 500 Zeichen eingeben.';
+          feedback.className = 'report-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+          return;
+        }
+
+        var sb = getSupabase();
+        if (!sb) {
+          feedback.textContent = 'Fehler: Supabase nicht initialisiert.';
+          feedback.className = 'report-feedback mt-sm text-body-md text-error';
+          feedback.classList.remove('hidden');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Wird gesendet…';
+
+        sb.from("content_reports").insert({
+          target_type: "marketplace_item",
+          target_id: String(catchId),
+          reporter_id: reporterId,
+          reason: reason
+        }).select("id").maybeSingle().then(function (res) {
+          btn.disabled = false;
+          btn.textContent = 'Meldung senden';
+          if (res.error) {
+            var errMsg = res.error.message || '';
+            if (errMsg.indexOf('content_reports_') !== -1 || errMsg.indexOf('duplicate') !== -1 || errMsg.indexOf('unique') !== -1) {
+              feedback.textContent = 'Du hast diesen Inhalt bereits gemeldet.';
+            } else {
+              feedback.textContent = 'Melden fehlgeschlagen. Bitte versuche es später.';
+            }
+            feedback.className = 'report-feedback mt-sm text-body-md text-error';
+            feedback.classList.remove('hidden');
+          } else {
+            try {
+              fetch("/api/reports/ack", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ reportId: (res.data && res.data.id) || "", reason: reason }) });
+            } catch (ackErr) {}
+            feedback.textContent = 'Meldung gesendet — danke!';
+            feedback.className = 'report-feedback mt-sm text-body-md text-primary';
+            feedback.classList.remove('hidden');
+            reasonInput.value = '';
+            setTimeout(function () {
+              var form = container.querySelector('.report-form[data-catch-id="' + catchId + '"]');
+              if (form) form.classList.add('hidden');
+              feedback.classList.add('hidden');
+            }, 2000);
+          }
         });
       });
     });
