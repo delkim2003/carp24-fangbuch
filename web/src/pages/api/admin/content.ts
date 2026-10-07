@@ -244,6 +244,46 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
     }
   }
 
+  // ── Moderation log ──────────────────────────────────
+  if (action === "moderation_log") {
+    const itemId = url.searchParams.get("item_id") || "";
+    if (!itemId) {
+      return new Response(JSON.stringify({ error: "item_id erforderlich." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("moderation_log")
+      .select("id, item_id, admin_id, decision, checklist, note, created_at")
+      .eq("item_id", itemId)
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("[admin]", error);
+      return new Response(JSON.stringify({ error: "Interner Fehler" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    let items = data ?? [];
+    const adminIds = [...new Set(items.map((i: any) => i.admin_id).filter(Boolean))];
+    if (adminIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", adminIds);
+      const nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+      items = items.map((i: any) => ({ ...i, display_name: nameMap.get(i.admin_id) ?? "Unbekannt" }));
+    }
+
+    return new Response(JSON.stringify({ items }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   // ── Regular paginated JSON ──────────────────────────
 
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
@@ -566,6 +606,92 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
   await writeAudit(supabaseAdmin, user.id, "content.update", body.contentType, body.contentId, { updates: cleaned });
 
   return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+};
+
+export const POST = async ({ request, locals }: { request: Request; locals: App.Locals }) => {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+  const auth = await getAdminClient(locals);
+  if ("error" in auth) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const { supabaseAdmin, user } = auth;
+
+  let body: { action?: string; item_id?: string; checklist?: Record<string, boolean>; note?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Ungültige Anfrage." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!body.action || (body.action !== "approve" && body.action !== "reject")) {
+    return new Response(JSON.stringify({ error: "Ungültige Aktion. Erlaubt: approve, reject." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (
+    !body.item_id ||
+    typeof body.item_id !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.item_id)
+  ) {
+    return new Response(JSON.stringify({ error: "Ungültige item_id." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!body.checklist || typeof body.checklist !== "object" || Array.isArray(body.checklist)) {
+    return new Response(JSON.stringify({ error: "Checklist (jsonb) erforderlich." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const note = typeof body.note === "string" && body.note.trim() ? body.note.trim() : null;
+
+  const { error: logError } = await supabaseAdmin.from("moderation_log").insert({
+    item_id: body.item_id,
+    admin_id: user.id,
+    decision: body.action,
+    checklist: body.checklist,
+    note,
+  });
+
+  if (logError) {
+    console.error("[admin]", logError);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const newStatus = body.action === "approve" ? "active" : "rejected";
+
+  const { error: updateError } = await supabaseAdmin
+    .from("marketplace_items")
+    .update({ status: newStatus })
+    .eq("id", body.item_id);
+
+  if (updateError) {
+    console.error("[admin]", updateError);
+    return new Response(JSON.stringify({ error: "Interner Fehler" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify({ success: true, status: newStatus }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

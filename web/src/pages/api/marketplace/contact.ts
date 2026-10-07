@@ -56,7 +56,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
 
   const { data: item, error: itemError } = await supabase
     .from("marketplace_items")
-    .select("user_id")
+    .select("user_id, status")
     .eq("id", item_id)
     .single();
 
@@ -72,6 +72,13 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       JSON.stringify({ error: "Du kannst nicht deine eigene Anzeige kontaktieren." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
+  }
+
+  if (item.status !== "active") {
+    return new Response(JSON.stringify({ error: "Anzeige nicht freigegeben." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const { error: insertError } = await supabase.from("marketplace_contacts").insert({
