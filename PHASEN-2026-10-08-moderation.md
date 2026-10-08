@@ -16,8 +16,9 @@ Design-Schutz (Philipp 08.10.): „darf nicht zu viel vom jetzigen Design abweic
   Verify: Diff vollständig gelesen, einzige Deletion = ersetzte Select-Zeile, Drift 0, Export-Branch unangetastet.
 - ⚠️ Korrektur: MiMo `git add -A` committete Müll mit (infra/docker-compose.yml + .bak + design/screens) → `git reset` + sauberer Re-Commit `31a301c` (nur 2 Source-Dateien). **Briefings ab jetzt immer expliziten `git add <dateien>` vorschreiben.**
 
-## P3 — Frontend via OpenCode (v4-flash --variant max) ⏳
-FE-1 content.astro: Beschreibung + Foto-Reihe in bestehender Karte. FE-2 index.astro Pending-Badge + marktplatz.astro „In Prüfung"-Meldung + Notify-Call.
+## P3 — Frontend via OpenCode (v4-flash --variant max) ✅
+- FE-1 `3733e08` (content.astro): Meta-Zeile + category, Sektion BESCHREIBUNG (escHtml, leer → '–'), Sektion FOTOS (`flex gap-md`, `<a target="_blank">` + img w-28 h-28, null → graue Kachel „Vorschau nicht verfügbar", leer → „Keine Fotos"). Verify: +20/−1 (Deletion = ersetzte Meta-Zeile), Drift 0.
+- FE-2 `008ec52` (index.astro + marktplatz.astro): Pending-Badge `#pending-badge-wrap` unter dem KPI-Grid (`stats.pendingMarketplaceItems` > 0 → Link /admin/content, „N Anzeigen prüfen" / Singular, Maintenance-Badge-Stil) + „In Prüfung"-Meldung (#mp-submit-error, bg-primary-container) + fire-and-forget Notify-POST `/api/marketplace/submitted`, reload nach 800 ms. Verify: +14/−0 & +12/−1 (Deletion = ersetzer reload), Drift 0.
 
 ## P4 — Minerva QA (Test-Matrix, IMAP/SQL/RLS-Beweise) ⏳
 ## P5 — Deploy LIVE (Backup, --no-cache, RECREATE, Code-Im-Container-Verify, Smoke) + mobile Abnahme durch Philipp ⏳
