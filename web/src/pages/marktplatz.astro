@@ -865,7 +865,18 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
             }
           } catch (err) {}
         })();
-        location.reload();
+        fetch("/api/marketplace/submitted", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item_id: res.data.id }),
+        }).catch(console.error);
+        if (submitError) {
+          submitError.textContent = 'In Prüfung – deine Anzeige wird geprüft. Du bekommst eine E-Mail mit dem Ergebnis.';
+          submitError.classList.remove('hidden');
+          submitError.classList.remove('bg-error-container', 'text-on-error-container');
+          submitError.classList.add('bg-primary-container', 'text-on-primary-container');
+        }
+        setTimeout(function () { location.reload(); }, 800);
       });
     });
   }

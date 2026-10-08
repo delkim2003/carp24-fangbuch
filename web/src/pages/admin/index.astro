@@ -79,6 +79,8 @@ if (!isAdmin) return Astro.redirect("/");
       </div>
     </div>
 
+    <div id="pending-badge-wrap" class="w-full mb-xl"></div>
+
     <div class="w-full mb-xl">
       <h2 class="text-headline-md text-on-surface mb-lg" data-de="Wartungsmodus" data-en="Maintenance Mode">Wartungsmodus</h2>
       <div id="maintenance-card" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline/20">
@@ -202,6 +204,18 @@ if (!isAdmin) return Astro.redirect("/");
         if (openReports2) {
           openReports2.textContent = String(stats.openReports ?? 0);
           if ((stats.openReports ?? 0) > 0) (openReports2 as HTMLElement).style.color = "var(--color-error, #b3261e)";
+        }
+
+        const pendingCount = stats.pendingMarketplaceItems;
+        if (typeof pendingCount === "number" && pendingCount > 0) {
+          const wrap = document.getElementById("pending-badge-wrap");
+          if (wrap) {
+            const link = document.createElement("a");
+            link.href = "/admin/content";
+            link.textContent = pendingCount === 1 ? "Anzeige prüfen" : pendingCount + " Anzeigen prüfen";
+            link.className = "inline-flex items-center px-4 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-widest bg-error-container text-on-error-container";
+            wrap.appendChild(link);
+          }
         }
 
         if (growth) {
