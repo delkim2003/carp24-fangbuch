@@ -61,7 +61,7 @@ async function sendDecisionMailLogged(supabaseAdmin: any, reportId: string, deci
   try {
     const { data: report } = await supabaseAdmin
       .from("content_reports")
-      .select("reporter_id, reason, status")
+      .select("reporter_id, reason, status, resolved_note, dismissed_note")
       .eq("id", reportId)
       .single();
     if (!report?.reporter_id) {
@@ -75,7 +75,8 @@ async function sendDecisionMailLogged(supabaseAdmin: any, reportId: string, deci
       return;
     }
     const d = decision ?? (report.status === "dismissed" ? "dismissed" : "removed");
-    const r = await sendReportDecision(reporterEmail, d, report.reason ?? "");
+    const note = ((d === "dismissed" ? report.dismissed_note : report.resolved_note) || "").trim() || "Keine nähere Begründung hinterlegt.";
+    const r = await sendReportDecision(reporterEmail, d, note);
     await logReportMail(supabaseAdmin, reportId, "decision", r.ok ? "sent" : "failed", r.error);
   } catch (e) {
     await logReportMail(supabaseAdmin, reportId, "decision", "failed", e instanceof Error ? e.message : String(e));
@@ -211,6 +212,8 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
         status: r.status ?? "",
         created_at: r.created_at ?? "",
         resolved_at: r.resolved_at ?? "",
+        resolved_note: r.resolved_note ?? "",
+        dismissed_note: r.dismissed_note ?? "",
         owner_name: ownerName,
         preview_species: preview?.species ?? "",
         preview_weight_kg: preview?.weight_kg ?? "",
@@ -223,7 +226,7 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
 
     const cols = [
       "id", "reporter_id", "reporter_name", "target_type", "target_id",
-      "reason", "status", "created_at", "resolved_at", "owner_name",
+      "reason", "status", "created_at", "resolved_at", "resolved_note", "dismissed_note", "owner_name",
       "preview_species", "preview_weight_kg", "preview_water_name",
       "preview_title", "preview_body", "preview_price",
     ];
@@ -417,7 +420,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
   const { supabaseAdmin, user } = auth;
-  let body: { action?: string; reportId?: string };
+  let body: { action?: string; reportId?: string; note?: string };
   try {
     body = await request.json();
   } catch {
@@ -443,6 +446,7 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
         status: "dismissed",
         dismissed_at: new Date().toISOString(),
         dismissed_by: user.id,
+        dismissed_note: (body.note || "").trim().slice(0, 1000) || null,
       })
       .eq("id", reportId);
 
@@ -524,7 +528,7 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
     });
   }
   const { supabaseAdmin, user } = auth;
-  let body: { id?: string };
+  let body: { id?: string; note?: string };
   try {
     body = await request.json();
   } catch {
@@ -543,7 +547,7 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
 
   const { error } = await supabaseAdmin
     .from("content_reports")
-    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id })
+    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id, resolved_note: (body.note || "").trim().slice(0, 1000) || null })
     .eq("id", body.id);
 
   if (error) {
@@ -575,7 +579,7 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
     });
   }
   const { supabaseAdmin, user } = auth;
-  let body: { id?: string; target_id?: string; target_type?: string };
+  let body: { id?: string; target_id?: string; target_type?: string; note?: string };
   try {
     body = await request.json();
   } catch {
@@ -617,7 +621,7 @@ export const DELETE = async ({ request, locals }: { request: Request; locals: Ap
 
   const { error } = await supabaseAdmin
     .from("content_reports")
-    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id })
+    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolved_by: user.id, resolved_note: (body.note || "").trim().slice(0, 1000) || null })
     .eq("id", body.id);
 
   if (error) {

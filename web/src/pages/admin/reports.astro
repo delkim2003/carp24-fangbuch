@@ -242,10 +242,10 @@ if (!isAdmin) return Astro.redirect("/");
             var preview = previewText(r.target_type, r.preview);
             var badge = statusBadge(r.status);
             var resolvedInfo = r.resolved_at
-              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ' + new Date(r.resolved_at).toLocaleDateString("de-DE") + '</p>'
+              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Erledigt: ' + new Date(r.resolved_at).toLocaleDateString("de-DE") + (r.resolved_note ? " — " + escapeHtml(r.resolved_note) : "") + '</p>'
               : "";
             var dismissedInfo = r.dismissed_at
-              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Abgewiesen: ' + new Date(r.dismissed_at).toLocaleDateString("de-DE") + '</p>'
+              ? '<p class="text-body-sm text-on-surface-variant mt-sm">Abgewiesen: ' + new Date(r.dismissed_at).toLocaleDateString("de-DE") + (r.dismissed_note ? " — " + escapeHtml(r.dismissed_note) : "") + '</p>'
               : "";
             var escalatedInfo = r.escalated_at
               ? '<p class="text-body-sm text-on-surface-variant mt-sm">Eskaliert: ' + new Date(r.escalated_at).toLocaleDateString("de-DE") + '</p>'
@@ -310,13 +310,15 @@ if (!isAdmin) return Astro.redirect("/");
             if (!card) return;
             var id = card.getAttribute("data-id");
             if (!confirm("Report wirklich abweisen?")) return;
+            var note = prompt("Begründung (optional, geht an den Melder):", "");
+            if (note === null) note = "";
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
             try {
               var res = await fetch("/api/admin/reports", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "dismiss", reportId: id }),
+                body: JSON.stringify({ action: "dismiss", reportId: id, note: note }),
               });
               var d = await res.json();
               if (d.success) {
@@ -365,13 +367,15 @@ if (!isAdmin) return Astro.redirect("/");
             var card = (btn as HTMLElement).closest("[data-id]");
             if (!card) return;
             var id = card.getAttribute("data-id");
+            var note = prompt("Begründung (optional, geht an den Melder):", "");
+            if (note === null) note = "";
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
             try {
               var res = await fetch("/api/admin/reports", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: id }),
+                body: JSON.stringify({ id: id, note: note }),
               });
               var d = await res.json();
               if (d.success || res.ok) {
@@ -395,13 +399,15 @@ if (!isAdmin) return Astro.redirect("/");
             var targetId = card.getAttribute("data-target-id") || "";
             var targetType = card.getAttribute("data-target-type") || "";
             if (!confirm("Inhalt wirklich löschen?")) return;
+            var note = prompt("Begründung (optional, geht an den Melder):", "");
+            if (note === null) note = "";
             (btn as HTMLButtonElement).disabled = true;
             (btn as HTMLElement).textContent = "…";
             try {
               var res = await fetch("/api/admin/reports", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: id, target_id: targetId, target_type: targetType }),
+                body: JSON.stringify({ id: id, target_id: targetId, target_type: targetType, note: note }),
               });
               if (res.ok) {
                 showToast("Inhalt gelöscht", "success");
