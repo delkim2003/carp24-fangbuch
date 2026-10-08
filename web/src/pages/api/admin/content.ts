@@ -420,7 +420,7 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
 
     let query = supabaseAdmin
       .from("marketplace_items")
-      .select("id, user_id, title, price, status, created_at")
+      .select("id, user_id, title, description, price, category, photos, status, created_at")
       .order("created_at", { ascending: false })
       .range(from, to);
     if (q) query = query.ilike("title", `%${q}%`);
@@ -436,6 +436,34 @@ export const GET = async ({ request, locals }: { request: Request; locals: App.L
       const nameMap = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
       items = items.map((i) => ({ ...i, display_name: nameMap.get(i.user_id) ?? "Unbekannt" }));
     }
+
+    items = await Promise.all(
+      items.map(async (i: any) => {
+        const photos: any[] = Array.isArray(i.photos) ? i.photos : [];
+        const photo_urls: (string | null)[] = await Promise.all(
+          photos.map(async (r: any) => {
+            if (typeof r !== "string" || !r.startsWith("foto:")) return null;
+            try {
+              const { data: signed } = await supabaseAdmin.storage
+                .from("catch-photos")
+                .createSignedUrl(r.slice(5), 3600);
+              return signed?.signedUrl
+                ? signed.signedUrl.replace(process.env.PUBLIC_SUPABASE_URL || "http://supabase-kong:8000", "/supabase")
+                : null;
+            } catch {
+              return null;
+            }
+          })
+        );
+        return {
+          ...i,
+          description: i.description ?? "",
+          category: i.category ?? "",
+          photos,
+          photo_urls,
+        };
+      })
+    );
   }
 
   const totalPages = Math.max(1, Math.ceil(total / limit));

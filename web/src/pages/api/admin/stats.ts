@@ -32,6 +32,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     marketContacts,
     recentUsers,
     recentCatches,
+    pendingMarketplaceItems,
   ] = await Promise.all([
     supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).is("deleted_at", null),
     supabaseAdmin.from("catches").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("draft", false),
@@ -47,6 +48,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
     supabaseAdmin.from("marketplace_contacts").select("id", { count: "exact", head: true }),
     supabaseAdmin.from("profiles").select("created_at").is("deleted_at", null).gte("created_at", fourteenDaysAgo),
     supabaseAdmin.from("catches").select("created_at").is("deleted_at", null).eq("draft", false).gte("created_at", fourteenDaysAgo),
+    supabaseAdmin.from("marketplace_items").select("id", { count: "exact", head: true }).eq("status", "pending"),
   ]);
 
   const activeSubCount = 0;
@@ -106,6 +108,7 @@ export const GET = async ({ locals }: { locals: App.Locals }) => {
         proUsers: proUsers.count ?? 0,
         bannedUsers: bannedUsers.count ?? 0,
         marketContacts: marketContacts.count ?? 0,
+        pendingMarketplaceItems: pendingMarketplaceItems.count ?? 0,
       },
       growth: {
         userSignupsByDay,
