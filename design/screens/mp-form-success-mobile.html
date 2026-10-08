@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>carp24 - Marktplatz | Anzeige erstellen</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Source Serif 4 & Public Sans & Source Sans 3 -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Source+Sans+3:wght@300;400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration matching the Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary": "#496163",
+            "secondary-fixed-dim": "#cbc99a",
+            "surface-bright": "#f6fbec",
+            "on-primary-fixed": "#141f05",
+            "secondary-container": "#e7e5b4",
+            "primary-container": "#6c7a57",
+            "primary": "#546140",
+            "on-primary": "#ffffff",
+            "tertiary-fixed-dim": "#b1cbcd",
+            "on-surface": "#181d14",
+            "outline-variant": "#c6c8bc",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#617a7c",
+            "surface-variant": "#dfe4d6",
+            "on-error": "#ffffff",
+            "error": "#ba1a1a",
+            "primary-fixed": "#d9e8be",
+            "on-secondary-fixed": "#1d1d01",
+            "outline": "#76786e",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#eef3e4",
+            "surface-container-highest": "#dfe4d6",
+            "surface-container-high": "#e5eadb",
+            "surface-container-low": "#f1f6e7",
+            "on-secondary-container": "#67663f",
+            "surface-dim": "#d7dccd",
+            "tertiary-fixed": "#cde7e9",
+            "on-secondary-fixed-variant": "#494824",
+            "on-primary-fixed-variant": "#3e4b2c",
+            "inverse-surface": "#2d3228",
+            "on-tertiary": "#ffffff",
+            "primary-fixed-dim": "#bdcca4",
+            "surface-container": "#ebf0e1",
+            "on-background": "#181d14",
+            "on-primary-container": "#fdfff0",
+            "on-surface-variant": "#45483f",
+            "secondary": "#61603a",
+            "on-tertiary-fixed-variant": "#334b4d",
+            "on-tertiary-fixed": "#061f21",
+            "surface-tint": "#556342",
+            "inverse-primary": "#bdcca4",
+            "secondary-fixed": "#e7e5b4",
+            "on-secondary": "#ffffff",
+            "surface": "#f6fbec",
+            "surface-container-lowest": "#ffffff",
+            "background": "#f6fbec"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "xl": "40px",
+            "md": "16px",
+            "lg": "24px",
+            "xs": "4px",
+            "gutter": "20px",
+            "unit": "4px",
+            "sm": "8px",
+            "margin-mobile": "16px",
+            "margin-desktop": "64px"
+          },
+          "fontFamily": {
+            "body-lg": ["\"Source Sans 3\""],
+            "headline-lg-mobile": ["\"Source Serif 4\""],
+            "headline-md": ["\"Source Serif 4\""],
+            "body-md": ["\"Source Sans 3\""],
+            "display-lg": ["\"Source Serif 4\""],
+            "nav-item": ["Public Sans"],
+            "label-sm": ["Public Sans"],
+            "headline-lg": ["\"Source Serif 4\""]
+          },
+          "fontSize": {
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1;
+    }
+    /* Subtle paper texture aesthetic */
+    body {
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md min-h-screen flex justify-center selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Mobile Viewport Shell (390px fixed simulation / container) -->
+<div class="w-full max-w-[390px] min-h-screen bg-background flex flex-col relative pb-20 shadow-sm border-x border-outline-variant/20">
+<!-- 1. MOBILE HEADER (TopAppBar from Shared Spec) -->
+<header class="docked full-width top-0 sticky z-40 bg-surface flex justify-between items-center w-full px-4 h-16 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<!-- Logo Emblem -->
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant/30 text-primary">
+<span class="material-symbols-outlined text-[20px]" data-icon="set_meal">set_meal</span>
+</div>
+<span class="font-headline-md text-headline-md tracking-tight font-semibold text-primary">carp24</span>
+</div>
+<!-- Hamburger Menu Action -->
+<button aria-label="Menü öffnen" class="p-2 text-primary hover:text-primary-container active:opacity-75 transition-opacity duration-150" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+</button>
+</header>
+<!-- MAIN EDITORIAL CONTENT -->
+<main class="flex-1 px-4 pt-5 pb-6 flex flex-col gap-5">
+<!-- 2. TITELBEREICH -->
+<div class="flex items-end justify-between border-b border-outline-variant/20 pb-3">
+<div>
+<span class="block font-label-sm text-label-sm text-outline font-semibold tracking-widest uppercase mb-0.5">COMMUNITY</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight">MARKTPLATZ</h1>
+</div>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-primary/50 text-primary font-label-sm text-[11px] font-semibold tracking-wider uppercase bg-surface-container-low hover:bg-surface-variant transition-colors duration-150 shadow-none active:scale-95" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="add">add</span>
+<span>NEUE ANZEIGE</span>
+</button>
+</div>
+<!-- 3. GRÜNE ERFOLGSMELDUNG -->
+<div class="rounded-xl bg-surface-container border border-primary/30 p-3.5 flex items-start gap-3">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined fill-icon text-[16px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1 text-on-surface">
+<p class="font-label-sm text-label-sm font-semibold tracking-normal text-primary mb-0.5">In Prüfung</p>
+<p class="font-body-md text-[13px] leading-[18px] text-on-surface-variant">
+            Deine Anzeige wird geprüft. Du bekommst eine E-Mail mit dem Ergebnis.
+          </p>
+</div>
+</div>
+<!-- 4. FORMULAR-KARTE: ANZEIGE ERSTELLEN -->
+<section class="bg-surface-container-low rounded-2xl border border-primary/20 p-5 flex flex-col gap-4">
+<div class="border-b border-outline-variant/25 pb-2.5">
+<h2 class="font-label-sm text-label-sm font-bold tracking-widest text-primary uppercase">
+            ANZEIGE ERSTELLEN
+          </h2>
+</div>
+<!-- Form fields -->
+<form class="flex flex-col gap-4" onsubmit="event.preventDefault();">
+<!-- TITEL -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant tracking-wider" for="ad-title">
+              TITEL
+            </label>
+<input class="w-full bg-surface border border-outline-variant/50 rounded-lg px-3.5 py-2.5 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="ad-title" type="text" value="Shimano Rute neu"/>
+</div>
+<!-- PREIS (€) -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant tracking-wider" for="ad-price">
+              PREIS (€)
+            </label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant/50 rounded-lg pl-3.5 pr-8 py-2.5 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="ad-price" type="text" value="120.00"/>
+<span class="absolute right-3.5 top-2.5 text-outline font-body-md">€</span>
+</div>
+</div>
+<!-- BESCHREIBUNG -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant tracking-wider" for="ad-desc">
+              BESCHREIBUNG
+            </label>
+<textarea class="w-full bg-surface border border-outline-variant/50 rounded-lg p-3 text-on-surface font-body-md text-[15px] leading-snug resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="ad-desc" rows="3">Kurz geführte Shimano Rute, kaum benutzt.</textarea>
+</div>
+<!-- KATEGORIE -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant tracking-wider" for="ad-category">
+              KATEGORIE
+            </label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface border border-outline-variant/50 rounded-lg px-3.5 py-2.5 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors pr-9" id="ad-category">
+<option selected="">Andere</option>
+<option>Karpfenruten</option>
+<option>Rollen &amp; Spulen</option>
+<option>Bissanzeiger</option>
+<option>Brollys &amp; Zelte</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-2.5 text-outline text-xl" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- BEREICH FOTO -->
+<div class="flex flex-col gap-2.5 pt-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant tracking-wider">
+              FOTO
+            </label>
+<div>
+<button class="w-full py-2.5 px-4 rounded-full border border-primary/40 font-nav-item text-nav-item font-semibold text-primary bg-surface hover:bg-surface-variant active:opacity-75 transition duration-150 flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="photo_camera">photo_camera</span>
+<span>BILD AUSWÄHLEN</span>
+</button>
+</div>
+<!-- Vorschau Kacheln -->
+<div class="grid grid-cols-2 gap-3 pt-1">
+<!-- Kachel 1 -->
+<div class="relative aspect-square rounded-xl overflow-hidden border border-outline-variant/40 bg-surface">
+<img alt="Shimano Ruten Vorschau" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U0FruQj9KCH5lxD-p_3flw_J52AuGIqGd9zFES_qsVOsukKQaZhwwXb2YDs0GUNjBOIhD2usizCfAiGBNb1kRkNjhdO-a5tI-xYINths3tiQxdEU7t8cJpLJ1jxbYbrf7nDXrz-MQrSDY5DC4tLmL73vHQYYxh2upH083NPYHfOi86u6Re78idyZI29KNCFdSq-CvoO37kBBJzpepqK5oJPF8smTMtr41ddkjhRHRdZSVH_sOCa8a_H88"/>
+<button aria-label="Foto 1 entfernen" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-inverse-surface/75 text-surface-bright flex items-center justify-center hover:bg-inverse-surface active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Kachel 2 -->
+<div class="relative aspect-square rounded-xl overflow-hidden border border-outline-variant/40 bg-surface">
+<img alt="Daiwa Rolle Vorschau" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WL3J0rJHL7wzAMGSTwsP-xl0GPUkILwltP7ke8U9sDhQ1HmNjHKJ9N90ELu2G_KbbXUWGd11PejRZXvXdiS_oR6-7F-dsRaDTk0qOy3lUcRh-l2Ao-H16kfyWGDJz_V3-D3iPU5Bsi4IBTkGEADV23V4DhQiyh7eXunpZKbBUX-2h8YBYSsXK4CJ1awEIaiWx48Sx5dX19gnx0wvkojlaSLxxd_p34Dt3MHYZxKBRjh3mpUcePP9sqjX70"/>
+<button aria-label="Foto 2 entfernen" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-inverse-surface/75 text-surface-bright flex items-center justify-center hover:bg-inverse-surface active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="close">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CHECKBOX -->
+<div class="pt-2">
+<label class="flex items-start gap-2.5 cursor-pointer">
+<input checked="" class="mt-0.5 w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary focus:ring-offset-surface accent-primary shrink-0" type="checkbox"/>
+<span class="font-nav-item text-[10px] leading-[14px] text-on-surface-variant tracking-wider uppercase select-none">
+                ICH BESTÄTIGE: ALLE AUF HOCHGELADENEN FOTOS ABGEBILDETEN PERSONEN STIMMEN DER VERÖFFENTLICHUNG ZU.
+              </span>
+</label>
+</div>
+<!-- PRIMÄR BUTTON -->
+<div class="pt-2">
+<button class="w-full bg-primary text-on-primary py-3 px-6 rounded-full font-nav-item text-nav-item font-semibold uppercase tracking-wider text-center shadow-none hover:bg-primary-container active:scale-[0.98] transition-all duration-150" type="submit">
+              VERÖFFENTLICHEN
+            </button>
+</div>
+</form>
+</section>
+<!-- 5. ABSCHNITT: MEINE NACHRICHTEN -->
+<section class="mt-2 pt-4 border-t border-outline-variant/20">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline-md text-[18px] text-on-surface font-semibold tracking-tight">
+            Meine Nachrichten
+          </h3>
+<span class="material-symbols-outlined text-outline text-lg" data-icon="mail">mail</span>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/25 text-center">
+<p class="font-body-md text-on-surface-variant text-[14px] italic">
+            Noch keine Nachrichten.
+          </p>
+</div>
+</section>
+</main>
+<!-- 6. EDITORIAL FOOTER (from Shared Spec) -->
+<footer class="mt-auto border-t border-outline-variant/20 bg-surface-container-low px-4 py-8 text-on-surface flex flex-col items-center gap-6 text-center">
+<div class="flex flex-col items-center gap-1.5">
+<span class="font-headline-md text-headline-md tracking-tight font-semibold text-primary">carp24</span>
+<p class="font-body-md text-[13px] leading-relaxed text-on-surface-variant max-w-[280px]">
+          Das digitale Fangbuch für Karpfenangler. Von Anglern, für Angler.
+        </p>
+</div>
+<!-- Drei kompakte Spalten -->
+<div class="grid grid-cols-3 gap-2 w-full text-left pt-2 border-t border-outline-variant/20">
+<!-- Spalte 1 -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-[11px] font-bold text-primary tracking-wider uppercase">Schnellzugriff</span>
+<div class="flex flex-col gap-1.5 font-label-sm text-[11px] text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">FANGBUCH</a>
+<a class="hover:text-primary transition-colors" href="#">STATISTIK</a>
+<a class="hover:text-primary transition-colors" href="#">COMMUNITY</a>
+</div>
+</div>
+<!-- Spalte 2 -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-[11px] font-bold text-primary tracking-wider uppercase">Support</span>
+<div class="flex flex-col gap-1.5 font-label-sm text-[11px] text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">HILFE &amp; FAQ</a>
+<a class="hover:text-primary transition-colors" href="#">KONTAKT</a>
+<a class="hover:text-primary transition-colors" href="#">FEEDBACK</a>
+</div>
+</div>
+<!-- Spalte 3 -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-[11px] font-bold text-primary tracking-wider uppercase">Rechtliches</span>
+<div class="flex flex-col gap-1.5 font-label-sm text-[11px] text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">IMPRESSUM</a>
+<a class="hover:text-primary transition-colors" href="#">DATENSCHUTZ</a>
+<a class="hover:text-primary transition-colors" href="#">AGB</a>
+</div>
+</div>
+</div>
+<!-- Copyright -->
+<div class="pt-2 border-t border-outline-variant/15 w-full">
+<p class="font-label-sm text-[11px] text-outline tracking-wider">
+          © 2024 carp24 Angling Journal &amp; Marketplace.
+        </p>
+</div>
+</footer>
+<!-- SHARED BOTTOM NAVIGATION BAR (Destination: Inserieren / Markt Context) -->
+<!-- Actively highlighted: Inserieren as per intent of form flow -->
+<nav class="fixed bottom-0 max-w-[390px] w-full z-50 flex justify-around items-center px-4 py-2 bg-surface border-t border-outline-variant/20 shadow-sm">
+<!-- 1: Journal -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="auto_stories">auto_stories</span>
+<span class="font-nav-item text-nav-item uppercase tracking-wider text-[11px]">Journal</span>
+</a>
+<!-- 2: Markt -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="storefront">storefront</span>
+<span class="font-nav-item text-nav-item uppercase tracking-wider text-[11px]">Markt</span>
+</a>
+<!-- 3: Inserieren (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-primary pb-1 border-b-2 border-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="add_circle">add_circle</span>
+<span class="font-nav-item text-nav-item uppercase tracking-wider text-[11px]">Inserieren</span>
+</a>
+<!-- 4: Konto -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pb-1 hover:text-primary transition-colors duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="person">person</span>
+<span class="font-nav-item text-nav-item uppercase tracking-wider text-[11px]">Konto</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>carp24 Admin Übersicht - mit Prüf-Hinweis</title>
+<!-- Google Fonts: Source Serif 4 & Public Sans & Source Sans 3 -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300..900;1,300..900&amp;family=Source+Sans+3:ital,wght@0,300..900;1,300..900&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400..800;1,8..60,400..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration matching Brand Anchors & Design Tokens -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed": "#1d1d01",
+            "on-secondary": "#ffffff",
+            "surface-tint": "#556342",
+            "surface": "#f6fbec",
+            "on-surface-variant": "#45483f",
+            "surface-container-highest": "#dfe4d6",
+            "secondary-fixed": "#e7e5b4",
+            "on-primary-container": "#fdfff0",
+            "inverse-on-surface": "#eef3e4",
+            "primary-container": "#6c7a57",
+            "surface-container": "#ebf0e1",
+            "on-surface": "#181d14",
+            "primary-fixed-dim": "#bdcca4",
+            "on-tertiary": "#ffffff",
+            "background": "#f6fbec",
+            "on-tertiary-fixed-variant": "#334b4d",
+            "on-secondary-container": "#67663f",
+            "error": "#ba1a1a",
+            "secondary": "#61603a",
+            "surface-dim": "#d7dccd",
+            "on-tertiary-fixed": "#061f21",
+            "surface-bright": "#f6fbec",
+            "surface-container-high": "#e5eadb",
+            "secondary-container": "#e7e5b4",
+            "tertiary-container": "#617a7c",
+            "on-error": "#ffffff",
+            "surface-variant": "#dfe4d6",
+            "secondary-fixed-dim": "#cbc99a",
+            "error-container": "#ffdad6",
+            "surface-container-low": "#f1f6e7",
+            "primary-fixed": "#d9e8be",
+            "on-background": "#181d14",
+            "tertiary-fixed": "#cde7e9",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2d3228",
+            "on-secondary-fixed-variant": "#494824",
+            "on-primary": "#ffffff",
+            "on-primary-fixed-variant": "#3e4b2c",
+            "on-tertiary-container": "#faffff",
+            "primary": "#546140",
+            "on-error-container": "#93000a",
+            "outline-variant": "#c6c8bc",
+            "inverse-primary": "#bdcca4",
+            "outline": "#76786e",
+            "tertiary": "#496163",
+            "tertiary-fixed-dim": "#b1cbcd",
+            "on-primary-fixed": "#141f05"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "20px",
+            "xl": "40px",
+            "margin-desktop": "64px",
+            "lg": "24px",
+            "xs": "4px",
+            "sm": "8px",
+            "margin-mobile": "16px",
+            "unit": "4px",
+            "md": "16px"
+          },
+          "fontFamily": {
+            "label-sm": ["Public Sans"],
+            "headline-md": ["\"Source Serif 4\""],
+            "headline-lg": ["\"Source Serif 4\""],
+            "headline-lg-mobile": ["\"Source Serif 4\""],
+            "body-md": ["\"Source Sans 3\""],
+            "nav-item": ["Public Sans"],
+            "display-lg": ["\"Source Serif 4\""],
+            "body-lg": ["\"Source Sans 3\""]
+          },
+          "fontSize": {
+            "label-sm": [
+              "12px",
+              {
+                "lineHeight": "16px",
+                "letterSpacing": "0.1em",
+                "fontWeight": "500"
+              }
+            ],
+            "headline-md": [
+              "24px",
+              {
+                "lineHeight": "32px",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-lg": [
+              "32px",
+              {
+                "lineHeight": "40px",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-lg-mobile": [
+              "28px",
+              {
+                "lineHeight": "36px",
+                "fontWeight": "600"
+              }
+            ],
+            "body-md": [
+              "16px",
+              {
+                "lineHeight": "24px",
+                "fontWeight": "400"
+              }
+            ],
+            "nav-item": [
+              "13px",
+              {
+                "lineHeight": "20px",
+                "letterSpacing": "0.08em",
+                "fontWeight": "500"
+              }
+            ],
+            "display-lg": [
+              "48px",
+              {
+                "lineHeight": "56px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "700"
+              }
+            ],
+            "body-lg": [
+              "18px",
+              {
+                "lineHeight": "28px",
+                "fontWeight": "400"
+              }
+            ]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-background text-on-surface antialiased flex flex-col selection:bg-primary selection:text-on-primary">
+<!-- ================= TOP ADMIN HEADER & BAR ================= -->
+<header class="w-full bg-surface-container-lowest border-b border-outline-variant/30 sticky top-0 z-40">
+<div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<!-- Brand & Admin Indicator -->
+<div class="flex items-center gap-3">
+<a class="font-headline-md text-headline-md font-bold text-primary tracking-tight flex items-center gap-2" href="#">
+          carp24
+        </a>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container-high border border-outline-variant/40 font-label-sm text-[10px] uppercase text-on-surface-variant font-semibold">
+          Admin-Bereich
+        </span>
+</div>
+<!-- Superadmin Profile Badge -->
+<div class="flex items-center gap-3 self-end md:self-auto">
+<div class="text-right hidden sm:block">
+<div class="font-nav-item text-nav-item font-semibold text-on-surface leading-tight">Markus Brandner</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">Superadmin</div>
+</div>
+<div class="h-9 w-9 rounded-full bg-surface-container-highest border border-outline-variant/40 flex items-center justify-center font-label-sm text-label-sm font-bold text-primary" title="Markus Brandner (MB)">
+          MB
+        </div>
+</div>
+</div>
+<!-- Horizontal Admin Sub-Navigation Pills -->
+<nav class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop border-t border-outline-variant/20 overflow-x-auto py-2.5 flex items-center gap-1.5 scrollbar-none">
+<a class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-nav-item text-nav-item font-medium transition-all shadow-none" href="#">
+        Übersicht
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Reports
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Nutzer
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Inhalte
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Revenue
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Audit
+      </a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all flex items-center gap-1.5" href="#">
+<span>Benachrichtigungen</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</a>
+<a class="px-3.5 py-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container font-nav-item text-nav-item transition-all" href="#">
+        Einstellungen
+      </a>
+</nav>
+</header>
+<!-- ================= MAIN CONTENT CANVAS ================= -->
+<main class="flex-1 w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-10 flex flex-col gap-8">
+<!-- 2. NEUER PRÜF-HINWEIS (BANNER) -->
+<div class="w-full bg-secondary-container/40 border border-secondary/30 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all">
+<div class="flex items-start md:items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-secondary-container border border-secondary/20 flex items-center justify-center text-secondary shrink-0 mt-0.5 md:mt-0">
+<span class="material-symbols-outlined text-secondary" data-icon="policy">policy</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline-md text-body-lg font-semibold text-on-surface">3 Anzeigen prüfen</h2>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] tracking-wider uppercase font-semibold">
+              Dringend
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Neue Einträge auf dem Marktplatz warten auf Freigabe und Qualitätskontrolle.
+          </p>
+</div>
+</div>
+<div class="flex items-center self-end md:self-auto shrink-0">
+<a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary-container transition-colors font-nav-item text-nav-item font-medium tracking-wide" href="#moderation">
+<span>ZUR MODERATION</span>
+<span class="material-symbols-outlined text-sm font-bold" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- 3. HAUPTÜBERSCHRIFT & ZEITSTEMPEL -->
+<section class="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant/30 pb-5 gap-3">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">Admin Übersicht</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+          System-Status, Kennzahlen und anstehende Moderationsaufgaben des Journals.
+        </p>
+</div>
+<div class="font-label-sm text-label-sm uppercase text-outline tracking-wider whitespace-nowrap bg-surface-container-high/60 px-3 py-1.5 rounded-lg border border-outline-variant/30 self-start md:self-auto">
+        STAND: 14. OKTOBER 2026 · 09:42 UHR
+      </div>
+</section>
+<!-- 4. KPI-KARTENRASTER (3 SPALTEN, 10 KARTEN) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+<!-- KPI 1: NUTZER -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Nutzer</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="group">group</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">128</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px] font-semibold border border-outline-variant/30">
+            +4 diese Woche
+          </span>
+</div>
+</article>
+<!-- KPI 2: FÄNGE -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Fänge</span>
+<span class="material-symbols-outlined text-primary" data-icon="phishing">phishing</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">412</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-[11px] font-semibold border border-primary-fixed-dim/50">
+            +18 verifiziert
+          </span>
+</div>
+</article>
+<!-- KPI 3: OFFENE REPORTS -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Offene Reports</span>
+<span class="material-symbols-outlined text-secondary" data-icon="flag">flag</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">2</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[11px] font-semibold border border-secondary-fixed-dim/60">
+            In Bearbeitung
+          </span>
+</div>
+</article>
+<!-- KPI 4: FORUM-THREADS -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Forum-Threads</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="forum">forum</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">37</span>
+<span class="font-body-md text-label-sm text-on-surface-variant">
+            6 Kategorien
+          </span>
+</div>
+</article>
+<!-- KPI 5: FORUM-ANTWORTEN -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Forum-Antworten</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="chat_bubble">chat_bubble</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">154</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[11px] font-semibold border border-outline-variant/30">
+            +28 neu
+          </span>
+</div>
+</article>
+<!-- KPI 6: CHAT-NACHRICHTEN -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Chat-Nachrichten</span>
+<span class="material-symbols-outlined text-primary" data-icon="mark_chat_unread">mark_chat_unread</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">892</span>
+<span class="font-body-md text-label-sm text-on-surface-variant">
+            Direktkanäle
+          </span>
+</div>
+</article>
+<!-- KPI 7: MARKTPLATZ-ANZEIGEN -->
+<article class="bg-surface-container-lowest border border-secondary/40 rounded-xl p-6 flex flex-col justify-between hover:border-secondary transition-colors relative overflow-hidden">
+<div class="absolute top-0 right-0 w-2 h-full bg-secondary-container"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Marktplatz-Anzeigen</span>
+<span class="material-symbols-outlined text-secondary" data-icon="storefront">storefront</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">3</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[11px] font-bold border border-secondary/30">
+            3 zur Prüfung
+          </span>
+</div>
+</article>
+<!-- KPI 8: TRIPS -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Trips</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="kayaking">kayaking</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">24</span>
+<span class="font-body-md text-label-sm text-on-surface-variant">
+            Geplant / Laufend
+          </span>
+</div>
+</article>
+<!-- KPI 9: AKTIVE PRO -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Aktive PRO</span>
+<span class="material-symbols-outlined text-primary" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">41</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-[11px] font-semibold border border-primary-fixed-dim/50">
+            32% Quote
+          </span>
+</div>
+</article>
+<!-- KPI 10: GEBANNTE USER -->
+<article class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 flex flex-col justify-between hover:border-primary/40 transition-colors sm:col-span-2 lg:col-span-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Gebannte User</span>
+<span class="material-symbols-outlined text-outline" data-icon="block">block</span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">1</span>
+<span class="font-body-md text-label-sm text-on-surface-variant">
+            Spam-Verstoß
+          </span>
+</div>
+</article>
+</section>
+<!-- 5. UNTERER BEREICH (ZWEI MODULE: WARTUNGSMODUS & KONTAKTANFRAGEN) -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+<!-- MODUL LINKS: WARTUNGSMODUS -->
+<div class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 md:p-7 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary" data-icon="construction">construction</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Wartungsmodus</h3>
+</div>
+<span class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-[11px] font-medium border border-outline-variant/30">
+              Inaktiv (aus)
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-4 leading-relaxed">
+            Aktiviert eine statische Wartungsseite für Gäste und reguläre Mitglieder. Superadmins behalten vollen Zugriff.
+          </p>
+<form class="mt-6 flex flex-col gap-5" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm uppercase text-on-surface tracking-wider" for="maintenance-note">
+                Nachricht an Besucher (optional)
+              </label>
+<textarea class="w-full rounded-lg bg-surface-container-low border border-outline-variant/40 text-on-surface placeholder:text-outline/70 p-3.5 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" id="maintenance-note" placeholder="z. B. Wir führen planmäßige Wartungsarbeiten am Session-Server durch. Ab 12:00 Uhr wieder online." rows="3"></textarea>
+</div>
+<div class="flex items-center gap-3">
+<input class="w-4 h-4 rounded border-outline-variant/60 text-primary focus:ring-primary focus:ring-offset-0 bg-surface-container-low cursor-pointer" id="activate-maintenance" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none" for="activate-maintenance">
+                Modus jetzt aktivieren
+              </label>
+</div>
+<div class="pt-2">
+<button class="px-6 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary-container transition-all font-nav-item text-nav-item font-medium tracking-wide" type="submit">
+                Speichern
+              </button>
+</div>
+</form>
+</div>
+</div>
+<!-- MODUL RECHTS: KONTAKTANFRAGEN -->
+<div class="bg-surface-container-lowest border border-primary/20 rounded-xl p-6 md:p-7 flex flex-col">
+<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary" data-icon="inbox">inbox</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Kontaktanfragen</h3>
+<span class="w-5 h-5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-[11px] font-bold flex items-center justify-center">
+              2
+            </span>
+</div>
+<a class="font-label-sm text-label-sm uppercase text-primary hover:underline tracking-wider font-semibold" href="#">
+            Alle anzeigen
+          </a>
+</div>
+<!-- Anfragen-Liste -->
+<div class="mt-4 flex flex-col divide-y divide-outline-variant/20">
+<!-- Eintrag 1 -->
+<article class="py-4 first:pt-1 last:pb-2 flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="font-body-md text-body-md font-semibold text-on-surface">
+                Anna Berger · <span class="text-primary font-normal">Frage zu Premium</span> · <span class="text-outline text-xs">08.10.2026</span>
+</div>
+<button class="shrink-0 px-3 py-1 rounded-full border border-primary/40 text-primary hover:bg-primary/10 font-label-sm text-label-sm transition-colors">
+                Details
+              </button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm line-clamp-2">
+              „Können Zahlungsquittungen rückwirkend für den Fischereiverein ausgestellt werden?“
+            </p>
+</article>
+<!-- Eintrag 2 -->
+<article class="py-4 last:pb-2 flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="font-body-md text-body-md font-semibold text-on-surface">
+                Tobias M. · <span class="text-primary font-normal">Fotoschutz löschen</span> · <span class="text-outline text-xs">07.10.2026</span>
+</div>
+<button class="shrink-0 px-3 py-1 rounded-full border border-primary/40 text-primary hover:bg-primary/10 font-label-sm text-label-sm transition-colors">
+                Details
+              </button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm line-clamp-2">
+              „Habe versehentlich ein Bild mit sichtbarem Ufergeheimnis hochgeladen, bitte um Löschung.“
+            </p>
+</article>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/15 flex items-center gap-2 text-outline font-label-sm text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+<span>Automatische Zuweisung aktiv · Nächste Synchronisation in 4 Min.</span>
+</div>
+</div>
+</section>
+</main>
+<!-- ================= FOOTER ================= -->
+<footer class="w-full py-xl border-t border-outline-variant/20 bg-surface mt-12">
+<div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+<span class="font-nav-item text-nav-item font-semibold text-on-surface">carp24 Admin · Übersicht</span>
+<span class="hidden sm:inline text-outline-variant">|</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">© 2026 carp24. Alle Rechte vorbehalten.</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Audit-Log</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Richtlinien</a>
+<a class="font-label-sm text-label-sm uppercase text-on-surface-variant hover:text-primary underline transition-all" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>
