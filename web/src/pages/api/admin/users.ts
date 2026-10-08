@@ -281,6 +281,37 @@ export const PATCH = async ({ request, locals }: { request: Request; locals: App
   }
 
   if (typeof body.is_pro === "boolean") {
+    if (body.is_pro) {
+      const { error } = await supabaseAdmin.from("subscriptions").upsert(
+        {
+          user_id: body.id,
+          tier: "premium",
+          status: "ACTIVE",
+          source: "admin",
+          active_until: null,
+        },
+        { onConflict: "user_id" }
+      );
+      if (error) {
+        console.error("[admin]", error);
+        return new Response(JSON.stringify({ error: "Interner Fehler" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      const { error } = await supabaseAdmin
+        .from("subscriptions")
+        .update({ status: "CANCELED" })
+        .eq("user_id", body.id);
+      if (error) {
+        console.error("[admin]", error);
+        return new Response(JSON.stringify({ error: "Interner Fehler" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
     const { error } = await supabaseAdmin.from("profiles").update({ is_pro: body.is_pro }).eq("id", body.id);
     if (error) {
       console.error("[admin]", error);
