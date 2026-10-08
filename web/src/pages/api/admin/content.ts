@@ -1,5 +1,6 @@
 import { getAdminClient } from "./_auth";
 import { csrfGuard } from "./_csrf";
+import { sendMail } from "../../../lib/mail";
 
 export const prerender = false;
 
@@ -689,6 +690,39 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  try {
+    const { data: mailItem } = await supabaseAdmin
+      .from("marketplace_items")
+      .select("user_id,title")
+      .eq("id", body.item_id)
+      .single();
+
+    if (mailItem?.user_id) {
+      const { data: ownerData } = await supabaseAdmin.auth.admin.getUserById(mailItem.user_id);
+      const email = ownerData?.user?.email;
+      if (email) {
+        const subject =
+          body.action === "approve"
+            ? "Deine Anzeige wurde freigegeben"
+            : "Deine Anzeige wurde abgelehnt";
+        const text =
+          "Guten Tag,\n\n" +
+          (body.action === "approve"
+            ? mailItem.title + " ist jetzt auf dem Marktplatz sichtbar: https://carp24.org/marktplatz"
+            : mailItem.title +
+              " Begründung: " +
+              (body.note || "Leider erfüllt die Anzeige unsere Richtlinien nicht.") +
+              " Du kannst eine überarbeitete Anzeige neu einreichen.") +
+          "\n\nFreundliche Grüße\n" +
+          "Ihr Carp24-Team";
+        const r = await sendMail(email, subject, text);
+        if (!r.ok) console.error("[admin]", r.error);
+      }
+    }
+  } catch (e) {
+    console.error("[admin]", e);
   }
 
   return new Response(JSON.stringify({ success: true, status: newStatus }), {
