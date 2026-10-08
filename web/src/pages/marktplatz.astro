@@ -702,7 +702,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
       var ts = Date.now();
       var num = job.entry.num;
       var doUploadBlob = function (blob, mime, ext, onDone) {
-        var filePath = 'marketplace/' + uid + '/' + ts + '-' + num + ext;
+        var filePath = uid + '/marketplace/' + ts + '-' + num + ext;
         sb.storage.from('catch-photos').upload(filePath, blob, { contentType: mime }).then(function (res) {
           if (res.error) {
             showMpError('Foto-Upload fehlgeschlagen: ' + res.error.message);
