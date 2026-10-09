@@ -1,17 +1,14 @@
 import nodemailer from "nodemailer";
 
-const env = (k: string): string | undefined =>
-  ((import.meta as any).env as Record<string, string | undefined> | undefined)?.[k] ?? process.env[k];
-
 function createTransport() {
-  const port = Number(env("SMTP_PORT")) || 465;
+  const port = Number(process.env.SMTP_PORT) || 465;
   return nodemailer.createTransport({
-    host: env("SMTP_HOST"),
+    host: process.env.SMTP_HOST,
     port,
     secure: port === 465,
     auth: {
-      user: env("SMTP_USER"),
-      pass: env("SMTP_PASS"),
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 }
@@ -22,7 +19,7 @@ export async function sendMail(to: string, subject: string, text: string): Promi
   try {
     const transporter = createTransport();
     await transporter.sendMail({
-      from: env("SMTP_FROM") || env("SMTP_USER"),
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to,
       subject,
       text,
