@@ -287,5 +287,5 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     console.error("[marketplace/messages] Mailfehler:", e);
   }
 
-  return json({ ok: true });
+  return json({ ok: true }, 201);
 };
