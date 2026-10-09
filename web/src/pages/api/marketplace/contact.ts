@@ -1,6 +1,7 @@
 import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
 import { sendMail } from "../../../lib/mail";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 
@@ -97,22 +98,26 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
   }
 
   try {
-    const { data: recipient } = await supabase
-      .from("profiles")
-      .select("email, display_name")
-      .eq("id", item.user_id)
-      .single();
-
-    if (recipient?.email) {
+    const supabaseAdmin = createClient(getSupabaseUrl(), getSupabaseServiceKey());
+    const { data: ownerData } = await supabaseAdmin.auth.admin.getUserById(item.user_id);
+    const email = ownerData?.user?.email;
+    if (email) {
+      const { data: nameRow } = await supabaseAdmin
+        .from("profiles")
+        .select("display_name")
+        .eq("id", item.user_id)
+        .single();
+      const displayName =
+        nameRow?.display_name ?? ownerData?.user?.user_metadata?.display_name ?? "";
       const origin = new URL(request.url).origin;
       const excerpt = message.length > 200 ? message.slice(0, 200) + "…" : message;
       const mailText =
-        `Hallo ${recipient.display_name ?? ""},\n\n` +
+        `Hallo ${displayName ?? ""},\n\n` +
         `du hast eine neue Nachricht auf carp24:\n\n` +
         `"${excerpt}"\n\n` +
         `Zur Konversation: ${origin}/nachrichten?listing_id=${item_id}&with_user=${user.id}\n\n` +
         `Freundliche Grüße\nDein Carp24-Team`;
-      const result = await sendMail(recipient.email, "Neue Nachricht auf carp24", mailText);
+      const result = await sendMail(email, "Neue Nachricht auf carp24", mailText);
       if (!result.ok) {
         console.error("[marketplace/contact] Mailfehler:", result.error);
       }
