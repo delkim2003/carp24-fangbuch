@@ -56,7 +56,7 @@ if (session && isPaid) {
     supabase
       .from("marketplace_items")
       .select("*, profiles(display_name)")
-      .eq("status", "sold")
+      .in("status", ["sold", "pending", "rejected"])
       .eq("user_id", session.user.id)
       .order("created_at", { ascending: false })
       .limit(20),
@@ -197,7 +197,7 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
 
         {mySoldItems.length > 0 && (
           <div class="mt-xl">
-            <h2 class="font-headline-md text-headline-md text-secondary mb-md">{t("marketplace.verkauft")}</h2>
+            <h2 class="font-headline-md text-headline-md text-secondary mb-md i18n" data-de="Meine Anzeigen" data-en="My listings">Meine Anzeigen</h2>
             <div id="mp-sold-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter"></div>
           </div>
         )}
@@ -278,9 +278,12 @@ const jsonLD = activeItems.length > 0 ? itemListLD(activeItems.map(item => ({
       }
     }
     var sellerName = (item.profiles && item.profiles.display_name) ? item.profiles.display_name : 'Unbekannt';
-    var statusBadge = item.status === 'sold'
-      ? '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-surface-container-highest text-on-surface-variant">VERKAUFT</span>'
-      : '';
+    var statusBadgeMap = {
+      'sold': '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-surface-container-highest text-on-surface-variant">VERKAUFT</span>',
+      'pending': '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-surface-container-highest text-on-surface-variant">IN PRÜFUNG</span>',
+      'rejected': '<span class="inline-block px-2 py-0.5 rounded-full text-xs font-label-sm uppercase bg-error-container text-on-error-container">ABGELEHNT</span>'
+    };
+    var statusBadge = statusBadgeMap[item.status] || '';
     var ownerBtns = '';
     if (isOwner && item.status === 'active') {
       ownerBtns = '<div class="flex gap-2 mt-2">' +
