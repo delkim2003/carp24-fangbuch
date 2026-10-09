@@ -1,4 +1,5 @@
 import { getSupabaseUrl, getSupabaseAnonKey, getSupabaseServiceKey } from "../../../lib/config";
+import { sendMail } from "../../../lib/mail";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 
 export const prerender = false;
@@ -81,8 +82,8 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     });
   }
 
-  const { error: insertError } = await supabase.from("marketplace_contacts").insert({
-    item_id,
+  const { error: insertError } = await supabase.from("marketplace_messages").insert({
+    listing_id: item_id,
     from_user: user.id,
     to_user: item.user_id,
     message,
@@ -93,6 +94,31 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  try {
+    const { data: recipient } = await supabase
+      .from("profiles")
+      .select("email, display_name")
+      .eq("id", item.user_id)
+      .single();
+
+    if (recipient?.email) {
+      const origin = new URL(request.url).origin;
+      const excerpt = message.length > 200 ? message.slice(0, 200) + "…" : message;
+      const mailText =
+        `Hallo ${recipient.display_name ?? ""},\n\n` +
+        `du hast eine neue Nachricht auf carp24:\n\n` +
+        `"${excerpt}"\n\n` +
+        `Zur Konversation: ${origin}/nachrichten?listing_id=${item_id}&with_user=${user.id}\n\n` +
+        `Freundliche Grüße\nDein Carp24-Team`;
+      const result = await sendMail(recipient.email, "Neue Nachricht auf carp24", mailText);
+      if (!result.ok) {
+        console.error("[marketplace/contact] Mailfehler:", result.error);
+      }
+    }
+  } catch (e) {
+    console.error("[marketplace/contact] Mailfehler:", e);
   }
 
   return new Response(JSON.stringify({ ok: true }), {
