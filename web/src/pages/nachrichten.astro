@@ -1,0 +1,640 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { createSSRClient, createServiceClient } from "../lib/ssr-client";
+const supabase = createSSRClient(Astro);
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) return Astro.redirect("/login");
+const res = await fetch(new URL("/api/marketplace/messages?mode=inbox", Astro.url), { headers: { cookie: Astro.request.headers.get("cookie") ?? "" } });
+const data = await res.json();
+const threads = data.threads ?? [];
+const unreadTotal = data.unread_total ?? 0;
+const adminSb = createServiceClient();
+for (const t of threads) {
+  const p = t.listing && t.listing.photo;
+  if (p && p.startsWith("foto:")) {
+    const { data: sd } = await adminSb.storage.from("catch-photos").createSignedUrl(p.slice(5), 3600);
+    t._photoUrl = sd?.signedUrl ? sd.signedUrl.replace(process.env.PUBLIC_SUPABASE_URL || "http://supabase-kong:8000", "/supabase") : null;
+  }
+}
+---
+<Layout title="Carp24 – Nachrichten">
+  <div class="shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-badge"><span class="ms">phishing</span></div>
+        <span class="brand-name">carp24</span>
+      </div>
+      <button class="icon-btn" type="button" aria-label="Menü öffnen">
+        <span class="ms">menu</span>
+      </button>
+    </header>
+
+    <main class="content">
+      <section class="title-block">
+        <div class="title-row">
+          <span class="eyebrow">COMMUNITY</span>
+          <span class="chip">
+            <span class="chip-dot"></span>
+            {threads.length} KONTAKTE
+          </span>
+        </div>
+        <div class="title-line">
+          <h1 class="page-title">NACHRICHTEN</h1>
+          <span class="title-meta">Marktplatz</span>
+        </div>
+      </section>
+      {threads.length === 0 ? (
+        <div class="empty-state">
+          <span class="ms empty-icon">forum</span>
+          <p>Noch keine Nachrichten.</p>
+        </div>
+      ) : (
+        <section class="thread-list">
+          {threads.map((t) => (
+            <a
+              class:list={["thread", { "thread--unread": t.unread_count > 0 }]}
+              href={`/nachrichten?listing_id=${encodeURIComponent(t.listing_id)}&with_user=${encodeURIComponent(t.counterpart?.id ?? "")}`}
+            >
+              {t.unread_count > 0 ? (
+                <span class="unread-dot-col" aria-label="Ungelesene Nachricht">
+                  <span class="unread-dot"></span>
+                </span>
+              ) : (
+                <span class="unread-dot-col"></span>
+              )}
+
+              <div class="avatar-wrap">
+                {t._photoUrl ? (
+                  <img class="thumb-img" src={t._photoUrl} alt="" loading="lazy" />
+                ) : (
+                  <div class:list={["avatar", { "avatar--unread": t.unread_count > 0 }]}>
+                    {(t.counterpart?.display_name ?? "?").trim().charAt(0).toUpperCase()}
+                  </div>
+                )}
+                {t.unread_count > 1 && (
+                  <span class="unread-badge">{t.unread_count}</span>
+                )}
+              </div>
+
+              <div class="thread-body">
+                <div class="thread-top">
+                  <h2 class="thread-name">{t.counterpart?.display_name ?? "Unbekannt"}</h2>
+                  <time
+                    class:list={["thread-time", { "thread-time--unread": t.unread_count > 0 }]}
+                    datetime={t.created_at}
+                  >
+                    {new Date(t.created_at).toDateString() === new Date().toDateString()
+                      ? new Date(t.created_at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })
+                      : new Date(t.created_at).toDateString() === new Date(Date.now() - 86400000).toDateString()
+                        ? "Gestern"
+                        : new Date(t.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  </time>
+                </div>
+                <p class="thread-listing">
+                  {t.listing?.title ?? "Anzeige"}
+                  {t.listing?.price != null && ` · ${Number(t.listing.price).toLocaleString("de-DE")} €`}
+                </p>
+                <p class="thread-preview">{t.last_message ?? ""}</p>
+              </div>
+            </a>
+          ))}
+        </section>
+      )}
+      <div class="hint">
+        <span class="ms hint-icon">bolt</span>
+        <p>Antworte schnell – gute Deals gehen an die Schnellsten.</p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <div class="footer-brand-name">carp24</div>
+        <p class="footer-claim">
+          Das digitale Fangbuch für Karpfenangler. Von Anglern, für Angler.
+        </p>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h3 class="footer-heading">Schnellzugriff</h3>
+          <ul class="footer-links">
+            <li><a href="/fangbuch">Fangbuch</a></li>
+            <li><a href="/statistik">Statistik</a></li>
+            <li><a href="/community">Community</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Support</h3>
+          <ul class="footer-links">
+            <li><a href="/hilfe">Hilfe &amp; FAQ</a></li>
+            <li><a href="/kontakt">Kontakt</a></li>
+            <li><a href="/feedback">Feedback</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Rechtliches</h3>
+          <ul class="footer-links">
+            <li><a href="/impressum">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
+            <li><a href="/agb">AGB</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-copy">
+        <p>© 2024 carp24 Angling Journal &amp; Marketplace.</p>
+      </div>
+    </footer>
+
+    <nav class="bottom-nav" aria-label="Hauptnavigation">
+      <a href="/journal" class="nav-item">
+        <span class="ms">auto_stories</span>
+        <span class="nav-label">Journal</span>
+      </a>
+      <a href="/nachrichten" class="nav-item nav-item--active" aria-current="page">
+        <span class="ms nav-icon-filled">mail</span>
+        <span class="nav-label">Postfach</span>
+      </a>
+      <a href="/marktplatz/neu" class="nav-item">
+        <span class="ms">add_circle</span>
+        <span class="nav-label">Inserieren</span>
+      </a>
+      <a href="/konto" class="nav-item">
+        <span class="ms">person</span>
+        <span class="nav-label">Konto</span>
+      </a>
+    </nav>
+  </div>
+</Layout>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+  .shell {
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #f6fbec;
+    color: #181d14;
+    font-family: "Public Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .ms {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+
+  .app-header {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(198, 200, 188, 0.45);
+    background: #f6fbec;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .logo-badge {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background: #ebf0e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(198, 200, 188, 0.6);
+    color: #546140;
+  }
+
+  .logo-badge .ms { font-size: 19px; }
+
+  .brand-name {
+    font-family: "Source Serif 4", serif;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #181d14;
+  }
+
+  .icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #181d14;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+
+  .icon-btn:hover { color: #546140; }
+  .icon-btn:active { transform: scale(0.95); }
+  .icon-btn .ms { font-size: 24px; }
+
+  .content {
+    flex: 1;
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  .title-block { margin-bottom: 1.25rem; }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #546140;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    background: #ebf0e1;
+    color: #45483f;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+  }
+
+  .chip-dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: #546140;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .title-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .page-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #181d14;
+    text-transform: uppercase;
+  }
+
+  .title-meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: #45483f;
+  }
+
+  .thread-list {
+    border: 1px solid rgba(198, 200, 188, 0.45);
+    border-radius: 0.75rem;
+    background: #f1f6e7;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .thread {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: #f6fbec;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(198, 200, 188, 0.35);
+  }
+
+  .thread:last-child { border-bottom: 0; }
+  .thread:hover { background: #ffffff; }
+  .thread:active { background: rgba(235, 240, 225, 0.6); }
+
+  .unread-dot-col {
+    padding-top: 1.125rem;
+    padding-right: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .unread-dot {
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: #546140;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    background: #e5eadb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(198, 200, 188, 0.6);
+    color: #45483f;
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .avatar--unread {
+    background: rgba(84, 97, 64, 0.1);
+    border-color: rgba(84, 97, 64, 0.2);
+    color: #546140;
+  }
+
+  .thumb-img {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    border: 1px solid rgba(198, 200, 188, 0.6);
+    display: block;
+  }
+
+  .unread-badge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 0.25rem;
+    border-radius: 9999px;
+    background: #ba1a1a;
+    color: #ffffff;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  .thread-body {
+    flex: 1;
+    min-width: 0;
+    padding-right: 0.25rem;
+  }
+
+  .thread-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem;
+    margin-bottom: 0.125rem;
+  }
+
+  .thread-name {
+    font-family: "Public Sans", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #181d14;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .thread-time {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #76786e;
+    flex-shrink: 0;
+  }
+
+  .thread-time--unread { color: #546140; }
+
+  .thread-listing {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #45483f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+  }
+
+  .thread--unread .thread-listing { color: #546140; }
+
+  .thread-preview {
+    font-family: "Public Sans", sans-serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #45483f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .empty-state {
+    border: 1px solid rgba(198, 200, 188, 0.45);
+    border-radius: 0.75rem;
+    background: #f1f6e7;
+    padding: 2.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    color: #45483f;
+    font-family: "Public Sans", sans-serif;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .empty-icon { font-size: 28px; color: #546140; }
+
+  .hint {
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.5rem;
+    background: #f1f6e7;
+    border: 1px solid rgba(198, 200, 188, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hint-icon { font-size: 18px; color: #546140; flex-shrink: 0; }
+
+  .hint p {
+    font-family: "Public Sans", sans-serif;
+    font-size: 12px;
+    line-height: 1.375;
+    color: #45483f;
+  }
+
+  .site-footer {
+    border-top: 1px solid rgba(198, 200, 188, 0.45);
+    background: rgba(241, 246, 231, 0.7);
+    padding: 1.75rem 1.25rem 5rem;
+  }
+
+  .footer-brand {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-brand-name {
+    font-family: "Source Serif 4", serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #546140;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.25rem;
+  }
+
+  .footer-claim {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 12px;
+    color: #45483f;
+    line-height: 1.625;
+    max-width: 270px;
+    margin: 0 auto;
+  }
+
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(198, 200, 188, 0.45);
+  }
+
+  .footer-heading {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #181d14;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    font-family: "Public Sans", sans-serif;
+    font-size: 11px;
+    color: #45483f;
+  }
+
+  .footer-links a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-links a:hover { color: #546140; }
+
+  .footer-copy {
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: #76786e;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 390px;
+    margin: 0 auto;
+    background: rgba(246, 251, 236, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(198, 200, 188, 0.45);
+    z-index: 40;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #45483f;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.15s ease;
+  }
+
+  .nav-item:hover { color: #546140; }
+  .nav-item .ms { font-size: 20px; }
+  .nav-icon-filled { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24; }
+
+  .nav-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.125rem;
+  }
+
+  .nav-item--active {
+    color: #546140;
+    font-weight: 700;
+    border-bottom: 2px solid #546140;
+  }
+</style>
