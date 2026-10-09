@@ -1,6 +1,6 @@
 ---
 interface Props {
-  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz" | "ueber";
+  active?: "fangbuch" | "statistik" | "rueckblick" | "trips" | "preis" | "profil" | "board" | "forum" | "chat" | "assistent" | "marktplatz" | "ueber" | "nachrichten";
 }
 const { active } = Astro.props;
 
@@ -11,6 +11,7 @@ const navItems = [
   { key: "chat", de: "Chat", en: "Chat", href: "/chat", auth: false },
   { key: "statistik", de: "Statistik", en: "Statistics", href: "/statistik", auth: false },
   { key: "marktplatz", de: "Marktplatz", en: "Marketplace", href: "/marktplatz", auth: false },
+  { key: "nachrichten", de: "Postfach", en: "Inbox", href: "/nachrichten", auth: true },
   { key: "ueber", de: "Über", en: "About", href: "/ueber", auth: false },
   { key: "preis", de: "Premium", en: "Premium", href: "/premium", auth: false },
 ];
@@ -245,6 +246,18 @@ const moreItems = [
 
     sb.auth.getSession().then(function (res) {
       updateAuthUI(!!res.data.session);
+      if (res.data.session) {
+        fetch('/api/marketplace/messages?mode=inbox', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+          if (d && d.unread_total > 0) {
+            document.querySelectorAll('a[href="/nachrichten"]').forEach(function (a) {
+              var b = document.createElement('span');
+              b.className = 'ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-on-primary font-mono text-[10px] leading-none';
+              b.textContent = d.unread_total > 99 ? '99+' : String(d.unread_total);
+              a.appendChild(b);
+            });
+          }
+        }).catch(function () {});
+      }
     });
 
     sb.auth.onAuthStateChange(function (_event, session) {
