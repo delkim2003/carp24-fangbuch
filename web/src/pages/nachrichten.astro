@@ -1173,3 +1173,147 @@ if (listing && listing.photo && listing.photo.startsWith("foto:")) {
     }).catch(function () {});
   })();
 </script>
+
+<script is:inline>
+(function () {
+  var form = document.querySelector('form.composer-form[data-listing-id][data-to-user]');
+  var inboxLink = document.querySelector('a.thread');
+  var inboxMode = !form && !!inboxLink;
+  if (!form && !inboxMode) return;
+  var timer = null;
+  var busy = false;
+  function hidden() {
+    return document.visibilityState === 'hidden';
+  }
+  function setCls(el, cls, on) {
+    if (!el) return;
+    if (on) el.classList.add(cls);
+    else el.classList.remove(cls);
+  }
+  function markRead(lid, wu) {
+    fetch('/api/marketplace/messages?mode=read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listing_id: lid, with_user: wu })
+    }).catch(function () {});
+  }
+  function buildRow(m, own) {
+    var row = document.createElement('div');
+    row.className = 'msg-row' + (own ? ' msg-row--own' : '');
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (own ? 'bubble--own' : 'bubble--foreign');
+    var p = document.createElement('p');
+    p.className = 'msg-text';
+    p.textContent = m.message;
+    var meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    var time = document.createElement('span');
+    time.className = 'msg-time';
+    time.textContent = new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    meta.appendChild(time);
+    if (own) {
+      var chk = document.createElement('span');
+      chk.className = 'msg-check';
+      chk.textContent = '✓✓';
+      meta.appendChild(chk);
+    }
+    bubble.appendChild(p);
+    bubble.appendChild(meta);
+    row.appendChild(bubble);
+    return row;
+  }
+  function pollThread() {
+    if (busy) return;
+    busy = true;
+    var lid = form.getAttribute('data-listing-id');
+    var wu = form.getAttribute('data-to-user');
+    fetch('/api/marketplace/messages?listing_id=' + encodeURIComponent(lid) + '&with_user=' + encodeURIComponent(wu))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var messages = (data && data.messages) || [];
+        var list = document.querySelector('.msg-list');
+        if (!list) return;
+        var M = document.querySelectorAll('.msg-list .msg-row').length;
+        var N = messages.length;
+        if (M === N || N < M) return;
+        var near = (list.scrollHeight - list.scrollTop - list.clientHeight) < 80;
+        var foreign = 0;
+        for (var i = M; i < N; i++) {
+          var own = messages[i].from_user !== wu;
+          if (!own) foreign++;
+          list.appendChild(buildRow(messages[i], own));
+        }
+        if (near) list.scrollTop = list.scrollHeight;
+        if (foreign > 0) markRead(lid, wu);
+      })
+      .catch(function () {})
+      .then(function () { busy = false; });
+  }
+  function applyThread(a, threads) {
+    var href = a.getAttribute('href') || '';
+    var qi = href.indexOf('?');
+    var params = new URLSearchParams(qi >= 0 ? href.slice(qi + 1) : '');
+    var lid = params.get('listing_id');
+    var wu = params.get('with_user');
+    var t = threads.find(function (x) { return x.listing_id === lid && x.counterpart && x.counterpart.id === wu; });
+    var unread = t ? t.unread_count : 0;
+    setCls(a, 'thread--unread', unread > 0);
+    setCls(a.querySelector('.avatar'), 'avatar--unread', unread > 0);
+    setCls(a.querySelector('.thread-time'), 'thread-time--unread', unread > 0);
+    var badge = a.querySelector('.unread-badge');
+    if (unread > 1) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'unread-badge';
+        a.appendChild(badge);
+      }
+      badge.textContent = String(unread);
+    } else if (badge && badge.parentNode) {
+      badge.parentNode.removeChild(badge);
+    }
+    var col = a.querySelector('.unread-dot-col');
+    if (col) {
+      var dot = col.querySelector('span.unread-dot');
+      if (unread > 0) {
+        if (!dot) {
+          dot = document.createElement('span');
+          dot.className = 'unread-dot';
+          col.appendChild(dot);
+        }
+      } else if (dot && dot.parentNode) {
+        dot.parentNode.removeChild(dot);
+      }
+    }
+  }
+  function pollInbox() {
+    if (busy) return;
+    busy = true;
+    fetch('/api/marketplace/messages?mode=inbox')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var threads = (data && data.threads) || [];
+        var links = document.querySelectorAll('a.thread');
+        for (var i = 0; i < links.length; i++) applyThread(links[i], threads);
+      })
+      .catch(function () {})
+      .then(function () { busy = false; });
+  }
+  function tick() {
+    if (hidden()) return;
+    if (form) pollThread();
+    else if (inboxMode) pollInbox();
+  }
+  function stop() {
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+  window.addEventListener('pagehide', stop);
+  document.addEventListener('visibilitychange', function () {
+    if (!hidden()) tick();
+  });
+  timer = setInterval(tick, form ? 25000 : 30000);
+  tick();
+})();
+</script>
