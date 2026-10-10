@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./fonts.css";
+@import "./fonts-app.css";
 
 /* ============================================================
    carp24 — Design-Tokens (Quelle: Stitch-Tailwind-Config,
