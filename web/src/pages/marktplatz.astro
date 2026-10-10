@@ -36,6 +36,13 @@ if (session) {
     isPro = profile.is_pro ?? false;
     role = profile.role ?? "USER";
   }
+
+  // Premium-Gate: Marktplatz ist Premium-Mitgliedern vorbehalten
+  const { data: premiumViaRpc } = await supabase.rpc("is_user_premium");
+  const isPremium = premiumViaRpc === true || isPro === true;
+  if (!isPremium) {
+    return Astro.redirect("/premium");
+  }
 }
 
 const isAdmin = role === "ADMIN";

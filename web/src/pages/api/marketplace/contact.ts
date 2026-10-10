@@ -63,6 +63,13 @@ export const POST = async ({ request, locals }: { request: Request; locals: App.
     .single();
 
   if (itemError || !item) {
+    const { data: isPremium } = await supabase.rpc("is_user_premium");
+    if (isPremium !== true) {
+      return new Response(JSON.stringify({ error: "Der Marktplatz ist Premium-Mitgliedern vorbehalten." }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     return new Response(JSON.stringify({ error: "Anzeige nicht gefunden." }), {
       status: 404,
       headers: { "Content-Type": "application/json" },

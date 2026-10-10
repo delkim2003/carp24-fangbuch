@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>carp24 – Nachrichten</title>
+<!-- Google Fonts: Source Serif 4, Source Sans 3, Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-container": "#faffff",
+            "primary-fixed": "#d9e8be",
+            "on-surface-variant": "#45483f",
+            "surface-bright": "#f6fbec",
+            "secondary-container": "#e7e5b4",
+            "on-primary-fixed-variant": "#3e4b2c",
+            "primary-fixed-dim": "#bdcca4",
+            "on-tertiary": "#ffffff",
+            "surface-container-low": "#f1f6e7",
+            "error-container": "#ffdad6",
+            "primary-container": "#6c7a57",
+            "surface-container": "#ebf0e1",
+            "inverse-on-surface": "#eef3e4",
+            "on-primary-container": "#fdfff0",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#67663f",
+            "on-error-container": "#93000a",
+            "on-background": "#181d14",
+            "background": "#f6fbec",
+            "on-tertiary-fixed": "#061f21",
+            "surface-container-highest": "#dfe4d6",
+            "outline": "#76786e",
+            "primary": "#546140",
+            "error": "#ba1a1a",
+            "on-error": "#ffffff",
+            "surface-container-high": "#e5eadb",
+            "on-secondary-fixed": "#1d1d01",
+            "tertiary-container": "#617a7c",
+            "surface": "#f6fbec",
+            "outline-variant": "#c6c8bc",
+            "secondary-fixed-dim": "#cbc99a",
+            "secondary-fixed": "#e7e5b4",
+            "on-primary-fixed": "#141f05",
+            "on-primary": "#ffffff",
+            "surface-dim": "#d7dccd",
+            "secondary": "#61603a",
+            "tertiary-fixed": "#cde7e9",
+            "on-secondary-fixed-variant": "#494824",
+            "on-tertiary-fixed-variant": "#334b4d",
+            "tertiary-fixed-dim": "#b1cbcd",
+            "inverse-surface": "#2d3228",
+            "surface-container-lowest": "#ffffff",
+            "tertiary": "#496163",
+            "surface-variant": "#dfe4d6",
+            "inverse-primary": "#bdcca4",
+            "on-surface": "#181d14",
+            "surface-tint": "#556342"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "xs": "4px",
+            "unit": "4px",
+            "md": "16px",
+            "xl": "40px",
+            "gutter": "20px",
+            "margin-desktop": "64px",
+            "margin-mobile": "16px",
+            "sm": "8px",
+            "lg": "24px"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["\"Source Serif 4\""],
+            "display-lg": ["\"Source Serif 4\""],
+            "body-md": ["\"Source Sans 3\""],
+            "body-lg": ["\"Source Sans 3\""],
+            "label-sm": ["Public Sans"],
+            "headline-md": ["\"Source Serif 4\""],
+            "nav-item": ["Public Sans"],
+            "headline-lg": ["\"Source Serif 4\""]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "nav-item": ["13px", { "lineHeight": "20px", "letterSpacing": "0.08em", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Custom subtle paper-grain feel */
+    .bg-grain {
+      background-color: #f6fbec;
+      background-image: radial-gradient(#6c7a57 0.45px, transparent 0.45px);
+      background-size: 14px 14px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="h-full bg-surface text-on-surface antialiased flex justify-center selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Mobile Viewport Shell (Constraint to 390px mobile canvas) -->
+<div class="w-full max-w-[390px] min-h-screen bg-surface flex flex-col relative shadow-xl border-x border-outline-variant/20">
+<!-- 1. Mobile Header (Top-Leiste) -->
+<header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md px-4 h-16 flex items-center justify-between border-b border-outline-variant/20">
+<!-- Links: Logo-Badge 'carp24' mit rundem Fisch-Badge Icon -->
+<a class="flex items-center gap-2 group" href="#">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center border border-primary/20 text-primary">
+<span class="material-symbols-outlined text-[19px] leading-none" data-icon="phishing">phishing</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md tracking-tight font-semibold text-primary group-hover:text-primary-container transition-colors duration-200 leading-none">carp24</span>
+<span class="font-label-sm text-[9px] tracking-[0.18em] uppercase text-outline font-semibold">Archiv &amp; Markt</span>
+</div>
+</a>
+<!-- Rechts: Hamburger-Menü-Button -->
+<button aria-label="Menü öffnen" class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container active:opacity-75 transition-colors duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+</button>
+</header>
+<!-- Scrollable Chat Body Container -->
+<div class="flex-1 flex flex-col overflow-y-auto pb-44 bg-surface">
+<!-- 2. Titelbereich & Subheader -->
+<div class="px-4 pt-4 pb-3">
+<!-- Zurück-Navigation -->
+<a class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors duration-200 group mb-2" href="#">
+<span class="material-symbols-outlined text-base transition-transform group-hover:-translate-x-0.5" data-icon="arrow_back">arrow_back</span>
+<span>Alle Nachrichten</span>
+</a>
+<!-- Kategorie-Label & Große Überschrift -->
+<div class="flex items-center justify-between mt-1">
+<div>
+<span class="font-label-sm text-[11px] font-semibold uppercase tracking-[0.16em] text-tertiary">COMMUNITY</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight">NACHRICHTEN</h1>
+</div>
+<!-- Konversations-ID Badge -->
+<span class="font-label-sm text-[10px] tracking-wider px-2 py-0.5 rounded-full bg-surface-container-high text-outline border border-outline-variant/30">
+            ID #C24-892
+          </span>
+</div>
+<!-- Kontaktzeile direkt darunter -->
+<div class="mt-3.5 p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<!-- Avatarkreis mit Initialen TW -->
+<div class="relative">
+<div class="w-11 h-11 rounded-full bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center font-label-sm text-sm font-bold border border-primary/20 shadow-xs">
+                TW
+              </div>
+<!-- Online-Statuspunkt -->
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full ring-2 ring-surface-container-low"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-base font-semibold text-on-surface leading-tight">Thomas Weber</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="font-label-sm text-[11px] text-primary font-medium tracking-wide">Online</span>
+<span class="text-outline text-xs">•</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Bayern, DE</span>
+</div>
+</div>
+</div>
+<!-- Marktplatz-Anfrage Badge -->
+<div class="text-right">
+<span class="inline-flex items-center gap-1 font-label-sm text-[10px] uppercase font-semibold tracking-wider px-2 py-1 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant border border-secondary/20">
+<span class="material-symbols-outlined text-[12px]" data-icon="storefront">storefront</span>
+              Markt
+            </span>
+</div>
+</div>
+</div>
+<!-- 3. Anzeigen-Kontextkarte (oben gepinnt / prominent über dem Chat) -->
+<div class="px-4 py-2">
+<div class="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-2.5 flex items-center gap-3 shadow-xs">
+<!-- Thumbnail mit data-alt -->
+<div class="relative w-14 h-14 rounded-lg overflow-hidden bg-surface-container shrink-0 border border-outline-variant/30">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U0FruQj9KCH5lxD-p_3flw_J52AuGIqGd9zFES_qsVOsukKQaZhwwXb2YDs0GUNjBOIhD2usizCfAiGBNb1kRkNjhdO-a5tI-xYINths3tiQxdEU7t8cJpLJ1jxbYbrf7nDXrz-MQrSDY5DC4tLmL73vHQYYxh2upH083NPYHfOi86u6Re78idyZI29KNCFdSq-CvoO37kBBJzpepqK5oJPF8smTMtr41ddkjhRHRdZSVH_sOCa8a_H88"/>
+</div>
+<!-- Mittlere Informationen -->
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-[9px] tracking-wider uppercase px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-bold">
+                VERFÜGBAR
+              </span>
+</div>
+<h2 class="font-headline-md text-sm font-semibold text-on-surface truncate mt-0.5">
+              Ruten-Halterung Shimano
+            </h2>
+<p class="font-label-sm text-sm font-bold text-primary mt-0.5">
+              45 €
+            </p>
+</div>
+<!-- Button / Link ZUR ANZEIGE -->
+<a class="shrink-0 px-2.5 py-1.5 rounded-lg border border-primary/30 text-primary font-label-sm text-[11px] font-semibold hover:bg-primary-fixed/30 active:opacity-75 transition-colors flex items-center gap-1" href="#">
+<span>ZUR ANZEIGE</span>
+<span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- 4. Chat-Verlauf (4 Nachrichten) -->
+<div class="px-4 pt-3 space-y-4">
+<!-- Datumstrenner in der Mitte -->
+<div class="relative flex py-2 items-center justify-center">
+<div class="grow border-t border-outline-variant/20"></div>
+<span class="shrink mx-3 px-3 py-0.5 rounded-full bg-surface-container font-label-sm text-[10px] font-semibold tracking-[0.14em] uppercase text-outline border border-outline-variant/30">
+            HEUTE
+          </span>
+<div class="grow border-t border-outline-variant/20"></div>
+</div>
+<!-- Nachricht 1 (fremd, Thomas Weber, links) -->
+<div class="flex flex-col items-start max-w-[85%]">
+<div class="bg-surface-container-lowest border border-outline-variant/25 rounded-2xl rounded-tl-xs px-3.5 py-2.5 text-on-surface shadow-xs">
+<p class="font-body-md text-sm leading-relaxed text-on-surface">
+              Hallo Markus, steht das Angebot noch? Wäre sehr an der Halterung interessiert!
+            </p>
+</div>
+<span class="font-label-sm text-[11px] text-outline mt-1 pl-1">14:26</span>
+</div>
+<!-- Nachricht 2 (eigene Nachricht, Markus, rechts) -->
+<div class="flex flex-col items-end self-end max-w-[85%]">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-xs px-3.5 py-2.5 shadow-xs">
+<p class="font-body-md text-sm leading-relaxed text-on-primary">
+              Hi Thomas! Ja, ist noch da. Wurde nur eine Saison gefischt und ist wie neu.
+            </p>
+</div>
+<div class="flex items-center gap-1 mt-1 pr-1 font-label-sm text-[11px] text-outline">
+<span>14:28</span>
+<span class="text-primary font-medium">✓✓</span>
+</div>
+</div>
+<!-- Nachricht 3 (fremd, Thomas Weber, links) -->
+<div class="flex flex-col items-start max-w-[85%]">
+<div class="bg-surface-container-lowest border border-outline-variant/25 rounded-2xl rounded-tl-xs px-3.5 py-2.5 text-on-surface shadow-xs">
+<p class="font-body-md text-sm leading-relaxed text-on-surface">
+              Perfekt. Könnte ich die Halterung heute Abend direkt abholen kommen? Passt 19 Uhr?
+            </p>
+</div>
+<span class="font-label-sm text-[11px] text-outline mt-1 pl-1">14:30</span>
+</div>
+<!-- Nachricht 4 (eigene Nachricht, Markus, rechts) -->
+<div class="flex flex-col items-end self-end max-w-[85%]">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-xs px-3.5 py-2.5 shadow-xs">
+<p class="font-body-md text-sm leading-relaxed text-on-primary">
+              19 Uhr passt mir super am Steg bzw. Adresse schicke ich dir gleich durch.
+            </p>
+</div>
+<div class="flex items-center gap-1 mt-1 pr-1 font-label-sm text-[11px] text-outline">
+<span>14:32</span>
+<span class="text-primary font-medium">✓✓</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 5 & 6: Fixed Bottom Deck (Quick Replies & Sticky Eingabefeld) -->
+<div class="fixed bottom-0 max-w-[390px] w-full bg-surface/95 backdrop-blur-md border-t border-outline-variant/20 z-50">
+<!-- 5. Quick-Reply-Chips -->
+<div class="px-3 pt-2.5 pb-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+<button class="shrink-0 px-3 py-1 rounded-full border border-outline-variant/50 bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant font-label-sm text-xs font-medium active:scale-95 transition-all" type="button">
+          Ist noch verfügbar?
+        </button>
+<button class="shrink-0 px-3 py-1 rounded-full border border-outline-variant/50 bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant font-label-sm text-xs font-medium active:scale-95 transition-all" type="button">
+          Wann kann ich abholen?
+        </button>
+<button class="shrink-0 px-3 py-1 rounded-full border border-outline-variant/50 bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant font-label-sm text-xs font-medium active:scale-95 transition-all" type="button">
+          Ist der Preis verhandelbar?
+        </button>
+</div>
+<!-- 6. Sticky Eingabefeld unten -->
+<div class="px-3 pb-4 pt-1.5">
+<form class="flex items-center gap-2" onsubmit="event.preventDefault();">
+<!-- Tackle-Foto / Anhang-Button -->
+<button aria-label="Foto oder Datei anhängen" class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:text-primary hover:bg-surface-container active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="attach_file">attach_file</span>
+</button>
+<!-- Input-Container mit Inset-Stil -->
+<div class="flex-1 relative flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-full px-3.5 py-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<input class="w-full bg-transparent border-0 focus:ring-0 p-0 text-sm font-body-md text-on-surface placeholder:text-outline/70 focus:outline-none" placeholder="Nachricht schreiben…" type="text"/>
+<!-- Standort-Icon im Input -->
+<button class="text-outline hover:text-primary transition-colors p-1" title="Standort / Treffpunkt teilen" type="button">
+<span class="material-symbols-outlined text-[19px]" data-icon="location_on">location_on</span>
+</button>
+</div>
+<!-- Runder primärfarbener Sende-Button -->
+<button aria-label="Nachricht senden" class="w-10 h-10 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center justify-center shrink-0 active:scale-95 transition-all shadow-xs" type="submit">
+<span class="material-symbols-outlined text-[20px] ml-0.5" data-icon="send">send</span>
+</button>
+</form>
+</div>
+</div>
+</div>
+</body></html>
