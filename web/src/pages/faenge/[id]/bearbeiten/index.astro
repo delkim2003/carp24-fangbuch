@@ -85,7 +85,9 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
       <>
         <div class="mb-xl text-center md:text-left">
           <a href={`/faenge/${id}`} class="inline-flex items-center font-nav-item text-nav-item uppercase text-primary tracking-widest hover:opacity-80 transition-opacity mb-md">
-            <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19L5 12M12 5L5 12"/></svg>
+            <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 8L3 13l5 5"></path>
+  <path d="M4 13h9a6 6 0 0 1 6 6v1"></path>
+  <path d="M5.5 11.5L7 13"></path></svg>
             {t("fang_bearbeiten.zurueck")}
           </a>
           <h1 class="text-display-lg text-primary mb-2">{t("fang_bearbeiten.titel")}</h1>
@@ -203,7 +205,7 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
               <span id="gps-status" class="text-body-md text-secondary hidden"></span>
 
               <button type="button" id="map-pick-btn" class="inline-flex items-center gap-2 font-nav-item text-nav-item uppercase text-primary hover:text-primary-container transition-colors min-h-11 cursor-pointer mt-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.5-6-10a6 6 0 1 1 12 0c0 4.5-6 10-6 10z"></path> <line x1="12" x2="12" y1="2" y2="5"></line> <circle cx="12" cy="11" r="2"></circle></svg>
                 {t("fang_erfassen.auf_karte_waehlen")}
               </button>
               <p id="map-consent-hint" class="hidden text-body-md text-secondary text-xs mt-xs">{t("fang_erfassen.karten_consent_hinweis")}</p>
@@ -243,7 +245,9 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
                 </div>
               )}
               <div id="photo-drop" class="w-full h-48 bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors" role="button" tabindex="0" aria-label="Foto hochladen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary mb-2" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path>
+  <circle cx="12" cy="14" r="4"></circle>
+  <path d="M10.5 14c.7-.7 1.8-.7 2.5 0-.7.7-1.8.7-2.5 0z"></path></svg>
                 <span class="font-nav-item text-nav-item text-secondary">{t("fang_erfassen.bild_auswaehlen")}</span>
                 <span id="photo-name" class="text-body-md text-primary mt-sm hidden"></span>
               </div>
@@ -726,7 +730,7 @@ const speciesList = ["SPIEGEL", "LEDER", "SCHUPPEN", "AMUR", "ANDERE"];
       const L = await import("leaflet");
       const pinIcon = L.divIcon({
         className: "",
-        html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 24 24" fill="none" stroke="#0b6e4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#0b6e4f" stroke="none"/></svg>',
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 24 24" fill="none" stroke="#0b6e4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.5-6-10a6 6 0 1 1 12 0c0 4.5-6 10-6 10z"></path> <line x1="12" x2="12" y1="2" y2="5"></line> <circle cx="12" cy="11" r="2"></circle></svg>',
         iconSize: [30, 42],
         iconAnchor: [15, 42],
       });
