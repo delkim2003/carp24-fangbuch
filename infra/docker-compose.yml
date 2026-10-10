@@ -14,7 +14,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2026.09.14-sha-4dd8a95
+    image: supabase/studio:2026.09.21-sha-512201d
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -338,7 +338,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.137.2
+    image: supabase/realtime:v2.138.1
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -390,7 +390,7 @@ services:
   # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.79.2
+    image: supabase/storage-api:v1.79.19
     restart: unless-stopped
     mem_limit: 2g
     logging:
@@ -513,7 +513,7 @@ services:
 
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.76.2
+    image: supabase/edge-runtime:v1.77.0
     restart: unless-stopped
     mem_limit: 1g
     logging:
@@ -561,7 +561,7 @@ services:
   db:
     container_name: supabase-db
     # To upgrade an existing Postgres 15 database in place, see utils/upgrade-pg17.sh.
-    image: supabase/postgres:17.6.1.173
+    image: supabase/postgres:17.6.1.175
     restart: unless-stopped
     mem_limit: 4g
     logging:
